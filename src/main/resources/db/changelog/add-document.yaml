@@ -1,0 +1,177 @@
+databaseChangeLog:
+  - changeSet:
+      id: Document
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: document
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: number
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: internal_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: srs_type_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: accounting_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: document_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service_date
+                  type: date
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_date
+                  type: date
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_type_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: currency_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: exchange_rate
+                  type: double
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: publisher_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: publisher_bank_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: publisher_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secondary_publisher_id
+                  type: int
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: receiver_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_bank_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secondary_receiver_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: notes
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: internal_notes
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: NOW()
+              - column:
+                  name: last_modified_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+
+
+  - changeSet:
+      id: Distribution
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: distribution
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: document_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: debit_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount_in_debit
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: credit_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount_in_credit
+                  type: double
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: ConstraintForeignKeys
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: document_id
+            baseTableName: distribution
+            constraintName: fk_document
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: document

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="224.0" prefWidth="421.0"
+            xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="lv.degra.accounting.controller.MainController">
+    <content>
+        <AnchorPane>
+            <HBox>
+                <children>
+                    <VBox fx:id="refBox">
+                        <children>
+                            <HBox fx:id="blockResult" alignment="CENTER" styleClass="hBox">
+                                <Label fx:id="title" alignment="CENTER" text="Resistance Parallel Simplifier Result: "/>
+                                <Label fx:id="resultResistance" alignment="CENTER_LEFT" text="0.00"/>
+                                <Label fx:id="unit" alignment="CENTER_LEFT" text="Ω"/>
+                            </HBox>
+                            <HBox alignment="CENTER" styleClass="hBox">
+                                <Label alignment="CENTER" text="R1: "/>
+                                <TextField alignment="CENTER_LEFT" styleClass="resistanceInput"/>
+
+                            </HBox>
+                            <HBox alignment="CENTER" styleClass="hBox">
+                                <Label alignment="CENTER" text="R2: "/>
+                                <TextField alignment="CENTER_LEFT" styleClass="resistanceInput"/>
+
+                            </HBox>
+                            <HBox alignment="CENTER" styleClass="hBox">
+                                <Button fx:id="removeR" prefWidth="100" styleClass="btn" text="-"/>
+                                <Button fx:id="addR" prefWidth="100" styleClass="btn" text="+"/>
+                                <Button fx:id="saveR" prefWidth="100" styleClass="btn" text="Save"/>
+                            </HBox>
+                        </children>
+                    </VBox>
+                    <VBox fx:id="historyCalculation">
+
+                    </VBox>
+                </children>
+            </HBox>
+        </AnchorPane>
+    </content>
+</ScrollPane>
