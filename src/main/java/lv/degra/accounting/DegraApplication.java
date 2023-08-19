@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -20,9 +19,9 @@ import java.io.InputStream;
 @SpringBootApplication
 public class DegraApplication extends Application {
 
-    private static String applicationTitle = "DeGra v1.0";
-    private static final String MAIN = "/main.fxml";
+    private static final String MAIN = "/system/main.fxml";
     private static final String STYLE = "/style.css";
+    private static final String applicationTitle = "DeGra v1.0";
     private ConfigurableApplicationContext context;
 
     private Parent rootNode;
@@ -43,6 +42,8 @@ public class DegraApplication extends Application {
         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
+//        Scene scene = getScene(primaryStage, applicationTitle);
+
         Scene scene = new Scene(rootNode, visualBounds.getWidth(), visualBounds.getHeight());
 
         primaryStage.setScene(scene);
@@ -51,11 +52,11 @@ public class DegraApplication extends Application {
         if (degraIconStream != null) {
             primaryStage.getIcons().add(new Image(degraIconStream));
         }
-        primaryStage.setWidth(700);
-        primaryStage.setHeight(500);
+        primaryStage.setWidth(1366);
+        primaryStage.setHeight(768);
 
-        primaryStage.setMinWidth(150);
-        primaryStage.setMinHeight(200);
+        primaryStage.setMinWidth(1366);
+        primaryStage.setMinHeight(768);
         primaryStage.setTitle(applicationTitle);
 
 
@@ -67,6 +68,32 @@ public class DegraApplication extends Application {
     @Override
     public void stop() {
         context.close();
+    }
+
+
+
+//    public Scene getNewScene(Stage stage, String title){
+//        return
+//    }
+
+
+    public Scene getScene(Stage stage, String title, String resource) throws IOException {
+
+        Parent root = FXMLLoader.load(getClass().getResource("document/Document.xml"));
+        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+        Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
+        stage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
+        if (degraIconStream != null) {
+            stage.getIcons().add(new Image(degraIconStream));
+        }
+        stage.setWidth(1366);
+        stage.setHeight(768);
+        stage.setMinWidth(1366);
+        stage.setMinHeight(768);
+        stage.setTitle(title);
+        return scene;
     }
 
 }

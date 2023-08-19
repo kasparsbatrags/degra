@@ -66,48 +66,48 @@ databaseChangeLog:
                     nullable: false
 
               - column:
-                  name: publisher_id
+                  name: publisher_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: publisher_customer_bank_id
                   type: int
                   constraints:
                     nullable: false
               - column:
-                  name: publisher_bank_id
+                  name: publisher_customer_bank_account_id
                   type: int
                   constraints:
                     nullable: false
               - column:
-                  name: publisher_bank_account_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: secondary_publisher_id
+                  name: secondary_customer_id
                   type: int
                   constraints:
                     nullable: true
 
               - column:
-                  name: receiver_id
+                  name: receiver_customer_id
                   type: int
                   constraints:
                     nullable: false
               - column:
-                  name: receiver_bank_id
+                  name: receiver_customer_bank_id
                   type: int
                   constraints:
                     nullable: false
               - column:
-                  name: receiver_bank_account_id
+                  name: receiver_customer_bank_account_id
                   type: int
                   constraints:
                     nullable: false
               - column:
-                  name: secondary_receiver_id
+                  name: secondary_receiver_customer_id
                   type: int
                   constraints:
                     nullable: true
               - column:
-                  name: notes
+                  name: notes_for_customer
                   type: text
                   constraints:
                     nullable: true
@@ -165,13 +165,61 @@ databaseChangeLog:
                   constraints:
                     nullable: false
   - changeSet:
-      id: ConstraintForeignKeys
+      id: ConstraintForeignKeysDistributionToDocument
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: document_id
             baseTableName: distribution
-            constraintName: fk_document
+            constraintName: fk_distribution_to_document
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: document
+
+#
+#  - changeSet:
+#      id: DocumentBankAccounts
+#      author: Kaspars Batrags
+#      changes:
+#        - createTable:
+#            tableName: document_bank_account
+#            columns:
+#              - column:
+#                  name: id
+#                  type: int
+#                  autoIncrement: true
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: document_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: customer_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: bank_id
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: customer_account_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#
+#  - changeSet:
+#      id: ConstraintForeignKeysDocumentBankAccountToDocument
+#      author: Kaspars Batrags
+#      changes:
+#        - addForeignKeyConstraint:
+#            baseColumnNames: document_id
+#            baseTableName: document_bank_account
+#            constraintName: fk_document_bank_account_to_document
+#            onDelete: NO ACTION
+#            referencedColumnNames: id
+#            referencedTableName: document
