@@ -14,9 +14,6 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lv.degra.accounting.DegraApplication;
-import lv.degra.accounting.service.ResistanceListResultsService;
-import lv.degra.accounting.service.ResistanceParallelCalculationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -46,12 +43,6 @@ public class MainController {
     @FXML
     public VBox historyCalculation;
 
-    @Autowired
-    private ResistanceParallelCalculationService resistanceParallelCalculationService;
-
-    @Autowired
-    private ResistanceListResultsService resistanceListResultsService;
-
     public void createNewDocument(ActionEvent actionEvent) throws IOException {
 
 
@@ -69,11 +60,9 @@ public class MainController {
         stage.setHeight(738);
         stage.setMinWidth(1366);
         stage.setMinHeight(728);
-        stage.setTitle(applicationTitle+"Pievienot jaunu dokumentu" );
+        stage.setTitle(applicationTitle + "Pievienot jaunu dokumentu");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
-
-
 
 
 //        primaryStage.setWidth(1366);

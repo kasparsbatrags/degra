@@ -40,11 +40,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: service_date
-                  type: date
-                  constraints:
-                    nullable: true
-              - column:
                   name: payment_date
                   type: date
                   constraints:
@@ -55,8 +50,18 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: currency_id
-                  type: int
+                  name: sum_total
+                  type: double
+                  constraints:
+                    nullable: false
+#              - column:
+#                  name: currency_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+              - column:
+                  name: currency
+                  type: varchar(3)
                   constraints:
                     nullable: false
               - column:
@@ -65,47 +70,48 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-              - column:
-                  name: publisher_customer_id
-                  type: int
-                  constraints:
-                    nullable: true
-              - column:
-                  name: publisher_customer_bank_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: publisher_customer_bank_account_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: secondary_customer_id
-                  type: int
-                  constraints:
-                    nullable: true
+#              - column:
+#                  name: publisher_customer_id
+#                  type: int
+#                  constraints:
+#                    nullable: true
+#              - column:
+#                  name: publisher_customer_bank_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: publisher_customer_bank_account_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: secondary_customer_id
+#                  type: int
+#                  constraints:
+#                    nullable: true
+#
+#              - column:
+#                  name: receiver_customer_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: receiver_customer_bank_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: receiver_customer_bank_account_id
+#                  type: int
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: secondary_receiver_customer_id
+#                  type: int
+#                  constraints:
+#                    nullable: true
 
-              - column:
-                  name: receiver_customer_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: receiver_customer_bank_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: receiver_customer_bank_account_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: secondary_receiver_customer_id
-                  type: int
-                  constraints:
-                    nullable: true
               - column:
                   name: notes_for_customer
                   type: text

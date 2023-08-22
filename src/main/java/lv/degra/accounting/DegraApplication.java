@@ -8,11 +8,10 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -22,24 +21,25 @@ public class DegraApplication extends Application {
     private static final String MAIN = "/system/main.fxml";
     private static final String STYLE = "/style.css";
     private static final String applicationTitle = "DeGra v1.0";
-    private ConfigurableApplicationContext context;
 
+    private ConfigurableApplicationContext context;
     private Parent rootNode;
 
-    @Override
-    public void init() throws IOException {
-        SpringApplicationBuilder builder = new SpringApplicationBuilder(DegraApplication.class);
-        context = builder.run(getParameters().getRaw().toArray(new String[0]));
-        builder.headless(false);
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(MAIN));
-        loader.setControllerFactory(context::getBean);
-        rootNode = loader.load();
+    public static void main(final String[] args) {
+        Application.launch(args);
+    }
 
+    @Override
+    public void init() throws Exception {
+        context =  SpringApplication.run(DegraApplication.class);
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MAIN));
+        fxmlLoader.setControllerFactory(context::getBean);
+        rootNode = fxmlLoader.load();
     }
 
     @Override
     public void start(Stage primaryStage) {
-        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
 //        Scene scene = getScene(primaryStage, applicationTitle);
@@ -77,23 +77,23 @@ public class DegraApplication extends Application {
 //    }
 
 
-    public Scene getScene(Stage stage, String title, String resource) throws IOException {
-
-        Parent root = FXMLLoader.load(getClass().getResource("document/Document.xml"));
-        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
-        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
-        stage.setScene(scene);
-        scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
-        if (degraIconStream != null) {
-            stage.getIcons().add(new Image(degraIconStream));
-        }
-        stage.setWidth(1366);
-        stage.setHeight(768);
-        stage.setMinWidth(1366);
-        stage.setMinHeight(768);
-        stage.setTitle(title);
-        return scene;
-    }
+//    public Scene getScene(Stage stage, String title, String resource) throws Exception {
+//
+//        Parent root = FXMLLoader.load(getClass().getResource("document/Document.xml"));
+//        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+//        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+//        Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
+//        stage.setScene(scene);
+//        scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
+//        if (degraIconStream != null) {
+//            stage.getIcons().add(new Image(degraIconStream));
+//        }
+//        stage.setWidth(1366);
+//        stage.setHeight(768);
+//        stage.setMinWidth(1366);
+//        stage.setMinHeight(768);
+//        stage.setTitle(title);
+//        return scene;
+//    }
 
 }

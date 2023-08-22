@@ -22,3 +22,9 @@ spring:
 
 application:
   title: Degra v.1.0
+
+
+
+logging:
+  level:
+    ROOT: 'DEBUG'
