@@ -69,9 +69,5 @@ databaseChangeLog:
 #                              constraints:
 #                                  nullable: false
 #
-#    - include:
-#          file: db/changelog/unique-fields.yaml
-#    - include:
-#          file: db/changelog/constraint-keys.yaml
     - include:
           file: db/changelog/add-document.yaml

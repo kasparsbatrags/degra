@@ -9,23 +9,21 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import lombok.RequiredArgsConstructor;
 import lv.degra.accounting.document.Dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
-import lv.degra.accounting.document.service.DocumentServiceImpl;
-import lv.degra.accounting.system.Exception.IncorrectSumException;
+import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
-@RequiredArgsConstructor
+@Controller
 public class DocumentController {
 
+    @Autowired
+    DocumentService documentService;
     @FXML
     private TextArea notesForCustomerField;
     @FXML
     private TextArea internalNotesField;
-
     @FXML
     private TextField numberField;
     @FXML
@@ -46,9 +44,6 @@ public class DocumentController {
     private Button saveButton;
     @FXML
     private Button closeButton;
-
-    @Autowired
-    private DocumentService documentService;
 
     @FXML
     public void onKeyPressEscapeAction(KeyEvent keyEvent) {
@@ -77,7 +72,8 @@ public class DocumentController {
             documentDto.setExchangeRate(getDouble(exchangeRateField.getText()));
             documentDto.setNotesForCustomer(notesForCustomerField.getText());
             documentDto.setInternalNotes(internalNotesField.getText());
-            saveDocument(documentDto);
+//            saveDocument(documentDto);
+            documentService.createDocument(documentDto);
         });
     }
 

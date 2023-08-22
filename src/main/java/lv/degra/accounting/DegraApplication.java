@@ -8,8 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.InputStream;
@@ -25,13 +25,11 @@ public class DegraApplication extends Application {
     private ConfigurableApplicationContext context;
     private Parent rootNode;
 
-    public static void main(final String[] args) {
-        Application.launch(args);
-    }
-
     @Override
     public void init() throws Exception {
-        context =  SpringApplication.run(DegraApplication.class);
+        SpringApplicationBuilder builder = new SpringApplicationBuilder(DegraApplication.class);
+        context = builder.run(getParameters().getRaw().toArray(new String[0]));
+        builder.headless(false);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MAIN));
         fxmlLoader.setControllerFactory(context::getBean);
         rootNode = fxmlLoader.load();
@@ -39,7 +37,7 @@ public class DegraApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
 //        Scene scene = getScene(primaryStage, applicationTitle);
@@ -69,7 +67,6 @@ public class DegraApplication extends Application {
     public void stop() {
         context.close();
     }
-
 
 
 //    public Scene getNewScene(Stage stage, String title){

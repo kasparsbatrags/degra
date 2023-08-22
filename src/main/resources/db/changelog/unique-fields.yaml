@@ -1,9 +1,0 @@
-databaseChangeLog:
-- changeSet:
-    id: UniqueFieldsElectronicComponent
-    author: Caio Cascaes
-    changes:
-    - addUniqueConstraint:
-        columnNames: type, value
-        constraintName: component_unique
-        tableName: electronic_component
