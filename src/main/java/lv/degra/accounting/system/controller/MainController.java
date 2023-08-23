@@ -14,6 +14,8 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lv.degra.accounting.DegraApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -24,6 +26,9 @@ public class MainController {
 
     private static final String STYLE = "/style.css";
     private static final String applicationTitle = "DeGra v1.0 ";
+
+    @Autowired
+    ApplicationContext context;
 
     @FXML
     public VBox refBox;
@@ -45,8 +50,9 @@ public class MainController {
 
     public void createNewDocument(ActionEvent actionEvent) throws IOException {
 
-
-        Parent root = FXMLLoader.load(getClass().getResource("/document/Document.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/document/Document.fxml"));
+        fxmlLoader.setControllerFactory(context::getBean);
+        Parent root = fxmlLoader.load();
         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
