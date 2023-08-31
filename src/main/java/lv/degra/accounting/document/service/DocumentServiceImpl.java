@@ -1,27 +1,34 @@
 package lv.degra.accounting.document.service;
 
+import lombok.AllArgsConstructor;
 import lv.degra.accounting.document.Dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.model.DocumentRepository;
+import lv.degra.accounting.system.exception.SaveDocumentException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
 
+    private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";
     @Autowired
     private DocumentRepository documentRepository;
     @Autowired
     private ModelMapper modelMapper;
 
     public void createDocument(DocumentDto documentDto) {
-        documentRepository.save(mapToEntity(documentDto));
+        try {
+            documentRepository.save(mapToEntity(documentDto));
+        } catch (RuntimeException exception) {
+            throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + exception.getMessage());
+        }
     }
 
     private Document mapToEntity(DocumentDto documentDto) {
-        Document document = modelMapper.map(documentDto, Document.class);
-        return document;
+        return  modelMapper.map(documentDto, Document.class);
     }
 
 

@@ -28,7 +28,7 @@ databaseChangeLog:
                   name: srs_type_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: accounting_date
                   type: date
@@ -54,19 +54,14 @@ databaseChangeLog:
                   type: double
                   constraints:
                     nullable: false
-#              - column:
-#                  name: currency_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
               - column:
-                  name: currency
-                  type: varchar(3)
+                  name: currency_id
+                  type: int
                   constraints:
                     nullable: false
               - column:
-                  name: exchange_rate
-                  type: double
+                  name: exchange_rate_id
+                  type: int
                   constraints:
                     nullable: false
 

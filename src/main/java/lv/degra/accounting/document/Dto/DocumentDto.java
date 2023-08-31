@@ -1,48 +1,45 @@
 package lv.degra.accounting.document.Dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
+import lv.degra.accounting.currency.model.Currency;
+import lv.degra.accounting.distribution.model.Distribution;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
-import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Set;
+
+/**
+ * DTO for {@link lv.degra.accounting.document.model.Document}
+ */
+@Value
 @Setter
-@Getter
-public class DocumentDto {
-
-    private Integer id;
-
+public class DocumentDto implements Serializable {
+    Integer id;
+    @NotNull
     @Size(max = 20)
-    private String number;
-
+    String number;
     @Size(max = 20)
-    private String internalNumber;
-
-    private Integer srsTypeId;
-
-    private LocalDate accountingDate;
-    private LocalDate documentDate;
-    private LocalDate paymentDate;
-    private Double sumTotal;
-    @Size(max = 3)
-    private String currency;
-    private Double exchangeRate;
-
-//    private Integer publisherCustomerId;
-//    private Integer publisherCustomerBankId;
-//    private Integer publisherCustomerBankAccountId;
-//    private Integer secondaryPublisherCustomerId;
-//
-//    private Integer receiverCustomerId;
-//    private Integer receiverCustomerBankId;
-//    private Integer receiverCustomerBankAccountId;
-//    private Integer secondaryReceiverCustomerId;
-
-
-    private String notesForCustomer;
-    private String internalNotes;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime lastModifiedAt;
-
+    String internalNumber;
+    Integer srsTypeId;
+    @NotNull
+    LocalDate accountingDate;
+    @NotNull
+    LocalDate documentDate;
+    LocalDate paymentDate;
+    Integer paymentTypeId;
+    @NotNull
+    Double sumTotal;
+    @NotNull
+    Currency currency;
+    @NotNull
+    CurrencyExchangeRate exchangeRate;
+    String notesForCustomer;
+    String internalNotes;
+    Set<Distribution> distributions;
 }

@@ -71,3 +71,9 @@ databaseChangeLog:
 #
     - include:
           file: db/changelog/add-document.yaml
+    - include:
+          file: db/changelog/add-country.yaml
+    - include:
+          file: db/changelog/add-currency.yaml
+    - include:
+          file: db/changelog/add-exchange-rate.yaml

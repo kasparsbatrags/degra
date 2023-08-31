@@ -19,8 +19,8 @@ import java.io.InputStream;
 public class DegraApplication extends Application {
 
     private static final String MAIN = "/system/main.fxml";
-    private static final String STYLE = "/style.css";
-    private static final String applicationTitle = "DeGra v1.0";
+    public static final String STYLE = "/style.css";
+    public static final String APPLICATION_TITLE = "DeGra v1.0";
 
     private ConfigurableApplicationContext context;
     private Parent rootNode;
@@ -36,11 +36,9 @@ public class DegraApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage)  {
         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-
-//        Scene scene = getScene(primaryStage, applicationTitle);
 
         Scene scene = new Scene(rootNode, visualBounds.getWidth(), visualBounds.getHeight());
 
@@ -55,7 +53,7 @@ public class DegraApplication extends Application {
 
         primaryStage.setMinWidth(1366);
         primaryStage.setMinHeight(768);
-        primaryStage.setTitle(applicationTitle);
+        primaryStage.setTitle(APPLICATION_TITLE);
 
 
         primaryStage.show();
@@ -68,29 +66,5 @@ public class DegraApplication extends Application {
         context.close();
     }
 
-
-//    public Scene getNewScene(Stage stage, String title){
-//        return
-//    }
-
-
-//    public Scene getScene(Stage stage, String title, String resource) throws Exception {
-//
-//        Parent root = FXMLLoader.load(getClass().getResource("document/Document.xml"));
-//        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
-//        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-//        Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
-//        stage.setScene(scene);
-//        scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
-//        if (degraIconStream != null) {
-//            stage.getIcons().add(new Image(degraIconStream));
-//        }
-//        stage.setWidth(1366);
-//        stage.setHeight(768);
-//        stage.setMinWidth(1366);
-//        stage.setMinHeight(768);
-//        stage.setTitle(title);
-//        return scene;
-//    }
 
 }
