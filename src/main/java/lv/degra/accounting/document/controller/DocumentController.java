@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.FloatStringConverter;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
-import lv.degra.accounting.document.Dto.DocumentDto;
+import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;

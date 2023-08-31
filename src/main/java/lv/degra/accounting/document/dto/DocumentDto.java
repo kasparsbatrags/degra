@@ -1,9 +1,7 @@
-package lv.degra.accounting.document.Dto;
+package lv.degra.accounting.document.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
 import lv.degra.accounting.currency.model.Currency;

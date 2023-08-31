@@ -1,16 +1,17 @@
 package lv.degra.accounting.currency.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lv.degra.accounting.country.model.Country;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "currency")
-public class Currency {
+public class Currency implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

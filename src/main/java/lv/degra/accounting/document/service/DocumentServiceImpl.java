@@ -1,7 +1,7 @@
 package lv.degra.accounting.document.service;
 
 import lombok.AllArgsConstructor;
-import lv.degra.accounting.document.Dto.DocumentDto;
+import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.model.DocumentRepository;
 import lv.degra.accounting.system.exception.SaveDocumentException;

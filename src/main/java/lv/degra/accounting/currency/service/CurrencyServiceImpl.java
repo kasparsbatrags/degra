@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CurrencyServiceImpl implements CurrencyService {
 
-    private final static String DEFAULT_CURRENCY_NAME = "EUR";
+    private static final String DEFAULT_CURRENCY_NAME = "EUR";
 
     @Autowired
     private CurrencyRepository currencyRepository;
