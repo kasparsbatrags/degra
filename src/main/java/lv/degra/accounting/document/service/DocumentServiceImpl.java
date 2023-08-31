@@ -1,6 +1,7 @@
 package lv.degra.accounting.document.service;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.model.DocumentRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@NoArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
 
     private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";

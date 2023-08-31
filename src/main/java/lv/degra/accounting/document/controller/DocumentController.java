@@ -1,7 +1,5 @@
 package lv.degra.accounting.document.controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -13,14 +11,17 @@ import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.exchange.service.ExchangeRateService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static lv.degra.accounting.DegraApplication.APPLICATION_TITLE;
+import static lv.degra.accounting.DegraApplication.DEFAULT_PAY_DAY;
 
 @Controller
 public class DocumentController {
@@ -31,12 +32,9 @@ public class DocumentController {
     @Autowired
     private CurrencyService currencyService;
 
-    private DocumentDto documentDto;
+    @Autowired
+    private ExchangeRateService exchangeRateService;
 
-    @FXML
-    private TextArea notesForCustomerField;
-    @FXML
-    private TextArea internalNotesField;
     @FXML
     private TextField numberField;
     @FXML
@@ -52,26 +50,17 @@ public class DocumentController {
     @FXML
     private ComboBox exchangeCombo;
     @FXML
-    private TextField exchangeField;
-    @FXML
     private TextField exchangeRateField;
+    @FXML
+    private TextArea notesForCustomerField;
+    @FXML
+    private TextArea internalNotesField;
+
     @FXML
     private Button saveButton;
     @FXML
     private Button closeButton;
 
-    public static void numericOnly(final TextField field) {
-        field.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(
-                    ObservableValue<? extends String> observable,
-                    String oldValue, String newValue) {
-                if (!newValue.matches("\\d*")) {
-                    field.setText(newValue.replaceAll("[^\\d]", ""));
-                }
-            }
-        });
-    }
 
     @FXML
     public void onKeyPressEscapeAction(KeyEvent keyEvent) {
@@ -84,6 +73,7 @@ public class DocumentController {
     @FXML
     public void onSaveButton(ActionEvent actionEvent) {
         try {
+            Currency documentCurrency = currencyService.getDefaultCurrency();
             DocumentDto documentDto = new DocumentDto(
                     null,
                     numberField.getText(),
@@ -94,8 +84,11 @@ public class DocumentController {
                     paymentDateDp.getValue(),
                     null,
                     getDouble(sumTotalField.getText()),
-                    currencyService.getDefaultCurrency(),
-                    exchangeRateField.getText());
+                    documentCurrency,
+                    exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(), documentCurrency),
+                    notesForCustomerField.getText(),
+                    internalNotesField.getText(),
+                    null);
 
             documentService.createDocument(documentDto);
         } catch (Exception e) {
@@ -110,6 +103,15 @@ public class DocumentController {
 
     @FXML
     public void initialize() {
+
+        TextArea notesForCustomerField = new TextArea();
+        TextArea internalNotesField = new TextArea();
+
+        documentDateDp.setValue(LocalDate.now());
+        accountingDateDp.setValue(LocalDate.now());
+        paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
+
+
         sumTotalField.setTextFormatter(new TextFormatter<>(new FloatStringConverter()));
         exchangeCombo.setItems(currencyService.getCurrencyList());
 
@@ -150,15 +152,4 @@ public class DocumentController {
         }
         return result;
     }
-
-    public void onChangeExchangeCombo(ActionEvent event) {
-        Currency currency = (Currency) exchangeCombo.getSelectionModel().getSelectedItem();
-        documentDto.setCurrencyId(currency.getId());
-        System.out.println(currency.getId());
-    }
-
-    public void onChangeSumTotalField(ActionEvent actionEvent) {
-
-    }
-
 }
