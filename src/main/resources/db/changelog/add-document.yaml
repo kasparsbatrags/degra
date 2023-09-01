@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: Document
       author: Kaspars Batrags
+      dbms: postgresql
       changes:
         - createTable:
             tableName: document
@@ -64,12 +65,11 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
-
-#              - column:
-#                  name: publisher_customer_id
-#                  type: int
-#                  constraints:
-#                    nullable: true
+              - column:
+                  name: publisher_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
 #              - column:
 #                  name: publisher_customer_bank_id
 #                  type: int
@@ -86,11 +86,11 @@ databaseChangeLog:
 #                  constraints:
 #                    nullable: true
 #
-#              - column:
-#                  name: receiver_customer_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
+              - column:
+                  name: receiver_customer_id
+                  type: int
+                  constraints:
+                    nullable: false
 #              - column:
 #                  name: receiver_customer_bank_id
 #                  type: int
@@ -119,7 +119,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: created_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: timestamp
                   defaultValueComputed: NOW()
               - column:
                   name: last_modified_at

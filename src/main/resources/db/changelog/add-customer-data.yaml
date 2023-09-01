@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCustomerElmits
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'ELMITS, SIA'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: ELMITS, SIA
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40203495758
+              - column:
+                  name: vat_number
+                  value: LV40203495758
+              - column:
+                  name: address_id
+                  value: 1
+
+  - changeSet:
+      id: AddCustomerEmako
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'EMAKO, SIA'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: EMAKO, SIA
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40103341230
+              - column:
+                  name: vat_number
+                  value: LV40103341230
+              - column:
+                  name: address_id
+                  value: 1
