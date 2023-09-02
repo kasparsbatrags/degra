@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.distribution.model.Distribution;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
@@ -78,5 +79,14 @@ public class Document {
 
     @OneToMany(mappedBy = "document")
     private Set<Distribution> distributions = new LinkedHashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_customer_id")
+    private Customer publisherCustomer;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "receiver_customer_id", nullable = false)
+    private Customer receiverCustomer;
 
 }

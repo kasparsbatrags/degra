@@ -1,5 +1,8 @@
 package lv.degra.accounting.document.controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -9,8 +12,12 @@ import javafx.stage.Stage;
 import javafx.util.converter.FloatStringConverter;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
+import lv.degra.accounting.customer.model.Customer;
+import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.document.dto.DocumentDto;
+import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeRateService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +33,18 @@ import static lv.degra.accounting.DegraApplication.DEFAULT_PAY_DAY;
 @Controller
 public class DocumentController {
 
+    @FXML
+    public ComboBox publisherCombo;
+    @FXML
+    public ComboBox receiverCombo;
     @Autowired
     private DocumentService documentService;
-
     @Autowired
     private CurrencyService currencyService;
-
     @Autowired
     private ExchangeRateService exchangeRateService;
-
+    @Autowired
+    private CustomerService customerService;
     @FXML
     private TextField numberField;
     @FXML
@@ -48,7 +58,7 @@ public class DocumentController {
     @FXML
     private TextField sumTotalField;
     @FXML
-    private ComboBox exchangeCombo;
+    private ComboBox curencyCombo;
     @FXML
     private TextField exchangeRateField;
     @FXML
@@ -61,6 +71,7 @@ public class DocumentController {
     @FXML
     private Button closeButton;
 
+    private CurrencyExchangeRate currencyExchangeRate;
 
     @FXML
     public void onKeyPressEscapeAction(KeyEvent keyEvent) {
@@ -84,11 +95,12 @@ public class DocumentController {
                     paymentDateDp.getValue(),
                     null,
                     getDouble(sumTotalField.getText()),
-                    documentCurrency,
-                    exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(), documentCurrency),
+                    (Currency) curencyCombo.getValue(),
+                    currencyExchangeRate,
                     notesForCustomerField.getText(),
                     internalNotesField.getText(),
-                    null);
+                    (Customer) publisherCombo.getValue(),
+                    (Customer) receiverCombo.getValue());
 
             documentService.createDocument(documentDto);
         } catch (Exception e) {
@@ -111,9 +123,15 @@ public class DocumentController {
         accountingDateDp.setValue(LocalDate.now());
         paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
 
+        ObservableList<Customer> customerList = customerService.getCustomerByNameOrRegistrationNumber();
+
+        publisherCombo.setItems(customerList);
+        receiverCombo.setItems(customerList);
+
 
         sumTotalField.setTextFormatter(new TextFormatter<>(new FloatStringConverter()));
-        exchangeCombo.setItems(currencyService.getCurrencyList());
+        curencyCombo.setItems(currencyService.getCurrencyList());
+
 
 
         Pattern pattern = Pattern.compile("\\d*|\\d+\\.\\d*");
@@ -130,8 +148,9 @@ public class DocumentController {
         exchangeRateField.setTextFormatter(exchangeRateDoubleFormatter);
         exchangeRateField.setText("1");
 
-        exchangeCombo.setValue(currencyService.getDefaultCurrency());
+        curencyCombo.setValue(currencyService.getDefaultCurrency());
     }
+
 
     @FXML
     public void onCloseButton(ActionEvent actionEvent) {
@@ -151,5 +170,11 @@ public class DocumentController {
             throw new IncorrectSumException("Nav iespējams nolasīt summu!");
         }
         return result;
+    }
+
+    public void currencyOnAction(ActionEvent actionEvent) {
+        Currency selectedCurrency = (Currency) curencyCombo.getValue();
+        currencyExchangeRate = exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(), selectedCurrency);
+        exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
 }
