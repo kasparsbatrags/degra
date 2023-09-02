@@ -6,6 +6,7 @@ import lombok.Setter;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.document.model.Document;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -15,7 +16,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "currency_exchange_rate")
-public class CurrencyExchangeRate {
+public class CurrencyExchangeRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

@@ -1,7 +1,5 @@
 package lv.degra.accounting.document.controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,7 +13,6 @@ import lv.degra.accounting.currency.service.CurrencyService;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.document.dto.DocumentDto;
-import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeRateService;
@@ -131,7 +128,6 @@ public class DocumentController {
 
         sumTotalField.setTextFormatter(new TextFormatter<>(new FloatStringConverter()));
         curencyCombo.setItems(currencyService.getCurrencyList());
-
 
 
         Pattern pattern = Pattern.compile("\\d*|\\d+\\.\\d*");
