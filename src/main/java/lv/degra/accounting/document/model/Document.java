@@ -80,6 +80,7 @@ public class Document {
     @OneToMany(mappedBy = "document")
     private Set<Distribution> distributions = new LinkedHashSet<>();
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_customer_id")
     private Customer publisherCustomer;

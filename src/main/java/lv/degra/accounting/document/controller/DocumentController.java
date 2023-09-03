@@ -142,9 +142,10 @@ public class DocumentController {
         });
 
         exchangeRateField.setTextFormatter(exchangeRateDoubleFormatter);
-        exchangeRateField.setText("1");
 
-        curencyCombo.setValue(currencyService.getDefaultCurrency());
+        Currency currencyDefault = currencyService.getDefaultCurrency();
+        curencyCombo.setValue(currencyDefault);
+        setExchangeRate(currencyDefault);
     }
 
 
@@ -170,7 +171,11 @@ public class DocumentController {
 
     public void currencyOnAction(ActionEvent actionEvent) {
         Currency selectedCurrency = (Currency) curencyCombo.getValue();
-        currencyExchangeRate = exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(), selectedCurrency);
+        setExchangeRate(selectedCurrency);
+    }
+
+    private void setExchangeRate(Currency currency ){
+        currencyExchangeRate = exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
         exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
 }
