@@ -70,42 +70,42 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: true
-#              - column:
-#                  name: publisher_customer_bank_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
-#              - column:
-#                  name: publisher_customer_bank_account_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
-#              - column:
-#                  name: secondary_customer_id
-#                  type: int
-#                  constraints:
-#                    nullable: true
-#
+              - column:
+                  name: publisher_customer_bank_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: publisher_customer_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secondary_publisher_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+
               - column:
                   name: receiver_customer_id
                   type: int
                   constraints:
                     nullable: false
-#              - column:
-#                  name: receiver_customer_bank_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
-#              - column:
-#                  name: receiver_customer_bank_account_id
-#                  type: int
-#                  constraints:
-#                    nullable: false
-#              - column:
-#                  name: secondary_receiver_customer_id
-#                  type: int
-#                  constraints:
-#                    nullable: true
+              - column:
+                  name: receiver_customer_bank_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_customer_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secondary_receiver_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
 
               - column:
                   name: notes_for_customer

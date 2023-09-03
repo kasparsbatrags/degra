@@ -38,6 +38,13 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
+              - column:
+                  name: is_employee
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: false
+
 
   - changeSet:
       id: CustomerType
@@ -172,3 +179,21 @@ databaseChangeLog:
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: customer
+
+  - changeSet:
+      id: ConstraintUniqueKeysCustomerRegistrationNumber
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  registration_number
+            constraintName: unique_customer_registration_number
+            tableName: customer
+
+  - changeSet:
+      id: ConstraintUniqueKeysCustomerVatNumber
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  vat_number
+            constraintName: unique_customer_vat_number
+            tableName: customer

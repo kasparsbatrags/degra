@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCustomerBank
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: bic
+                  type: varchar(11)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: ConstraintForeignKeysBankToCustomer
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: bank
+            constraintName: fk_bank_to_customer
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: customer
