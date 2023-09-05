@@ -2,21 +2,19 @@ package lv.degra.accounting.document.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Setter;
 import lombok.Value;
 import lv.degra.accounting.currency.model.Currency;
-import lv.degra.accounting.distribution.model.Distribution;
+import lv.degra.accounting.customer.model.Customer;
+import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Set;
 
 /**
- * DTO for {@link lv.degra.accounting.document.model.Document}
+ * DTO for {@link Document}
  */
 @Value
-@Setter
 public class DocumentDto implements Serializable {
     Integer id;
     @NotNull
@@ -36,8 +34,10 @@ public class DocumentDto implements Serializable {
     @NotNull
     Currency currency;
     @NotNull
-    CurrencyExchangeRate exchangeRate;
+    CurrencyExchangeRate currencyExchangeRate;
     String notesForCustomer;
     String internalNotes;
-    Set<Distribution> distributions;
+    Customer publisherCustomer;
+    @NotNull
+    Customer receiverCustomer;
 }
