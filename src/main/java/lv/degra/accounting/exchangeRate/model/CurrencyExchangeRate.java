@@ -1,4 +1,4 @@
-package lv.degra.accounting.exchange.model;
+package lv.degra.accounting.exchangeRate.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package lv.degra.accounting.exchange.model;
+package lv.degra.accounting.exchangeRate.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

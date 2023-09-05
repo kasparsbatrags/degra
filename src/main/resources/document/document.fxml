@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,22 +12,22 @@
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressEscapeAction" prefHeight="728.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentController">
     <children>
-        <Pane prefHeight="728.0" prefWidth="1366.0">
+        <Pane prefHeight="728.0" prefWidth="1366.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
-                <Label fx:id="numberLabel" layoutX="93.0" layoutY="42.0" text="Numurs" />
-                <TextField id="numberField" fx:id="numberField" layoutX="147.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" />
+                <Label fx:id="numberLabel" layoutX="93.0" layoutY="42.0" text="Numurs" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                <TextField id="numberField" fx:id="numberField" layoutX="147.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0"/>
                 <Label fx:id="accountingDateLabel" layoutX="415.0" layoutY="42.0" text="Uzskaites datums" />
                 <Label fx:id="documentDateLabel" layoutX="402.0" layoutY="77.0" text="Dokumenta datums" />
                 <Label fx:id="paymentDateLabel" layoutX="405.0" layoutY="113.0" text="Apmaksas datums " />
                 <Label fx:id="sumTotalFieldLabel" layoutX="791.0" layoutY="42.0" text="Summa" />
                 <TextField fx:id="sumTotalField" layoutX="840.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" promptText="sumTotalField" />
-                <ComboBox fx:id="curencyCombo" layoutX="840.0" layoutY="73.0" onAction="#currencyOnAction" prefHeight="25.0" prefWidth="108.0" />
+                <ComboBox fx:id="currencyCombo" layoutX="840.0" layoutY="73.0" onAction="#currencyOnAction" prefHeight="25.0" prefWidth="108.0" />
                 <Label fx:id="exchangeLabel" layoutX="794.0" layoutY="77.0" text="Valūta" />
                 <Label fx:id="exchangeRateLabel" layoutX="760.0" layoutY="113.0" text="Valūtas kurss" />
                 <TextField fx:id="exchangeRateField" layoutX="840.0" layoutY="109.0" prefHeight="25.0" prefWidth="108.0" promptText="exchangeRateField" />
                 <Label layoutX="292.0" layoutY="196.0" text="Izdevējs" />
                 <Label layoutX="971.0" layoutY="198.0" text="Saņēmējs" />
-                <Label fx:id="InternalNumberLabel" layoutX="49.0" layoutY="77.0" text="Iekšējais numurs" />
+                <Label fx:id="internalNumberLabel" layoutX="49.0" layoutY="77.0" text="Iekšējais numurs" />
                 <TextField id="numberField" fx:id="internalNumberField" layoutX="147.0" layoutY="73.0" prefHeight="25.0" prefWidth="108.0" />
                 <DatePicker fx:id="accountingDateDp" layoutX="515.0" layoutY="38.0" prefHeight="25.0" prefWidth="133.0" />
                 <DatePicker fx:id="documentDateDp" layoutX="515.0" layoutY="73.0" prefHeight="25.0" prefWidth="133.0" />
@@ -43,10 +42,12 @@
                         <Button id="closeButton" fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt" />
                     </buttons>
                 </ButtonBar>
-                <Separator layoutX="121.0" layoutY="223.0" prefHeight="0.0" prefWidth="1168.0" />
-                <Separator layoutX="699.0" layoutY="203.0" orientation="VERTICAL" prefHeight="200.0" />
-            <ComboBox fx:id="publisherCombo" layoutX="140.0" layoutY="250.0" prefHeight="26.0" prefWidth="287.0" />
-            <ComboBox fx:id="receiverCombo" layoutX="804.0" layoutY="251.0" prefHeight="26.0" prefWidth="287.0" />
+            <ComboBox fx:id="publisherCombo" layoutX="136.0" layoutY="251.0" onAction="#publisherOnAction" prefHeight="26.0" prefWidth="287.0" />
+            <ComboBox fx:id="publisherBankCombo" layoutX="136.0" layoutY="291.0" prefHeight="25.0" prefWidth="287.0" />
+            <ComboBox fx:id="publisherBankAccountCombo" layoutX="136.0" layoutY="327.0" prefHeight="25.0" prefWidth="287.0" />
+            <ComboBox fx:id="receiverCombo" layoutX="804.0" layoutY="251.0" onAction="#receiverOnAction" prefHeight="26.0" prefWidth="287.0" />
+            <ComboBox fx:id="receiverBankCombo" layoutX="805.0" layoutY="286.0" prefHeight="25.0" prefWidth="287.0" />
+            <ComboBox fx:id="receiverBankAccountCombo" layoutX="805.0" layoutY="322.0" prefHeight="25.0" prefWidth="287.0" />
             </children>
         </Pane>
     </children>

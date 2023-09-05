@@ -1,10 +1,10 @@
-package lv.degra.accounting.exchange.service;
+package lv.degra.accounting.exchangeRate.service;
 
 import lombok.AllArgsConstructor;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
-import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
-import lv.degra.accounting.exchange.model.CurrencyExchangeRateRepository;
+import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

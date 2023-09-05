@@ -3,10 +3,12 @@ package lv.degra.accounting.document.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Value;
+import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
+import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.document.model.Document;
-import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -37,7 +39,17 @@ public class DocumentDto implements Serializable {
     CurrencyExchangeRate currencyExchangeRate;
     String notesForCustomer;
     String internalNotes;
+    @NotNull
     Customer publisherCustomer;
     @NotNull
+    private Bank publisherCustomerBank;
+    @NotNull
+    private CustomerBankAccount publisherCustomerBankAccount;
+    @NotNull
     Customer receiverCustomer;
+    @NotNull
+    private Bank receiverCustomerBank;
+    @NotNull
+    private CustomerBankAccount receiverCustomerBankAccount;
+
 }
