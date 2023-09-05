@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DegraConfig {
 
-//    @Bean(name = "documentService")
-//    @Scope("prototype")
-//    public DocumentService documentService(){
-//        return new DocumentService();
-//    }
+    public static final String MAIN = "/system/main.fxml";
+    public static final String STYLE = "/style.css";
+    public static final String APPLICATION_TITLE = "DeGra v1.0";
+    public static final int DEFAULT_PAY_DAY = 10;
+    public static final String SUM_FORMAT_REGEX= "\\d*|\\d+\\.\\d*";
 
 }

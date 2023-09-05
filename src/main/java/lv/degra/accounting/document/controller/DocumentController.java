@@ -7,25 +7,32 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import javafx.util.converter.FloatStringConverter;
+import lv.degra.accounting.bank.model.Bank;
+import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer.service.CustomerService;
+import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
+import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
-import lv.degra.accounting.exchange.service.ExchangeRateService;
+import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
-import static lv.degra.accounting.DegraApplication.APPLICATION_TITLE;
-import static lv.degra.accounting.DegraApplication.DEFAULT_PAY_DAY;
+import static lv.degra.accounting.configuration.DegraConfig.*;
 
 @Controller
 public class DocumentController {
@@ -33,15 +40,30 @@ public class DocumentController {
     @FXML
     public ComboBox publisherCombo;
     @FXML
+    public ComboBox publisherBankCombo;
+    @FXML
+    public ComboBox publisherBankAccountCombo;
+
+    @FXML
     public ComboBox receiverCombo;
+    @FXML
+    public ComboBox receiverBankCombo;
+    @FXML
+    public ComboBox receiverBankAccountCombo;
+
     @Autowired
     private DocumentService documentService;
     @Autowired
     private CurrencyService currencyService;
     @Autowired
-    private ExchangeRateService exchangeRateService;
+    private ExchangeService exchangeService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private BankService bankService;
+    @Autowired
+    private CustomerAccountService customerAccountService;
+
     @FXML
     private TextField numberField;
     @FXML
@@ -55,7 +77,7 @@ public class DocumentController {
     @FXML
     private TextField sumTotalField;
     @FXML
-    private ComboBox curencyCombo;
+    private ComboBox currencyCombo;
     @FXML
     private TextField exchangeRateField;
     @FXML
@@ -81,7 +103,6 @@ public class DocumentController {
     @FXML
     public void onSaveButton(ActionEvent actionEvent) {
         try {
-            Currency documentCurrency = currencyService.getDefaultCurrency();
             DocumentDto documentDto = new DocumentDto(
                     null,
                     numberField.getText(),
@@ -92,12 +113,16 @@ public class DocumentController {
                     paymentDateDp.getValue(),
                     null,
                     getDouble(sumTotalField.getText()),
-                    (Currency) curencyCombo.getValue(),
+                    (Currency) currencyCombo.getValue(),
                     currencyExchangeRate,
                     notesForCustomerField.getText(),
                     internalNotesField.getText(),
                     (Customer) publisherCombo.getValue(),
-                    (Customer) receiverCombo.getValue());
+                    (Bank) publisherBankCombo.getValue(),
+                    (CustomerBankAccount) publisherBankAccountCombo.getValue(),
+                    (Customer) receiverCombo.getValue(),
+                    (Bank) receiverBankCombo.getValue(),
+                    (CustomerBankAccount) receiverBankAccountCombo.getValue());
 
             documentService.createDocument(documentDto);
         } catch (Exception e) {
@@ -115,22 +140,25 @@ public class DocumentController {
 
         TextArea notesForCustomerField = new TextArea();
         TextArea internalNotesField = new TextArea();
+        fillCombos();
+        setFormat();
+        setValues();
+    }
 
+    private void setValues() {
         documentDateDp.setValue(LocalDate.now());
         accountingDateDp.setValue(LocalDate.now());
         paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
 
-        ObservableList<Customer> customerList = customerService.getCustomerByNameOrRegistrationNumber();
+        Currency currencyDefault = currencyService.getDefaultCurrency();
+        currencyCombo.setValue(currencyDefault);
+        setExchangeRate(currencyDefault);
 
-        publisherCombo.setItems(customerList);
-        receiverCombo.setItems(customerList);
+    }
 
+    private void setFormat() {
 
-        sumTotalField.setTextFormatter(new TextFormatter<>(new FloatStringConverter()));
-        curencyCombo.setItems(currencyService.getCurrencyList());
-
-
-        Pattern pattern = Pattern.compile("\\d*|\\d+\\.\\d*");
+        Pattern pattern = Pattern.compile(SUM_FORMAT_REGEX);
         TextFormatter summTotalDoubleFormatter = new TextFormatter((UnaryOperator<TextFormatter.Change>) change -> {
             return pattern.matcher(change.getControlNewText()).matches() ? change : null;
         });
@@ -142,12 +170,16 @@ public class DocumentController {
         });
 
         exchangeRateField.setTextFormatter(exchangeRateDoubleFormatter);
-
-        Currency currencyDefault = currencyService.getDefaultCurrency();
-        curencyCombo.setValue(currencyDefault);
-        setExchangeRate(currencyDefault);
     }
 
+    private void fillCombos() {
+
+        currencyCombo.setItems(currencyService.getCurrencyList());
+
+        ObservableList<Customer> customerList = customerService.getCustomerByNameOrRegistrationNumber();
+        publisherCombo.setItems(customerList);
+        receiverCombo.setItems(customerList);
+    }
 
     @FXML
     public void onCloseButton(ActionEvent actionEvent) {
@@ -169,13 +201,50 @@ public class DocumentController {
         return result;
     }
 
-    public void currencyOnAction(ActionEvent actionEvent) {
-        Currency selectedCurrency = (Currency) curencyCombo.getValue();
+    public void currencyOnAction() {
+        Currency selectedCurrency = (Currency) currencyCombo.getValue();
         setExchangeRate(selectedCurrency);
     }
 
     private void setExchangeRate(Currency currency ){
-        currencyExchangeRate = exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
+        currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
         exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
+
+    private void setBankInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox customerBankAccountCombo) {
+        Customer customer = (Customer) customerCombo.getValue();
+
+        ObservableList<CustomerBankAccount> observableCustomerAccountsListBank = customerAccountService.getCustomerAccounts(customer);
+        List<Integer> uniqueCustomerBankIdList = observableCustomerAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank)).map(account->account.getBank().getId()).toList();
+
+        ObservableList<Bank> observableCustomerBankList = bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList);
+
+        bankCombo.setItems(observableCustomerBankList);
+        if (observableCustomerBankList.size() == 1) {
+            Bank bank = observableCustomerBankList.get(0);
+            bankCombo.setValue(bank);
+
+            customerBankAccountCombo.setItems(observableCustomerAccountsListBank);
+            if (observableCustomerAccountsListBank.size() == 1) {
+                CustomerBankAccount customerBankAccount = observableCustomerAccountsListBank.get(0);
+                customerBankAccountCombo.setValue(customerBankAccount);
+            }
+        }
+
+
+    }
+
+    public void receiverOnAction() {
+        setBankInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
+    }
+
+    public void publisherOnAction() {
+        setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
+
 }

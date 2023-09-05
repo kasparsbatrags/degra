@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddBankElmitSwedAccount
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_account WHERE account = 'LV68HABA0551055078691'
+      changes:
+        - insert:
+            tableName: customer_account
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: customer_id
+                  value: 1
+              - column:
+                  name: bank_id
+                  value: 1
+              - column:
+                  name: account
+                  value: LV68HABA0551055078691
+
+  - changeSet:
+      id: AddBankEmakoSwedAccount
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_account WHERE account = 'LV46HABA0551052972732'
+      changes:
+        - insert:
+            tableName: customer_account
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: customer_id
+                  value: 2
+              - column:
+                  name: bank_id
+                  value: 1
+              - column:
+                  name: account
+                  value: LV46HABA0551052972732
+

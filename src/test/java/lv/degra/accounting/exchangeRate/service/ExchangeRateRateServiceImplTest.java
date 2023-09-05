@@ -1,8 +1,6 @@
-package lv.degra.accounting.exchange.service;
+package lv.degra.accounting.exchangeRate.service;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeRateRateServiceImplTest {
 

@@ -14,14 +14,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.InputStream;
 
+import static lv.degra.accounting.configuration.DegraConfig.*;
+
 
 @SpringBootApplication
 public class DegraApplication extends Application {
 
-    private static final String MAIN = "/system/main.fxml";
-    public static final String STYLE = "/style.css";
-    public static final String APPLICATION_TITLE = "DeGra v1.0";
-    public static final int DEFAULT_PAY_DAY = 10;
 
     private ConfigurableApplicationContext context;
     private Parent rootNode;

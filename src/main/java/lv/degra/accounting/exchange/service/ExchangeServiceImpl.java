@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 @Service
 @AllArgsConstructor
-public class ExchangeRateRateServiceImpl implements ExchangeRateService {
+public class ExchangeServiceImpl implements ExchangeService {
     @Autowired
     private CurrencyExchangeRateRepository currencyExchangeRateRepository;
 

@@ -5,7 +5,7 @@ import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.time.LocalDate;
 
-public interface ExchangeRateService {
+public interface ExchangeService {
     CurrencyExchangeRate getActuallyExchangeRate(LocalDate exchangeRateDate, Currency currency);
 
     CurrencyExchangeRate getDefaultCurrencyExchangeRate();

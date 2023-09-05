@@ -11,4 +11,15 @@ databaseChangeLog:
         file: db/changelog/add-customer.yaml
     - include:
         file: db/changelog/add-customer-data.yaml
+    - include:
+        file: db/changelog/add-bank.yaml
+    - include:
+        file: db/changelog/add-bank-data.yaml
+    - include:
+        file: db/changelog/add-customer-account.yaml
+    - include:
+        file: db/changelog/add-customer-account-data.yaml
+    - include:
+        file: db/changelog/add-banks-to-document.yaml
+
 

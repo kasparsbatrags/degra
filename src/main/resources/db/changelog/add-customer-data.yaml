@@ -6,7 +6,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM customer WHERE name = 'ELMITS, SIA'
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Elmits, SIA'
       changes:
         - insert:
             tableName: customer
@@ -16,7 +16,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: name
-                  value: ELMITS, SIA
+                  value: Elmits, SIA
               - column:
                   name: customer_type_id
                   value: 1
@@ -37,7 +37,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM customer WHERE name = 'EMAKO, SIA'
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Emako, SIA'
       changes:
         - insert:
             tableName: customer
@@ -47,7 +47,7 @@ databaseChangeLog:
                   value: 2
               - column:
                   name: name
-                  value: EMAKO, SIA
+                  value: Emako, SIA
               - column:
                   name: customer_type_id
                   value: 1
@@ -60,3 +60,96 @@ databaseChangeLog:
               - column:
                   name: address_id
                   value: 1
+  - changeSet:
+      id: AddCustomerSwedbank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Swedbank, AS'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: Swedbank, AS
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40003074764
+              - column:
+                  name: vat_number
+                  value: LV40003074764
+              - column:
+                  name: address_id
+                  value: 1
+  - changeSet:
+      id: AddCustomerSebBanka
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'SEB banka, AS'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: name
+                  value: SEB banka, AS
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40003151743
+              - column:
+                  name: vat_number
+                  value: LV40003151743
+              - column:
+                  name: address_id
+                  value: 1
+
+  - changeSet:
+      id: AddCustomerCitadeleBanka
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Citadele banka, AS'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: name
+                  value: Citadele banka, AS
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40103303559
+              - column:
+                  name: vat_number
+                  value: LV40103303559
+              - column:
+                  name: address_id
+                  value: 1
+
+
