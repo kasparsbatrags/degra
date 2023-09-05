@@ -10,7 +10,7 @@ import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.distribution.model.Distribution;
 import lv.degra.accounting.currency.model.Currency;
-import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.time.Instant;
 import java.time.LocalDate;

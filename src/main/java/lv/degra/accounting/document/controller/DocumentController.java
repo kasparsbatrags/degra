@@ -17,8 +17,8 @@ import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
-import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRate;
-import lv.degra.accounting.exchangeRate.service.ExchangeRateService;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,7 +56,7 @@ public class DocumentController {
     @Autowired
     private CurrencyService currencyService;
     @Autowired
-    private ExchangeRateService exchangeRateService;
+    private ExchangeService exchangeService;
     @Autowired
     private CustomerService customerService;
     @Autowired
@@ -207,7 +207,7 @@ public class DocumentController {
     }
 
     private void setExchangeRate(Currency currency ){
-        currencyExchangeRate = exchangeRateService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
+        currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
         exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
 

@@ -76,4 +76,7 @@ public class MainController {
 //        Parent newDocument = FXMLLoader.load(getClass().getResource("/document/Document.fxml"));
 //        Scene scene = new Scene(newDocument);
     }
+
+    public void openDocumentList(ActionEvent actionEvent) {
+    }
 }

@@ -8,7 +8,7 @@ import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.document.model.Document;
-import lv.degra.accounting.exchangeRate.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.io.Serializable;
 import java.time.LocalDate;
