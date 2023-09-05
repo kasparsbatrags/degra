@@ -103,7 +103,6 @@ public class DocumentController {
     @FXML
     public void onSaveButton(ActionEvent actionEvent) {
         try {
-            Currency documentCurrency = currencyService.getDefaultCurrency();
             DocumentDto documentDto = new DocumentDto(
                     null,
                     numberField.getText(),
@@ -144,9 +143,6 @@ public class DocumentController {
         fillCombos();
         setFormat();
         setValues();
-
-//        sumTotalField.setTextFormatter(new TextFormatter<>(new FloatStringConverter()));
-
     }
 
     private void setValues() {
@@ -205,7 +201,7 @@ public class DocumentController {
         return result;
     }
 
-    public void currencyOnAction(ActionEvent actionEvent) {
+    public void currencyOnAction() {
         Currency selectedCurrency = (Currency) currencyCombo.getValue();
         setExchangeRate(selectedCurrency);
     }
@@ -238,11 +234,11 @@ public class DocumentController {
 
     }
 
-    public void receiverOnAction(ActionEvent actionEvent) {
+    public void receiverOnAction() {
         setBankInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
     }
 
-    public void publisherOnAction(ActionEvent actionEvent) {
+    public void publisherOnAction() {
         setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
     }
 

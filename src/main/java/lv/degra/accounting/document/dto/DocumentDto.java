@@ -42,14 +42,14 @@ public class DocumentDto implements Serializable {
     @NotNull
     Customer publisherCustomer;
     @NotNull
-    private Bank publisherCustomerBank;
+    Bank publisherCustomerBank;
     @NotNull
-    private CustomerBankAccount publisherCustomerBankAccount;
+    CustomerBankAccount publisherCustomerBankAccount;
     @NotNull
     Customer receiverCustomer;
     @NotNull
-    private Bank receiverCustomerBank;
+    Bank receiverCustomerBank;
     @NotNull
-    private CustomerBankAccount receiverCustomerBankAccount;
+    CustomerBankAccount receiverCustomerBankAccount;
 
 }
