@@ -33,7 +33,7 @@ public class DocumentDto implements Serializable {
     String notesForCustomer;
     String internalNotes;
     @NotNull Customer publisherCustomer;
-    @NotNull Bank publisherCustomerBank;
+    @NotNull public Bank publisherCustomerBank;
     @NotNull CustomerBankAccount publisherCustomerBankAccount;
     @NotNull Customer receiverCustomer;
     @NotNull Bank receiverCustomerBank;
