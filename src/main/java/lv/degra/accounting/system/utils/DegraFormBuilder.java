@@ -5,7 +5,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lv.degra.accounting.DegraApplication;
@@ -40,7 +39,6 @@ public class DegraFormBuilder {
     }
 
 
-
     public void buildScene(String sceneFormFile, String additionalTitle) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFormFile));
         fxmlLoader.setControllerFactory(context::getBean);
@@ -49,7 +47,7 @@ public class DegraFormBuilder {
         stage.showAndWait();
     }
 
-    public Stage getFormatedStage(Parent root, String additionalTitle){
+    public Stage getFormatedStage(Parent root, String additionalTitle) {
         Stage stage = new Stage();
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
@@ -58,7 +56,7 @@ public class DegraFormBuilder {
         if (mainIconStream != null) {
             stage.getIcons().add(new Image(mainIconStream));
         }
-        stage.setTitle(APPLICATION_TITLE + " - "+additionalTitle);
+        stage.setTitle(APPLICATION_TITLE + " - " + additionalTitle);
         stage.setScene(scene);
         return stage;
 
