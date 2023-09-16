@@ -1,5 +1,7 @@
 package lv.degra.accounting.document.service;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lv.degra.accounting.document.dto.DocumentDto;
@@ -29,8 +31,13 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+
+    public ObservableList<Document> getDocumentList() {
+        return FXCollections.observableArrayList(documentRepository.findAll());
+    }
+
     private Document mapToEntity(DocumentDto documentDto) {
-        return  modelMapper.map(documentDto, Document.class);
+        return modelMapper.map(documentDto, Document.class);
     }
 
 

@@ -8,6 +8,7 @@ import lombok.Setter;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "bank")
-public class Bank {
+public class Bank implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

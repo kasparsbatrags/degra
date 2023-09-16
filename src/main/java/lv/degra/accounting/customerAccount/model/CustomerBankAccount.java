@@ -7,11 +7,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "customer_account")
-public class CustomerBankAccount {
+public class CustomerBankAccount implements Serializable {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;

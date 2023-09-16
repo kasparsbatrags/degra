@@ -1,8 +1,8 @@
-package lv.degra.accounting.exchangeRate.service;
+package lv.degra.accounting.exchange.service;
 
 import org.junit.jupiter.api.Test;
 
-class ExchangeRateRateServiceImplTest {
+class ExchangeServiceImplTest {
 
     @Test
     void getActuallyExchangeRate() {

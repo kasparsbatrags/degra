@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
+import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.distribution.model.Distribution;
-import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.time.Instant;
@@ -28,9 +28,8 @@ public class Document {
     private Integer id;
 
     @Size(max = 20)
-    @NotNull
-    @Column(name = "number", nullable = false, length = 20)
-    private String number;
+    @Column(name = "document_number", nullable = false, length = 20)
+    private String documentNumber;
 
     @Size(max = 20)
     @Column(name = "internal_number", length = 20)
@@ -53,17 +52,19 @@ public class Document {
     @Column(name = "payment_type_id")
     private Integer paymentTypeId;
 
-    @NotNull
     @Column(name = "sum_total", nullable = false)
     private Double sumTotal;
 
+    @Column(name = "sum_total_in_currency", nullable = false)
+    private Double sumTotalInCurrency;
+
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "currency_id", nullable = false)
     private Currency currency;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "exchange_rate_id", nullable = false)
     private CurrencyExchangeRate exchangeRate;
 
@@ -113,8 +114,6 @@ public class Document {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_customer_bank_account_id")
     private CustomerBankAccount receiverCustomerBankAccount;
-
-
 
 
 }

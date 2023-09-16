@@ -4,9 +4,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
@@ -20,6 +17,7 @@ import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
+import lv.degra.accounting.system.utils.DegraController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -35,7 +33,7 @@ import java.util.regex.Pattern;
 import static lv.degra.accounting.configuration.DegraConfig.*;
 
 @Controller
-public class DocumentController {
+public class DocumentController extends DegraController {
 
     @FXML
     public ComboBox publisherCombo;
@@ -77,6 +75,8 @@ public class DocumentController {
     @FXML
     private TextField sumTotalField;
     @FXML
+    private TextField sumTotalInCurrencyField;
+    @FXML
     private ComboBox currencyCombo;
     @FXML
     private TextField exchangeRateField;
@@ -87,44 +87,21 @@ public class DocumentController {
 
     @FXML
     private Button saveButton;
-    @FXML
-    private Button closeButton;
 
     private CurrencyExchangeRate currencyExchangeRate;
 
-    @FXML
-    public void onKeyPressEscapeAction(KeyEvent keyEvent) {
-        KeyCode key = keyEvent.getCode();
-        if (key == KeyCode.ESCAPE) {
-            closeWindows();
-        }
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 
     @FXML
     public void onSaveButton(ActionEvent actionEvent) {
         try {
-            DocumentDto documentDto = new DocumentDto(
-                    null,
-                    numberField.getText(),
-                    internalNumberField.getText(),
-                    null,
-                    accountingDateDp.getValue(),
-                    documentDateDp.getValue(),
-                    paymentDateDp.getValue(),
-                    null,
-                    getDouble(sumTotalField.getText()),
-                    (Currency) currencyCombo.getValue(),
-                    currencyExchangeRate,
-                    notesForCustomerField.getText(),
-                    internalNotesField.getText(),
-                    (Customer) publisherCombo.getValue(),
-                    (Bank) publisherBankCombo.getValue(),
-                    (CustomerBankAccount) publisherBankAccountCombo.getValue(),
-                    (Customer) receiverCombo.getValue(),
-                    (Bank) receiverBankCombo.getValue(),
-                    (CustomerBankAccount) receiverBankAccountCombo.getValue());
+            DocumentDto documentDto = new DocumentDto(null, numberField.getText(), internalNumberField.getText(), null, accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(), null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), (Currency) currencyCombo.getValue(), currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), (Customer) publisherCombo.getValue(), (Bank) publisherBankCombo.getValue(), (CustomerBankAccount) publisherBankAccountCombo.getValue(), (Customer) receiverCombo.getValue(), (Bank) receiverBankCombo.getValue(), (CustomerBankAccount) receiverBankAccountCombo.getValue());
 
             documentService.createDocument(documentDto);
+            closeWindows();
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.NONE);
             alert.setTitle(APPLICATION_TITLE);
@@ -181,16 +158,6 @@ public class DocumentController {
         receiverCombo.setItems(customerList);
     }
 
-    @FXML
-    public void onCloseButton(ActionEvent actionEvent) {
-        closeWindows();
-    }
-
-    private void closeWindows() {
-        Stage stage = (Stage) closeButton.getScene().getWindow();
-        stage.close();
-    }
-
     private Double getDouble(String totalSum) {
         double result;
         try {
@@ -206,8 +173,8 @@ public class DocumentController {
         setExchangeRate(selectedCurrency);
     }
 
-    private void setExchangeRate(Currency currency ){
-        currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(),  currency);
+    private void setExchangeRate(Currency currency) {
+        currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(), currency);
         exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
 
@@ -215,7 +182,7 @@ public class DocumentController {
         Customer customer = (Customer) customerCombo.getValue();
 
         ObservableList<CustomerBankAccount> observableCustomerAccountsListBank = customerAccountService.getCustomerAccounts(customer);
-        List<Integer> uniqueCustomerBankIdList = observableCustomerAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank)).map(account->account.getBank().getId()).toList();
+        List<Integer> uniqueCustomerBankIdList = observableCustomerAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank)).map(account -> account.getBank().getId()).toList();
 
         ObservableList<Bank> observableCustomerBankList = bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList);
 
@@ -240,11 +207,6 @@ public class DocumentController {
 
     public void publisherOnAction() {
         setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
-    }
-
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Set<Object> seen = ConcurrentHashMap.newKeySet();
-        return t -> seen.add(keyExtractor.apply(t));
     }
 
 }
