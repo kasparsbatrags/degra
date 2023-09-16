@@ -19,37 +19,24 @@ import java.time.LocalDate;
 @Value
 public class DocumentDto implements Serializable {
     Integer id;
-    @NotNull
-    @Size(max = 20)
-    String number;
-    @Size(max = 20)
-    String internalNumber;
+    @Size(max = 20) String documentNumber;
+    @Size(max = 20) String internalNumber;
     Integer srsTypeId;
-    @NotNull
-    LocalDate accountingDate;
-    @NotNull
-    LocalDate documentDate;
+    @NotNull LocalDate accountingDate;
+    @NotNull LocalDate documentDate;
     LocalDate paymentDate;
     Integer paymentTypeId;
-    @NotNull
     Double sumTotal;
-    @NotNull
-    Currency currency;
-    @NotNull
-    CurrencyExchangeRate currencyExchangeRate;
+    Double sumTotalInCurrency;
+    @NotNull Currency currency;
+    @NotNull CurrencyExchangeRate currencyExchangeRate;
     String notesForCustomer;
     String internalNotes;
-    @NotNull
-    Customer publisherCustomer;
-    @NotNull
-    Bank publisherCustomerBank;
-    @NotNull
-    CustomerBankAccount publisherCustomerBankAccount;
-    @NotNull
-    Customer receiverCustomer;
-    @NotNull
-    Bank receiverCustomerBank;
-    @NotNull
-    CustomerBankAccount receiverCustomerBankAccount;
+    @NotNull Customer publisherCustomer;
+    @NotNull Bank publisherCustomerBank;
+    @NotNull CustomerBankAccount publisherCustomerBankAccount;
+    @NotNull Customer receiverCustomer;
+    @NotNull Bank receiverCustomerBank;
+    @NotNull CustomerBankAccount receiverCustomerBankAccount;
 
 }

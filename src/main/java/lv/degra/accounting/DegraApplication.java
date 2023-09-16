@@ -35,7 +35,7 @@ public class DegraApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage)  {
+    public void start(Stage primaryStage) {
         InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
@@ -47,11 +47,9 @@ public class DegraApplication extends Application {
         if (degraIconStream != null) {
             primaryStage.getIcons().add(new Image(degraIconStream));
         }
-        primaryStage.setWidth(1366);
-        primaryStage.setHeight(768);
-
         primaryStage.setMinWidth(1366);
         primaryStage.setMinHeight(768);
+        primaryStage.setMaximized(true);
         primaryStage.setTitle(APPLICATION_TITLE);
 
 
