@@ -13,7 +13,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import lv.degra.accounting.configuration.mapper.BaseMapperConfig;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;

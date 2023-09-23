@@ -13,7 +13,6 @@ import java.io.IOException;
 public class MainController {
 
     private static final String DOCUMENT_LIST_SCREEN_FILE = "/document/documentList.fxml";
-    private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
     @FXML
     public BorderPane mainBorderPane;
     @Autowired
