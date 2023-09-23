@@ -21,6 +21,11 @@
                         <TableColumn fx:id="currencyColumn" prefWidth="75.0" text="Valūta" />
                         <TableColumn fx:id="exchangeRateColumn" prefWidth="75.0" text="Valūtas kurss" />
                         <TableColumn fx:id="sumTotalInCurrencyColumn" prefWidth="99.0" text="Summa valūtā" />
+                        <TableColumn prefWidth="36.0">
+                           <graphic>
+                              <Button mnemonicParsing="false" text="Button" />
+                           </graphic>
+                        </TableColumn>
                     </columns>
                   </TableView>
                </center>

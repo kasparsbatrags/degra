@@ -80,38 +80,38 @@ public class Document {
     @Column(name = "last_modified_at")
     private Instant lastModifiedAt;
 
-    @OneToMany(mappedBy = "document")
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER)
     private Set<Distribution> distributions = new LinkedHashSet<>();
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "publisher_customer_id")
     private Customer publisherCustomer;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "publisher_customer_bank_id", nullable = false)
     private Bank publisherCustomerBank;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "publisher_customer_bank_account_id")
     private CustomerBankAccount publisherCustomerBankAccount;
 
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "receiver_customer_id", nullable = false)
     private Customer receiverCustomer;
 
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "receiver_customer_bank_id", nullable = false)
     private Bank receiverCustomerBank;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "receiver_customer_bank_account_id")
     private CustomerBankAccount receiverCustomerBankAccount;
 
