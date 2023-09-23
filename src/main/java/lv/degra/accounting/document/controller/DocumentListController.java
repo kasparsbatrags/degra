@@ -37,8 +37,6 @@ public class DocumentListController extends DegraController {
     ApplicationFormBuilder applicationFormBuilder;
     @Autowired
     ApplicationContext context;
-    @Autowired
-    BaseMapperConfig baseMapperConfig;
     ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
     @FXML
     private TableView<Document> documentTableView = new TableView<>();
@@ -68,10 +66,6 @@ public class DocumentListController extends DegraController {
         documentObservableList.clear();
         documentService.getDocumentList().forEach(document -> documentObservableList.add(document));
         documentTableView.setItems(documentObservableList);
-    }
-
-    public void addDataToTable(Document document) {
-        documentObservableList.add(document);
     }
 
     private void loadData() {

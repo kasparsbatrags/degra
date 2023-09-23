@@ -22,11 +22,7 @@ public class MainController {
     @Autowired
     ApplicationContext context;
 
-    public void createNewDocument() throws IOException {
-        applicationFormBuilder.buildScene(DOCUMENT_SCREEN_FILE, "Pievienot jaunu dokumentu");
-    }
-
-    public void openDocumentList() throws IOException {
+    public void openDocumentList() {
         mainBorderPane.setCenter(applicationFormBuilder.loadFxml(DOCUMENT_LIST_SCREEN_FILE));
     }
 }
