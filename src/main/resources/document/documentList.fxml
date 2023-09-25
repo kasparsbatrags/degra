@@ -30,7 +30,7 @@
                   </TableView>
                </center>
                <bottom>
-                  <Button mnemonicParsing="false" text="Button" BorderPane.alignment="TOP_RIGHT" />
+                  <Button fx:id="newButton" mnemonicParsing="false" onAction="#onNewButton" text="Jauns" BorderPane.alignment="TOP_RIGHT" />
                </bottom>
             </BorderPane>
          </children>
