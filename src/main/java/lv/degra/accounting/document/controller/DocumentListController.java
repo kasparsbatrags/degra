@@ -3,9 +3,11 @@ package lv.degra.accounting.document.controller;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,6 +18,8 @@ import javafx.stage.Stage;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.system.alert.AlertAsk;
+import lv.degra.accounting.system.alert.AlertResponseType;
 import lv.degra.accounting.system.exception.FxmlFileLoaderException;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.system.utils.DegraController;
@@ -32,11 +36,17 @@ public class DocumentListController extends DegraController {
     private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
     private static final String EDIT_DOCUMENT_TITLE = "Rediģēt dokumentu";
     private static final String CRATE_DOCUMENT_TITLE = "Izveidot dokumentu";
+    private static final String DELETE_QUESTION_HEADER_TEXT = "Dzēst ierakstu";
+    private static final String DELETE_QUESTION_CONTEXT_TEXT = "Vai tiešām vēlaties dzēst ierakstu?";
+    @FXML
+    public Button newButton;
     @Autowired
     ApplicationFormBuilder applicationFormBuilder;
     @Autowired
     ApplicationContext context;
     ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
+    @Autowired
+    private DocumentService documentService;
     @FXML
     private TableView<Document> documentTableView = new TableView<>();
     @FXML
@@ -52,12 +62,14 @@ public class DocumentListController extends DegraController {
     @FXML
     private TableColumn<Document, String> sumTotalInCurrencyColumn;
     private Document document = null;
-    @Autowired
-    private DocumentService documentService;
 
     @FXML
     public void initialize() {
         loadData();
+    }
+
+    public void onNewButton(ActionEvent actionEvent) {
+        openDocumentEditForm(null);
     }
 
 
@@ -81,17 +93,31 @@ public class DocumentListController extends DegraController {
     public void onKeyPressAction(KeyEvent keyEvent) {
         KeyCode key = keyEvent.getCode();
         if (key == KeyCode.INSERT) {
-            openDocument(null);
+            openDocumentEditForm(null);
         } else if (key == KeyCode.ENTER) {
-            document = documentTableView.getSelectionModel().getSelectedItem();
+            document = getDocumentFromTableView(documentTableView);
             if (document == null) {
                 return;
             }
-            openDocument(documentService.mapToDto(document));
+            openDocumentEditForm(documentService.mapToDto(document));
+        } else if (key == KeyCode.DELETE) {
+            if (new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer().equals(AlertResponseType.NO)) {
+                return;
+            }
+            document = getDocumentFromTableView(documentTableView);
+            if (document == null) {
+                return;
+            }
+            documentService.deleteDocumentById(document.getId());
+            documentTableView.getItems().removeAll(documentTableView.getSelectionModel().getSelectedItem());
         }
     }
 
-    private void openDocument(DocumentDto documentDto) {
+    private Document getDocumentFromTableView(TableView<Document> documentTableView) {
+        return documentTableView.getSelectionModel().getSelectedItem();
+    }
+
+    private void openDocumentEditForm(DocumentDto documentDto) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(DOCUMENT_SCREEN_FILE));
         fxmlLoader.setControllerFactory(context::getBean);
         try {

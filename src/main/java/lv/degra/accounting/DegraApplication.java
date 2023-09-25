@@ -36,7 +36,7 @@ public class DegraApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        InputStream degraIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+        InputStream degraIconStream = DegraApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
         Scene scene = new Scene(rootNode, visualBounds.getWidth(), visualBounds.getHeight());

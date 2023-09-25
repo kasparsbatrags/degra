@@ -51,9 +51,12 @@ public class DocumentServiceImpl implements DocumentService {
         modelMapper.map(documentDto, document);
     }
 
-
     public DocumentDto mapToDto(Document document) {
         return modelMapper.map(document, DocumentDto.class);
+    }
+
+    public void deleteDocumentById(Integer documentId) {
+        documentRepository.deleteById(Long.valueOf(documentId));
     }
 
 

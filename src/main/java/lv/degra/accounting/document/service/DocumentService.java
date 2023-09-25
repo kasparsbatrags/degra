@@ -11,4 +11,5 @@ public interface DocumentService {
     List<Document> getDocumentList();
 
     DocumentDto mapToDto(Document document);
+    void deleteDocumentById(Integer documentId);
 }

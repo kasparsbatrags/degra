@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
-import static lv.degra.accounting.configuration.DegraConfig.STYLE;
+import static lv.degra.accounting.configuration.DegraConfig.*;
 
 @Component
 public class ApplicationFormBuilder {
@@ -52,7 +51,7 @@ public class ApplicationFormBuilder {
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
         scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
-        InputStream mainIconStream = DegraApplication.class.getResourceAsStream("/image/degra.png");
+        InputStream mainIconStream = DegraApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
         if (mainIconStream != null) {
             stage.getIcons().add(new Image(mainIconStream));
         }
