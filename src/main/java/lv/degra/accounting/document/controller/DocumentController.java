@@ -13,6 +13,7 @@ import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
+import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
@@ -34,34 +35,20 @@ import static lv.degra.accounting.configuration.DegraConfig.*;
 
 @Controller
 public class DocumentController extends DegraController {
-
     @FXML
     public ComboBox publisherCombo;
     @FXML
     public ComboBox publisherBankCombo;
     @FXML
     public ComboBox publisherBankAccountCombo;
-
     @FXML
     public ComboBox receiverCombo;
     @FXML
     public ComboBox receiverBankCombo;
     @FXML
     public ComboBox receiverBankAccountCombo;
-
-    @Autowired
-    private DocumentService documentService;
-    @Autowired
-    private CurrencyService currencyService;
-    @Autowired
-    private ExchangeService exchangeService;
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private BankService bankService;
-    @Autowired
-    private CustomerAccountService customerAccountService;
-
+    @FXML
+    public Label documentIdLabel;
     @FXML
     private TextField numberField;
     @FXML
@@ -84,11 +71,23 @@ public class DocumentController extends DegraController {
     private TextArea notesForCustomerField;
     @FXML
     private TextArea internalNotesField;
-
     @FXML
     private Button saveButton;
-
+    @Autowired
+    private DocumentService documentService;
+    @Autowired
+    private CurrencyService currencyService;
+    @Autowired
+    private ExchangeService exchangeService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private BankService bankService;
+    @Autowired
+    private CustomerAccountService customerAccountService;
     private CurrencyExchangeRate currencyExchangeRate;
+    private DocumentDto documentDto;
+    private ObservableList<Document> documentObservableList;
 
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
@@ -98,9 +97,12 @@ public class DocumentController extends DegraController {
     @FXML
     public void onSaveButton(ActionEvent actionEvent) {
         try {
-            DocumentDto documentDto = new DocumentDto(null, numberField.getText(), internalNumberField.getText(), null, accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(), null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), (Currency) currencyCombo.getValue(), currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), (Customer) publisherCombo.getValue(), (Bank) publisherBankCombo.getValue(), (CustomerBankAccount) publisherBankAccountCombo.getValue(), (Customer) receiverCombo.getValue(), (Bank) receiverBankCombo.getValue(), (CustomerBankAccount) receiverBankAccountCombo.getValue());
-
-            documentService.createDocument(documentDto);
+            Integer id = documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText());
+            documentDto = new DocumentDto(id, numberField.getText(), internalNumberField.getText(), null, accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(), null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), (Currency) currencyCombo.getValue(), currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), (Customer) publisherCombo.getValue(), (Bank) publisherBankCombo.getValue(), (CustomerBankAccount) publisherBankAccountCombo.getValue(), (Customer) receiverCombo.getValue(), (Bank) receiverBankCombo.getValue(), (CustomerBankAccount) receiverBankAccountCombo.getValue());
+            Document document = documentService.saveDocument(documentDto);
+            if (id == null) {
+                this.documentObservableList.add(document);
+            }
             closeWindows();
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.NONE);
@@ -114,23 +116,52 @@ public class DocumentController extends DegraController {
 
     @FXML
     public void initialize() {
-
         TextArea notesForCustomerField = new TextArea();
         TextArea internalNotesField = new TextArea();
         fillCombos();
         setFormat();
-        setValues();
+        setDefaultValues();
     }
 
-    private void setValues() {
+    public void setDocument(DocumentDto documentDto) {
+        this.documentDto = documentDto;
+        if (this.documentDto != null) {
+            fillFormWithExistData(documentDto);
+        }
+    }
+
+    public void setDocumentList(ObservableList<Document> documentList) {
+        this.documentObservableList = documentList;
+    }
+
+    private void setDefaultValues() {
         documentDateDp.setValue(LocalDate.now());
         accountingDateDp.setValue(LocalDate.now());
         paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
-
         Currency currencyDefault = currencyService.getDefaultCurrency();
         currencyCombo.setValue(currencyDefault);
         setExchangeRate(currencyDefault);
+    }
 
+    private void fillFormWithExistData(DocumentDto documentDto) {
+        documentIdLabel.setText(documentDto.getId().toString());
+        numberField.setText(documentDto.getDocumentNumber());
+        internalNumberField.setText(documentDto.getInternalNumber());
+        accountingDateDp.setValue(documentDto.getAccountingDate());
+        documentDateDp.setValue(documentDto.getDocumentDate());
+        paymentDateDp.setValue(documentDto.getPaymentDate());
+        sumTotalField.setText(documentDto.getSumTotal().toString());
+        sumTotalInCurrencyField.setText(documentDto.getSumTotalInCurrency().toString());
+        exchangeRateField.setText(documentDto.getCurrencyExchangeRate().getRate().toString());
+        currencyCombo.setValue(documentDto.getCurrency());
+        publisherCombo.setValue(documentDto.getPublisherCustomer());
+        publisherBankCombo.setValue(documentDto.getPublisherCustomerBank());
+        publisherBankAccountCombo.setValue(documentDto.getPublisherCustomerBankAccount());
+        receiverCombo.setValue(documentDto.getReceiverCustomer());
+        receiverBankCombo.setValue(documentDto.getReceiverCustomerBank());
+        receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
+        notesForCustomerField.setText(documentDto.getNotesForCustomer());
+        internalNotesField.setText(documentDto.getInternalNotes());
     }
 
     private void setFormat() {
@@ -178,11 +209,11 @@ public class DocumentController extends DegraController {
         exchangeRateField.setText(currencyExchangeRate.getRate().toString());
     }
 
-    private void setBankInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox customerBankAccountCombo) {
+    private void setBankInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
         Customer customer = (Customer) customerCombo.getValue();
 
-        ObservableList<CustomerBankAccount> observableCustomerAccountsListBank = customerAccountService.getCustomerAccounts(customer);
-        List<Integer> uniqueCustomerBankIdList = observableCustomerAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank)).map(account -> account.getBank().getId()).toList();
+        ObservableList<CustomerBankAccount> observableAccountsListBank = customerAccountService.getCustomerAccounts(customer);
+        List<Integer> uniqueCustomerBankIdList = observableAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank)).map(account -> account.getBank().getId()).toList();
 
         ObservableList<Bank> observableCustomerBankList = bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList);
 
@@ -191,22 +222,47 @@ public class DocumentController extends DegraController {
             Bank bank = observableCustomerBankList.get(0);
             bankCombo.setValue(bank);
 
-            customerBankAccountCombo.setItems(observableCustomerAccountsListBank);
-            if (observableCustomerAccountsListBank.size() == 1) {
-                CustomerBankAccount customerBankAccount = observableCustomerAccountsListBank.get(0);
-                customerBankAccountCombo.setValue(customerBankAccount);
+            accountCombo.setItems(observableAccountsListBank);
+            if (observableAccountsListBank.size() == 1) {
+                CustomerBankAccount customerBankAccount = observableAccountsListBank.get(0);
+                accountCombo.setValue(customerBankAccount);
             }
+        } else {
+            accountCombo.setItems(null);
+            accountCombo.setValue(null);
         }
+    }
 
-
+    private void setBankAccountInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+        Customer selectedCustomer = (Customer) customerCombo.getValue();
+        Bank selectedBank = (Bank) bankCombo.getValue();
+        if (selectedBank != null) {
+            ObservableList<CustomerBankAccount> customerBankAccounts = customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank);
+            if (customerBankAccounts.size() == 1) {
+                CustomerBankAccount account = customerBankAccounts.get(0);
+                accountCombo.setValue(account);
+            } else {
+                accountCombo.setItems(customerBankAccounts);
+            }
+        } else {
+            accountCombo.setItems(null);
+            accountCombo.setValue(null);
+        }
     }
 
     public void receiverOnAction() {
         setBankInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
     }
 
+    public void receiverBankOnAction(ActionEvent actionEvent) {
+        setBankAccountInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
+    }
+
     public void publisherOnAction() {
         setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
     }
 
+    public void publisherBankOnAction(ActionEvent actionEvent) {
+        setBankAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+    }
 }

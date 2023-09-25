@@ -2,7 +2,7 @@ package lv.degra.accounting.document.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Value;
+import lombok.*;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
@@ -16,7 +16,11 @@ import java.time.LocalDate;
 /**
  * DTO for {@link Document}
  */
-@Value
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class DocumentDto implements Serializable {
     Integer id;
     @Size(max = 20) String documentNumber;
@@ -33,7 +37,7 @@ public class DocumentDto implements Serializable {
     String notesForCustomer;
     String internalNotes;
     @NotNull Customer publisherCustomer;
-    @NotNull public Bank publisherCustomerBank;
+    @NotNull Bank publisherCustomerBank;
     @NotNull CustomerBankAccount publisherCustomerBankAccount;
     @NotNull Customer receiverCustomer;
     @NotNull Bank receiverCustomerBank;

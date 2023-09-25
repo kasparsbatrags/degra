@@ -64,3 +64,25 @@ databaseChangeLog:
               - column:
                   name: bic
                   value: PARXLV22
+
+  - changeSet:
+      id: AddBankLuminorBank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM bank WHERE bic = 'RIKOLV2X'
+      changes:
+        - insert:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: customer_id
+                  value: 7
+              - column:
+                  name: bic
+                  value: RIKOLV2X

@@ -43,13 +43,14 @@
                     </buttons>
                 </ButtonBar>
             <ComboBox fx:id="publisherCombo" layoutX="136.0" layoutY="251.0" onAction="#publisherOnAction" prefHeight="26.0" prefWidth="287.0" />
-            <ComboBox fx:id="publisherBankCombo" layoutX="136.0" layoutY="291.0" prefHeight="25.0" prefWidth="287.0" />
+            <ComboBox fx:id="publisherBankCombo" layoutX="136.0" layoutY="291.0" onAction="#publisherBankOnAction" prefHeight="25.0" prefWidth="287.0" />
             <ComboBox fx:id="publisherBankAccountCombo" layoutX="136.0" layoutY="327.0" prefHeight="25.0" prefWidth="287.0" />
             <ComboBox fx:id="receiverCombo" layoutX="804.0" layoutY="251.0" onAction="#receiverOnAction" prefHeight="26.0" prefWidth="287.0" />
-            <ComboBox fx:id="receiverBankCombo" layoutX="805.0" layoutY="286.0" prefHeight="25.0" prefWidth="287.0" />
+            <ComboBox fx:id="receiverBankCombo" layoutX="805.0" layoutY="286.0" onAction="#receiverBankOnAction" prefHeight="25.0" prefWidth="287.0" />
             <ComboBox fx:id="receiverBankAccountCombo" layoutX="805.0" layoutY="322.0" prefHeight="25.0" prefWidth="287.0" />
-            <Label fx:id="sumTotalFieldLabel1" layoutX="757.0" layoutY="149.0" text="Summa valūtā" />
+            <Label fx:id="sumTotalInCurrencyFieldLabel" layoutX="757.0" layoutY="149.0" text="Summa valūtā" />
             <TextField fx:id="sumTotalInCurrencyField" layoutX="840.0" layoutY="145.0" prefHeight="25.0" prefWidth="108.0" />
+            <Label fx:id="documentIdLabel" layoutX="29.0" layoutY="685.0" prefHeight="17.0" prefWidth="87.0" text="" />
             </children>
         </Pane>
     </children>

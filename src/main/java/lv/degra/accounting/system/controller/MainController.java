@@ -2,7 +2,7 @@ package lv.degra.accounting.system.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
-import lv.degra.accounting.system.utils.DegraFormBuilder;
+import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -16,16 +16,12 @@ public class MainController {
     @FXML
     public BorderPane mainBorderPane;
     @Autowired
-    DegraFormBuilder degraFormBuilder;
+    ApplicationFormBuilder applicationFormBuilder;
 
     @Autowired
     ApplicationContext context;
 
-    public void createNewDocument() throws IOException {
-        degraFormBuilder.buildScene("/document/document.fxml", "Pievienot jaunu dokumentu");
-    }
-
-    public void openDocumentList() throws IOException {
-        mainBorderPane.setCenter(degraFormBuilder.loadFxml(DOCUMENT_LIST_SCREEN_FILE));
+    public void openDocumentList() {
+        mainBorderPane.setCenter(applicationFormBuilder.loadFxml(DOCUMENT_LIST_SCREEN_FILE));
     }
 }

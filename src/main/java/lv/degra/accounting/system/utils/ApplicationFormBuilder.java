@@ -20,7 +20,7 @@ import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.configuration.DegraConfig.STYLE;
 
 @Component
-public class DegraFormBuilder {
+public class ApplicationFormBuilder {
 
     @Autowired
     ApplicationContext context;
@@ -43,11 +43,11 @@ public class DegraFormBuilder {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFormFile));
         fxmlLoader.setControllerFactory(context::getBean);
         Parent root = fxmlLoader.load();
-        Stage stage = getFormatedStage(root, additionalTitle);
+        Stage stage = getApplicationFormatedStage(root, additionalTitle);
         stage.showAndWait();
     }
 
-    public Stage getFormatedStage(Parent root, String additionalTitle) {
+    public Stage getApplicationFormatedStage(Parent root, String additionalTitle) {
         Stage stage = new Stage();
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
@@ -58,6 +58,8 @@ public class DegraFormBuilder {
         }
         stage.setTitle(APPLICATION_TITLE + " - " + additionalTitle);
         stage.setScene(scene);
+        stage.setMinWidth(1366);
+        stage.setMinHeight(768);
         return stage;
 
     }

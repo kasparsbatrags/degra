@@ -153,3 +153,65 @@ databaseChangeLog:
                   value: 1
 
 
+  - changeSet:
+      id: AddCustomerVenta1
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Venta 1, SIA'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: name
+                  value: Venta 1, SIA
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 41201008501
+              - column:
+                  name: vat_number
+                  value: LV41201008501
+              - column:
+                  name: address_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddCustomerLuminorBanka
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer WHERE name = 'Luminor Bank AS'
+      changes:
+        - insert:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: name
+                  value: Luminor Bank AS
+              - column:
+                  name: customer_type_id
+                  value: 1
+              - column:
+                  name: registration_number
+                  value: 40203154352
+              - column:
+                  name: vat_number
+                  value: LV40203154352
+              - column:
+                  name: address_id
+                  value: 1
