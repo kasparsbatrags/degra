@@ -17,6 +17,7 @@
                     <columns>
                       <TableColumn fx:id="documentDateColumn" prefWidth="75.0" text="Datums" />
                       <TableColumn fx:id="documentNumberColumn" prefWidth="75.0" text="Numurs" />
+						<TableColumn fx:id="documentDirectionColumn" prefWidth="75.0" text="Virziens" />
                         <TableColumn fx:id="sumTotalColumn" prefWidth="75.0" text="Summa" />
                         <TableColumn fx:id="currencyColumn" prefWidth="75.0" text="Valūta" />
                         <TableColumn fx:id="exchangeRateColumn" prefWidth="75.0" text="Valūtas kurss" />

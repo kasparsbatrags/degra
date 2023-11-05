@@ -7,6 +7,7 @@ import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
+import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 @Setter
 public class DocumentDto implements Serializable {
     Integer id;
+    DocumentDirection documentDirection;
     @Size(max = 20) String documentNumber;
     @Size(max = 20) String internalNumber;
     Integer srsTypeId;

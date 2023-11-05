@@ -10,6 +10,7 @@ import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.distribution.model.Distribution;
+import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.time.Instant;
@@ -26,6 +27,10 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
+
+    @Column(name = "direction_id")
+	@Enumerated(EnumType.ORDINAL)
+	private DocumentDirection direction;
 
     @Size(max = 20)
     @Column(name = "document_number", nullable = false, length = 20)
