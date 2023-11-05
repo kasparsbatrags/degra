@@ -24,6 +24,11 @@ databaseChangeLog:
                   type: varchar(20)
                   constraints:
                     nullable: true
+              - column:
+                  name: direction_id
+                  type: int
+                  constraints:
+                    nullable: false
 
               - column:
                   name: srs_type_id

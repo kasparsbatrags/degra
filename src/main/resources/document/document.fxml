@@ -1,57 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
+<?import lv.degra.accounting.system.object.DatePickerDegra?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressEscapeAction" prefHeight="728.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentController">
-    <children>
-        <Pane prefHeight="728.0" prefWidth="1366.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-            <children>
-                <Label fx:id="numberLabel" layoutX="93.0" layoutY="42.0" text="Numurs" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                <TextField id="numberField" fx:id="numberField" layoutX="147.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" />
-                <Label fx:id="accountingDateLabel" layoutX="415.0" layoutY="42.0" text="Uzskaites datums" />
-                <Label fx:id="documentDateLabel" layoutX="402.0" layoutY="77.0" text="Dokumenta datums" />
-                <Label fx:id="paymentDateLabel" layoutX="405.0" layoutY="113.0" text="Apmaksas datums " />
-                <Label fx:id="sumTotalFieldLabel" layoutX="791.0" layoutY="42.0" text="Summa" />
-                <TextField fx:id="sumTotalField" layoutX="840.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" />
-                <ComboBox fx:id="currencyCombo" layoutX="840.0" layoutY="73.0" onAction="#currencyOnAction" prefHeight="25.0" prefWidth="108.0" />
-                <Label fx:id="exchangeLabel" layoutX="794.0" layoutY="77.0" text="Valūta" />
-                <Label fx:id="exchangeRateLabel" layoutX="760.0" layoutY="113.0" text="Valūtas kurss" />
-                <TextField fx:id="exchangeRateField" layoutX="840.0" layoutY="109.0" prefHeight="25.0" prefWidth="108.0" />
-                <Label layoutX="292.0" layoutY="196.0" text="Izdevējs" />
-                <Label layoutX="971.0" layoutY="198.0" text="Saņēmējs" />
-                <Label fx:id="internalNumberLabel" layoutX="49.0" layoutY="77.0" text="Iekšējais numurs" />
-                <TextField id="numberField" fx:id="internalNumberField" layoutX="147.0" layoutY="73.0" prefHeight="25.0" prefWidth="108.0" />
-                <DatePicker fx:id="accountingDateDp" layoutX="515.0" layoutY="38.0" prefHeight="25.0" prefWidth="133.0" />
-                <DatePicker fx:id="documentDateDp" layoutX="515.0" layoutY="73.0" prefHeight="25.0" prefWidth="133.0" />
-                <DatePicker fx:id="paymentDateDp" layoutX="515.0" layoutY="109.0" prefHeight="25.0" prefWidth="133.0" />
-                <TextArea fx:id="notesForCustomerField" layoutX="78.0" layoutY="452.0" prefHeight="67.0" prefWidth="1088.0" />
-                <Label fx:id="notesForCustomerLAbel" layoutX="82.0" layoutY="435.0" text="Piezīmes dokumenta izdrukā" />
-                <Label fx:id="internalNotesLabel" layoutX="87.0" layoutY="540.0" text="Piezīmes iekšējās" />
-                <TextArea fx:id="internalNotesField" layoutX="80.0" layoutY="557.0" prefHeight="44.0" prefWidth="1084.0" />
-                <ButtonBar layoutX="1091.0" layoutY="653.0" prefHeight="40.0" prefWidth="200.0">
-                    <buttons>
-                        <Button id="saveButton" fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" prefHeight="25.0" prefWidth="138.0" text="Saglabāt" />
-                        <Button id="closeButton" fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt" />
-                    </buttons>
-                </ButtonBar>
-            <ComboBox fx:id="publisherCombo" layoutX="136.0" layoutY="251.0" onAction="#publisherOnAction" prefHeight="26.0" prefWidth="287.0" />
-            <ComboBox fx:id="publisherBankCombo" layoutX="136.0" layoutY="291.0" onAction="#publisherBankOnAction" prefHeight="25.0" prefWidth="287.0" />
-            <ComboBox fx:id="publisherBankAccountCombo" layoutX="136.0" layoutY="327.0" prefHeight="25.0" prefWidth="287.0" />
-            <ComboBox fx:id="receiverCombo" layoutX="804.0" layoutY="251.0" onAction="#receiverOnAction" prefHeight="26.0" prefWidth="287.0" />
-            <ComboBox fx:id="receiverBankCombo" layoutX="805.0" layoutY="286.0" onAction="#receiverBankOnAction" prefHeight="25.0" prefWidth="287.0" />
-            <ComboBox fx:id="receiverBankAccountCombo" layoutX="805.0" layoutY="322.0" prefHeight="25.0" prefWidth="287.0" />
-            <Label fx:id="sumTotalInCurrencyFieldLabel" layoutX="757.0" layoutY="149.0" text="Summa valūtā" />
-            <TextField fx:id="sumTotalInCurrencyField" layoutX="840.0" layoutY="145.0" prefHeight="25.0" prefWidth="108.0" />
-            <Label fx:id="documentIdLabel" layoutX="29.0" layoutY="685.0" prefHeight="17.0" prefWidth="87.0" text="" />
-            </children>
-        </Pane>
-    </children>
-</AnchorPane>
+<?import javafx.scene.control.ButtonBar?>
+<Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="728.0" prefWidth="1366.0"
+	xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentController">
+	<children>
+		<Label text="Virziens" layoutX="79.0" layoutY="51.0" prefHeight="17.0" prefWidth="60.0" />
+		<ComboBox fx:id="directionCombo" layoutX="153.0" layoutY="51.0" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Numurs" layoutX="99.0" layoutY="104.0" prefWidth="120.0" />
+		<TextField fx:id="numberField" layoutX="153.0" layoutY="100.0" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Iekšējais numurs" layoutX="55.0" layoutY="139.0" />
+		<TextField fx:id="internalNumberField" layoutX="153.0" layoutY="135.0" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Uzskaites datums" layoutX="415.0" layoutY="42.0" />
+		<DatePickerDegra fx:id="accountingDateDp" layoutX="515.0" layoutY="38.0" prefHeight="25.0" prefWidth="133.0" />
+
+		<Label text="Dokumenta datums" layoutX="402.0" layoutY="77.0" />
+		<DatePickerDegra fx:id="documentDateDp" layoutX="515.0" layoutY="73.0" prefHeight="25.0" prefWidth="133.0" />
+
+		<Label text="Apmaksas datums" layoutX="405.0" layoutY="113.0" />
+		<DatePickerDegra fx:id="paymentDateDp" layoutX="515.0" layoutY="109.0" prefHeight="25.0" prefWidth="133.0" />
+
+		<Label text="Summa" layoutX="791.0" layoutY="42.0" />
+		<TextField fx:id="sumTotalField" layoutX="840.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" onAction="#sumTotalOnAction"/>
+
+		<Label text="Valūta" layoutX="794.0" layoutY="77.0" />
+		<ComboBox fx:id="currencyCombo" layoutX="840.0" layoutY="73.0" onAction="#currencyOnAction" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Valūtas kurss" layoutX="760.0" layoutY="113.0" />
+		<TextField fx:id="exchangeRateField" layoutX="840.0" layoutY="109.0" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Summa valūtā" layoutX="757.0" layoutY="149.0" />
+		<TextField fx:id="sumTotalInCurrencyField" layoutX="840.0" layoutY="145.0" prefHeight="25.0" prefWidth="108.0" />
+
+		<Label text="Izdevējs" layoutX="292.0" layoutY="196.0" />
+		<Label text="Saņēmējs" layoutX="971.0" layoutY="198.0" />
+
+		<ComboBox fx:id="publisherCombo" layoutX="136.0" layoutY="251.0" onAction="#publisherOnAction" prefHeight="26.0" prefWidth="287.0" />
+		<ComboBox fx:id="publisherBankCombo" layoutX="136.0" layoutY="291.0" onAction="#publisherBankOnAction" prefHeight="25.0" prefWidth="287.0" />
+		<ComboBox fx:id="publisherBankAccountCombo" layoutX="136.0" layoutY="327.0" prefHeight="25.0" prefWidth="287.0" />
+
+		<ComboBox fx:id="receiverCombo" layoutX="804.0" layoutY="251.0" onAction="#receiverOnAction" prefHeight="26.0" prefWidth="287.0" />
+		<ComboBox fx:id="receiverBankCombo" layoutX="805.0" layoutY="286.0" onAction="#receiverBankOnAction" prefHeight="25.0" prefWidth="287.0" />
+		<ComboBox fx:id="receiverBankAccountCombo" layoutX="805.0" layoutY="322.0" prefHeight="25.0" prefWidth="287.0" />
+
+		<TextArea fx:id="notesForCustomerField" layoutX="78.0" layoutY="452.0" prefHeight="67.0" prefWidth="1088.0" />
+		<Label text="Piezīmes dokumenta izdrukā" layoutX="82.0" layoutY="435.0" />
+
+		<Label text="Piezīmes iekšējās" layoutX="87.0" layoutY="540.0" />
+		<TextArea fx:id="internalNotesField" layoutX="80.0" layoutY="557.0" prefHeight="44.0" prefWidth="1084.0" />
+
+		<ButtonBar layoutX="1091.0" layoutY="653.0" prefHeight="40.0" prefWidth="200.0">
+			<buttons>
+				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" prefHeight="25.0" prefWidth="138.0" text="Saglabāt" />
+				<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt" />
+			</buttons>
+		</ButtonBar>
+
+		<Label fx:id="documentIdLabel" layoutX="29.0" layoutY="685.0" prefHeight="17.0" prefWidth="87.0" text="" />
+	</children>
+</Pane>
