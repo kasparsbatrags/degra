@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressAction" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentListController">
+   <children>
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <BorderPane>
+               <center>
+                  <TableView fx:id="documentTableView" prefHeight="305.0" prefWidth="301.0" BorderPane.alignment="CENTER">
+                    <columns>
+                      <TableColumn fx:id="documentDateColumn" prefWidth="75.0" text="Datums" />
+                      <TableColumn fx:id="documentNumberColumn" prefWidth="75.0" text="Numurs" />
+						<TableColumn fx:id="documentDirectionColumn" prefWidth="75.0" text="Virziens" />
+                        <TableColumn fx:id="sumTotalColumn" prefWidth="75.0" text="Summa" />
+                        <TableColumn fx:id="currencyColumn" prefWidth="75.0" text="Valūta" />
+                        <TableColumn fx:id="exchangeRateColumn" prefWidth="75.0" text="Valūtas kurss" />
+                        <TableColumn fx:id="sumTotalInCurrencyColumn" prefWidth="99.0" text="Summa valūtā" />
+                        <TableColumn prefWidth="36.0">
+                           <graphic>
+                              <Button mnemonicParsing="false" text="Button" />
+                           </graphic>
+                        </TableColumn>
+                    </columns>
+                  </TableView>
+               </center>
+               <bottom>
+                  <Button fx:id="newButton" mnemonicParsing="false" onAction="#onNewButton" text="Jauns" BorderPane.alignment="TOP_RIGHT" />
+               </bottom>
+            </BorderPane>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>

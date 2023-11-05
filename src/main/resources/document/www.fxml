@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="728.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentController">
+	<children>
+		<GridPane hgap="10" vgap="10">
+			<!-- Labels -->
+			<Label text="Numurs" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+			<Label text="Uzskaites datums" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+			<!-- ... Other labels ... -->
+
+			<!-- Text Fields -->
+			<TextField fx:id="numberField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+			<DatePicker fx:id="accountingDateDp" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+			<!-- ... Other text fields ... -->
+
+			<!-- Combo Boxes -->
+			<ComboBox fx:id="currencyCombo" onAction="#currencyOnAction" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+			<!-- ... Other combo boxes ... -->
+
+			<!-- Other components -->
+
+			<ButtonBar GridPane.columnIndex="3" GridPane.rowIndex="5">
+				<buttons>
+					<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" text="Saglabāt"/>
+					<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt"/>
+				</buttons>
+			</ButtonBar>
+		</GridPane>
+	</children>
+</AnchorPane>

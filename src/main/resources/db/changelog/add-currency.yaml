@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: Currency
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: currency
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: varchar(3)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: currency_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: subunit_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: NOW()
+              - column:
+                  name: last_modified_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+
+  - changeSet:
+      id: ConstraintForeignKeysCurrencyToDocument
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: currency_id
+            baseTableName: document
+            constraintName: fk_curency_to_document
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: currency
+
+
+  - changeSet:
+      id: AddEUR
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM currency WHERE currency_code = 'EUR'
+      changes:
+        - insert:
+            tableName: currency
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: currency_code
+                  value: EUR
+              - column:
+                  name: currency_name
+                  value: Eiro
+              - column:
+                  name: subunit_name
+                  value: Centi

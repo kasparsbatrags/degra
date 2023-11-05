@@ -1,0 +1,25 @@
+databaseChangeLog:
+    - include:
+          file: db/changelog/add-document.yaml
+    - include:
+          file: db/changelog/add-country.yaml
+    - include:
+          file: db/changelog/add-currency.yaml
+    - include:
+          file: db/changelog/add-exchange-rate.yaml
+    - include:
+        file: db/changelog/add-customer.yaml
+    - include:
+        file: db/changelog/add-customer-data.yaml
+    - include:
+        file: db/changelog/add-bank.yaml
+    - include:
+        file: db/changelog/add-bank-data.yaml
+    - include:
+        file: db/changelog/add-customer-account.yaml
+    - include:
+        file: db/changelog/add-customer-account-data.yaml
+    - include:
+        file: db/changelog/add-banks-to-document.yaml
+
+

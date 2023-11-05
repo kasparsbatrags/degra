@@ -1,0 +1,30 @@
+spring:
+  datasource:
+#    url: jdbc:h2:mem:testdb;MODE=MYSQL
+    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: 1
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 15
+    test-on-borrow: true
+    validation-query: SELECT 1
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+
+application:
+  title: Degra v.1.0
+
+
+
+logging:
+  level:
+    ROOT: 'INFO'

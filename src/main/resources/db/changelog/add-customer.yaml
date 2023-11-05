@@ -1,0 +1,199 @@
+databaseChangeLog:
+  - changeSet:
+      id: Customer
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_type_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: registration_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vat_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: address_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_employee
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: false
+
+
+  - changeSet:
+      id: CustomerType
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: customer_type
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: AddCustomerTypeLegalPerson
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_type WHERE name = 'Juridiskā persona'
+      changes:
+        - insert:
+            tableName: customer_type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: Juridiskā persona
+
+  - changeSet:
+      id: AddCustomerTypeNaturalPerson
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_type WHERE name = 'Fiziskā persona'
+      changes:
+        - insert:
+            tableName: customer_type
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: Fiziskā persona
+
+  - changeSet:
+      id: AddCustomerTypeForeignLegalPerson
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_type WHERE name = 'Ārvalstu jurisikā persona'
+      changes:
+        - insert:
+            tableName: customer_type
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: Ārvalstu jurisikā persona
+
+  - changeSet:
+      id: AddCustomerTypeForeignNaturalPerson
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM customer_type WHERE name = 'Ārvalstu fiziskā persona'
+      changes:
+        - insert:
+            tableName: customer_type
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: name
+                  value: Ārvalstu fiziskā persona
+
+
+  - changeSet:
+      id: ConstraintForeignKeysCustomerTypeToCustomer
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_type_id
+            baseTableName: customer
+            constraintName: fk_customer_type_to_customer
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: customer_type
+
+
+  - changeSet:
+      id: ConstraintForeignKeysCustomerToDocumentReceiver
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: receiver_customer_id
+            baseTableName: document
+            constraintName: fk_customer_to_document_receiver
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: customer
+
+  - changeSet:
+      id: ConstraintForeignKeysCustomerToDocumentPublisher
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: publisher_customer_id
+            baseTableName: document
+            constraintName: fk_customer_to_document_publisher
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: customer
+
+  - changeSet:
+      id: ConstraintUniqueKeysCustomerRegistrationNumber
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  registration_number
+            constraintName: unique_customer_registration_number
+            tableName: customer
+
+  - changeSet:
+      id: ConstraintUniqueKeysCustomerVatNumber
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  vat_number
+            constraintName: unique_customer_vat_number
+            tableName: customer
