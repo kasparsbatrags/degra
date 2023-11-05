@@ -3,6 +3,7 @@ package lv.degra.accounting.document.enums;
 import lombok.Getter;
 import lv.degra.accounting.system.exception.IllegalEnumException;
 
+@Getter
 public enum DocumentDirection {
 
     IN(1, "Ienākošais"), OUT(2, "Izejošais"), INTERNAL(3,"Iekšējais");
