@@ -46,6 +46,7 @@ import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
+import lv.degra.accounting.system.object.DatePickerDegra;
 import lv.degra.accounting.system.utils.DegraController;
 
 @Controller
@@ -58,7 +59,7 @@ public class DocumentController extends DegraController {
 	@FXML
 	private TextField numberField, internalNumberField, sumTotalField, sumTotalInCurrencyField, exchangeRateField;
 	@FXML
-	private DatePicker accountingDateDp, documentDateDp, paymentDateDp;
+	private DatePickerDegra accountingDateDp, documentDateDp, paymentDateDp;
 	@FXML
 	private TextArea notesForCustomerField, internalNotesField;
 	@FXML
