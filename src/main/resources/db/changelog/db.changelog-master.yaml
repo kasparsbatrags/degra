@@ -21,5 +21,6 @@ databaseChangeLog:
         file: db/changelog/add-customer-account-data.yaml
     - include:
         file: db/changelog/add-banks-to-document.yaml
-
+    - include:
+        file: db/changelog/add-bill-content.yaml
 

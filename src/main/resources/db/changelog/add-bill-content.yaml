@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: Document-content
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: document-content
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: document_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service_name
+                  type: varchar(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: price_per_one
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sum_per_all
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: vat_percent
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: vat_sum
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sum_total
+                  type: double
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: NOW()
+              - column:
+                  name: last_modified_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+
+  - changeSet:
+      id: ConstraintForeignKeysDocumentContentToDocument
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: document_id
+            baseTableName: document-content
+            constraintName: fk_document_content_to_document
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: document
