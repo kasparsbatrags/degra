@@ -43,8 +43,15 @@ public class Document {
     @Column(name = "internal_number", length = 20)
     private String internalNumber;
 
-    @Column(name = "srs_type_id")
-    private Integer srsTypeId;
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "document_type_id", nullable = false)
+	private DocumentType documentType;
+
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "document_transaction_type_id", nullable = false)
+	private DocumentTransactionType documentTransactionType;
 
     @NotNull
     @Column(name = "accounting_date", nullable = false)

@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: Document-content
+      id: DocumentContent
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: document-content
+            tableName: document_content
             columns:
               - column:
                   name: id
@@ -67,7 +67,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: document_id
-            baseTableName: document-content
+            baseTableName: document_content
             constraintName: fk_document_content_to_document
             onDelete: NO ACTION
             referencedColumnNames: id

@@ -23,4 +23,18 @@ databaseChangeLog:
         file: db/changelog/add-banks-to-document.yaml
     - include:
         file: db/changelog/add-bill-content.yaml
+    - include:
+        file: db/changelog/add-document-type.yaml
+    - include:
+        file: db/changelog/add-document-type-data.yaml
+    - include:
+        file: db/changelog/add-document-transaction-type.yaml
+    - include:
+        file: db/changelog/add-declaration-section.yaml
+    - include:
+        file: db/changelog/add-declaration-section-data.yaml
+    - include:
+        file: db/changelog/add-document-transaction-type-data.yaml
+
+
 
