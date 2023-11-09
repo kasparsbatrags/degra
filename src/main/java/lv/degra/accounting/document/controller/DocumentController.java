@@ -41,7 +41,11 @@ import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.Document;
+import lv.degra.accounting.document.model.DocumentTransactionType;
+import lv.degra.accounting.document.model.DocumentType;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.document.service.DocumentTransactionTypeService;
+import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
@@ -52,6 +56,10 @@ import lv.degra.accounting.system.utils.DegraController;
 public class DocumentController extends DegraController {
 
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
+	@FXML
+	public ComboBox documentTypeCombo;
+	@FXML
+	public ComboBox documentTransactionTypeCombo;
 	@FXML
 	private ComboBox publisherCombo;
 	@FXML
@@ -75,8 +83,6 @@ public class DocumentController extends DegraController {
 	@FXML
 	private TextField numberField;
 	@FXML
-	private TextField internalNumberField;
-	@FXML
 	private TextField sumTotalField;
 	@FXML
 	private TextField sumTotalInCurrencyField;
@@ -98,6 +104,10 @@ public class DocumentController extends DegraController {
 	private DocumentService documentService;
 	@Autowired
 	private CurrencyService currencyService;
+	@Autowired
+	private DocumentTypeService documentTypeService;
+	@Autowired
+	private DocumentTransactionTypeService documentTransactionTypeService;
 	@Autowired
 	private ExchangeService exchangeService;
 	@Autowired
@@ -123,8 +133,8 @@ public class DocumentController extends DegraController {
 					(DocumentDirection) directionCombo.getValue(),
 					Integer.parseInt(numberField.getText()),
 					seriesField.getText(),
-					internalNumberField.getText(),
-					null,
+					(DocumentType) documentTypeCombo.getValue(),
+					(DocumentTransactionType) documentTransactionTypeCombo.getValue(),
 					accountingDateDp.getValue(),
 					documentDateDp.getValue(),
 					paymentDateDp.getValue(),
@@ -217,8 +227,9 @@ public class DocumentController extends DegraController {
 		directionCombo.setValue(documentDto.getDocumentDirection());
 		documentIdLabel.setText(documentDto.getId().toString());
 		seriesField.setText(documentDto.getDocumentSeries());
+		documentTypeCombo.setValue(documentDto.getDocumentType());
+		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
 		numberField.setText(String.valueOf(documentDto.getDocumentNumber()));
-		internalNumberField.setText(documentDto.getInternalNumber());
 		accountingDateDp.setValue(documentDto.getAccountingDate());
 		documentDateDp.setValue(documentDto.getDocumentDate());
 		paymentDateDp.setValue(documentDto.getPaymentDate());
@@ -252,9 +263,10 @@ public class DocumentController extends DegraController {
 
 	private void fillCombos() {
 
-		currencyCombo.setItems(currencyService.getCurrencyList());
-
-		ObservableList<Customer> customerList = customerService.getCustomerByNameOrRegistrationNumber();
+		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
+		documentTypeCombo.setItems(FXCollections.observableList(documentTypeService.getDocumentTypeList()));
+		documentTransactionTypeCombo.setItems(FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
+		ObservableList<Customer> customerList = FXCollections.observableList(customerService.getCustomerList());
 		publisherCombo.setItems(customerList);
 		receiverCombo.setItems(customerList);
 

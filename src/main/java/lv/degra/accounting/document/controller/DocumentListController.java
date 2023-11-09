@@ -8,9 +8,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,6 +22,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
 import lv.degra.accounting.document.enums.DocumentDirection;
@@ -29,7 +30,6 @@ import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
-import lv.degra.accounting.system.enums.EnumNameCellFactory;
 import lv.degra.accounting.system.exception.FxmlFileLoaderException;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.system.utils.DegraController;
@@ -45,10 +45,10 @@ public class DocumentListController extends DegraController {
 	@FXML
 	public Button newButton;
 	@Autowired
-	ApplicationFormBuilder applicationFormBuilder;
+	private ApplicationFormBuilder applicationFormBuilder;
 	@Autowired
-	ApplicationContext context;
-	ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
+	private ApplicationContext context;
+	private ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
 	@Autowired
 	private DocumentService documentService;
 	@FXML
@@ -57,6 +57,8 @@ public class DocumentListController extends DegraController {
 	private TableColumn<Document, LocalDate> documentDateColumn;
 	@FXML
 	private TableColumn<Document, String> documentNumberColumn;
+	@FXML
+	private TableColumn<Document, String> documentTypeColumn;
 	@FXML
 	private TableColumn<Document, DocumentDirection> documentDirectionColumn;
 	@FXML
@@ -67,41 +69,49 @@ public class DocumentListController extends DegraController {
 	private TableColumn<Document, String> exchangeRateColumn;
 	@FXML
 	private TableColumn<Document, String> sumTotalInCurrencyColumn;
-	private Document document = null;
 
 	@FXML
 	public void initialize() {
 		loadData();
 	}
 
-	public void onNewButton(ActionEvent actionEvent) {
+	public void onNewButton() {
 		openDocumentEditForm(null);
 	}
 
 	private void refreshTable() {
 		documentObservableList.clear();
-		documentService.getDocumentList().forEach(document -> documentObservableList.add(document));
+		documentService.getDocumentList().forEach(doc -> documentObservableList.add(doc));
 		documentTableView.setItems(documentObservableList);
 	}
 
 	private void loadData() {
 		refreshTable();
 		documentDateColumn.setCellValueFactory(new PropertyValueFactory<Document, LocalDate>("documentDate"));
-		documentNumberColumn.setCellValueFactory(new PropertyValueFactory<Document, String>("documentNumber"));
+		documentNumberColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Document, String>, ObservableValue<String>>() {
+			@Override
+			public ObservableValue<String> call(
+					TableColumn.CellDataFeatures<Document, String> p) {
+				return new SimpleStringProperty(p.getValue().getDocumentSeries()
+						+ "-" + p.getValue().getDocumentNumber().toString());
+			}
+		});
 
 		documentDirectionColumn.setCellValueFactory(new PropertyValueFactory<Document, DocumentDirection>("direction"));
 		documentDirectionColumn.setCellFactory(new DirectionEnumCellFactory());
 
 		sumTotalColumn.setCellValueFactory(new PropertyValueFactory<Document, Double>("sumTotal"));
-		currencyColumn.setCellValueFactory(document -> new SimpleStringProperty(document.getValue().getCurrency().getCurrencyName()));
+		currencyColumn.setCellValueFactory(doc -> new SimpleStringProperty(doc.getValue().getCurrency().getCurrencyCode()));
+		documentTypeColumn.setCellValueFactory(doc -> new SimpleStringProperty(doc.getValue().getDocumentType().getName()));
 		exchangeRateColumn.setCellValueFactory(
-				document -> new SimpleStringProperty(document.getValue().getExchangeRate().getRate().toString()));
+				doc -> new SimpleStringProperty(doc.getValue().getExchangeRate().getRate().toString()));
 
 		documentTableView.requestFocus();
 	}
 
 	@FXML
 	public void onKeyPressAction(KeyEvent keyEvent) {
+		Document document;
 		KeyCode key = keyEvent.getCode();
 		if (key == KeyCode.INSERT) {
 			openDocumentEditForm(null);

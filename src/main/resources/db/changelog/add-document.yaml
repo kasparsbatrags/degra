@@ -34,9 +34,13 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
-
               - column:
-                  name: srs_type_id
+                  name: document_type_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: document_transaction_type_id
                   type: int
                   constraints:
                     nullable: true

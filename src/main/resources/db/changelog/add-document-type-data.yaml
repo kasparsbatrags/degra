@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddDocumentTypeRekins
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM document_type WHERE name = 'Rēķins'
+      changes:
+        - insert:
+            tableName: document_type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: Rēķins
+  - changeSet:
+      id: AddDocumentTypeMaksajums
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM document_type WHERE name = 'Maksājums'
+      changes:
+        - insert:
+            tableName: document_type
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: Maksājums
+
+  - changeSet:
+      id: AddDocumentTypeGramatojums
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM document_type WHERE name = 'Grāmatojums'
+      changes:
+        - insert:
+            tableName: document_type
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: Grāmatojums

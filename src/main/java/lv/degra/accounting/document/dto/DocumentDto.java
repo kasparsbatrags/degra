@@ -9,6 +9,8 @@ import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.Document;
+import lv.degra.accounting.document.model.DocumentTransactionType;
+import lv.degra.accounting.document.model.DocumentType;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 import java.io.Serializable;
@@ -28,8 +30,8 @@ public class DocumentDto implements Serializable {
 	Integer documentNumber;
 	@Size(max = 20)
 	String documentSeries;
-    @Size(max = 20) String internalNumber;
-    Integer srsTypeId;
+	DocumentType documentType;
+	DocumentTransactionType documentTransactionType;
     @NotNull LocalDate accountingDate;
     @NotNull LocalDate documentDate;
     LocalDate paymentDate;

@@ -1,8 +1,9 @@
 package lv.degra.accounting.customer.service;
 
-import javafx.collections.ObservableList;
+import java.util.List;
+
 import lv.degra.accounting.customer.model.Customer;
 
 public interface CustomerService {
-    ObservableList<Customer> getCustomerByNameOrRegistrationNumber();
+    List<Customer> getCustomerList();
 }
