@@ -7,6 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DocumentTypeRepository extends JpaRepository<DocumentType, Long> {
-	@Query("SELECT d FROM DocumentType d WHERE d.id=:id")
-	DocumentType getById(@Param("id") Integer id);
 }

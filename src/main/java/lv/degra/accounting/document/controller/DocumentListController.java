@@ -48,7 +48,7 @@ public class DocumentListController extends DegraController {
 	private ApplicationFormBuilder applicationFormBuilder;
 	@Autowired
 	private ApplicationContext context;
-	ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
+	private ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
 	@Autowired
 	private DocumentService documentService;
 	@FXML
