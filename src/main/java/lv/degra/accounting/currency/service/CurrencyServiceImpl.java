@@ -1,5 +1,7 @@
 package lv.degra.accounting.currency.service;
 
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.AllArgsConstructor;
@@ -17,8 +19,8 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    public ObservableList<Currency> getCurrencyList() {
-        return FXCollections.observableList(currencyRepository.findAll());
+    public List<Currency> getCurrencyList() {
+        return currencyRepository.findAll();
     }
 
     public Currency getDefaultCurrency(){

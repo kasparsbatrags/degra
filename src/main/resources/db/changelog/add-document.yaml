@@ -43,7 +43,7 @@ databaseChangeLog:
                   name: document_transaction_type_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: accounting_date
                   type: date

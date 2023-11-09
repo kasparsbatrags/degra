@@ -39,5 +39,9 @@ public class DocumentTransactionType implements Serializable {
 	@JoinColumn(name = "declaration_section_id", nullable = false)
 	private DeclarationSection declarationSection;
 
+	@Override
+	public String toString() {
+		return getName();
+	}
 }
 
