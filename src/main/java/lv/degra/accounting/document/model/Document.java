@@ -32,11 +32,14 @@ public class Document {
 	@Enumerated(EnumType.ORDINAL)
 	private DocumentDirection direction;
 
-    @Size(max = 20)
-    @Column(name = "document_number", nullable = false, length = 20)
-    private String documentNumber;
+    @Column(name = "document_number", nullable = false)
+    private Integer documentNumber;
 
-    @Size(max = 20)
+	@Size(max = 20)
+	@Column(name = "document_series", length = 20)
+	private String documentSeries;
+
+	@Size(max = 20)
     @Column(name = "internal_number", length = 20)
     private String internalNumber;
 

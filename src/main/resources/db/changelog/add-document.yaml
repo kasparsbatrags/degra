@@ -16,6 +16,11 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: document_number
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: document_series
                   type: varchar(20)
                   constraints:
                     nullable: true

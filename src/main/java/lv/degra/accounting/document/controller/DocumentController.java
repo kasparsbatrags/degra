@@ -23,7 +23,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -46,21 +45,53 @@ import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.exception.IncorrectSumException;
+import lv.degra.accounting.system.object.DatePicker;
 import lv.degra.accounting.system.utils.DegraController;
 
 @Controller
 public class DocumentController extends DegraController {
+
+	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 	@FXML
-	public ComboBox publisherCombo, publisherBankCombo, publisherBankAccountCombo, receiverCombo, receiverBankCombo,
-			receiverBankAccountCombo, directionCombo, currencyCombo;
+	private ComboBox publisherCombo;
 	@FXML
-	public Label documentIdLabel;
+	private ComboBox publisherBankCombo;
 	@FXML
-	private TextField numberField, internalNumberField, sumTotalField, sumTotalInCurrencyField, exchangeRateField;
+	private ComboBox publisherBankAccountCombo;
 	@FXML
-	private DatePicker accountingDateDp, documentDateDp, paymentDateDp;
+	private ComboBox receiverCombo;
 	@FXML
-	private TextArea notesForCustomerField, internalNotesField;
+	private ComboBox receiverBankCombo;
+	@FXML
+	private ComboBox receiverBankAccountCombo;
+	@FXML
+	private ComboBox directionCombo;
+	@FXML
+	private ComboBox currencyCombo;
+	@FXML
+	private Label documentIdLabel;
+	@FXML
+	private TextField seriesField;
+	@FXML
+	private TextField numberField;
+	@FXML
+	private TextField internalNumberField;
+	@FXML
+	private TextField sumTotalField;
+	@FXML
+	private TextField sumTotalInCurrencyField;
+	@FXML
+	private TextField exchangeRateField;
+	@FXML
+	private DatePicker accountingDateDp;
+	@FXML
+	private DatePicker documentDateDp;
+	@FXML
+	private DatePicker paymentDateDp;
+	@FXML
+	private TextArea notesForCustomerField;
+	@FXML
+	private TextArea internalNotesField;
 	@FXML
 	private Button saveButton;
 	@Autowired
@@ -79,7 +110,7 @@ public class DocumentController extends DegraController {
 	private DocumentDto documentDto;
 	private ObservableList<Document> documentObservableList;
 
-	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
 		return t -> seen.add(keyExtractor.apply(t));
 	}
@@ -90,7 +121,8 @@ public class DocumentController extends DegraController {
 			Integer id = documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText());
 			documentDto = new DocumentDto(id,
 					(DocumentDirection) directionCombo.getValue(),
-					numberField.getText(),
+					Integer.parseInt(numberField.getText()),
+					seriesField.getText(),
 					internalNumberField.getText(),
 					null,
 					accountingDateDp.getValue(),
@@ -154,7 +186,6 @@ public class DocumentController extends DegraController {
 			}
 		});
 
-
 		TextArea notesForCustomerField = new TextArea();
 		TextArea internalNotesField = new TextArea();
 		fillCombos();
@@ -185,7 +216,8 @@ public class DocumentController extends DegraController {
 	private void fillFormWithExistData(DocumentDto documentDto) {
 		directionCombo.setValue(documentDto.getDocumentDirection());
 		documentIdLabel.setText(documentDto.getId().toString());
-		numberField.setText(documentDto.getDocumentNumber());
+		seriesField.setText(documentDto.getDocumentSeries());
+		numberField.setText(String.valueOf(documentDto.getDocumentNumber()));
 		internalNumberField.setText(documentDto.getInternalNumber());
 		accountingDateDp.setValue(documentDto.getAccountingDate());
 		documentDateDp.setValue(documentDto.getDocumentDate());
@@ -205,19 +237,17 @@ public class DocumentController extends DegraController {
 	}
 
 	private void setFormat() {
+		setFieldFormat(sumTotalField);
+		setFieldFormat(sumTotalInCurrencyField);
+		setFieldFormat(exchangeRateField);
+	}
 
+	private void setFieldFormat(TextField field) {
 		Pattern pattern = Pattern.compile(SUM_FORMAT_REGEX);
-		TextFormatter summTotalDoubleFormatter = new TextFormatter((UnaryOperator<TextFormatter.Change>) change -> {
-			return pattern.matcher(change.getControlNewText()).matches() ? change : null;
-		});
-		sumTotalField.setTextFormatter(summTotalDoubleFormatter);
-		sumTotalField.setText("0");
-
-		TextFormatter exchangeRateDoubleFormatter = new TextFormatter((UnaryOperator<TextFormatter.Change>) change -> {
-			return pattern.matcher(change.getControlNewText()).matches() ? change : null;
-		});
-
-		exchangeRateField.setTextFormatter(exchangeRateDoubleFormatter);
+		TextFormatter sumTotalDoubleFormatter = new TextFormatter(
+				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
+		field.setTextFormatter(sumTotalDoubleFormatter);
+		field.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 	}
 
 	private void fillCombos() {
@@ -259,7 +289,7 @@ public class DocumentController extends DegraController {
 
 	}
 
-	private Double getDouble(String totalSum) {
+	Double getDouble(String totalSum) {
 		double result;
 		try {
 			result = Double.parseDouble(totalSum);
@@ -283,7 +313,7 @@ public class DocumentController extends DegraController {
 		Customer customer = (Customer) customerCombo.getValue();
 
 		ObservableList<CustomerBankAccount> observableAccountsListBank = customerAccountService.getCustomerAccounts(customer);
-		List<Integer> uniqueCustomerBankIdList = observableAccountsListBank.stream().filter(distinctByKey(CustomerBankAccount::getBank))
+		List<Integer> uniqueCustomerBankIdList = observableAccountsListBank.stream().filter(getDistinctValues(CustomerBankAccount::getBank))
 				.map(account -> account.getBank().getId()).toList();
 
 		ObservableList<Bank> observableCustomerBankList = bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList);
@@ -304,7 +334,7 @@ public class DocumentController extends DegraController {
 		}
 	}
 
-	private void setBankAccountInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	private void setCustomerAccountInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
 		Customer selectedCustomer = (Customer) customerCombo.getValue();
 		Bank selectedBank = (Bank) bankCombo.getValue();
 		if (selectedBank != null) {
@@ -327,7 +357,7 @@ public class DocumentController extends DegraController {
 	}
 
 	public void receiverBankOnAction() {
-		setBankAccountInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
+		setCustomerAccountInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 	}
 
 	public void publisherOnAction() {
@@ -335,7 +365,7 @@ public class DocumentController extends DegraController {
 	}
 
 	public void publisherBankOnAction() {
-		setBankAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+		setCustomerAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
 	}
 
 	public void sumTotalOnAction() {

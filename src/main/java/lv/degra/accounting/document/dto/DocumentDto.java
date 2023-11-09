@@ -25,7 +25,9 @@ import java.time.LocalDate;
 public class DocumentDto implements Serializable {
     Integer id;
     DocumentDirection documentDirection;
-    @Size(max = 20) String documentNumber;
+	Integer documentNumber;
+	@Size(max = 20)
+	String documentSeries;
     @Size(max = 20) String internalNumber;
     Integer srsTypeId;
     @NotNull LocalDate accountingDate;
