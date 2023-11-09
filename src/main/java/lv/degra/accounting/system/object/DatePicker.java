@@ -1,12 +1,11 @@
 package lv.degra.accounting.system.object;
 
-import javafx.scene.control.DatePicker;
-		import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCode;
 		import javafx.scene.input.KeyEvent;
 
-public class DatePickerDegra extends DatePicker {
+public class DatePicker extends javafx.scene.control.DatePicker {
 
-	public DatePickerDegra() {
+	public DatePicker() {
 		super();
 
 		this.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
