@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,7 +30,6 @@ import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
-import lv.degra.accounting.system.enums.EnumNameCellFactory;
 import lv.degra.accounting.system.exception.FxmlFileLoaderException;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.system.utils.DegraController;
@@ -47,9 +45,9 @@ public class DocumentListController extends DegraController {
 	@FXML
 	public Button newButton;
 	@Autowired
-	ApplicationFormBuilder applicationFormBuilder;
+	private ApplicationFormBuilder applicationFormBuilder;
 	@Autowired
-	ApplicationContext context;
+	private ApplicationContext context;
 	ObservableList<Document> documentObservableList = FXCollections.observableArrayList();
 	@Autowired
 	private DocumentService documentService;
@@ -72,7 +70,6 @@ public class DocumentListController extends DegraController {
 	@FXML
 	private TableColumn<Document, String> sumTotalInCurrencyColumn;
 
-
 	@FXML
 	public void initialize() {
 		loadData();
@@ -91,7 +88,7 @@ public class DocumentListController extends DegraController {
 	private void loadData() {
 		refreshTable();
 		documentDateColumn.setCellValueFactory(new PropertyValueFactory<Document, LocalDate>("documentDate"));
-		documentNumberColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Document, String>, ObservableValue<String>>(){
+		documentNumberColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Document, String>, ObservableValue<String>>() {
 			@Override
 			public ObservableValue<String> call(
 					TableColumn.CellDataFeatures<Document, String> p) {
@@ -105,7 +102,7 @@ public class DocumentListController extends DegraController {
 
 		sumTotalColumn.setCellValueFactory(new PropertyValueFactory<Document, Double>("sumTotal"));
 		currencyColumn.setCellValueFactory(doc -> new SimpleStringProperty(doc.getValue().getCurrency().getCurrencyCode()));
-		documentTypeColumn.setCellValueFactory(doc->new SimpleStringProperty(doc.getValue().getDocumentType().getName()));
+		documentTypeColumn.setCellValueFactory(doc -> new SimpleStringProperty(doc.getValue().getDocumentType().getName()));
 		exchangeRateColumn.setCellValueFactory(
 				doc -> new SimpleStringProperty(doc.getValue().getExchangeRate().getRate().toString()));
 
