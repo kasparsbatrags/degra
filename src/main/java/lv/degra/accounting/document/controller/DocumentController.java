@@ -55,51 +55,52 @@ import lv.degra.accounting.system.utils.DegraController;
 @Controller
 public class DocumentController extends DegraController {
 
+	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 	@FXML
 	public ComboBox documentTypeCombo;
 	@FXML
 	public ComboBox documentTransactionTypeCombo;
 	@FXML
-	private ComboBox publisherCombo;
+	public ComboBox publisherCombo;
 	@FXML
-	private ComboBox publisherBankCombo;
+	public ComboBox publisherBankCombo;
 	@FXML
-	private ComboBox publisherBankAccountCombo;
+	public ComboBox publisherBankAccountCombo;
 	@FXML
-	private ComboBox receiverCombo;
+	public ComboBox receiverCombo;
 	@FXML
-	private ComboBox receiverBankCombo;
+	public ComboBox receiverBankCombo;
 	@FXML
-	private ComboBox receiverBankAccountCombo;
+	public ComboBox receiverBankAccountCombo;
 	@FXML
-	private ComboBox directionCombo;
+	public ComboBox directionCombo;
 	@FXML
-	private ComboBox currencyCombo;
+	public ComboBox currencyCombo;
 	@FXML
-	private Label documentIdLabel;
+	public Label documentIdLabel;
 	@FXML
-	private TextField seriesField;
+	public TextField seriesField;
 	@FXML
-	private TextField numberField;
+	public TextField numberField;
 	@FXML
-	private TextField sumTotalField;
+	public TextField sumTotalField;
 	@FXML
-	private TextField sumTotalInCurrencyField;
+	public TextField sumTotalInCurrencyField;
 	@FXML
-	private TextField exchangeRateField;
+	public TextField exchangeRateField;
 	@FXML
-	private DatePicker accountingDateDp;
+	public DatePicker accountingDateDp;
 	@FXML
-	private DatePicker documentDateDp;
+	public DatePicker documentDateDp;
 	@FXML
-	private DatePicker paymentDateDp;
+	public DatePicker paymentDateDp;
 	@FXML
-	private TextArea notesForCustomerField;
+	public TextArea notesForCustomerField;
 	@FXML
-	private TextArea internalNotesField;
+	public TextArea internalNotesField;
 	@FXML
-	private Button saveButton;
+	public Button saveButton;
 	@Autowired
 	private DocumentService documentService;
 	@Autowired
@@ -221,6 +222,9 @@ public class DocumentController extends DegraController {
 		Currency currencyDefault = currencyService.getDefaultCurrency();
 		currencyCombo.setValue(currencyDefault);
 		setExchangeRate(currencyDefault);
+
+		sumTotalField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
+		sumTotalInCurrencyField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 	}
 
 	private void fillFormWithExistData(DocumentDto documentDto) {
@@ -248,24 +252,23 @@ public class DocumentController extends DegraController {
 	}
 
 	private void setFormat() {
-		setFieldFormat(sumTotalField);
-		setFieldFormat(sumTotalInCurrencyField);
-		setFieldFormat(exchangeRateField);
+		setFieldFormat(sumTotalField, SUM_FORMAT_REGEX);
+		setFieldFormat(sumTotalInCurrencyField, SUM_FORMAT_REGEX);
 	}
 
-	private void setFieldFormat(TextField field) {
-		Pattern pattern = Pattern.compile(SUM_FORMAT_REGEX);
+	void setFieldFormat(TextField field, String sumRegex) {
+		Pattern pattern = Pattern.compile(sumRegex);
 		TextFormatter sumTotalDoubleFormatter = new TextFormatter(
 				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
 		field.setTextFormatter(sumTotalDoubleFormatter);
-		field.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 	}
 
 	private void fillCombos() {
 
 		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
 		documentTypeCombo.setItems(FXCollections.observableList(documentTypeService.getDocumentTypeList()));
-		documentTransactionTypeCombo.setItems(FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
+		documentTransactionTypeCombo.setItems(
+				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
 		ObservableList<Customer> customerList = FXCollections.observableList(customerService.getCustomerList());
 		publisherCombo.setItems(customerList);
 		receiverCombo.setItems(customerList);
@@ -306,7 +309,7 @@ public class DocumentController extends DegraController {
 		try {
 			result = Double.parseDouble(totalSum);
 		} catch (RuntimeException e) {
-			throw new IncorrectSumException("Nav iespējams nolasīt summu!");
+			throw new IncorrectSumException(EXCEPTION_TEXT_INCORRECT_SUM);
 		}
 		return result;
 	}

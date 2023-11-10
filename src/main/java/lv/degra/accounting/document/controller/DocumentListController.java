@@ -81,7 +81,7 @@ public class DocumentListController extends DegraController {
 
 	private void refreshTable() {
 		documentObservableList.clear();
-		documentService.getDocumentList().forEach(doc -> documentObservableList.add(doc));
+		documentObservableList.addAll(documentService.getDocumentList());
 		documentTableView.setItems(documentObservableList);
 	}
 
