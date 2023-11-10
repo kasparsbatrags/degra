@@ -26,6 +26,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -57,6 +59,7 @@ public class DocumentController extends DegraController {
 
 	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
+	private static final String BILL_DISPLAY_NAME = "Rēķins";
 	@FXML
 	public ComboBox documentTypeCombo;
 	@FXML
@@ -101,6 +104,12 @@ public class DocumentController extends DegraController {
 	public TextArea internalNotesField;
 	@FXML
 	public Button saveButton;
+	@FXML
+	public Tab documentInfoTab;
+	@FXML
+	public Tab billInfoTab;
+	@FXML
+	public TabPane documentTabPane;
 	@Autowired
 	private DocumentService documentService;
 	@Autowired
@@ -197,11 +206,29 @@ public class DocumentController extends DegraController {
 			}
 		});
 
+		documentTypeCombo.setOnAction(event -> showHideObjects());
+
+		showHideObjects();
 		TextArea notesForCustomerField = new TextArea();
 		TextArea internalNotesField = new TextArea();
 		fillCombos();
 		setFormat();
 		setDefaultValues();
+	}
+
+	private void showHideObjects() {
+
+		if (isDocumentBill()) {
+			documentTabPane.getTabs().add(billInfoTab);
+		} else {
+			documentTabPane.getTabs().remove(billInfoTab);
+		}
+	}
+
+
+	boolean isDocumentBill(){
+		DocumentType documentType = (DocumentType) documentTypeCombo.getValue();
+		return (documentTypeCombo != null && documentType != null && BILL_DISPLAY_NAME.equals(documentType.getName()));
 	}
 
 	public void setDocument(DocumentDto documentDto) {
