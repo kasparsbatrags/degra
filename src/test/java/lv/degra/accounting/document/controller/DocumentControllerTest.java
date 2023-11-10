@@ -38,15 +38,13 @@ class DocumentControllerTest extends ApplicationTest {
 		TextFormatter<?> textFormatter = textField.getTextFormatter();
 		assertNotNull(textFormatter);
 
-		String validInput = CORRECT_SUM_INPUT;
 		interact(() -> {
-			textField.setText(validInput);
+			textField.setText(CORRECT_SUM_INPUT);
 		});
-		assertEquals(validInput, textField.getText(), "Valid input should be accepted");
+		assertEquals(CORRECT_SUM_INPUT, textField.getText(), "Valid input should be accepted");
 		textField.setText("");
-		String invalidInput = INCORRECT_CORRECT_SUM_INPUT;
 		interact(() -> {
-			textField.setText(invalidInput);
+			textField.setText(INCORRECT_CORRECT_SUM_INPUT);
 		});
 		assertEquals("", textField.getText(), "Invalid input should be rejected");
 
