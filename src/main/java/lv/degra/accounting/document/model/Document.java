@@ -12,7 +12,10 @@ import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.distribution.model.Distribution;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
+import lv.degra.accounting.system.object.DisplayName;
+import lv.degra.accounting.system.object.ShowInTableView;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -26,57 +29,78 @@ public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+	@DisplayName("Id")
     private Integer id;
 
     @Column(name = "direction_id")
 	@Enumerated(EnumType.ORDINAL)
+	@DisplayName("Virziens")
+	@ShowInTableView(columnOrder = 3)
 	private DocumentDirection direction;
 
     @Column(name = "document_number", nullable = false)
+	@DisplayName("Numurs")
     private Integer documentNumber;
 
 	@Size(max = 20)
 	@Column(name = "document_series", length = 20)
+	@DisplayName("Sērija")
+	@ShowInTableView(columnOrder = 2)
 	private String documentSeries;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "document_type_id", nullable = false)
+	@DisplayName("Tips")
+	@ShowInTableView(columnOrder = 4)
 	private DocumentType documentType;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "document_transaction_type_id")
+	@DisplayName("Transakcijas tips")
 	private DocumentTransactionType documentTransactionType;
 
     @NotNull
     @Column(name = "accounting_date", nullable = false)
+	@DisplayName("Grāmatojuma datums")
     private LocalDate accountingDate;
 
     @NotNull
     @Column(name = "document_date", nullable = false)
+	@DisplayName("Datums")
+	@ShowInTableView(columnOrder = 1)
     private LocalDate documentDate;
 
     @Column(name = "payment_date")
+	@DisplayName("Apsmaksas datums")
     private LocalDate paymentDate;
 
     @Column(name = "payment_type_id")
     private Integer paymentTypeId;
 
     @Column(name = "sum_total", nullable = false)
+	@DisplayName("Summa")
+	@ShowInTableView(columnOrder = 5)
     private Double sumTotal;
 
     @Column(name = "sum_total_in_currency", nullable = false)
+	@DisplayName("Summa valūtā")
+	@ShowInTableView(columnOrder = 8)
     private Double sumTotalInCurrency;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "currency_id", nullable = false)
+	@DisplayName("Valūta")
+	@ShowInTableView(columnOrder = 6)
     private Currency currency;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "exchange_rate_id", nullable = false)
+	@DisplayName("Valūtas kurss")
+	@ShowInTableView(columnOrder = 7)
     private CurrencyExchangeRate exchangeRate;
 
     @Column(name = "notes_for_customer", length = Integer.MAX_VALUE)

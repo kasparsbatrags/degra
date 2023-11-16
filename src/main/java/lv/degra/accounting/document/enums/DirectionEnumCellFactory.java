@@ -1,15 +1,16 @@
 package lv.degra.accounting.document.enums;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
-import lv.degra.accounting.document.model.Document;
 
-public class DirectionEnumCellFactory implements
-		Callback<TableColumn<Document, DocumentDirection>, TableCell<Document, DocumentDirection>> {
+public class DirectionEnumCellFactory<T, DocumentDirection> implements Callback<TableColumn<T, DocumentDirection>, TableCell<T, DocumentDirection>> {
 	@Override
-	public TableCell<Document, DocumentDirection> call(TableColumn<Document, DocumentDirection> param) {
-		return new TableCell<Document, DocumentDirection>() {
+	public TableCell<T, DocumentDirection> call(TableColumn<T, DocumentDirection> param) {
+		return new TableCell<T, DocumentDirection>() {
 			@Override
 			protected void updateItem(DocumentDirection item, boolean empty) {
 				super.updateItem(item, empty);
@@ -17,7 +18,13 @@ public class DirectionEnumCellFactory implements
 				if (empty || item == null) {
 					setText(null);
 				} else {
-					setText(item.getDisplayName());
+					try {
+						Method method = item.getClass().getMethod("getDisplayName");
+						String displayName = (String) method.invoke(item);
+						setText(displayName);
+					} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};
