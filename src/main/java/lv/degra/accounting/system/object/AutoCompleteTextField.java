@@ -1,4 +1,4 @@
-package lv.degra.accounting.system;
+package lv.degra.accounting.system.object;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
