@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lv.degra.accounting.document.dto.DocumentDto;
@@ -25,30 +28,37 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	private ModelMapper modelMapper;
 
-	public Document saveDocument(DocumentDto documentDto) {
+	@Transactional
+	public DocumentDto saveDocument(DocumentDto documentDto) {
 		try {
 			if (documentDto.getId() != null) {
 				Document document = documentRepository.getById(documentDto.getId());
-				mapToExistEntity(documentDto, document);
-				return documentRepository.save(document);
+				if (document != null) {
+					mapToExistingEntity(documentDto, document);
+					return mapToDto(documentRepository.save(document));
+				} else {
+					throw new EntityNotFoundException("Document not found with ID: " + documentDto.getId());
+				}
 			} else {
-				return documentRepository.save(mapToNewEntity(documentDto));
+				return mapToDto(documentRepository.save(mapToNewEntity(documentDto)));
 			}
-
-		} catch (RuntimeException exception) {
-			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + exception.getMessage());
+		} catch (DataIntegrityViolationException e) {
+			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
 		}
 	}
 
-	public List<Document> getDocumentList() {
-		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+	public List<DocumentDto> getDocumentList() {
+		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
+				.stream()
+				.map(this::mapToDto)
+				.toList();
 	}
 
 	private Document mapToNewEntity(DocumentDto documentDto) {
 		return modelMapper.map(documentDto, Document.class);
 	}
 
-	public void mapToExistEntity(DocumentDto documentDto, Document document) {
+	public void mapToExistingEntity(DocumentDto documentDto, Document document) {
 		modelMapper.map(documentDto, document);
 	}
 

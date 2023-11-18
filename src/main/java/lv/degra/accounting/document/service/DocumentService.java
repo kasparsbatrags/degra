@@ -6,9 +6,9 @@ import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.model.Document;
 
 public interface DocumentService {
-	Document saveDocument(DocumentDto documentDto);
+	DocumentDto saveDocument(DocumentDto documentDto);
 
-	List<Document> getDocumentList();
+	List<DocumentDto> getDocumentList();
 
 	DocumentDto mapToDto(Document document);
 

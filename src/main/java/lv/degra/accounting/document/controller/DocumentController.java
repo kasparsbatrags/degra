@@ -42,7 +42,6 @@ import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DocumentDirection;
-import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.model.DocumentTransactionType;
 import lv.degra.accounting.document.model.DocumentType;
 import lv.degra.accounting.document.service.DocumentService;
@@ -128,7 +127,7 @@ public class DocumentController extends DegraController {
 	private CustomerAccountService customerAccountService;
 	private CurrencyExchangeRate currencyExchangeRate;
 	private DocumentDto documentDto;
-	private ObservableList<Document> documentObservableList;
+	private ObservableList<DocumentDto> documentObservableList;
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
@@ -162,9 +161,9 @@ public class DocumentController extends DegraController {
 					(Bank) receiverBankCombo.getValue(),
 					(CustomerBankAccount) receiverBankAccountCombo.getValue()
 			);
-			Document document = documentService.saveDocument(documentDto);
+			DocumentDto newDocument = documentService.saveDocument(documentDto);
 			if (id == null) {
-				this.documentObservableList.add(document);
+				this.documentObservableList.add(newDocument);
 			}
 			closeWindows();
 		} catch (Exception e) {
@@ -225,8 +224,7 @@ public class DocumentController extends DegraController {
 		}
 	}
 
-
-	boolean isDocumentBill(){
+	boolean isDocumentBill() {
 		DocumentType documentType = (DocumentType) documentTypeCombo.getValue();
 		return (documentTypeCombo != null && documentType != null && BILL_DISPLAY_NAME.equals(documentType.getName()));
 	}
@@ -238,7 +236,7 @@ public class DocumentController extends DegraController {
 		}
 	}
 
-	public void setDocumentList(ObservableList<Document> documentList) {
+	public void setDocumentList(ObservableList<DocumentDto> documentList) {
 		this.documentObservableList = documentList;
 	}
 
