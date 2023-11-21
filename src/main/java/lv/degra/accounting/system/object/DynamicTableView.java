@@ -27,6 +27,7 @@ import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.system.exception.DynamicTableBuildException;
+import lv.degra.accounting.system.exception.IllegalDataArgumentException;
 
 public class DynamicTableView<T> extends TableView<T> {
 
@@ -54,6 +55,9 @@ public class DynamicTableView<T> extends TableView<T> {
 	}
 
 	public void setData(List<T> data) {
+		if (data.isEmpty()) {
+			throw new IllegalDataArgumentException("Data list cannot be empty");
+		}
 		try {
 			getColumns().clear();
 			T firstObject = data.get(0);
