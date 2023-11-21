@@ -32,7 +32,7 @@ public class ApplicationFormBuilder {
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-            throw new FxmlFileLoaderException(e.getMessage());
+            throw new FxmlFileLoaderException(e.getCause() + e.getMessage());
         }
         return root;
     }

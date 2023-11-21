@@ -30,19 +30,24 @@ import lv.degra.accounting.system.exception.DynamicTableBuildException;
 import lv.degra.accounting.system.exception.IllegalDataArgumentException;
 
 public class DynamicTableView<T> extends TableView<T> {
-
+	private Class<T> type;
 	private Creator<T> creator;
 	private Updater<T> updater;
 	private Deleter<T> deleter;
 
-	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater) {
-		super();
-	}
-
 	public DynamicTableView() {
 	}
 
-	public void setCreater(Creator<T> creator) {
+	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type) {
+		super();
+	}
+
+	public void setType(Class<T> type) {
+		this.type = type;
+	}
+
+
+	public void setCreator(Creator<T> creator) {
 		this.creator = creator;
 	}
 
@@ -55,8 +60,20 @@ public class DynamicTableView<T> extends TableView<T> {
 	}
 
 	public void setData(List<T> data) {
-		if (data.isEmpty()) {
-			throw new IllegalDataArgumentException("Data list cannot be empty");
+		boolean dataIsEmpty = data.isEmpty();
+		if (dataIsEmpty) {
+			if (data.isEmpty()) {
+				if (type == null) {
+					throw new IllegalStateException("Type is null. You must pass a Class<T> object to the DynamicTableView constructor.");
+				}
+				try {
+					T instance = type.newInstance();
+					data = new ArrayList<>();
+					data.add(instance);
+				} catch (Exception e) {
+					throw new IllegalDataArgumentException(e.getCause() + SPACE + e.getMessage());
+				}
+			}
 		}
 		try {
 			getColumns().clear();
@@ -90,7 +107,9 @@ public class DynamicTableView<T> extends TableView<T> {
 		} catch (RuntimeException e) {
 			throw new DynamicTableBuildException(e.getMessage() + SPACE + e.getCause());
 		}
-		setItems((ObservableList<T>) data);
+		if (!dataIsEmpty) {
+			setItems((ObservableList<T>) data);
+		}
 	}
 
 	private TableColumn<T, ?> buildColumn(String columnDisplayName, Field field) {

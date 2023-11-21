@@ -47,7 +47,8 @@ public class DocumentListController extends DegraController {
 
 	@FXML
 	public void initialize() {
-		documentDynamicTableView.setCreater(item -> {
+		documentDynamicTableView.setType(DocumentDto.class);
+		documentDynamicTableView.setCreator(item -> {
 			openDocumentEditForm(null);
 			refreshTable();
 		});

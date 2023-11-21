@@ -46,7 +46,7 @@ public class DynamicTableViewTest extends ApplicationTest {
 //		Creator<Object> mockCreator = mock(Creator.class);
 //		Updater<Object> mockUpdater = mock(Updater.class);
 //		Deleter<Object> mockDeleter = mock(Deleter.class);
-//		tableView.setCreater(mockCreator);
+//		tableView.setCreator(mockCreator);
 //		tableView.setUpdater(mockUpdater);
 //		tableView.setDeleter(mockDeleter);
 //		ObservableList<Object> data = FXCollections.observableArrayList();
