@@ -47,7 +47,19 @@ public class DocumentListController extends DegraController {
 
 	@FXML
 	public void initialize() {
-		loadData();
+		documentDynamicTableView.setCreater(item -> {
+			openDocumentEditForm(null);
+			refreshTable();
+		});
+		documentDynamicTableView.setUpdater(item -> {
+			editDocument(item.getId());
+		});
+		documentDynamicTableView.setDeleter(item -> {
+			documentService.deleteDocumentById(item.getId());
+			refreshTable();
+		});
+
+		refreshTable();
 	}
 
 	public void onNewButton() {
@@ -60,10 +72,6 @@ public class DocumentListController extends DegraController {
 		documentDynamicTableView.setData(documentObservableList);
 	}
 
-	private void loadData() {
-		refreshTable();
-	}
-
 	@FXML
 	public void onKeyPressAction(KeyEvent keyEvent) {
 		DocumentDto documentDto;
@@ -72,10 +80,7 @@ public class DocumentListController extends DegraController {
 			openDocumentEditForm(null);
 		} else if (key == KeyCode.ENTER) {
 			documentDto = getDocumentFromTableView(documentDynamicTableView);
-			if (documentDto == null) {
-				return;
-			}
-			openDocumentEditForm(documentDto);
+			editDocument(documentDto.getId());
 		} else if (key == KeyCode.DELETE) {
 			if (new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer().equals(AlertResponseType.NO)) {
 				return;
@@ -87,6 +92,16 @@ public class DocumentListController extends DegraController {
 			documentService.deleteDocumentById(documentDto.getId());
 			documentDynamicTableView.getItems().removeAll(documentDynamicTableView.getSelectionModel().getSelectedItem());
 		}
+	}
+
+	private void editDocument(Integer id) {
+		DocumentDto documentDto;
+		documentDto = documentService.getDocumentById(id);
+
+		if (documentDto == null) {
+			return;
+		}
+		openDocumentEditForm(documentDto);
 	}
 
 	private DocumentDto getDocumentFromTableView(javafx.scene.control.TableView<DocumentDto> documentTableView) {
@@ -112,7 +127,7 @@ public class DocumentListController extends DegraController {
 			stage.setMaximized(true);
 			stage.showAndWait();
 			if (!isCreateNewDocument(documentDto)) {
-				loadData();
+				refreshTable();
 			}
 		} catch (RuntimeException | IOException e) {
 			throw new FxmlFileLoaderException(e.getMessage());

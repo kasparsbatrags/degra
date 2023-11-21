@@ -31,6 +31,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
@@ -132,6 +134,14 @@ public class DocumentController extends DegraController {
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
 		return t -> seen.add(keyExtractor.apply(t));
+	}
+
+	@FXML
+	public void onKeyPressAction(KeyEvent keyEvent) {
+		KeyCode key = keyEvent.getCode();
+		if (key == KeyCode.ESCAPE) {
+			closeWindows();
+		}
 	}
 
 	@FXML
