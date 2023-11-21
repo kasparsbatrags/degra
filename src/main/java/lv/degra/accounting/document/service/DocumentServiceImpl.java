@@ -28,6 +28,12 @@ public class DocumentServiceImpl implements DocumentService {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	@Override
+	public DocumentDto getDocumentById(Integer id) {
+
+		return mapToDto(documentRepository.getById(id));
+	}
+
 	@Transactional
 	public DocumentDto saveDocument(DocumentDto documentDto) {
 		try {

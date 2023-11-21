@@ -3,28 +3,54 @@ package lv.degra.accounting.system.object;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign.MaterialDesign;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import lombok.extern.slf4j.Slf4j;
+import javafx.util.Pair;
 import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.system.exception.DynamicTableBuildException;
 
-@Slf4j
 public class DynamicTableView<T> extends TableView<T> {
 
-	public DynamicTableView() {
+	private Creator<T> creator;
+	private Updater<T> updater;
+	private Deleter<T> deleter;
+
+	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater) {
 		super();
+	}
+
+	public DynamicTableView() {
+	}
+
+	public void setCreater(Creator<T> creator) {
+		this.creator = creator;
+	}
+
+	public void setUpdater(Updater<T> updater) {
+		this.updater = updater;
+	}
+
+	public void setDeleter(Deleter<T> deleter) {
+		this.deleter = deleter;
 	}
 
 	public void setData(List<T> data) {
@@ -43,6 +69,20 @@ public class DynamicTableView<T> extends TableView<T> {
 				TableColumn<T, ?> column = buildColumn(columnDisplayName, field);
 				getColumns().add(column);
 			});
+			List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
+
+			actions.add(new Pair<>("Jauns", item -> {
+				creator.create(item);
+			}));
+			actions.add(new Pair<>("Labot", item -> {
+				updater.update(item);
+			}));
+			actions.add(new Pair<>("Dzēst", item -> {
+				deleter.delete(item);
+			}));
+			TableColumn<T, Void> actionsColumn = createMenuButtonColumn(actions);
+			getColumns().add(actionsColumn);
+
 		} catch (RuntimeException e) {
 			throw new DynamicTableBuildException(e.getMessage() + SPACE + e.getCause());
 		}
@@ -99,5 +139,38 @@ public class DynamicTableView<T> extends TableView<T> {
 			column.setCellFactory(new DirectionEnumCellFactory());
 		}
 		return column;
+	}
+
+	private TableColumn<T, Void> createMenuButtonColumn(List<Pair<String, Consumer<T>>> actions) {
+		TableColumn<T, Void> btnCol = new TableColumn<>();
+		btnCol.setCellFactory(param -> new TableCell<>() {
+			private final MenuButton menuButton = new MenuButton();
+
+			{
+				FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
+				icon.setIconSize(20); // adjust the size as needed
+				menuButton.setGraphic(icon);
+
+				actions.forEach(action -> {
+					MenuItem menuItem = new MenuItem(action.getKey());
+					menuItem.setOnAction(event -> {
+						T item = getTableView().getItems().get(getIndex());
+						action.getValue().accept(item);
+					});
+					menuButton.getItems().add(menuItem);
+				});
+			}
+
+			@Override
+			protected void updateItem(Void item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty) {
+					setGraphic(null);
+				} else {
+					setGraphic(menuButton);
+				}
+			}
+		});
+		return btnCol;
 	}
 }
