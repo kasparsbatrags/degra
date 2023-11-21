@@ -6,7 +6,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM document_type WHERE name = 'Rēķins'
+            sql: SELECT COUNT(*) FROM document_type WHERE name = 'Rēķins par pakalpojumu'
       changes:
         - insert:
             tableName: document_type
@@ -15,8 +15,11 @@ databaseChangeLog:
                   name: id
                   value: 1
               - column:
+                  name: code
+                  value: BILL
+              - column:
                   name: name
-                  value: Rēķins
+                  value: Rēķins par pakalpojumu
   - changeSet:
       id: AddDocumentTypeMaksajums
       author: Kaspars Batrags
@@ -32,6 +35,9 @@ databaseChangeLog:
               - column:
                   name: id
                   value: 2
+              - column:
+                  name: code
+                  value: PAYMENT
               - column:
                   name: name
                   value: Maksājums
@@ -51,6 +57,9 @@ databaseChangeLog:
               - column:
                   name: id
                   value: 3
+              - column:
+                  name: code
+                  value: ENTRY
               - column:
                   name: name
                   value: Grāmatojums
