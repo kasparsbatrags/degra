@@ -2,7 +2,9 @@ package lv.degra.accounting.system.object;
 
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,7 +24,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Pair;
+import javafx.util.StringConverter;
 import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
@@ -46,7 +50,6 @@ public class DynamicTableView<T> extends TableView<T> {
 		this.type = type;
 	}
 
-
 	public void setCreator(Creator<T> creator) {
 		this.creator = creator;
 	}
@@ -62,19 +65,18 @@ public class DynamicTableView<T> extends TableView<T> {
 	public void setData(List<T> data) {
 		boolean dataIsEmpty = data.isEmpty();
 		if (dataIsEmpty) {
-			if (data.isEmpty()) {
-				if (type == null) {
-					throw new IllegalStateException("Type is null. You must pass a Class<T> object to the DynamicTableView constructor.");
-				}
-				try {
-					T instance = type.newInstance();
-					data = new ArrayList<>();
-					data.add(instance);
-				} catch (Exception e) {
-					throw new IllegalDataArgumentException(e.getCause() + SPACE + e.getMessage());
-				}
+			if (type == null) {
+				throw new IllegalStateException("Type is null. You must pass a Class<T> object to the DynamicTableView constructor.");
+			}
+			try {
+				T instance = type.newInstance();
+				data = new ArrayList<>();
+				data.add(instance);
+			} catch (Exception e) {
+				throw new IllegalDataArgumentException(e.getCause() + SPACE + e.getMessage());
 			}
 		}
+
 		try {
 			getColumns().clear();
 			T firstObject = data.get(0);
@@ -92,15 +94,9 @@ public class DynamicTableView<T> extends TableView<T> {
 			});
 			List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
 
-			actions.add(new Pair<>("Jauns", item -> {
-				creator.create(item);
-			}));
-			actions.add(new Pair<>("Labot", item -> {
-				updater.update(item);
-			}));
-			actions.add(new Pair<>("Dzēst", item -> {
-				deleter.delete(item);
-			}));
+			actions.add(new Pair<>("Jauns", item -> creator.create(item)));
+			actions.add(new Pair<>("Labot", item -> updater.update(item)));
+			actions.add(new Pair<>("Dzēst", item -> deleter.delete(item)));
 			TableColumn<T, Void> actionsColumn = createMenuButtonColumn(actions);
 			getColumns().add(actionsColumn);
 
@@ -149,13 +145,33 @@ public class DynamicTableView<T> extends TableView<T> {
 	private <T, S> TableColumn<T, S> createColumn(String propertyName, Field field) {
 		TableColumn<T, S> column = new TableColumn<>(propertyName);
 		column.setCellValueFactory(param -> {
+			field.setAccessible(true);
+			return (ObservableValue<S>) new PropertyValueFactory<T, S>(field.getName());
+		});
+		column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<>() {
+			@Override
+			public String toString(Object object) {
+				return object != null ? object.toString() : "";
+			}
+
+			@Override
+			public S fromString(String string) {
+				try {
+					Constructor<?> constructor = field.getType().getConstructor(String.class);
+					return (S) constructor.newInstance(string);
+				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}));
+		column.setOnEditCommit(event -> {
+			T item = event.getRowValue();
 			try {
 				field.setAccessible(true);
-				Object value = field.get(param.getValue());
-				return (ObservableValue<S>) new PropertyValueFactory<T, S>(field.getName());
+				field.set(item, event.getNewValue());
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
-				return null;
 			}
 		});
 		if (field.getType() == DocumentDirection.class) {

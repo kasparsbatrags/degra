@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: document_content
+            tableName: document_bill_content
             columns:
               - column:
                   name: id
@@ -29,7 +29,7 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: price_per_one
+                  name: price_per_unit
                   type: double
                   constraints:
                     nullable: true
@@ -62,12 +62,12 @@ databaseChangeLog:
                   type: TIMESTAMP WITHOUT TIME ZONE
 
   - changeSet:
-      id: ConstraintForeignKeysDocumentContentToDocument
+      id: ConstraintForeignKeysDocumentBillContentToDocument
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: document_id
-            baseTableName: document_content
+            baseTableName: document_bill_content
             constraintName: fk_document_content_to_document
             onDelete: NO ACTION
             referencedColumnNames: id

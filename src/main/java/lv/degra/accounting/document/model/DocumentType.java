@@ -26,6 +26,10 @@ public class DocumentType implements Serializable {
 	@Column(name = "name", nullable = false)
 	private String name;
 
+	@Size(max = 10)
+	@Column(name = "code", nullable = false)
+	private String code;
+
 	@Override
 	public String toString() {
 		return getName();

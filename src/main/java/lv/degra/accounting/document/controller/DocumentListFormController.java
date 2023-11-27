@@ -1,5 +1,8 @@
 package lv.degra.accounting.document.controller;
 
+import static lv.degra.accounting.configuration.DegraConfig.CRATE_FORM_TITLE;
+import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
+
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +29,9 @@ import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.system.utils.DegraController;
 
 @Controller
-public class DocumentListController extends DegraController {
+public class DocumentListFormController extends DegraController {
 
 	private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
-	private static final String EDIT_DOCUMENT_TITLE = "Rediģēt dokumentu";
-	private static final String CRATE_DOCUMENT_TITLE = "Izveidot dokumentu";
 	private static final String DELETE_QUESTION_HEADER_TEXT = "Dzēst ierakstu";
 	private static final String DELETE_QUESTION_CONTEXT_TEXT = "Vai tiešām vēlaties dzēst ierakstu?";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
@@ -43,19 +44,17 @@ public class DocumentListController extends DegraController {
 	@Autowired
 	private DocumentService documentService;
 	@FXML
-	private DynamicTableView<DocumentDto> documentDynamicTableView = new DynamicTableView<>();
+	private DynamicTableView<DocumentDto> documentListView = new DynamicTableView<>();
 
 	@FXML
 	public void initialize() {
-		documentDynamicTableView.setType(DocumentDto.class);
-		documentDynamicTableView.setCreator(item -> {
+		documentListView.setType(DocumentDto.class);
+		documentListView.setCreator(item -> {
 			openDocumentEditForm(null);
 			refreshTable();
 		});
-		documentDynamicTableView.setUpdater(item -> {
-			editDocument(item.getId());
-		});
-		documentDynamicTableView.setDeleter(item -> {
+		documentListView.setUpdater(item -> editDocument(item.getId()));
+		documentListView.setDeleter(item -> {
 			documentService.deleteDocumentById(item.getId());
 			refreshTable();
 		});
@@ -70,7 +69,7 @@ public class DocumentListController extends DegraController {
 	private void refreshTable() {
 		documentObservableList.clear();
 		documentObservableList.addAll(documentService.getDocumentList());
-		documentDynamicTableView.setData(documentObservableList);
+		documentListView.setData(documentObservableList);
 	}
 
 	@FXML
@@ -80,18 +79,18 @@ public class DocumentListController extends DegraController {
 		if (key == KeyCode.INSERT) {
 			openDocumentEditForm(null);
 		} else if (key == KeyCode.ENTER) {
-			documentDto = getDocumentFromTableView(documentDynamicTableView);
+			documentDto = getDocumentFromTableView(documentListView);
 			editDocument(documentDto.getId());
 		} else if (key == KeyCode.DELETE) {
 			if (new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer().equals(AlertResponseType.NO)) {
 				return;
 			}
-			documentDto = getDocumentFromTableView(documentDynamicTableView);
+			documentDto = getDocumentFromTableView(documentListView);
 			if (documentDto == null) {
 				return;
 			}
 			documentService.deleteDocumentById(documentDto.getId());
-			documentDynamicTableView.getItems().removeAll(documentDynamicTableView.getSelectionModel().getSelectedItem());
+			documentListView.getItems().removeAll(documentListView.getSelectionModel().getSelectedItem());
 		}
 	}
 
@@ -116,13 +115,13 @@ public class DocumentListController extends DegraController {
 			fxmlLoader.load();
 			Parent root1 = fxmlLoader.getRoot();
 			Stage stage = applicationFormBuilder.getApplicationFormatedStage(root1,
-					documentDto == null ? CRATE_DOCUMENT_TITLE : EDIT_DOCUMENT_TITLE);
-			DocumentController documentController = fxmlLoader.getController();
+					documentDto == null ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
+			DocumentFormController documentFormController = fxmlLoader.getController();
 			if (isCreateNewDocument(documentDto)) {
-				documentController.setDocumentList(documentObservableList);
+				documentFormController.setDocumentList(documentObservableList);
 			} else {
-				documentController.setDocumentList(documentObservableList);
-				documentController.setDocument(documentDto);
+				documentFormController.setDocumentList(documentObservableList);
+				documentFormController.setDocument(documentDto);
 			}
 			stage.initModality(Modality.WINDOW_MODAL);
 			stage.setMaximized(true);

@@ -16,24 +16,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 
-class DocumentControllerTest extends ApplicationTest {
+class DocumentFormControllerTest extends ApplicationTest {
 
 	private static final String CORRECT_SUM_INPUT = "123.45";
 	private static final String INCORRECT_CORRECT_SUM_INPUT = "abc";
-	private DocumentController documentController;
+	private DocumentFormController documentFormController;
 
 	@Override
 	public void start(Stage stage) {
 		// Initialize JavaFX environment for testing
 		new JFXPanel();
-		documentController = new DocumentController();
+		documentFormController = new DocumentFormController();
 	}
 
 	@Test
 	void setFieldFormat_shouldApplyTextFormatter() {
 
 		TextField textField = new TextField();
-		documentController.setFieldFormat(textField, SUM_FORMAT_REGEX);
+		documentFormController.setFieldFormat(textField, SUM_FORMAT_REGEX);
 
 		TextFormatter<?> textFormatter = textField.getTextFormatter();
 		assertNotNull(textFormatter);

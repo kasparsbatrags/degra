@@ -9,13 +9,13 @@
 <?import lv.degra.accounting.system.object.DynamicTableView?>
 <?import javafx.scene.control.Label?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressAction" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentListController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressAction" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentListFormController">
    <children>
       <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <BorderPane>
                <center>
-                  <DynamicTableView fx:id="documentDynamicTableView">
+                  <DynamicTableView fx:id="documentListView">
 				   <placeholder>
 					   <Label text="Nav datu!"/>
 				   </placeholder>

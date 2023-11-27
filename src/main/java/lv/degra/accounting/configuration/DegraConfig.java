@@ -12,5 +12,7 @@ public class DegraConfig {
 	public static final String SUM_FORMAT_REGEX = "\\d*|\\d+\\.\\d*";
 	public static final String CURRENCY_EXCHANGE_RATE_FORMAT_REGEX = "\\d+\\.\\d+";
 	public static final String APPLICATION_ICON_FILE = "/image/degra.png";
+	public static final String EDIT_FORM_TITLE = "Rediģēt";
+	public static final String CRATE_FORM_TITLE = "Pievienot";
 
 }
