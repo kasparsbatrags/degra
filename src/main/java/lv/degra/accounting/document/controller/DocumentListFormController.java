@@ -1,5 +1,6 @@
 package lv.degra.accounting.document.controller;
 
+import static javafx.stage.Modality.APPLICATION_MODAL;
 import static lv.degra.accounting.configuration.DegraConfig.CRATE_FORM_TITLE;
 import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
 
@@ -17,7 +18,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
@@ -123,8 +123,9 @@ public class DocumentListFormController extends DegraController {
 				documentFormController.setDocumentList(documentObservableList);
 				documentFormController.setDocument(documentDto);
 			}
-			stage.initModality(Modality.WINDOW_MODAL);
 			stage.setMaximized(true);
+			stage.setResizable(false);
+			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();
 			if (!isCreateNewDocument(documentDto)) {
 				refreshTable();

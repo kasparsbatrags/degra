@@ -157,7 +157,7 @@ public class DocumentFormController extends DegraController {
 		KeyCode key = keyEvent.getCode();
 		if (key == KeyCode.ESCAPE) {
 			closeWindows();
-		}else if (key == KeyCode.INSERT) {
+		} else if (key == KeyCode.INSERT) {
 			addToBillButtonAction();
 		}
 	}
