@@ -124,7 +124,6 @@ public class DocumentListFormController extends DegraController {
 				documentFormController.setDocument(documentDto);
 			}
 			stage.setMaximized(true);
-			stage.setResizable(false);
 			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();
 			if (!isCreateNewDocument(documentDto)) {
