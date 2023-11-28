@@ -118,6 +118,22 @@ public class DocumentFormController extends DegraController {
 	public TabPane documentTabPane;
 	@FXML
 	public DynamicTableView billContentListView = new DynamicTableView<>();
+	@FXML
+	public TextField billRowServiceNameField;
+	@FXML
+	public ComboBox billRowUnitTypeField;
+	@FXML
+	public TextField billRowQuantityField;
+	@FXML
+	public TextField billRowPricePerUnitField;
+	@FXML
+	public TextField billRowSumPerAllField;
+	@FXML
+	public TextField billRowVatPercentField;
+	@FXML
+	public TextField billRowVatSumField;
+	@FXML
+	public TextField billRowSumTotalField;
 	@Autowired
 	private ApplicationFormBuilder applicationFormBuilder;
 	@Autowired
@@ -451,13 +467,34 @@ public class DocumentFormController extends DegraController {
 
 	@FXML
 	public void addToBillButtonAction() {
-		DocumentContentDto newItem = new DocumentContentDto();
-		billContentObservableList.add(newItem);
-		billContentListView.setItems(billContentObservableList);
-		billContentListView.setEditable(true);
+		activateEnterFields();
+		//DocumentContentDto newItem = new DocumentContentDto();
+		//		billContentObservableList.add(newItem);
+		//		billContentListView.setItems(billContentObservableList);
+		//		billContentListView.setEditable(true);
+	}
+
+	private void deactivateEnterFields(){
+		changeFieldStatus(true);
+	}
+
+	private void activateEnterFields(){
+		changeFieldStatus(false);
+	}
+	private void changeFieldStatus(boolean setDisable){
+		billRowServiceNameField.setDisable(setDisable);
+		billRowUnitTypeField.setDisable(setDisable);
+		billRowQuantityField.setDisable(setDisable);
+		billRowPricePerUnitField.setDisable(setDisable);
+		billRowSumPerAllField.setDisable(setDisable);
+		billRowVatPercentField.setDisable(setDisable);
+		billRowVatSumField.setDisable(setDisable);
+		billRowSumTotalField.setDisable(setDisable);
 	}
 
 	public void billContentOpenAction() {
+		deactivateEnterFields();
+		billRowServiceNameField.requestFocus();
 		billContentListView.setType(DocumentContentDto.class);
 
 		billContentListView.setCreator(item -> {
@@ -476,7 +513,7 @@ public class DocumentFormController extends DegraController {
 
 	private void refreshBillContentTable() {
 		billContentObservableList.clear();
-		if (documentDto!=null) {
+		if (documentDto != null) {
 			billContentObservableList.addAll(billContentService.getByDocumentId(documentDto.getId()));
 			billContentListView.setData(billContentObservableList);
 		}
