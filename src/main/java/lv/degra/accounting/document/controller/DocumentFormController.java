@@ -43,6 +43,7 @@ import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
+import lv.degra.accounting.document.bill.service.UnitTypeService;
 import lv.degra.accounting.document.dto.DocumentContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DocumentDirection;
@@ -121,7 +122,7 @@ public class DocumentFormController extends DegraController {
 	@FXML
 	public TextField billRowServiceNameField;
 	@FXML
-	public ComboBox billRowUnitTypeField;
+	public ComboBox billRowUnitTypeCombo;
 	@FXML
 	public TextField billRowQuantityField;
 	@FXML
@@ -134,6 +135,8 @@ public class DocumentFormController extends DegraController {
 	public TextField billRowVatSumField;
 	@FXML
 	public TextField billRowSumTotalField;
+	@FXML
+	public Button billRowSaveButton;
 	@Autowired
 	private ApplicationFormBuilder applicationFormBuilder;
 	@Autowired
@@ -142,6 +145,8 @@ public class DocumentFormController extends DegraController {
 	private DocumentService documentService;
 	@Autowired
 	private BillContentService billContentService;
+	@Autowired
+	private UnitTypeService unitTypeService;
 
 	@Autowired
 	private CurrencyService currencyService;
@@ -252,7 +257,7 @@ public class DocumentFormController extends DegraController {
 		documentTypeCombo.setOnAction(event -> showHideObjects());
 		TextArea notesForCustomerField = new TextArea();
 		TextArea internalNotesField = new TextArea();
-		fillCombos();
+		fillDocumentBasicDataCombos();
 		setFormat();
 		setDefaultValues();
 	}
@@ -340,7 +345,7 @@ public class DocumentFormController extends DegraController {
 		field.setTextFormatter(sumTotalDoubleFormatter);
 	}
 
-	private void fillCombos() {
+	private void fillDocumentBasicDataCombos() {
 
 		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
 		documentTypeCombo.setItems(FXCollections.observableList(documentTypeService.getDocumentTypeList()));
@@ -379,6 +384,10 @@ public class DocumentFormController extends DegraController {
 			}
 		});
 
+	}
+
+	private void fillBillDataCombos(){
+		billRowUnitTypeCombo.setItems(FXCollections.observableList(unitTypeService.getAllUnitTypes()));
 	}
 
 	Double getDouble(String totalSum) {
@@ -468,6 +477,7 @@ public class DocumentFormController extends DegraController {
 	@FXML
 	public void addToBillButtonAction() {
 		activateEnterFields();
+		billRowServiceNameField.positionCaret(billRowServiceNameField.getText().length());
 		//DocumentContentDto newItem = new DocumentContentDto();
 		//		billContentObservableList.add(newItem);
 		//		billContentListView.setItems(billContentObservableList);
@@ -483,18 +493,21 @@ public class DocumentFormController extends DegraController {
 	}
 	private void changeFieldStatus(boolean setDisable){
 		billRowServiceNameField.setDisable(setDisable);
-		billRowUnitTypeField.setDisable(setDisable);
+		billRowUnitTypeCombo.setDisable(setDisable);
 		billRowQuantityField.setDisable(setDisable);
 		billRowPricePerUnitField.setDisable(setDisable);
 		billRowSumPerAllField.setDisable(setDisable);
 		billRowVatPercentField.setDisable(setDisable);
 		billRowVatSumField.setDisable(setDisable);
 		billRowSumTotalField.setDisable(setDisable);
+		billRowSaveButton.setDisable(setDisable);
 	}
 
 	public void billContentOpenAction() {
+		fillBillDataCombos();
 		deactivateEnterFields();
 		billRowServiceNameField.requestFocus();
+
 		billContentListView.setType(DocumentContentDto.class);
 
 		billContentListView.setCreator(item -> {
