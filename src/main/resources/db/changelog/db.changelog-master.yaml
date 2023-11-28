@@ -35,6 +35,10 @@ databaseChangeLog:
         file: db/changelog/add-declaration-section-data.yaml
     - include:
         file: db/changelog/add-document-transaction-type-data.yaml
+    - include:
+        file: db/changelog/add-unit-type.yaml
+    - include:
+        file: db/changelog/add-unit-type-data.yaml
 
 
 

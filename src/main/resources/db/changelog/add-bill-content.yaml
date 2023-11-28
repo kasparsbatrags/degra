@@ -29,6 +29,11 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
+                  name: unit_type_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
                   name: price_per_unit
                   type: double
                   constraints:

@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddUnitTypes
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(5)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+
+
+  - changeSet:
+      id: ConstraintUniTypeToBillContent
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: unit_type_id
+            baseTableName: document_bill_content
+            constraintName: fk_unit_type_to_bill_content
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: unit_type
