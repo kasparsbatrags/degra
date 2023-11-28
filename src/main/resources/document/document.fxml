@@ -20,6 +20,7 @@
 <?import lv.degra.accounting.system.object.DynamicTableView?>
 <?import lv.degra.accounting.system.object.DatePicker?>
 
+<?import lv.degra.accounting.system.object.DynamicTableView?>
 <AnchorPane onKeyPressed="#onKeyPressEscapeAction" prefHeight="727.0" prefWidth="1312.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentFormController">
 	<children>
 		<TabPane fx:id="documentTabPane" layoutX="-2.0" prefHeight="661.0" prefWidth="1312.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="0.0">
@@ -130,16 +131,17 @@
 										<Button fx:id="addToBillButton" mnemonicParsing="false" onAction="#addToBillButtonAction" text="Jauns" BorderPane.alignment="TOP_RIGHT" />
 									</bottom>
 								</BorderPane>
-                        <GridPane layoutX="63.0" layoutY="495.0" prefHeight="93.0" prefWidth="1192.0" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0">
+                        <GridPane layoutX="63.0" layoutY="495.0" prefHeight="93.0" prefWidth="1175.0" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="239.0" minWidth="10.0" prefWidth="224.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="142.0" minWidth="10.0" prefWidth="74.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.0" minWidth="10.0" prefWidth="319.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="203.0" minWidth="10.0" prefWidth="114.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.0" minWidth="10.0" prefWidth="117.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="232.0" minWidth="10.0" prefWidth="111.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="10.0" prefWidth="102.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="136.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="231.0" minWidth="10.0" prefWidth="104.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="224.0" minWidth="10.0" prefWidth="114.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="34.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints maxHeight="99.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
@@ -147,8 +149,8 @@
                           </rowConstraints>
                            <children>
                               <Label text="Nosaukums" GridPane.halignment="CENTER" />
-							  <TextField fx:id="billRowServiceNameField" disable="true" accessibleRole="TEXT_AREA" prefHeight="60.0" prefWidth="239.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="billRowUnitTypeField" disable="true" prefHeight="25.0" prefWidth="80.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+							  <TextField fx:id="billRowServiceNameField" accessibleRole="TEXT_AREA" disable="true" prefHeight="60.0" prefWidth="239.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="billRowUnitTypeCombo" disable="true" prefHeight="25.0" prefWidth="80.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                               <Label text="Mērvienība" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
                               <TextField fx:id="billRowQuantityField" disable="true" prefHeight="13.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                               <Label text="Daudzums" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
@@ -162,6 +164,7 @@
                               <TextField fx:id="billRowVatSumField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
                               <Label text="Summa kopā" GridPane.columnIndex="7" GridPane.halignment="CENTER" />
                               <TextField fx:id="billRowSumTotalField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+                              <Button fx:id="billRowSaveButton" mnemonicParsing="false" text="Ok" GridPane.columnIndex="8" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
 							</children>
