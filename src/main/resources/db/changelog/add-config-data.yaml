@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddConfigDocumentSeries
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM config WHERE key = 'bill_series'
+      changes:
+        - insert:
+            tableName: config
+            columns:
+              - column:
+                  name: key
+                  value: bill_series
+              - column:
+                  name: value
+                  value: XXX-
