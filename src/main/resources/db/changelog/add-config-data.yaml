@@ -16,4 +16,4 @@ databaseChangeLog:
                   value: bill_series
               - column:
                   name: value
-                  value: XXX-
+                  value: XXX
