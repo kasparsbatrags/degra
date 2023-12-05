@@ -39,6 +39,11 @@ public class BillContent {
 	@Column(name = "quantity", nullable = false)
 	private Double quantity;
 
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "unit_type_id", nullable = false)
+	private UnitType unitType;
+
 	@Column(name = "price_per_unit", nullable = false)
 	private Double pricePerUnit;
 

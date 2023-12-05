@@ -128,7 +128,7 @@
 										</DynamicTableView>
 									</center>
 									<bottom>
-										<Button fx:id="addToBillButton" mnemonicParsing="false" onAction="#addToBillButtonAction" text="Jauns" BorderPane.alignment="TOP_RIGHT" />
+										<Button fx:id="addToBillButton" mnemonicParsing="false" onAction="#addToBillRowButtonAction" text="Jauns" BorderPane.alignment="TOP_RIGHT" />
 									</bottom>
 								</BorderPane>
                         <GridPane layoutX="63.0" layoutY="495.0" prefHeight="93.0" prefWidth="1175.0" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0">
@@ -149,22 +149,22 @@
                           </rowConstraints>
                            <children>
                               <Label text="Nosaukums" GridPane.halignment="CENTER" />
-							  <TextField fx:id="billRowServiceNameField" accessibleRole="TEXT_AREA" disable="true" prefHeight="60.0" prefWidth="239.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="billRowUnitTypeCombo" disable="true" prefHeight="25.0" prefWidth="80.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+							  <TextField fx:id="billRowServiceNameField" accessibleRole="TEXT_AREA" prefHeight="60.0" prefWidth="239.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="billRowUnitTypeCombo" prefHeight="25.0" prefWidth="80.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                               <Label text="Mērvienība" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowQuantityField" disable="true" prefHeight="13.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowQuantityField"  onAction="#billRowQuantityOnAction" prefHeight="13.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                               <Label text="Daudzums" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
                               <Label text="Vienības cena&#10;    bez PVN&#10;" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowPricePerUnitField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowPricePerUnitField" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                               <Label text=" Summa&#10;bez PVN" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowSumPerAllField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowSumPerAllField" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                               <Label text=" PVN &#10;likme %" GridPane.columnIndex="5" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowVatPercentField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowVatPercentField" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
                               <Label text=" PVN &#10;summa" GridPane.columnIndex="6" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowVatSumField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowVatSumField" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
                               <Label text="Summa kopā" GridPane.columnIndex="7" GridPane.halignment="CENTER" />
-                              <TextField fx:id="billRowSumTotalField" disable="true" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
-                              <Button fx:id="billRowSaveButton" mnemonicParsing="false" text="Ok" GridPane.columnIndex="8" GridPane.rowIndex="1" />
+                              <TextField fx:id="billRowSumTotalField" prefHeight="25.0" prefWidth="84.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+                              <Button fx:id="billRowSaveButton" onAction="#onSaveRowButton" mnemonicParsing="false" text="Saglabāt ierakstu" GridPane.columnIndex="8" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
 							</children>
@@ -176,7 +176,7 @@
 
 		<ButtonBar layoutX="1091.0" layoutY="667.0" prefHeight="40.0" prefWidth="302.0" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="21.0">
 			<buttons>
-				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" prefHeight="25.0" prefWidth="158.0" text="Saglabāt dokumentu" />
+				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveDocumentButton" prefHeight="25.0" prefWidth="158.0" text="Saglabāt dokumentu" />
 				<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt" />
 			</buttons>
 		</ButtonBar>

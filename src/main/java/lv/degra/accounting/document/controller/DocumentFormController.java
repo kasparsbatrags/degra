@@ -3,6 +3,9 @@ package lv.degra.accounting.document.controller;
 import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.document.controller.DocumentFieldsUtils.fillCombo;
+import static lv.degra.accounting.document.controller.DocumentFieldsUtils.getDouble;
+import static lv.degra.accounting.document.controller.DocumentFieldsUtils.setFieldFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,8 +13,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +32,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
@@ -43,19 +43,19 @@ import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
+import lv.degra.accounting.document.bill.model.UnitType;
+import lv.degra.accounting.document.bill.service.BillRowService;
 import lv.degra.accounting.document.bill.service.UnitTypeService;
-import lv.degra.accounting.document.dto.DocumentContentDto;
+import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentTransactionType;
 import lv.degra.accounting.document.model.DocumentType;
-import lv.degra.accounting.document.bill.service.BillContentService;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
-import lv.degra.accounting.system.exception.IncorrectSumException;
 import lv.degra.accounting.system.object.DatePicker;
 import lv.degra.accounting.system.object.DynamicTableView;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
@@ -64,29 +64,29 @@ import lv.degra.accounting.system.utils.DegraController;
 @Controller
 public class DocumentFormController extends DegraController {
 
-	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 	private static final String BILL_CODE = "BILL";
+	private final ObservableList<BillContentDto> billContentObservableList = FXCollections.observableArrayList();
 	@FXML
-	public ComboBox documentTypeCombo;
+	public ComboBox<DocumentType> documentTypeCombo;
 	@FXML
-	public ComboBox documentTransactionTypeCombo;
+	public ComboBox<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
-	public ComboBox publisherCombo;
+	public ComboBox<Customer> publisherCombo;
 	@FXML
-	public ComboBox publisherBankCombo;
+	public ComboBox<Bank> publisherBankCombo;
 	@FXML
-	public ComboBox publisherBankAccountCombo;
+	public ComboBox<CustomerBankAccount> publisherBankAccountCombo;
 	@FXML
-	public ComboBox receiverCombo;
+	public ComboBox<Customer> receiverCombo;
 	@FXML
-	public ComboBox receiverBankCombo;
+	public ComboBox<Bank> receiverBankCombo;
 	@FXML
-	public ComboBox receiverBankAccountCombo;
+	public ComboBox<CustomerBankAccount> receiverBankAccountCombo;
 	@FXML
-	public ComboBox directionCombo;
+	public ComboBox<DocumentDirection> directionCombo;
 	@FXML
-	public ComboBox currencyCombo;
+	public ComboBox<Currency> currencyCombo;
 	@FXML
 	public Label documentIdLabel;
 	@FXML
@@ -118,7 +118,7 @@ public class DocumentFormController extends DegraController {
 	@FXML
 	public TabPane documentTabPane;
 	@FXML
-	public DynamicTableView billContentListView = new DynamicTableView<>();
+	public DynamicTableView<BillContentDto> billContentListView = new DynamicTableView<>();
 	@FXML
 	public TextField billRowServiceNameField;
 	@FXML
@@ -144,10 +144,9 @@ public class DocumentFormController extends DegraController {
 	@Autowired
 	private DocumentService documentService;
 	@Autowired
-	private BillContentService billContentService;
+	private BillRowService billRowService;
 	@Autowired
 	private UnitTypeService unitTypeService;
-
 	@Autowired
 	private CurrencyService currencyService;
 	@Autowired
@@ -164,9 +163,8 @@ public class DocumentFormController extends DegraController {
 	private CustomerAccountService customerAccountService;
 	private CurrencyExchangeRate currencyExchangeRate;
 	private DocumentDto documentDto;
-	private DocumentContentDto documentContentDto;
+	private BillContentDto newBillContentDto;
 	private ObservableList<DocumentDto> documentObservableList;
-	private ObservableList<DocumentContentDto> billContentObservableList = FXCollections.observableArrayList();
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
@@ -179,40 +177,42 @@ public class DocumentFormController extends DegraController {
 		if (key == KeyCode.ESCAPE) {
 			closeWindows();
 		} else if (key == KeyCode.INSERT) {
-			addToBillButtonAction();
+			addToBillRowButtonAction();
 		}
 	}
 
 	@FXML
-	public void onSaveButton(ActionEvent actionEvent) {
+	public void onSaveDocumentButton() {
 		try {
 			Integer id = documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText());
 			documentDto = new DocumentDto(id,
-					(DocumentDirection) directionCombo.getValue(),
+					directionCombo.getValue(),
 					Integer.parseInt(numberField.getText()),
 					seriesField.getText(),
-					(DocumentType) documentTypeCombo.getValue(),
-					(DocumentTransactionType) documentTransactionTypeCombo.getValue(),
+					documentTypeCombo.getValue(),
+					documentTransactionTypeCombo.getValue(),
 					accountingDateDp.getValue(),
 					documentDateDp.getValue(),
 					paymentDateDp.getValue(),
 					null,
 					getDouble(sumTotalField.getText()),
 					getDouble(sumTotalInCurrencyField.getText()),
-					(Currency) currencyCombo.getValue(),
+					currencyCombo.getValue(),
 					currencyExchangeRate,
 					notesForCustomerField.getText(),
 					internalNotesField.getText(),
-					(Customer) publisherCombo.getValue(),
-					(Bank) publisherBankCombo.getValue(),
-					(CustomerBankAccount) publisherBankAccountCombo.getValue(),
-					(Customer) receiverCombo.getValue(),
-					(Bank) receiverBankCombo.getValue(),
-					(CustomerBankAccount) receiverBankAccountCombo.getValue()
+					publisherCombo.getValue(),
+					publisherBankCombo.getValue(),
+					publisherBankAccountCombo.getValue(),
+					receiverCombo.getValue(),
+					receiverBankCombo.getValue(),
+					receiverBankAccountCombo.getValue()
 			);
 			DocumentDto newDocument = documentService.saveDocument(documentDto);
 			if (id == null) {
 				this.documentObservableList.add(newDocument);
+			} else {
+				deletePreviousBillRowsIfExist(documentDto.getId());
 			}
 			closeWindows();
 		} catch (Exception e) {
@@ -223,6 +223,10 @@ public class DocumentFormController extends DegraController {
 			alert.show();
 		}
 
+	}
+
+	private void deletePreviousBillRowsIfExist(Integer documentId) {
+		billRowService.deleteBillRowByDocumentId(documentId);
 	}
 
 	@FXML
@@ -254,47 +258,39 @@ public class DocumentFormController extends DegraController {
 			}
 		});
 
-		documentTypeCombo.setOnAction(event -> showHideObjects());
-		TextArea notesForCustomerField = new TextArea();
-		TextArea internalNotesField = new TextArea();
 		fillDocumentBasicDataCombos();
-		setFormat();
+		documentTypeCombo.setOnAction(event -> showBillTab());
+		showBillTab();
+		setFieldFormat(sumTotalField, SUM_FORMAT_REGEX);
+		setFieldFormat(sumTotalInCurrencyField, SUM_FORMAT_REGEX);
 		setDefaultValues();
 	}
 
-	private void showHideObjects() {
-
+	private void showBillTab() {
 		if (isDocumentBill()) {
-			documentTabPane.getTabs().add(billContentTab);
+			if (!documentTabPane.getTabs().contains(billContentTab)) {
+				documentTabPane.getTabs().add(billContentTab);
+			}
 		} else {
 			documentTabPane.getTabs().remove(billContentTab);
 		}
 	}
 
 	boolean isDocumentBill() {
-		DocumentType documentType = (DocumentType) documentTypeCombo.getValue();
+		DocumentType documentType = documentTypeCombo.getValue();
 		return (documentTypeCombo != null && documentType != null && BILL_CODE.equals(documentType.getCode()));
 	}
+
 	public void setDocument(DocumentDto documentDto) {
 		this.documentDto = documentDto;
 		if (this.documentDto != null) {
 			fillDocumentFormWithExistData(documentDto);
 		}
-	}
-
-	public void setBillContent(DocumentContentDto documentContentDto) {
-		this.documentContentDto = documentContentDto;
-		if (this.documentContentDto != null) {
-			//			fillDocumentContentFormWithExistData(documentContentDto);
-		}
+		showBillTab();
 	}
 
 	public void setDocumentList(ObservableList<DocumentDto> documentList) {
 		this.documentObservableList = documentList;
-	}
-
-	public void setBillList(ObservableList<DocumentContentDto> documentContentList) {
-		this.billContentObservableList = documentContentList;
 	}
 
 	private void setDefaultValues() {
@@ -331,18 +327,6 @@ public class DocumentFormController extends DegraController {
 		receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
 		notesForCustomerField.setText(documentDto.getNotesForCustomer());
 		internalNotesField.setText(documentDto.getInternalNotes());
-	}
-
-	private void setFormat() {
-		setFieldFormat(sumTotalField, SUM_FORMAT_REGEX);
-		setFieldFormat(sumTotalInCurrencyField, SUM_FORMAT_REGEX);
-	}
-
-	void setFieldFormat(TextField field, String sumRegex) {
-		Pattern pattern = Pattern.compile(sumRegex);
-		TextFormatter sumTotalDoubleFormatter = new TextFormatter(
-				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
-		field.setTextFormatter(sumTotalDoubleFormatter);
 	}
 
 	private void fillDocumentBasicDataCombos() {
@@ -386,22 +370,8 @@ public class DocumentFormController extends DegraController {
 
 	}
 
-	private void fillBillDataCombos(){
-		billRowUnitTypeCombo.setItems(FXCollections.observableList(unitTypeService.getAllUnitTypes()));
-	}
-
-	Double getDouble(String totalSum) {
-		double result;
-		try {
-			result = Double.parseDouble(totalSum);
-		} catch (RuntimeException e) {
-			throw new IncorrectSumException(EXCEPTION_TEXT_INCORRECT_SUM);
-		}
-		return result;
-	}
-
 	public void currencyOnAction() {
-		Currency selectedCurrency = (Currency) currencyCombo.getValue();
+		Currency selectedCurrency = currencyCombo.getValue();
 		setExchangeRate(selectedCurrency);
 	}
 
@@ -475,8 +445,8 @@ public class DocumentFormController extends DegraController {
 	}
 
 	@FXML
-	public void addToBillButtonAction() {
-		activateEnterFields();
+	public void addToBillRowButtonAction() {
+		enableBillRowEnterFields();
 		billRowServiceNameField.positionCaret(billRowServiceNameField.getText().length());
 		//DocumentContentDto newItem = new DocumentContentDto();
 		//		billContentObservableList.add(newItem);
@@ -484,14 +454,16 @@ public class DocumentFormController extends DegraController {
 		//		billContentListView.setEditable(true);
 	}
 
-	private void deactivateEnterFields(){
+	private void disableBillRowEnterFields() {
 		changeFieldStatus(true);
+		clearBillEnterFields();
 	}
 
-	private void activateEnterFields(){
+	private void enableBillRowEnterFields() {
 		changeFieldStatus(false);
 	}
-	private void changeFieldStatus(boolean setDisable){
+
+	private void changeFieldStatus(boolean setDisable) {
 		billRowServiceNameField.setDisable(setDisable);
 		billRowUnitTypeCombo.setDisable(setDisable);
 		billRowQuantityField.setDisable(setDisable);
@@ -504,20 +476,21 @@ public class DocumentFormController extends DegraController {
 	}
 
 	public void billContentOpenAction() {
-		fillBillDataCombos();
-		deactivateEnterFields();
+		newBillContentDto = null;
+		fillCombo(billRowUnitTypeCombo, unitTypeService.getAllUnitTypes());
+		disableBillRowEnterFields();
 		billRowServiceNameField.requestFocus();
 
-		billContentListView.setType(DocumentContentDto.class);
+		billContentListView.setType(BillContentDto.class);
 
 		billContentListView.setCreator(item -> {
 			refreshBillContentTable();
 		});
 		billContentListView.setUpdater(item -> {
-			//			editDocument(item.getId());
+			editBillRow(item.getId());
 		});
 		billContentListView.setDeleter(item -> {
-			//			documentContentService.deleteDocumentById(item.getId());
+			billRowService.deleteBillRowById(item.getId());
 			refreshBillContentTable();
 		});
 
@@ -527,8 +500,76 @@ public class DocumentFormController extends DegraController {
 	private void refreshBillContentTable() {
 		billContentObservableList.clear();
 		if (documentDto != null) {
-			billContentObservableList.addAll(billContentService.getByDocumentId(documentDto.getId()));
+			billContentObservableList.addAll(billRowService.getByDocumentId(documentDto.getId()));
 			billContentListView.setData(billContentObservableList);
 		}
 	}
+
+	public void onSaveRowButton() {
+		try {
+			newBillContentDto = new BillContentDto(
+					newBillContentDto.getId(),
+					documentDto,
+					billRowServiceNameField.getText(),
+					getDouble(billRowQuantityField.getText()),
+					(UnitType) billRowUnitTypeCombo.getValue(),
+					getDouble(billRowPricePerUnitField.getText()),
+					getDouble(billRowSumPerAllField.getText()),
+					getDouble(billRowVatPercentField.getText()),
+					getDouble(billRowVatSumField.getText()),
+					getDouble(billRowSumTotalField.getText())
+			);
+
+			billRowService.saveBillRow(newBillContentDto);
+		} catch (Exception e) {
+			Alert alert = new Alert(Alert.AlertType.NONE);
+			alert.setTitle(APPLICATION_TITLE);
+			alert.setAlertType(Alert.AlertType.ERROR);
+			alert.setContentText(e.getMessage());
+			alert.show();
+		}
+		if (newBillContentDto.getId() == null) {
+			this.billContentObservableList.add(newBillContentDto);
+		}
+		disableBillRowEnterFields();
+		refreshBillContentTable();
+		BillContentDto tempDto = newBillContentDto;
+		newBillContentDto = null;
+		billContentListView.getSelectionModel().select(tempDto);
+
+	}
+
+	public void billRowQuantityOnAction() {
+		String billRowQuantity = String.valueOf(getDouble(billRowQuantityField.getText()));
+		billRowQuantityField.setText(billRowQuantity);
+	}
+
+	private void editBillRow(Integer billRowId) {
+		newBillContentDto = billRowService.getById(billRowId);
+		enableBillRowEnterFields();
+		fillBillRowFields(newBillContentDto);
+	}
+
+	private void fillBillRowFields(BillContentDto billContentDto) {
+		billRowServiceNameField.setText(billContentDto.getServiceName());
+		billRowUnitTypeCombo.setValue(billContentDto.getUnitType());
+		billRowQuantityField.setText(billContentDto.getQuantity().toString());
+		billRowPricePerUnitField.setText(billContentDto.getPricePerUnit().toString());
+		billRowSumPerAllField.setText(billContentDto.getSumPerAll().toString());
+		billRowVatPercentField.setText(billContentDto.getVatPercent().toString());
+		billRowVatSumField.setText(billContentDto.getVatSum().toString());
+		billRowSumTotalField.setText(billContentDto.getSumTotal().toString());
+	}
+
+	private void clearBillEnterFields() {
+		billRowServiceNameField.clear();
+		billRowUnitTypeCombo.setValue(null);
+		billRowQuantityField.clear();
+		billRowPricePerUnitField.clear();
+		billRowSumPerAllField.clear();
+		billRowVatPercentField.clear();
+		billRowVatSumField.clear();
+		billRowSumTotalField.clear();
+	}
+
 }

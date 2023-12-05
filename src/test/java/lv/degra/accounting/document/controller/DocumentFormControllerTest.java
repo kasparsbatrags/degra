@@ -1,6 +1,7 @@
 package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.document.controller.DocumentFieldsUtils.setFieldFormat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +34,7 @@ class DocumentFormControllerTest extends ApplicationTest {
 	void setFieldFormat_shouldApplyTextFormatter() {
 
 		TextField textField = new TextField();
-		documentFormController.setFieldFormat(textField, SUM_FORMAT_REGEX);
+		setFieldFormat(textField, SUM_FORMAT_REGEX);
 
 		TextFormatter<?> textFormatter = textField.getTextFormatter();
 		assertNotNull(textFormatter);

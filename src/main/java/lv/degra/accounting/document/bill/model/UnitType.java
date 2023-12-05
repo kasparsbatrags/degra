@@ -1,5 +1,7 @@
 package lv.degra.accounting.document.bill.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "unit_type")
-public class UnitType {
+public class UnitType implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)

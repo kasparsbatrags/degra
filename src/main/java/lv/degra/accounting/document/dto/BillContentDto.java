@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.document.bill.model.UnitType;
 import lv.degra.accounting.system.object.TableViewInfo;
 
 @Builder
@@ -16,8 +17,9 @@ import lv.degra.accounting.system.object.TableViewInfo;
 @AllArgsConstructor
 @Getter
 @Setter
-public class DocumentContentDto implements Serializable {
+public class BillContentDto implements Serializable {
 	private Integer id;
+	@NotNull
 	private DocumentDto documentDto;
 	@Size(max = 150)
 	@NotNull
@@ -26,16 +28,19 @@ public class DocumentContentDto implements Serializable {
 	@NotNull
 	@TableViewInfo(displayName = "Daudzums", columnOrder = 2)
 	private Double quantity;
+	@TableViewInfo(displayName = "Mērvienība", columnOrder = 3)
 	@NotNull
-	@TableViewInfo(displayName = "Vienības cena", columnOrder = 3)
+	private UnitType unitType;
+	@NotNull
+	@TableViewInfo(displayName = "Vienības cena", columnOrder = 4)
 	private Double pricePerUnit;
 	@NotNull
-	@TableViewInfo(displayName = "Summa", columnOrder = 4)
+	@TableViewInfo(displayName = "Summa", columnOrder = 5)
 	private Double sumPerAll;
-	@TableViewInfo(displayName = "PVN %", columnOrder = 5)
+	@TableViewInfo(displayName = "PVN %", columnOrder = 6)
 	private Double vatPercent;
-	@TableViewInfo(displayName = "PVN summa", columnOrder = 6)
+	@TableViewInfo(displayName = "PVN summa", columnOrder = 7)
 	private Double vatSum;
-	@TableViewInfo(displayName = "Summa kopā", columnOrder = 7)
+	@TableViewInfo(displayName = "Summa kopā", columnOrder = 8)
 	private Double sumTotal;
 }

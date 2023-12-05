@@ -23,7 +23,7 @@
 
 			<ButtonBar GridPane.columnIndex="3" GridPane.rowIndex="5">
 				<buttons>
-					<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" text="Saglabāt"/>
+					<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveDocumentButton" text="Saglabāt"/>
 					<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt"/>
 				</buttons>
 			</ButtonBar>
