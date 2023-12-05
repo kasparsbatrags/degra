@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 
 public class DocumentFieldsUtils {

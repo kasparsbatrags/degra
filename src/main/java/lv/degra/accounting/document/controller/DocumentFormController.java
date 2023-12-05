@@ -20,7 +20,6 @@ import org.springframework.stereotype.Controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -122,7 +121,7 @@ public class DocumentFormController extends DegraController {
 	@FXML
 	public TextField billRowServiceNameField;
 	@FXML
-	public ComboBox billRowUnitTypeCombo;
+	public ComboBox<UnitType> billRowUnitTypeCombo;
 	@FXML
 	public TextField billRowQuantityField;
 	@FXML
@@ -448,10 +447,6 @@ public class DocumentFormController extends DegraController {
 	public void addToBillRowButtonAction() {
 		enableBillRowEnterFields();
 		billRowServiceNameField.positionCaret(billRowServiceNameField.getText().length());
-		//DocumentContentDto newItem = new DocumentContentDto();
-		//		billContentObservableList.add(newItem);
-		//		billContentListView.setItems(billContentObservableList);
-		//		billContentListView.setEditable(true);
 	}
 
 	private void disableBillRowEnterFields() {
@@ -483,12 +478,8 @@ public class DocumentFormController extends DegraController {
 
 		billContentListView.setType(BillContentDto.class);
 
-		billContentListView.setCreator(item -> {
-			refreshBillContentTable();
-		});
-		billContentListView.setUpdater(item -> {
-			editBillRow(item.getId());
-		});
+		billContentListView.setCreator(item -> refreshBillContentTable());
+		billContentListView.setUpdater(item -> editBillRow(item.getId()));
 		billContentListView.setDeleter(item -> {
 			billRowService.deleteBillRowById(item.getId());
 			refreshBillContentTable();
