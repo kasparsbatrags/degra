@@ -40,6 +40,14 @@ public class DynamicTableView<T> extends TableView<T> {
 	private Deleter<T> deleter;
 
 	public DynamicTableView() {
+		this.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2) {
+				T item = this.getSelectionModel().getSelectedItem();
+				if (item != null && updater != null) {
+					updater.update(item);
+				}
+			}
+		});
 	}
 
 	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type) {

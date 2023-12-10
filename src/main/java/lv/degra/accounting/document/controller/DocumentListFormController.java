@@ -2,13 +2,10 @@ package lv.degra.accounting.document.controller;
 
 import static javafx.stage.Modality.APPLICATION_MODAL;
 import static lv.degra.accounting.configuration.DegraConfig.CRATE_FORM_TITLE;
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
@@ -18,15 +15,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lv.degra.accounting.document.bill.service.BillRowService;
-import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
-import lv.degra.accounting.system.alert.AlertAsk;
-import lv.degra.accounting.system.alert.AlertResponseType;
 import lv.degra.accounting.system.exception.FxmlFileLoaderException;
 import lv.degra.accounting.system.object.DynamicTableView;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
@@ -37,18 +29,22 @@ public class DocumentListFormController extends DegraController {
 
 	private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
+	private final ApplicationFormBuilder applicationFormBuilder;
+	private final ApplicationContext context;
+	private final DocumentService documentService;
+	private final BillRowService billRowService;
+
 	@FXML
 	public Button newButton;
-	@Autowired
-	private ApplicationFormBuilder applicationFormBuilder;
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private DocumentService documentService;
-	@Autowired
-	private BillRowService billRowService;
 	@FXML
 	private DynamicTableView<DocumentDto> documentListView = new DynamicTableView<>();
+	public DocumentListFormController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context,
+			DocumentService documentService, BillRowService billRowService) {
+		this.applicationFormBuilder = applicationFormBuilder;
+		this.context = context;
+		this.documentService = documentService;
+		this.billRowService = billRowService;
+	}
 
 	@FXML
 	public void initialize() {
@@ -83,7 +79,7 @@ public class DocumentListFormController extends DegraController {
 
 	@Override
 	protected void editRecord() {
-		DocumentDto newDocumentDto = (DocumentDto) getRowFromTableView(documentListView);
+		DocumentDto newDocumentDto = getRowFromTableView(documentListView);
 		if (newDocumentDto == null) {
 			return;
 		}
@@ -92,7 +88,7 @@ public class DocumentListFormController extends DegraController {
 
 	@Override
 	protected void deleteRecord() {
-		DocumentDto newDocumentDto = (DocumentDto) getRowFromTableView(documentListView);
+		DocumentDto newDocumentDto = getRowFromTableView(documentListView);
 		if (newDocumentDto == null) {
 			return;
 		}
