@@ -2,6 +2,8 @@ package lv.degra.accounting.document.controller;
 
 import static javafx.stage.Modality.APPLICATION_MODAL;
 import static lv.degra.accounting.configuration.DegraConfig.CRATE_FORM_TITLE;
+import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
+import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
 
 import java.io.IOException;
@@ -19,6 +21,8 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import lv.degra.accounting.document.bill.service.BillRowService;
+import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.system.alert.AlertAsk;
@@ -32,8 +36,6 @@ import lv.degra.accounting.system.utils.DegraController;
 public class DocumentListFormController extends DegraController {
 
 	private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
-	private static final String DELETE_QUESTION_HEADER_TEXT = "Dzēst ierakstu";
-	private static final String DELETE_QUESTION_CONTEXT_TEXT = "Vai tiešām vēlaties dzēst ierakstu?";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
 	@FXML
 	public Button newButton;
@@ -43,6 +45,8 @@ public class DocumentListFormController extends DegraController {
 	private ApplicationContext context;
 	@Autowired
 	private DocumentService documentService;
+	@Autowired
+	private BillRowService billRowService;
 	@FXML
 	private DynamicTableView<DocumentDto> documentListView = new DynamicTableView<>();
 
@@ -50,12 +54,12 @@ public class DocumentListFormController extends DegraController {
 	public void initialize() {
 		documentListView.setType(DocumentDto.class);
 		documentListView.setCreator(item -> {
-			openDocumentEditForm(null);
+			addRecord();
 			refreshTable();
 		});
-		documentListView.setUpdater(item -> editDocument(item.getId()));
+		documentListView.setUpdater(item -> editRecord());
 		documentListView.setDeleter(item -> {
-			documentService.deleteDocumentById(item.getId());
+			deleteRecord();
 			refreshTable();
 		});
 
@@ -72,40 +76,29 @@ public class DocumentListFormController extends DegraController {
 		documentListView.setData(documentObservableList);
 	}
 
-	@FXML
-	public void onKeyPressAction(KeyEvent keyEvent) {
-		DocumentDto documentDto;
-		KeyCode key = keyEvent.getCode();
-		if (key == KeyCode.INSERT) {
-			openDocumentEditForm(null);
-		} else if (key == KeyCode.ENTER) {
-			documentDto = getDocumentFromTableView(documentListView);
-			editDocument(documentDto.getId());
-		} else if (key == KeyCode.DELETE) {
-			if (new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer().equals(AlertResponseType.NO)) {
-				return;
-			}
-			documentDto = getDocumentFromTableView(documentListView);
-			if (documentDto == null) {
-				return;
-			}
-			documentService.deleteDocumentById(documentDto.getId());
-			documentListView.getItems().removeAll(documentListView.getSelectionModel().getSelectedItem());
-		}
+	@Override
+	protected void addRecord() {
+		openDocumentEditForm(null);
 	}
 
-	private void editDocument(Integer id) {
-		DocumentDto documentDto;
-		documentDto = documentService.getDocumentById(id);
-
-		if (documentDto == null) {
+	@Override
+	protected void editRecord() {
+		DocumentDto newDocumentDto = (DocumentDto) getRowFromTableView(documentListView);
+		if (newDocumentDto == null) {
 			return;
 		}
-		openDocumentEditForm(documentDto);
+		openDocumentEditForm(newDocumentDto);
 	}
 
-	private DocumentDto getDocumentFromTableView(javafx.scene.control.TableView<DocumentDto> documentTableView) {
-		return documentTableView.getSelectionModel().getSelectedItem();
+	@Override
+	protected void deleteRecord() {
+		DocumentDto newDocumentDto = (DocumentDto) getRowFromTableView(documentListView);
+		if (newDocumentDto == null) {
+			return;
+		}
+		billRowService.deleteBillRowById(newDocumentDto.getId());
+		documentService.deleteDocumentById(newDocumentDto.getId());
+		documentListView.getItems().removeAll(newDocumentDto);
 	}
 
 	private void openDocumentEditForm(DocumentDto documentDto) {

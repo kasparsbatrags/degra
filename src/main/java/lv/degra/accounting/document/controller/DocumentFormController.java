@@ -1,8 +1,10 @@
 package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.configuration.DegraConfig.BILL_SERIES_KEY;
 import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.configuration.DegraConfig.VAT_PERCENTS;
 import static lv.degra.accounting.document.controller.DocumentFieldsUtils.fillCombo;
 import static lv.degra.accounting.document.controller.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.controller.DocumentFieldsUtils.setFieldFormat;
@@ -55,6 +57,7 @@ import lv.degra.accounting.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
+import lv.degra.accounting.system.configuration.service.ConfigService;
 import lv.degra.accounting.system.object.DatePicker;
 import lv.degra.accounting.system.object.DynamicTableView;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
@@ -64,6 +67,7 @@ import lv.degra.accounting.system.utils.DegraController;
 public class DocumentFormController extends DegraController {
 
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
+
 	private static final String BILL_CODE = "BILL";
 	private final ObservableList<BillContentDto> billContentObservableList = FXCollections.observableArrayList();
 	@FXML
@@ -160,6 +164,8 @@ public class DocumentFormController extends DegraController {
 	private BankService bankService;
 	@Autowired
 	private CustomerAccountService customerAccountService;
+	@Autowired
+	private ConfigService configService;
 	private CurrencyExchangeRate currencyExchangeRate;
 	private DocumentDto documentDto;
 	private BillContentDto newBillContentDto;
@@ -168,16 +174,6 @@ public class DocumentFormController extends DegraController {
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
 		return t -> seen.add(keyExtractor.apply(t));
-	}
-
-	@FXML
-	public void onKeyPressAction(KeyEvent keyEvent) {
-		KeyCode key = keyEvent.getCode();
-		if (key == KeyCode.ESCAPE) {
-			closeWindows();
-		} else if (key == KeyCode.INSERT) {
-			addToBillRowButtonAction();
-		}
 	}
 
 	@FXML
@@ -293,6 +289,7 @@ public class DocumentFormController extends DegraController {
 	}
 
 	private void setDefaultValues() {
+		seriesField.setText(configService.get(BILL_SERIES_KEY));
 		documentDateDp.setValue(LocalDate.now());
 		accountingDateDp.setValue(LocalDate.now());
 		paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
@@ -389,16 +386,13 @@ public class DocumentFormController extends DegraController {
 		ObservableList<Bank> observableCustomerBankList = bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList);
 
 		bankCombo.setItems(observableCustomerBankList);
-		if (observableCustomerBankList.size() == 1) {
-			Bank bank = observableCustomerBankList.get(0);
+		observableCustomerBankList.stream().findFirst().ifPresent(bank -> {
 			bankCombo.setValue(bank);
 
 			accountCombo.setItems(observableAccountsListBank);
-			if (observableAccountsListBank.size() == 1) {
-				CustomerBankAccount customerBankAccount = observableAccountsListBank.get(0);
-				accountCombo.setValue(customerBankAccount);
-			}
-		} else {
+			observableAccountsListBank.stream().findFirst().ifPresent(account -> accountCombo.setValue(account));
+		});
+		if (observableCustomerBankList.size() != 1) {
 			accountCombo.setItems(null);
 			accountCombo.setValue(null);
 		}
@@ -445,8 +439,33 @@ public class DocumentFormController extends DegraController {
 
 	@FXML
 	public void addToBillRowButtonAction() {
+		addRecord();
+		billRowServiceNameField.requestFocus();
+	}
+
+	@Override
+	protected void addRecord() {
 		enableBillRowEnterFields();
-		billRowServiceNameField.positionCaret(billRowServiceNameField.getText().length());
+		billRowServiceNameField.requestFocus();
+		billRowVatPercentField.setText(configService.get(VAT_PERCENTS));
+	}
+
+	@Override
+	protected void editRecord() {
+		newBillContentDto = (BillContentDto) getRowFromTableView(billContentListView);
+		enableBillRowEnterFields();
+		fillBillRowFields(newBillContentDto);
+		billRowServiceNameField.requestFocus();
+	}
+
+	@Override
+	protected void deleteRecord() {
+		newBillContentDto = (BillContentDto) getRowFromTableView(billContentListView);
+		if (documentDto == null) {
+			return;
+		}
+		billRowService.deleteBillRowById(documentDto.getId());
+		billContentListView.getItems().removeAll(billContentListView.getSelectionModel().getSelectedItem());
 	}
 
 	private void disableBillRowEnterFields() {
@@ -470,20 +489,28 @@ public class DocumentFormController extends DegraController {
 		billRowSaveButton.setDisable(setDisable);
 	}
 
+	@FXML
 	public void billContentOpenAction() {
+
+		billRowUnitTypeCombo.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (event.getCode() == KeyCode.ESCAPE) {
+				disableBillRowEnterFields();
+				event.consume();
+			}
+		});
+
 		newBillContentDto = null;
 		fillCombo(billRowUnitTypeCombo, unitTypeService.getAllUnitTypes());
 		disableBillRowEnterFields();
 		billRowServiceNameField.requestFocus();
 
 		billContentListView.setType(BillContentDto.class);
-
-		billContentListView.setCreator(item -> refreshBillContentTable());
-		billContentListView.setUpdater(item -> editBillRow(item.getId()));
-		billContentListView.setDeleter(item -> {
-			billRowService.deleteBillRowById(item.getId());
+		billContentListView.setCreator(item -> {
+			addRecord();
 			refreshBillContentTable();
 		});
+		billContentListView.setUpdater(item -> editRecord());
+		billContentListView.setDeleter(item -> deleteRecord());
 
 		refreshBillContentTable();
 	}
@@ -497,13 +524,14 @@ public class DocumentFormController extends DegraController {
 	}
 
 	public void onSaveRowButton() {
+		var editedBillContentDto = new BillContentDto();
 		try {
-			newBillContentDto = new BillContentDto(
-					newBillContentDto.getId(),
+			editedBillContentDto = new BillContentDto(
+					newBillContentDto == null ? null : newBillContentDto.getId(),
 					documentDto,
 					billRowServiceNameField.getText(),
 					getDouble(billRowQuantityField.getText()),
-					(UnitType) billRowUnitTypeCombo.getValue(),
+					billRowUnitTypeCombo.getValue(),
 					getDouble(billRowPricePerUnitField.getText()),
 					getDouble(billRowSumPerAllField.getText()),
 					getDouble(billRowVatPercentField.getText()),
@@ -511,7 +539,7 @@ public class DocumentFormController extends DegraController {
 					getDouble(billRowSumTotalField.getText())
 			);
 
-			billRowService.saveBillRow(newBillContentDto);
+			billRowService.saveBillRow(editedBillContentDto);
 		} catch (Exception e) {
 			Alert alert = new Alert(Alert.AlertType.NONE);
 			alert.setTitle(APPLICATION_TITLE);
@@ -519,7 +547,7 @@ public class DocumentFormController extends DegraController {
 			alert.setContentText(e.getMessage());
 			alert.show();
 		}
-		if (newBillContentDto.getId() == null) {
+		if (editedBillContentDto.getId() == null) {
 			this.billContentObservableList.add(newBillContentDto);
 		}
 		disableBillRowEnterFields();
@@ -533,12 +561,6 @@ public class DocumentFormController extends DegraController {
 	public void billRowQuantityOnAction() {
 		String billRowQuantity = String.valueOf(getDouble(billRowQuantityField.getText()));
 		billRowQuantityField.setText(billRowQuantity);
-	}
-
-	private void editBillRow(Integer billRowId) {
-		newBillContentDto = billRowService.getById(billRowId);
-		enableBillRowEnterFields();
-		fillBillRowFields(newBillContentDto);
 	}
 
 	private void fillBillRowFields(BillContentDto billContentDto) {
@@ -563,4 +585,15 @@ public class DocumentFormController extends DegraController {
 		billRowSumTotalField.clear();
 	}
 
+	public void onKeyPressOnBillEditAction(KeyEvent keyEvent) {
+		KeyCode key = keyEvent.getCode();
+		if (key == KeyCode.ESCAPE) {
+			clearBillEnterFields();
+			disableBillRowEnterFields();
+			keyEvent.consume();
+		} else if (key == KeyCode.ENTER) {
+			onSaveRowButton();
+			keyEvent.consume();
+		}
+	}
 }
