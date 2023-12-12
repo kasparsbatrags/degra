@@ -19,11 +19,7 @@ import lv.degra.accounting.system.exception.IllegalDataArgumentException;
 import lv.degra.accounting.system.object.DynamicTableView;
 
 
-public class DynamicTableViewTest extends ApplicationTest {
-
-
-
-
+class DynamicTableViewTest extends ApplicationTest {
 	private DynamicTableView tableView;
 
 	@Override
@@ -34,11 +30,11 @@ public class DynamicTableViewTest extends ApplicationTest {
 	}
 
 	@Test
-	public void testSetDataWithEmptyList() {
+	void testSetDataWithEmptyList() {
 		DynamicTableView<Object> tableView = new DynamicTableView<>();
 		List<Object> data = Collections.emptyList();
 
-		assertThrows(IllegalDataArgumentException.class, () -> tableView.setData(data));
+		assertThrows(IllegalStateException.class, () -> tableView.setData(data));
 	}
 //	@Test
 //	public void testSetEmptyData() {

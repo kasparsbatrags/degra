@@ -6,6 +6,7 @@ import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
@@ -29,22 +30,19 @@ public class DocumentListFormController extends DegraController {
 
 	private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
-	private final ApplicationFormBuilder applicationFormBuilder;
-	private final ApplicationContext context;
-	private final DocumentService documentService;
-	private final BillRowService billRowService;
-
 	@FXML
 	public Button newButton;
+	@Autowired
+	private ApplicationFormBuilder applicationFormBuilder;
+	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
+	private DocumentService documentService;
+	@Autowired
+	private BillRowService billRowService;
 	@FXML
 	private DynamicTableView<DocumentDto> documentListView = new DynamicTableView<>();
-	public DocumentListFormController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context,
-			DocumentService documentService, BillRowService billRowService) {
-		this.applicationFormBuilder = applicationFormBuilder;
-		this.context = context;
-		this.documentService = documentService;
-		this.billRowService = billRowService;
-	}
 
 	@FXML
 	public void initialize() {

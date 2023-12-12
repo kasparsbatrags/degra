@@ -1,4 +1,4 @@
-package lv.degra.accounting.document.controller;
+package lv.degra.accounting.document;
 
 import java.util.List;
 import java.util.function.UnaryOperator;

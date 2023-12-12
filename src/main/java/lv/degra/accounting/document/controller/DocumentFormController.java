@@ -5,9 +5,9 @@ import static lv.degra.accounting.configuration.DegraConfig.BILL_SERIES_KEY;
 import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static lv.degra.accounting.configuration.DegraConfig.VAT_PERCENTS;
-import static lv.degra.accounting.document.controller.DocumentFieldsUtils.fillCombo;
-import static lv.degra.accounting.document.controller.DocumentFieldsUtils.getDouble;
-import static lv.degra.accounting.document.controller.DocumentFieldsUtils.setFieldFormat;
+import static lv.degra.accounting.document.DocumentFieldsUtils.fillCombo;
+import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
+import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
@@ -139,59 +140,36 @@ public class DocumentFormController extends DegraController {
 	public TextField billRowSumTotalField;
 	@FXML
 	public Button billRowSaveButton;
-
+	@Autowired
 	private ApplicationFormBuilder applicationFormBuilder;
-
+	@Autowired
 	private ApplicationContext context;
-
+	@Autowired
 	private DocumentService documentService;
-
+	@Autowired
 	private BillRowService billRowService;
-
+	@Autowired
 	private UnitTypeService unitTypeService;
-
+	@Autowired
 	private CurrencyService currencyService;
-
+	@Autowired
 	private DocumentTypeService documentTypeService;
-
+	@Autowired
 	private DocumentTransactionTypeService documentTransactionTypeService;
-
+	@Autowired
 	private ExchangeService exchangeService;
-
+	@Autowired
 	private CustomerService customerService;
-
+	@Autowired
 	private BankService bankService;
-
+	@Autowired
 	private CustomerAccountService customerAccountService;
-
+	@Autowired
 	private ConfigService configService;
 	private CurrencyExchangeRate currencyExchangeRate;
 	private DocumentDto documentDto;
 	private BillContentDto newBillContentDto;
 	private ObservableList<DocumentDto> documentObservableList;
-
-	public DocumentFormController() {
-	}
-
-	public DocumentFormController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context,
-			DocumentService documentService, BillRowService billRowService, UnitTypeService unitTypeService,
-			CurrencyService currencyService, DocumentTypeService documentTypeService,
-			DocumentTransactionTypeService documentTransactionTypeService, ExchangeService exchangeService, CustomerService customerService,
-			BankService bankService, CustomerAccountService customerAccountService, ConfigService configService) {
-		this.applicationFormBuilder = applicationFormBuilder;
-		this.context = context;
-		this.documentService = documentService;
-		this.billRowService = billRowService;
-		this.unitTypeService = unitTypeService;
-		this.currencyService = currencyService;
-		this.documentTypeService = documentTypeService;
-		this.documentTransactionTypeService = documentTransactionTypeService;
-		this.exchangeService = exchangeService;
-		this.customerService = customerService;
-		this.bankService = bankService;
-		this.customerAccountService = customerAccountService;
-		this.configService = configService;
-	}
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
@@ -612,9 +590,11 @@ public class DocumentFormController extends DegraController {
 		if (key == KeyCode.ESCAPE) {
 			clearBillEnterFields();
 			disableBillRowEnterFields();
+			billContentListView.requestFocus();
 			keyEvent.consume();
 		} else if (key == KeyCode.ENTER) {
 			onSaveRowButton();
+			billContentListView.requestFocus();
 			keyEvent.consume();
 		}
 	}

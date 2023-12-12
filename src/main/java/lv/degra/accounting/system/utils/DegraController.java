@@ -12,6 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
+import lv.degra.accounting.system.exception.CannotPerformException;
 
 @Controller
 public class DegraController {
@@ -33,8 +34,10 @@ public class DegraController {
 	}
 
 	public void closeWindows() {
-		Stage stage = (Stage) closeButton.getScene().getWindow();
-		stage.close();
+		if (closeButton != null) {
+			Stage stage = (Stage) closeButton.getScene().getWindow();
+			stage.close();
+		}
 	}
 
 	public <T> T getRowFromTableView(javafx.scene.control.TableView<T> tableView) {
@@ -50,6 +53,7 @@ public class DegraController {
 			editRecord();
 		} else if (key == KeyCode.DELETE) {
 			if (AlertResponseType.NO.equals(new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer())) {
+				keyEvent.consume();
 				return;
 			}
 			deleteRecord();
@@ -59,12 +63,14 @@ public class DegraController {
 	}
 
 	protected void addRecord() {
-
+		throw new CannotPerformException("notImplemented() cannot be performed because in controller addRecord() is not Override!");
 	}
 
 	protected void editRecord() {
+		throw new CannotPerformException("notImplemented() cannot be performed because in controller editRecord() is not Override!");
 	}
 
 	protected void deleteRecord() {
+		throw new CannotPerformException("notImplemented() cannot be performed because in controller deleteRecord() is not Override!");
 	}
 }

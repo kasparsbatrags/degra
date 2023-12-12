@@ -1,7 +1,7 @@
 package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
-import static lv.degra.accounting.document.controller.DocumentFieldsUtils.setFieldFormat;
+import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
