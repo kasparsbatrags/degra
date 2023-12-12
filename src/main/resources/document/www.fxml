@@ -2,7 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="728.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentController">
+<AnchorPane prefHeight="728.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentFormController">
 	<children>
 		<GridPane hgap="10" vgap="10">
 			<!-- Labels -->
@@ -23,7 +23,7 @@
 
 			<ButtonBar GridPane.columnIndex="3" GridPane.rowIndex="5">
 				<buttons>
-					<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveButton" text="Saglabāt"/>
+					<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveDocumentButton" text="Saglabāt"/>
 					<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt"/>
 				</buttons>
 			</ButtonBar>

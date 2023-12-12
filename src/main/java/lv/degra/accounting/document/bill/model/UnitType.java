@@ -1,4 +1,4 @@
-package lv.degra.accounting.document.model;
+package lv.degra.accounting.document.bill.model;
 
 import java.io.Serializable;
 
@@ -15,24 +15,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "document_type")
-public class DocumentType implements Serializable {
+@Table(name = "unit_type")
+public class UnitType implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Integer id;
 
-	@Size(max = 30)
-	@Column(name = "name", nullable = false)
-	private String name;
-
-	@Size(max = 10)
-	@Column(name = "code", nullable = false)
+	@Size(max = 5)
+	@Column(name = "code", length = 5)
 	private String code;
+
+	@Size(max = 30)
+	@Column(name = "name", length = 30)
+	private String name;
 
 	@Override
 	public String toString() {
-		return getName();
+		return getCode();
 	}
 }
-

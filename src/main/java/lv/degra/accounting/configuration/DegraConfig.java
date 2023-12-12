@@ -12,5 +12,11 @@ public class DegraConfig {
 	public static final String SUM_FORMAT_REGEX = "\\d*|\\d+\\.\\d*";
 	public static final String CURRENCY_EXCHANGE_RATE_FORMAT_REGEX = "\\d+\\.\\d+";
 	public static final String APPLICATION_ICON_FILE = "/image/degra.png";
+	public static final String EDIT_FORM_TITLE = "Rediģēt";
+	public static final String CRATE_FORM_TITLE = "Pievienot";
+	public static final String DELETE_QUESTION_HEADER_TEXT = "Dzēst ierakstu";
+	public static final String DELETE_QUESTION_CONTEXT_TEXT = "Vai tiešām vēlaties dzēst ierakstu?";
+	public static final String BILL_SERIES_KEY = "bill_series";
+	public static final String VAT_PERCENTS = "default_vat_percents";
 
 }

@@ -30,8 +30,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public DocumentDto getDocumentById(Integer id) {
-
-		return mapToDto(documentRepository.getById(id));
+		return modelMapper.map(documentRepository.getById(id), DocumentDto.class);
 	}
 
 	@Transactional
@@ -40,13 +39,13 @@ public class DocumentServiceImpl implements DocumentService {
 			if (documentDto.getId() != null) {
 				Document document = documentRepository.getById(documentDto.getId());
 				if (document != null) {
-					mapToExistingEntity(documentDto, document);
-					return mapToDto(documentRepository.save(document));
+					modelMapper.map(documentDto, document);
+					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
 				} else {
 					throw new EntityNotFoundException("Document not found with ID: " + documentDto.getId());
 				}
 			} else {
-				return mapToDto(documentRepository.save(mapToNewEntity(documentDto)));
+				return modelMapper.map(documentRepository.save(modelMapper.map(documentDto, Document.class)), DocumentDto.class);
 			}
 		} catch (DataIntegrityViolationException e) {
 			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
@@ -56,20 +55,8 @@ public class DocumentServiceImpl implements DocumentService {
 	public List<DocumentDto> getDocumentList() {
 		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
 				.stream()
-				.map(this::mapToDto)
+				.map(document -> modelMapper.map(document, DocumentDto.class))
 				.toList();
-	}
-
-	private Document mapToNewEntity(DocumentDto documentDto) {
-		return modelMapper.map(documentDto, Document.class);
-	}
-
-	public void mapToExistingEntity(DocumentDto documentDto, Document document) {
-		modelMapper.map(documentDto, document);
-	}
-
-	public DocumentDto mapToDto(Document document) {
-		return modelMapper.map(document, DocumentDto.class);
 	}
 
 	public void deleteDocumentById(Integer documentId) {

@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddConfigDocumentSeries
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM config WHERE key = 'bill_series'
+      changes:
+        - insert:
+            tableName: config
+            columns:
+              - column:
+                  name: key
+                  value: bill_series
+              - column:
+                  name: value
+                  value: XXX
+  - changeSet:
+      id: AddConfigVatPercents
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM config WHERE key = 'default_vat_percents'
+      changes:
+        - insert:
+            tableName: config
+            columns:
+              - column:
+                  name: key
+                  value: default_vat_percents
+              - column:
+                  name: value
+                  value: 21
