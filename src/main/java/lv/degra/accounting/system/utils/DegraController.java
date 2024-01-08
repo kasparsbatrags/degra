@@ -3,8 +3,6 @@ package lv.degra.accounting.system.utils;
 import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
 import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 
-import org.springframework.stereotype.Controller;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
@@ -14,11 +12,10 @@ import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
 import lv.degra.accounting.system.exception.CannotPerformException;
 
-@Controller
 public class DegraController {
 
 	@FXML
-	private Button closeButton;
+	public Button closeButton;
 
 	@FXML
 	public void onCloseButton() {
@@ -57,6 +54,7 @@ public class DegraController {
 				return;
 			}
 			deleteRecord();
+			keyEvent.consume();
 		} else if (key == KeyCode.ESCAPE) {
 			closeWindows();
 		}

@@ -6,14 +6,14 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM config WHERE key = 'bill_series'
+            sql: SELECT COUNT(*) FROM config WHERE key = 'BILL_SERIES'
       changes:
         - insert:
             tableName: config
             columns:
               - column:
                   name: key
-                  value: bill_series
+                  value: BILL_SERIES
               - column:
                   name: value
                   value: XXX
@@ -24,14 +24,14 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM config WHERE key = 'default_vat_percents'
+            sql: SELECT COUNT(*) FROM config WHERE key = 'DEFAULT_VAT_PERCENTS'
       changes:
         - insert:
             tableName: config
             columns:
               - column:
                   name: key
-                  value: default_vat_percents
+                  value: DEFAULT_VAT_PERCENTS
               - column:
                   name: value
                   value: 21

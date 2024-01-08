@@ -5,12 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.model.CurrencyRepository;
 
 @Service
-@AllArgsConstructor
 public class CurrencyServiceImpl implements CurrencyService {
 
 	private static final String DEFAULT_CURRENCY_NAME = "EUR";

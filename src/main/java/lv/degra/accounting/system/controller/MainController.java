@@ -12,9 +12,10 @@ import lv.degra.accounting.system.utils.ApplicationFormBuilder;
 @Controller
 public class MainController {
 
-	private static final String DOCUMENT_LIST_SCREEN_FILE = "/document/documentList.fxml";
+	private static final String DOCUMENT_LIST_SCREEN_FILE = "/document/DocumentListForm.fxml";
 	@FXML
 	public BorderPane mainBorderPane;
+	@FXML
 	public Button documentsButton;
 	@Autowired
 	ApplicationFormBuilder applicationFormBuilder;

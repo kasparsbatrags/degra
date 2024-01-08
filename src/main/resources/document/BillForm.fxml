@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import lv.degra.accounting.system.object.DynamicTableView?>
+<?import lv.degra.accounting.system.object.Label?>
+<AnchorPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="lv.degra.accounting.document.controller.BillController">
+	<AnchorPane onKeyPressed="#onKeyPressAction" prefHeight="575.0" prefWidth="1312.0" AnchorPane.bottomAnchor="0.0"
+		AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<children>
+			<BorderPane layoutX="80.0" layoutY="45.0" prefHeight="409.0" prefWidth="1190.0" AnchorPane.bottomAnchor="178.0"
+				AnchorPane.leftAnchor="61.0" AnchorPane.rightAnchor="61.0" AnchorPane.topAnchor="45.0">
+				<center>
+					<Pane prefHeight="200.0" prefWidth="200.0" />
+					<DynamicTableView fx:id="billContentListView" layoutX="100.0" layoutY="52.0" onKeyPressed="#onKeyPressAction"
+						prefHeight="393.0" prefWidth="1190.0" AnchorPane.bottomAnchor="75.0" AnchorPane.leftAnchor="41.0"
+						AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="52.0">
+						<placeholder>
+							<Label text="Nav datu!" />
+						</placeholder>
+					</DynamicTableView>
+				</center>
+				<bottom>
+					<Button fx:id="addToBillButton" mnemonicParsing="false" onAction="#addToBillRowButtonAction" text="Jauns"
+						BorderPane.alignment="TOP_RIGHT" />
+				</bottom>
+			</BorderPane>
+			<GridPane layoutX="63.0" layoutY="495.0" prefHeight="93.0" prefWidth="1175.0" AnchorPane.bottomAnchor="44.0"
+				AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0">
+				<columnConstraints>
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="319.0" minWidth="10.0" prefWidth="319.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="203.0" minWidth="10.0" prefWidth="114.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="245.0" minWidth="10.0" prefWidth="117.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="232.0" minWidth="10.0" prefWidth="111.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="10.0" prefWidth="102.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="136.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="231.0" minWidth="10.0" prefWidth="104.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="224.0" minWidth="10.0" prefWidth="114.0" />
+					<ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="34.0" />
+				</columnConstraints>
+				<rowConstraints>
+					<RowConstraints maxHeight="99.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+					<RowConstraints maxHeight="98.0" minHeight="0.0" prefHeight="52.0" vgrow="SOMETIMES" />
+				</rowConstraints>
+				<children>
+					<Label text="Nosaukums" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowServiceNameField" accessibleRole="TEXT_AREA" onKeyPressed="#onKeyPressOnBillEditAction"
+						prefHeight="60.0" prefWidth="239.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+					<ComboBox fx:id="billRowUnitTypeCombo" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0" prefWidth="80.0"
+						GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+					<Label text="Mērvienība" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowQuantityField" onAction="#billRowQuantityOnAction" onKeyPressed="#onKeyPressOnBillEditAction"
+						prefHeight="13.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+					<Label text="Daudzums" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+					<Label text="Vienības cena&#10;    bez PVN&#10;" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowPricePerUnitField" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0"
+						prefWidth="84.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+					<Label text=" Summa&#10;bez PVN" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowSumPerAllField" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0" prefWidth="84.0"
+						GridPane.columnIndex="4" GridPane.rowIndex="1" />
+					<Label text=" PVN &#10;likme %" GridPane.columnIndex="5" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowVatPercentField" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0" prefWidth="84.0"
+						GridPane.columnIndex="5" GridPane.rowIndex="1" />
+					<Label text=" PVN &#10;summa" GridPane.columnIndex="6" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowVatSumField" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0" prefWidth="84.0"
+						GridPane.columnIndex="6" GridPane.rowIndex="1" />
+					<Label text="Summa kopā" GridPane.columnIndex="7" GridPane.halignment="CENTER" />
+					<TextField fx:id="billRowSumTotalField" onKeyPressed="#onKeyPressOnBillEditAction" prefHeight="25.0" prefWidth="84.0"
+						GridPane.columnIndex="7" GridPane.rowIndex="1" />
+					<Button fx:id="billRowSaveButton" mnemonicParsing="false" onAction="#onSaveRowButton" text="Saglabāt ierakstu"
+						GridPane.columnIndex="8" GridPane.rowIndex="1" />
+				</children>
+			</GridPane>
+		</children>
+	</AnchorPane>
+</AnchorPane>
