@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import lv.degra.accounting.document.bill.service.BillRowService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.system.exception.DegraRuntimeException;
 import lv.degra.accounting.system.exception.FxmlFileLoaderException;
 import lv.degra.accounting.system.object.DynamicTableView;
 import lv.degra.accounting.system.utils.ApplicationFormBuilder;
@@ -28,7 +29,7 @@ import lv.degra.accounting.system.utils.DegraController;
 @Controller
 public class DocumentListFormController extends DegraController {
 
-	private static final String DOCUMENT_SCREEN_FILE = "/document/document.fxml";
+	private static final String DOCUMENT_SCREEN_FILE = "/document/DocumentForm.fxml";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
 	@FXML
 	public Button newButton;
@@ -90,8 +91,10 @@ public class DocumentListFormController extends DegraController {
 		if (newDocumentDto == null) {
 			return;
 		}
-		billRowService.deleteBillRowById(newDocumentDto.getId());
-		documentService.deleteDocumentById(newDocumentDto.getId());
+		billRowService.deleteBillRowByDocumentId(newDocumentDto.getId());
+		if (newDocumentDto.getId() != null) {
+			documentService.deleteDocumentById(newDocumentDto.getId());
+		}
 		documentListView.getItems().removeAll(newDocumentDto);
 	}
 
@@ -99,16 +102,15 @@ public class DocumentListFormController extends DegraController {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(DOCUMENT_SCREEN_FILE));
 		fxmlLoader.setControllerFactory(context::getBean);
 		try {
-			fxmlLoader.load();
-			Parent root1 = fxmlLoader.getRoot();
+			Parent root1 = fxmlLoader.load();
 			Stage stage = applicationFormBuilder.getApplicationFormatedStage(root1,
 					documentDto == null ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
-			DocumentFormController documentFormController = fxmlLoader.getController();
+			DocumentMainController documentMainController = fxmlLoader.getController();
 			if (isCreateNewDocument(documentDto)) {
-				documentFormController.setDocumentList(documentObservableList);
+				documentMainController.setDocumentList(documentObservableList);
 			} else {
-				documentFormController.setDocumentList(documentObservableList);
-				documentFormController.setDocument(documentDto);
+				documentMainController.setDocumentList(documentObservableList);
+				documentMainController.setDocument(documentDto);
 			}
 			stage.setMaximized(true);
 			stage.initModality(APPLICATION_MODAL);
@@ -116,8 +118,15 @@ public class DocumentListFormController extends DegraController {
 			if (!isCreateNewDocument(documentDto)) {
 				refreshTable();
 			}
-		} catch (RuntimeException | IOException e) {
-			throw new FxmlFileLoaderException(e.getMessage());
+		} catch (FxmlFileLoaderException ex) {
+			Throwable rootCause = ex.getCause();
+			if (rootCause != null) {
+				rootCause.printStackTrace();
+			} else {
+				ex.printStackTrace();
+			}
+		} catch (IOException e) {
+			throw new DegraRuntimeException(e.getMessage(), e);
 		}
 	}
 

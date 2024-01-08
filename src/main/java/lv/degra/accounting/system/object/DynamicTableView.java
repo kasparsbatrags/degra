@@ -1,5 +1,7 @@
 package lv.degra.accounting.system.object;
 
+import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
+import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
 import java.lang.reflect.Constructor;
@@ -30,6 +32,8 @@ import javafx.util.StringConverter;
 import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
+import lv.degra.accounting.system.alert.AlertAsk;
+import lv.degra.accounting.system.alert.AlertResponseType;
 import lv.degra.accounting.system.exception.DynamicTableBuildException;
 import lv.degra.accounting.system.exception.IllegalDataArgumentException;
 
@@ -103,8 +107,23 @@ public class DynamicTableView<T> extends TableView<T> {
 			List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
 
 			actions.add(new Pair<>("Jauns", item -> creator.create(item)));
-			actions.add(new Pair<>("Labot", item -> updater.update(item)));
-			actions.add(new Pair<>("Dzēst", item -> deleter.delete(item)));
+			actions.add(new Pair<>("Labot", item -> {
+				updater.update(item);
+				int index = getItems().indexOf(item);
+				getSelectionModel().select(index);
+				scrollTo(index);
+			}));
+			actions.add(new Pair<>("Dzēst", item -> {
+				if (AlertResponseType.NO.equals(new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer())) {
+					return;
+				}
+				deleter.delete(item);
+				int index = getItems().indexOf(item);
+				if (index != -1) {
+					getSelectionModel().select(index);
+					scrollTo(index);
+				}
+			}));
 			TableColumn<T, Void> actionsColumn = createMenuButtonColumn(actions);
 			getColumns().add(actionsColumn);
 
@@ -195,7 +214,7 @@ public class DynamicTableView<T> extends TableView<T> {
 
 			{
 				FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
-				icon.setIconSize(20); // adjust the size as needed
+				icon.setIconSize(20);
 				menuButton.setGraphic(icon);
 
 				actions.forEach(action -> {

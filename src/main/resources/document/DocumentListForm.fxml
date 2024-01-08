@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import lv.degra.accounting.system.object.DynamicTableView?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0"
+	xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="lv.degra.accounting.document.controller.DocumentListFormController">
+	<children>
+		<StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<children>
+				<BorderPane>
+					<center>
+						<DynamicTableView fx:id="documentListView" onKeyPressed="#onKeyPressAction">
+							<placeholder>
+								<Label text="Nav datu!" />
+							</placeholder>
+						</DynamicTableView>
+					</center>
+					<bottom>
+						<Button fx:id="newButton" mnemonicParsing="false" onAction="#onNewButton" text="Jauns"
+							BorderPane.alignment="TOP_RIGHT" />
+					</bottom>
+				</BorderPane>
+			</children>
+		</StackPane>
+	</children>
+</AnchorPane>

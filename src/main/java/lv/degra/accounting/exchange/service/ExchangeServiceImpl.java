@@ -1,31 +1,33 @@
 package lv.degra.accounting.exchange.service;
 
-import lombok.AllArgsConstructor;
-import lv.degra.accounting.currency.model.Currency;
-import lv.degra.accounting.currency.service.CurrencyService;
-import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
-import lv.degra.accounting.exchange.model.CurrencyExchangeRateRepository;
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lv.degra.accounting.currency.model.Currency;
+import lv.degra.accounting.currency.service.CurrencyServiceImpl;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
+import lv.degra.accounting.exchange.model.CurrencyExchangeRateRepository;
 
 @Service
 @AllArgsConstructor
 public class ExchangeServiceImpl implements ExchangeService {
-    @Autowired
-    private CurrencyExchangeRateRepository currencyExchangeRateRepository;
+	@Autowired
+	private CurrencyExchangeRateRepository currencyExchangeRateRepository;
 
-    @Autowired
-    private CurrencyService currencyService;
+	@Autowired
+	private CurrencyServiceImpl currencyServiceImpl;
 
-    public CurrencyExchangeRate getActuallyExchangeRate(LocalDate exchangeRateDate, Currency currency) {
-        return currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate, currency.getId());
-    }
+	public CurrencyExchangeRate getActuallyExchangeRate(LocalDate exchangeRateDate, Currency currency) {
+		return currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate, currency.getId());
+	}
 
-    public CurrencyExchangeRate getDefaultCurrencyExchangeRate() {
-        LocalDate exchangeRateDate =  LocalDate.now();
-        return currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate, currencyService.getDefaultCurrency().getId());
-    }
+	public CurrencyExchangeRate getDefaultCurrencyExchangeRate() {
+		LocalDate exchangeRateDate = LocalDate.now();
+		return currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate,
+				currencyServiceImpl.getDefaultCurrency().getId());
+	}
 
 }

@@ -26,13 +26,11 @@ public class DocumentFieldsUtils {
 	}
 
 	public static Double getDouble(String totalSum) {
-		double result;
 		try {
-			result = Double.parseDouble(totalSum);
-		} catch (RuntimeException e) {
+			return Double.parseDouble(totalSum);
+		} catch (NumberFormatException e) {
 			throw new IncorrectSumException(EXCEPTION_TEXT_INCORRECT_SUM);
 		}
-		return result;
 	}
 
 }
