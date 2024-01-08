@@ -1,4 +1,4 @@
-package lv.degra.accounting.document.documentFormController;
+package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
