@@ -3,6 +3,8 @@ package lv.degra.accounting.document.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -33,15 +35,17 @@ public class DocumentDto implements Serializable {
 	Integer id;
 	@TableViewInfo(displayName = "Virziens", columnOrder = 3)
 	DocumentDirection documentDirection;
-	Integer documentNumber;
+	String documentNumber;
 	@Size(max = 20)
 	@TableViewInfo(displayName = "Sērija", columnOrder = 2)
 	String documentSeries;
 	@TableViewInfo(displayName = "Tips", columnOrder = 4)
 	DocumentType documentType;
 	DocumentTransactionType documentTransactionType;
+
 	@NotNull LocalDate accountingDate;
 	@TableViewInfo(displayName = "Datums", columnOrder = 1)
+	@DateTimeFormat(pattern = "dd.mm.yyyy")
 	@NotNull LocalDate documentDate;
 	LocalDate paymentDate;
 	Integer paymentTypeId;

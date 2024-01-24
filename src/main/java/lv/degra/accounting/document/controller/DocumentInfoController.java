@@ -1,5 +1,6 @@
 package lv.degra.accounting.document.controller;
 
+import static liquibase.util.StringUtil.isNotEmpty;
 import static lv.degra.accounting.configuration.DegraConfig.BILL_SERIES_KEY;
 import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
@@ -36,6 +37,7 @@ import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 import lv.degra.accounting.customerAccount.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
+import lv.degra.accounting.document.dto.DocumentDtoValidator;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentTransactionType;
 import lv.degra.accounting.document.model.DocumentType;
@@ -44,7 +46,9 @@ import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
-import lv.degra.accounting.system.object.DynamicDatePicker;
+import lv.degra.accounting.system.exception.IllegalDataArgumentException;
+import lv.degra.accounting.system.object.ComboBoxWithErrorLabel;
+import lv.degra.accounting.system.object.DatePickerWithErrorLabel;
 import lv.degra.accounting.system.utils.DegraController;
 
 @Component
@@ -67,7 +71,7 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public ComboBox<CustomerBankAccount> receiverBankAccountCombo;
 	@FXML
-	public ComboBox<DocumentDirection> directionCombo;
+	public ComboBoxWithErrorLabel<DocumentDirection> directionCombo;
 	@FXML
 	public ComboBox<Currency> currencyCombo;
 	@FXML
@@ -83,17 +87,19 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public TextField exchangeRateField;
 	@FXML
-	public DynamicDatePicker accountingDateDp;
+	public DatePickerWithErrorLabel accountingDateDp;
 	@FXML
-	public DynamicDatePicker documentDateDp;
+	public DatePickerWithErrorLabel documentDateDp;
 	@FXML
-	public DynamicDatePicker paymentDateDp;
+	public DatePickerWithErrorLabel paymentDateDp;
 	@FXML
 	public TextArea notesForCustomerField;
 	@FXML
 	public TextArea internalNotesField;
 	@FXML
-	public ComboBox<DocumentType> documentTypeCombo;
+	public ComboBoxWithErrorLabel<DocumentType> documentTypeCombo;
+	@FXML
+	private Label documentDateErrorLabel;
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
@@ -183,8 +189,8 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public boolean isDocumentBill() {
-		return Optional.ofNullable(documentTypeCombo).map(ComboBox::getValue).map(DocumentType::getCode).map(BILL_CODE::equals)
-				.orElse(false);
+		return Optional.ofNullable(documentTypeCombo).map(ComboBoxWithErrorLabel::getValue).map(DocumentType::getCode)
+				.map(BILL_CODE::equals).orElse(false);
 	}
 
 	private void setCustomerAccountInfo(ComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
@@ -316,12 +322,38 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public DocumentDto fillDocumentDto() {
-		return new DocumentDto(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()),
-				directionCombo.getValue(), Integer.parseInt(numberField.getText()), seriesField.getText(), documentTypeCombo.getValue(),
-				documentTransactionTypeCombo.getValue(), accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(),
-				null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(),
-				currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), publisherCombo.getValue(),
-				publisherBankCombo.getValue(), publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
+
+		validateAndSetError(documentDateDp, DocumentDtoValidator::validateDateNotNull, DatePickerWithErrorLabel::getValue);
+		validateAndSetError(accountingDateDp, DocumentDtoValidator::validateDateNotNull, DatePickerWithErrorLabel::getValue);
+
+		validateEmptyDirectionAndSetError(directionCombo);
+		validateEmptyDirectionAndSetError(documentTypeCombo);
+
+		return DocumentDtoValidator.validateAndCreateDocumentDto(
+				documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()), directionCombo.getValue(),
+				numberField.getText(), seriesField.getText(), documentTypeCombo.getValue(), documentTransactionTypeCombo.getValue(),
+				accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(), null, getDouble(sumTotalField.getText()),
+				getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(), currencyExchangeRate,
+				notesForCustomerField.getText(), internalNotesField.getText(), publisherCombo.getValue(), publisherBankCombo.getValue(),
+				publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
 				receiverBankAccountCombo.getValue());
+	}
+
+	private <T> void validateEmptyDirectionAndSetError(ComboBoxWithErrorLabel<T> comboBox) {
+		String errorMessage = DocumentDtoValidator.validateDateNotNull(comboBox.getValue());
+		if (isNotEmpty(errorMessage)) {
+			comboBox.setError(errorMessage);
+			throw new IllegalDataArgumentException(errorMessage);
+		}
+	}
+
+	private <T extends Validatable, U> void validateAndSetError(T field, Function<U, String> validationFunction,
+			Function<T, U> valueExtractor) {
+		U value = valueExtractor.apply(field);
+		String errorMessage = validationFunction.apply(value);
+		if (isNotEmpty(errorMessage)) {
+			field.setError(errorMessage);
+			throw new IllegalDataArgumentException(errorMessage);
+		}
 	}
 }
