@@ -1,6 +1,7 @@
 package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_ERROR_MESSAGE;
 
 import java.util.Optional;
 
@@ -89,7 +90,7 @@ public class DocumentMainController extends DegraController {
 			Alert alert = new Alert(Alert.AlertType.NONE);
 			alert.setTitle(APPLICATION_TITLE);
 			alert.setAlertType(Alert.AlertType.ERROR);
-			alert.setContentText(e.getMessage());
+			alert.setContentText(DEFAULT_ERROR_MESSAGE);
 			alert.show();
 			result = false;
 		}

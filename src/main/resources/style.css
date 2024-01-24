@@ -1,27 +1,7 @@
-#title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #F70;
-    -fx-text-alignment: center;
-}
-#blockResult {
-    -fx-padding: 20px;
-}
-.hBox {
-    -fx-padding: 20px;
-}
-#resultResistance, #unit {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #333;
-    -fx-text-alignment: center;
-}
-#removeR, #addR, #saveR {
 
-    -fx-padding: 15px;
-    -fx-border-insets: 5px;
-    -fx-background-insets: 5px;
-}
-.resultLabel {
-    -fx-padding: 20px;
+
+.custom-date-picker {
+    -fx-border-color: #708090;
+    -fx-border-width: 1;
+    -fx-border-radius: 0;
 }

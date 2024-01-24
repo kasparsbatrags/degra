@@ -16,7 +16,9 @@ public class DegraConfig {
 	public static final String CRATE_FORM_TITLE = "Pievienot";
 	public static final String DELETE_QUESTION_HEADER_TEXT = "Dzēst ierakstu";
 	public static final String DELETE_QUESTION_CONTEXT_TEXT = "Vai tiešām vēlaties dzēst ierakstu?";
+	public static final String DATE_FORMAT = "dd.MM.yyyy";
 	public static final String BILL_SERIES_KEY = "BILL_SERIES";
 	public static final String VAT_PERCENTS = "DEFAULT_VAT_PERCENTS";
+	public static final String DEFAULT_ERROR_MESSAGE = "Kļūda datu ievadē";
 
 }
