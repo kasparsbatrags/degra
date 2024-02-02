@@ -43,3 +43,7 @@ databaseChangeLog:
         file: db/changelog/add-config-table.yaml
     - include:
         file: db/changelog/add-config-data.yaml
+    - include:
+        file: db/changelog/add-account-plan.yaml
+    - include:
+        file: db/changelog/add-account-plan-data.yaml

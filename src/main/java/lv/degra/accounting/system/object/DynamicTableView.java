@@ -81,7 +81,7 @@ public class DynamicTableView<T> extends TableView<T> {
 				throw new IllegalStateException("Type is null. You must pass a Class<T> object to the DynamicTableView constructor.");
 			}
 			try {
-				T instance = type.newInstance();
+				T instance = type.getDeclaredConstructor().newInstance();
 				data = new ArrayList<>();
 				data.add(instance);
 			} catch (Exception e) {

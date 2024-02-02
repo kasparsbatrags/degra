@@ -14,7 +14,7 @@ public class DocumentFieldsUtils {
 
 	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
 
-	public static void fillCombo(ComboBox comboBox, List<?> list) {
+	public static <T> void fillCombo(ComboBox<T> comboBox, List<T> list) {
 		comboBox.setItems(FXCollections.observableList(list));
 	}
 

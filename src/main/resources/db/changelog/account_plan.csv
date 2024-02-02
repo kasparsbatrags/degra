@@ -1,0 +1,305 @@
+"id","account","name","is_assets_account","use_for_bilance","currency","amount_in_account","parent_id"
+1,"1",Ilgtermiņa ieguldījumi,true,true,EUR,,
+2,"11",Nemateriālie ieguldijumi,true,false,EUR,,1
+3,"111",Pētniecības darba un uzņēmuma attīstības izmaksas,true,false,EUR,,2
+4,"112","Koncesijas,patenti,licences,tirdzniecības zīmes un līdzīgas tiesības",true,false,EUR,,2
+5,"113",Uzņēmuma nemateriālā vērtība,true,false,EUR,,2
+6,"114",Citi nemateriālie aktīvi,true,false,EUR,,2
+7,"115",Nemateriālo ieguldījumu izveidošanas izdevumi,true,false,EUR,,2
+8,"118",Avansa maksājumi par nemateriālajiem aktīviem,true,false,EUR,,2
+9,"119",Nemateriālo ieguldījumu vērtības norakstīšana (pasīvā),true,false,EUR,,2
+10,"1191",Pētniecības darba un uzņēmuma attīstības vērtības norakstītā daļa,true,false,EUR,,9
+11,"1192","Koncesijas,patenti,licences, līdzīgu tiesību norakstītā daļa",true,false,EUR,,9
+12,"1193",Uzņēmuma nemateriālās vērtības norakstītā daļa,true,false,EUR,,9
+13,"1194",Citu nemateriālo aktīvu norakstītā daļa,true,false,EUR,,9
+14,"12",Pamatlīdzekļi,true,true,EUR,,1
+15,"121","Zemes gabali, ēkas, būves un ilggadīgie stādījumi",true,true,EUR,,14
+16,"122",Tehnoloģiskās iekārtas un mašīnas,true,true,EUR,,14
+17,"123",Pārējie pamatlīdzekļi un inventārs,true,false,EUR,,14
+18,"124",PamatlīdzekļIu izveidošana un nepabeigto celtniecības objektu izmaksas,true,false,EUR,,14
+19,"125",Avansa maksājumi par pamatlīdzekļiem,true,false,EUR,,14
+20,"126",Ieguldījumi nomātajos pamatlīdzekļos,true,false,EUR,,14
+21,"129",Pamatlīdzekļu nolietojums (pasīvā),false,false,EUR,,14
+22,"1291","Ēku, būvju un citu nekustamo īpašumā īpašuma objektu nolietujums",true,true,EUR,,21
+23,"1292",Tehnoloģisko iekārtu un mašīnu nolietojums,true,true,EUR,,21
+24,"1293",Pārējo pamatlīdzekļu un inventāra nolietojums,true,false,EUR,,21
+25,"1296",Ieguldījumi nomātajos pamatlīdzekļos norakstītā daļa,true,false,EUR,,21
+26,"13",Ilgtermiņa finansu ieguldījumi,true,false,EUR,,1
+27,"131",Līdzdalība radniecīgo uzņēmumu kapitālā,true,false,EUR,,26
+28,"132",Aizdevumi radniecīgajiem uzņēmumiem,true,false,EUR,,26
+29,"133",Līdzdalība saistīto uzņēmumu kapitālā,true,false,EUR,,26
+30,"134",Aizdevumi saistītajiem uzņēmumiem,true,false,EUR,,26
+31,"135",Pārējie vērtspapīri un ieguldījumi,true,false,EUR,,26
+32,"136",Pārejie aizdevumi,true,false,EUR,,26
+33,"137",Pašu akcijas un daļas,true,false,EUR,,26
+34,"138",Aizdevumi un uzņēmuma līdzīpašniekiem un vadībai,true,false,EUR,,26
+35,"2",Apgrozāmie līdzekļi,true,false,EUR,,
+36,"21",Krājumi,true,false,EUR,,35
+37,"211",Izejvielas un materiāli,true,false,EUR,,36
+38,"212",Nepabeigtie ražojumi,true,false,EUR,,36
+39,"213",Gatavie ražojumi un preces pārdošanai,true,false,EUR,,36
+40,"214",Nepabeigtie pasūtījumi,true,false,EUR,,36
+41,"215",Mazvērtīgais inventārs,true,false,EUR,,36
+42,"219",Avansa maksājumi par precēm,true,false,EUR,,36
+43,"23",Norēķini par prasībām (debitori),true,false,EUR,,35
+44,"231",Norēķini ar pircējiem un pasūtītājiem,true,false,EUR,,43
+45,"232",Par piegādēm un pasūtījumiem izrakstītie rēķini,true,false,EUR,,43
+46,"233",Radniecīgo uzņēmumu parādi,true,false,EUR,,43
+47,"234",Saistīto uzņēmumu parādi,true,false,EUR,,43
+48,"235",Norēķini ar citiem debitoriem,true,false,EUR,,43
+49,"236",Norēķini par parakstītā  sabiedrības kapitālā neiemaksātām summām,true,false,EUR,,43
+50,"237",Īstermiņa aizdevumi uzņēmuma līdzīpašniekiem un vadībai,true,false,EUR,,43
+51,"238",Norēķini par prasībām pret personālu un īstermiņa aizdevumi personālam,true,false,EUR,,43
+52,"239","Pārmaksātie nodokļi, iepriekš samaksātie nodokli",true,true,EUR,,43
+53,"24",Nākamo periodu izmaksas,true,false,EUR,,35
+54,"241",Nākamo periodu izmaksas,true,false,EUR,,53
+55,"242",Akciju emisijas nocenojums (disagio),true,false,EUR,,53
+56,"25",Vērtspapīri apgrozāmo līdzekļu sastāvā un īstermiņa līdzdalība kapitālos,true,false,EUR,,35
+57,"251",Līdzdalība radniecīgo uzņēmumu kapitālā,true,false,EUR,,56
+58,"252",Saistīto uzņēmumu akcijas vai daļas,true,false,EUR,,56
+59,"253",Pašu akcijas un daļas,true,false,EUR,,56
+60,"254",Pārējie vērtspapīri un līdzdalība kapitālos,true,false,EUR,,56
+61,"26",Naudas līdzekļi,true,false,EUR,,35
+62,"261",Kase,true,false,EUR,,61
+63,"262",Norēķinu konti bankās,true,false,EUR,,61
+64,"264","Akredatīvi,čeki un īpašu norēķina formas konti",true,false,EUR,,61
+65,"265",Citi konti bankās,true,false,EUR,,61
+66,"267",Pārejie naudas līdzekļi,true,false,EUR,,61
+67,"3",Pašu kapitāls,false,false,EUR,,
+68,"31","Pamatkapitāls vai līdzdalības kapitāls, agio, ilgtermiņa ieguldījumu pārvērtēšan",false,false,EUR,,67
+69,"311",Pamatkapitāls vai līdzdalības kapitāls,false,false,EUR,,68
+70,"312",Akciju emisijas uzcenojumu (agio),false,false,EUR,,68
+71,"313",Ilgtermiņa ieguldījumu pārvērtēšanas rezerve,false,false,EUR,,68
+72,"32",Privātkonti,false,false,EUR,,67
+73,"321",Privātiem nolūkiem izņemtie līdzekļi,false,false,EUR,,72
+74,"322",Privātie ieguldījumi,false,false,EUR,,72
+75,"33",Rezerves,false,false,EUR,,67
+76,"331",Rezerves kapitāls,false,false,EUR,,75
+77,"333",Citas likumā noteiktās rezerves,false,false,EUR,,75
+78,"334",Rezerves pašu akcijām vai daļām,false,false,EUR,,75
+79,"335",Statūtos parezētās rezerves un fondi,false,false,EUR,,75
+80,"336",Pārējās rezerves,false,false,EUR,,75
+81,"34",Nesadalītā peļņa vai nesegtie zaudējumi,false,false,EUR,,67
+82,"341",Pārskata gada nesadalītā peļņa,false,false,EUR,,81
+83,"342",Iepriekšējo gadu nesadalītā peļņa,false,false,EUR,,81
+84,"4",Uzkrājumi,false,false,EUR,,
+85,"41",Uzkrājumi pensijām un tamlīdzīgām saistībām,false,false,EUR,,84
+86,"411",Uzkrājumi pensijām un tamlīdzīgām saistībām,false,false,EUR,,85
+87,"42",Uzkrājumi paredzamiem nodokļiem,false,false,EUR,,84
+88,"421",Uzkrājumi paredzamiem nodokļiem,false,false,EUR,,87
+89,"43",Citi uzkrājumi,false,false,EUR,,84
+90,"431",Citi uzkrājumi,false,false,EUR,,89
+91,"5",Kreditori,false,false,EUR,,
+92,"51",Norēķini par aizņēmumiem,false,false,EUR,,91
+93,"511",Aizņēmumi pret obligācijām,false,false,EUR,,92
+94,"512",Akcijās pārveršamie aizņēmumi,false,false,EUR,,92
+95,"513",Aizņēmumi ar līdzdalību peļņā,false,false,EUR,,92
+96,"514",Citi aizņēmumi,false,false,EUR,,92
+97,"515",Īstermiņa aizņēmumi no kredītiestādēm,false,false,EUR,,92
+98,"516",Ilgtermiņa aizņēmumi no kredītiestādēm,false,false,EUR,,92
+99,"52",Norēķini par saņemtajiem avansiem,false,false,EUR,,91
+100,"521",Norēķini par saņemtajiem avansiem,false,false,EUR,,99
+101,"53",Norēķini ar piegādātajiem un darbuzņēmejiem,false,false,EUR,,91
+102,"531",Norēķini ar piegādātajiem un darbuzņēmejiem,false,false,EUR,,101
+103,"54",Maksājamie vekseļi,false,false,EUR,,91
+104,"541",Norēķini par pašu izdotajiem vekseļiem,false,false,EUR,,103
+105,"55","Norēķini ar uzņēmumiem, dalībniekiem un personālu",false,false,EUR,,91
+106,"551",Parādi radniecīgajiem uzņēmumiem,false,false,EUR,,105
+107,"552",Parādi saistītajiem uzņēmumiem,false,false,EUR,,105
+108,"553","Norēķini par parādiem ar uzņēmumiem, saskaņā ar līgumiem par līdzdalību",false,false,EUR,,105
+109,"554",Norēķini par parādiem ar citiem uzņēmumiem un dalībniekiem,false,false,EUR,,105
+110,"555",Norēķini par parādiem ar personālu,false,false,EUR,,105
+111,"56",Norēķini par darba samaksu un ieturējumiem (izņemot nodokļus),false,false,EUR,,91
+112,"561",Norēķini par darba algu,false,false,EUR,,111
+113,"562",Norēķini par ieturējumiem no darba algas (izņemot nodokļus),false,false,EUR,,111
+114,"57",Norēķini par nodokļiem,false,false,EUR,,91
+115,"571",Norēķini par uzņemuma ienākuma nodokli,false,false,EUR,,114
+116,"572","Norēķini par citiem nodokļiem, ieskaitot nodokļus un soc. nodrošināšanas maksāju",false,false,EUR,,114
+117,"5721",Mikrouzņēmumu nodoklis,false,true,EUR,,116
+118,"5722",Norēķini par ienākuma nodokli no darba algām,false,true,EUR,,116
+119,"5723",Norēķini par sociālo nodokli,false,true,EUR,,116
+120,"57231",Norēķini par sociālo nodokli - darbinieka,false,true,EUR,,119
+121,"57232",Norēķini par sociālo nodokli - darba devēja,false,true,EUR,,119
+122,"57233","Samaksātais soc.nodoklis (34,09%)",false,true,EUR,,119
+123,"5724",Norēķini par uzņēmējdarbības riska nodevu,false,true,EUR,,116
+124,"5725",Norēķini par pievienotās vērtības nodokli,false,true,EUR,,116
+125,"57251","PVN nodoklis, kas jāmaksā",false,true,EUR,,124
+126,"572511","PVN nodoklis, kas jāmaksā 21%",false,true,EUR,,125
+127,"572512","PVN nodoklis, kas jāmaksā 10%",false,true,EUR,,125
+128,"57252",PVN nodoklis samaksāts iegādājoties citas preces,false,true,EUR,,124
+129,"57253",PVN aprēķinātais par darījumiem ar ārvalstu partneriem,false,true,EUR,,124
+130,"57254",PVN no darījumiem ar kokmateriāliem,false,true,EUR,,124
+131,"572541","PVN no darījumiem ar kokmateriāliem, saņemtiem no apliekamām personām",false,true,EUR,,130
+132,"572542","PVN no darījumiem ar kokmateriāliem, piegādāti izmantojot mazumtirdzniec.tīklul",false,true,EUR,,130
+133,"572543","PVN no darījumiem ar kokmateriāliem, piegādāti neapliekamām personām",false,true,EUR,,130
+134,"572544","PVN no pakalp. ar kokmateriāliem,saņemti no apliekamām personām",false,true,EUR,,130
+135,"572545","PVN no pakalp. ar kokmateriāliem,sniegti neapliekamām personām",false,true,EUR,,130
+136,"572546","PVN no pakalp. ar kokmateriāliem,sniegti ES vai 3.v, kas nav reģ,ar PVN apliek.",false,true,EUR,,130
+137,"572547","PVN samaksātais par kokmater, saņemti izmantojot mazumtirdzn.tīklu",false,true,EUR,,130
+138,"572548",PVN samaksātais par importētajiem kokmateriāliem,false,true,EUR,,130
+139,"57255","PVN no avansa maksājumiem, kas jāmaksā",false,true,EUR,,124
+140,"57256","PVN no avansa maksājumiem, saņemtiem no apliekamām personām",false,true,EUR,,124
+141,"5726",Norēķini par nekustamā īpašuma nodokli,false,true,EUR,,116
+142,"5727",Norēķini par zemes nodokli,false,true,EUR,,116
+143,"5728",Norēķini par dabas resursu nodokli,false,true,EUR,,116
+144,"5729","Norēķini par ""auto"" nodokli",false,true,EUR,,116
+145,"573",Muitas nodoklis,false,false,EUR,,114
+146,"58",Norēķini par dividendēm,false,false,EUR,,91
+147,"581",Pārskata gada dividendes,false,false,EUR,,146
+148,"582",Iepriekšējo gadu neizmaksātās dividendes,false,false,EUR,,146
+149,"59",Nākamo periodu ieņēmumi,false,false,EUR,,91
+150,"591",Nākamo periodu ieņēmumi,false,false,EUR,,149
+151,"6",Ieņēmumi no uzņēmuma saimnieciskās darbības,false,false,EUR,,
+152,"61","Ieņēmumi no pārdošanas, apliekami ar nodokliem visparējā kartībā",false,false,EUR,,151
+153,"611",Ieņēmumi no pamatdarbības produkcijas un pakalpojumu pārdošanas 21%,false,false,EUR,,152
+154,"612",Ieņēmumi no pamatdarbības produkcijas un pakalpojumu pārdošanas 10%,false,false,EUR,,152
+155,"613",Ieņēmumi no pamatdarbības produkcijas un pakalpojumu pārdošanas 0%,true,false,EUR,,152
+156,"62","Ieņēmumi no pārdošanas, kas citādi apliekami ar nodokļiem",false,false,EUR,,151
+157,"621",Ar PVN nodokļiem neapliekamie pardošanas ieņēmumi,false,false,EUR,,156
+158,"622",Ar īpašiem nodokļiem apliekamie pardošanas ieņēmumi,false,false,EUR,,156
+159,"623",Ar PVN 0% apliekamie darījumi (uz trešajām valstīm),false,false,EUR,,156
+160,"624",Uz Eiropas Savienību sniegtie pakalpojumi (0%),false,false,EUR,,156
+161,"63","Komisijas, starpniecības un citi ieņēmumi",false,false,EUR,,151
+162,"631",Komisijas un starpniecības ieņēmumi,false,false,EUR,,161
+163,"632",Ieņēmumi no atkritumu pārstrādes un realizācijas,false,false,EUR,,161
+164,"633",Ieņēmumi no taras realizācijas,false,false,EUR,,161
+165,"634",Ar nodokļiem neapliekamie apgrozījumi,false,false,EUR,,161
+166,"64",Ieņēmumus samazinošas atlaides,false,false,EUR,,151
+167,"641",Piešķirtās skonto atlaides,false,false,EUR,,166
+168,"642",Piešķirtie bonusi,false,false,EUR,,166
+169,"643",Piešķirtie rabati un citas tirdzniecības atlaides,false,false,EUR,,166
+170,"65",Pārējie uzņēmuma ieņēmumi,false,false,EUR,,151
+171,"651",Ieņēmumi no vērtspapīru kursa paaugstināšanās,false,false,EUR,,170
+172,"653",Ieņēmumi no zemes gabalu iznomāšanas,false,false,EUR,,170
+173,"654",Ieņēmumi no apgrozāmo līdzekļu pārdošanas,false,false,EUR,,170
+174,"655",Ieņēmumi no pamatlīdzekļu iznomāšanas,false,false,EUR,,170
+175,"656",Ieņēmumos pārskaitītais rezervju un uzkrājumu samazinājums,false,false,EUR,,170
+176,"657",Ieņēmumi no iepriekšējo periodu nodokļu samazināšanas,false,false,EUR,,170
+177,"658",Papildu ieguldījumi un citi ieņēmumi,false,false,EUR,,170
+178,"659",Pašu uzņēmuma kapitālieguldījumiem izpildītie darbi,false,false,EUR,,170
+179,"66",Produkcijas krājumu un nepabeigtās ražošanas vērtības izmaiņas,false,false,EUR,,151
+180,"661",Gatavās produkcijas krājumu un vērtības izmaiņas,false,false,EUR,,179
+181,"662",Nepabeigto ražojumu krājumu un vērtības izmaiņas,false,false,EUR,,179
+182,"663",Nepabeigto pasūtījumu atlikumu un vērtības izmaiņas,false,false,EUR,,179
+183,"664",Produktīvo un darba dzīvnieku ganāmpulku vērtības izmaiņas,false,false,EUR,,179
+184,"67","Citu periodu ieņēmumi, kas attiecas uz pārskata periodu",false,false,EUR,,151
+185,"671","Citu periodu ieņēmumi, kas attiecas uz pārskata periodu",false,false,EUR,,184
+186,"68",Ieņēmumi no kokmateriālu piegādes,false,false,EUR,,151
+187,"681","Piegāde apliekamām personām, neizmantojot mazumtirdzniecības tiklu 21%",false,false,EUR,,186
+188,"682",Piegāde izmantojot mazumtirdzniecības tīklu 21%,false,false,EUR,,186
+189,"683","Piegāde neapliekamām personām, neizmantojot mazumtirdzniecības tiklu 21%",false,false,EUR,,186
+190,"684",Kokmateriālu eksports (PVN 0%),false,false,EUR,,186
+191,"685","Brīvajās zon.,muitas nolikt. pieg. kk vērtība, ja kk ievesti LR no 3. v",false,false,EUR,,186
+192,"686",Sniegtie pakalpojumi apliekamā personām (pvn 21%) kokamteriali,false,false,EUR,,186
+193,"687",Sniegtie pakalpojumi neapliekamā personām (pvn 21%) kokamteriali,false,false,EUR,,186
+194,"688","Sniegtie pak. ES vai 3.v., kas nav reģ. kā PVN (PVN 21%) kokmateriali",false,false,EUR,,186
+195,"689","Sniegtie pakalp.ar kokmatetriāliem, kas apliekami ar PVN 0%",false,false,EUR,,186
+196,"69",Sociālās infrastruktūras iestāžu un pasākumu ieņēmumi,false,false,EUR,,151
+197,"691",Dzīvokļu saimniecības ieņēmumi,false,false,EUR,,196
+198,"692",Komunālās saimniecības ieņēmumi,false,false,EUR,,196
+199,"693",Sadzīves pakalpojumu ieņēmumi,false,false,EUR,,196
+200,"694",Sabiedriskās ēdināšanas ieņēmumi,false,false,EUR,,196
+201,"695",Izglītības iestāžu ieņēmumi,false,false,EUR,,196
+202,"696",Medicīnas iestāžu ieņēmumi,false,false,EUR,,196
+203,"697",Kultūras un sporta iestāžu un pasākumu ieņēmumi,false,false,EUR,,196
+204,"698",Pārējie sociālās infrastruktūras iestāžu un pasākumu ieņēmumi,false,false,EUR,,196
+205,"7",Saimnieciskās darbības izdevumi,true,false,EUR,,
+206,"71","Izdevumi izejvielu, materālu un preču iepirkšanai",true,false,EUR,,205
+207,"711",Izejvielu un materiālu iepirkšanas un piegādes izdevumi,true,false,EUR,,206
+208,"7111",Izejvielu un materiālu iepirkšanas un piegādes izdevumi,true,false,EUR,,207
+209,"7112","Saņemto kokmateriālu vērt.no apliek.pers., neizmantojot mazumtirdzniecības tīklu",true,false,EUR,,207
+210,"7113",Saņemto kokmateriālu vērtība izmantojot mazumtirdzniecības tīklu,true,false,EUR,,207
+211,"7114","Saņemto kokmateriālu vērt.no neapliek.pers., neizmantojot mazumtirdzniecības tīk",true,false,EUR,,207
+212,"7115",Kokmateriālu imports,true,false,EUR,,207
+213,"7116","Brīvajās zon.,muitas nolikt. saņemto kk vērtība, ja kk ievesti LR no 3. valstim",true,false,EUR,,207
+214,"7117",Saņemto pakalpojumu vērtība no apliekamām personām,true,false,EUR,,207
+215,"7118",Saņemto pakalpojumu vērtība no neapliekamām personām,true,false,EUR,,207
+216,"7119","Saņemtie pakalpojumi, kas paliekas ar PVN 0%",true,false,EUR,,207
+217,"712",Preču iepirkšanas un piegādes izdevumi,true,false,EUR,,206
+218,"713",Saņemtās atlaides,true,false,EUR,,206
+219,"714",Taras izdevumi,true,true,EUR,,206
+220,"715",Muitas un ievednodevas,true,false,EUR,,206
+221,"716",Pārējie ārējie izdevumi,true,false,EUR,,206
+222,"717",Samaksa par darbiem un pakalpojumiem no ārienes,true,false,EUR,,206
+223,"718",Pārējie materiālie izdevumi,true,false,EUR,,206
+224,"719",Pirkto materiālu un preču krājumu un vērtības izmaiņas,true,false,EUR,,206
+225,"72",Personāla izmaksas,true,false,EUR,,205
+226,"721",Strādnieku algas,true,false,EUR,,225
+227,"722",Pārvaldes personāla un administratīvā personāla alga,true,false,EUR,,225
+228,"723",Sociālās infrastruktūras iestāžu un pasākumu darbinieku algas,true,false,EUR,,225
+229,"724",Pārējās personāla izmaksas,true,false,EUR,,225
+230,"73",Sociālās nodevas un izmaksas,true,false,EUR,,205
+231,"731",Sociālais nodoklis,true,false,EUR,,230
+232,"732",Pārējās sociālās izmaskas,true,false,EUR,,230
+233,"74",Pamatlīdzekļu nolietojums un citu ieguldījumu vērtības norakstījumi,true,false,EUR,,205
+234,"741",Nemateriālo ieguldījumu vērtības norakstīšana,true,false,EUR,,233
+235,"742",Pamatlīdzekļu nolietojums,true,false,EUR,,233
+236,"743",Mazvērtīgā inventāra vērtības norakstīšana,true,false,EUR,,233
+237,"744",Apgrozāmo līdzekļu vērtības norakstīšana,true,false,EUR,,233
+238,"75",Pārējie saimnieciskās darbības izdevumi,true,false,EUR,,205
+239,"751",Dabas aizsardzības izdevumi,true,false,EUR,,238
+240,"752",Telpu uzturēšanas izdevumi,true,false,EUR,,238
+241,"753",Nodevas par ražošanā izmantotiem zemes gabaliem,true,false,EUR,,238
+242,"754",Apdrošināšanas maksājumi (izņemot darbinieku apdrošināšanu),true,false,EUR,,238
+243,"755",Pārējie saimnieciskās darbības izdevumi,true,false,EUR,,238
+244,"756",Strādnieku vervēšanas un apmācības izdevumi,true,false,EUR,,238
+245,"757",Komandējumu izdevumi,true,false,EUR,,238
+246,"76",Preču pārdošanas izdevumi,true,false,EUR,,205
+247,"761","Iesaiņojamais materiāls, tara",true,false,EUR,,246
+248,"762",Preču transporta izdevumi,true,false,EUR,,246
+249,"763",Preču transporta apdrošināšana,true,false,EUR,,246
+250,"764",Samaksātās komisijas naudas,true,false,EUR,,246
+251,"765",Citi pārdošanas izdevumi,true,false,EUR,,246
+252,"77",Administrācijas izdevumi,true,false,EUR,,205
+253,"771",Sakaru izdevumi,true,false,EUR,,252
+254,"772",Kantora (biroja ) izdevumi,true,false,EUR,,252
+255,"773",Juristu pakalpojumu apmaksa,true,false,EUR,,252
+256,"774",Gada pārskata un revīzijas izdevumi,true,false,EUR,,252
+257,"775",Naudas apgrozījuma blakus izdevumi,true,false,EUR,,252
+258,"776",Transporta izdevumi administrācijas vajadzībām,true,false,EUR,,252
+259,"777",Citi vadīšanas un administrācijas izdevumi,true,false,EUR,,252
+260,"78",Pārskata periodā iekļaujamie iepriekšējo periodu izdevumi,true,false,EUR,,205
+261,"781",Pārskata periodā iekļaujamie iepriekšējo periodu izdevumi,true,false,EUR,,260
+262,"79",Sociālās infrastruktūras uzturēšanas izdevumi,true,false,EUR,,205
+263,"791",Dzīvokļu saimniecības izdevumi,true,false,EUR,,262
+264,"792",Komunālās saimniecības izdevumi,true,false,EUR,,262
+265,"793",Sadzīves pakalpojumu izdevumi,true,false,EUR,,262
+266,"794",Sabiedriskās ēdināšanas izdevumi,true,false,EUR,,262
+267,"795",Izglītības iestāžu izdevumi,true,false,EUR,,262
+268,"796",Medicīniskās apkalpošanas izdevumi,true,false,EUR,,262
+269,"797",Kultūras un sporta iestāžu un pasākumu izdevumi,true,false,EUR,,262
+270,"798",Pārējie sociālās infrastruktūras uzturēšanas izdevumi,true,false,EUR,,262
+271,"8",Dažādi ieņēmumi un izdevumi,false,false,EUR,,
+272,"81",Dažādi ieņēmumi,false,false,EUR,,271
+273,"811","Ieņēmumi no līdzdalības, vērtspapīriem un aizdevumiem",false,false,EUR,,272
+274,"812",Pārējie ieņēmumi no procentiem un tiem pielīdzināmi ieņēmumi,false,false,EUR,,272
+275,"813",Vekseļu diskonta ieņēmumi,false,false,EUR,,272
+276,"814",Ziedojumi un citi tiem pielīdzināmi ieņēmumi,false,false,EUR,,272
+277,"815",Ienākumi no valūtas kursa paaugstināšanas,false,false,EUR,,272
+278,"816",Saņemtās soda naudas un līgumsodi,false,false,EUR,,272
+279,"817",Peļņa no ārzemju valūtas pārdošanas vai pirkšanas,false,false,EUR,,272
+280,"819",Citi ieņēmumi,false,false,EUR,,272
+281,"82",Dažādi izdevumi,true,false,EUR,,271
+282,"821",Īstermiņa finansu ieguldījumu vērtības norakstīšana,true,false,EUR,,281
+283,"822",Samaksātie procenti un tiem pielīdzināti izdevumi,true,false,EUR,,281
+284,"823",Vekseļu diskonta izmaksas,true,false,EUR,,281
+285,"824",Ilgtermiņa aizdevumu procentu samaksa,true,false,EUR,,281
+286,"825",Zaudējumi no valūtas kursa pazemināšanās,true,false,EUR,,281
+287,"826",Samaksātās soda naudas un līgumsodi,true,false,EUR,,281
+288,"827",Zaudējumi no ārzemju valūtas pirkšanas un pārdošanas,true,false,EUR,,281
+289,"829",Citi izdevumi,true,false,EUR,,281
+290,"83",Ārkārtas ieņēmumi,false,true,EUR,,271
+291,"831",Ārkārtas ieņēmumi,false,true,EUR,,290
+292,"84",Ārkārtas izdevumi,true,true,EUR,,271
+293,"841",Ārkārtas izdevumi,true,true,EUR,,292
+294,"86",Peļņa vai zaudējumi,false,true,EUR,,271
+295,"861",Peļņa vai zaudējumi,false,true,EUR,,294
+296,"87",Peļņas izlietojums (bez nodokļiem),true,false,EUR,,271
+297,"871",Peļņas izlietojums,true,false,EUR,,296
+298,"88",Nodokļi no peļņas un citi saimnieciskās darbības izdevumos neiekļaujamie nodokļi,true,false,EUR,,271
+299,"881",Uzņēmumu ienākuma nodoklis,true,false,EUR,,298
+300,"882",Nodoklis par dabas resursu izmantošanu no peļņas maksājamā daļā,true,false,EUR,,298
+301,"883",Nodoklis par zemi,true,false,EUR,,298
+302,"884",Citi saimnieciskās darbības izmaksās neiekļaujamie nodokļi,true,false,EUR,,298
+303,"885",Atliktais uzņēmuma ienākuma nodoklis,true,false,EUR,,298
+304,"9",ārpus bilances konts,true,false,EUR,,
