@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddReport
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: report
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: report_name
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: true
+                  name: report_content
+                  type: BYTEA

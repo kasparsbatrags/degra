@@ -3,20 +3,28 @@ package lv.degra.accounting.document.controller;
 import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_ERROR_MESSAGE;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
+import lv.degra.accounting.report.service.ReportService;
 import lv.degra.accounting.system.utils.DegraController;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.view.JasperViewer;
 
 @Component
 public class DocumentMainController extends DegraController {
@@ -24,6 +32,7 @@ public class DocumentMainController extends DegraController {
 	private final DocumentInfoController documentInfoController;
 	private final BillController billController;
 	private final DocumentService documentService;
+	private final ReportService reportService;
 	public DocumentDto documentDto;
 	@FXML
 	public TabPane documentTabPane;
@@ -37,10 +46,11 @@ public class DocumentMainController extends DegraController {
 
 	@Autowired
 	public DocumentMainController(DocumentInfoController documentInfoController, BillController billController,
-			DocumentService documentService) {
+			DocumentService documentService, ReportService reportService) {
 		this.documentInfoController = documentInfoController;
 		this.billController = billController;
 		this.documentService = documentService;
+		this.reportService = reportService;
 	}
 
 	@FXML
@@ -142,5 +152,14 @@ public class DocumentMainController extends DegraController {
 
 	public void disableDocumentButtons() {
 		changeDocumentButtonStatus(true);
+	}
+
+	public void onPrintDocumentButton(ActionEvent actionEvent) throws SQLException {
+		List<BillContentDto> billPositionData = new ArrayList<>();
+		billPositionData = billController.billRowService.getByDocumentId(documentDto.getId());
+		JasperPrint jasperPrint = reportService.getReportWithData(billPositionData, documentDto, "BILL");
+		JasperViewer viewer = new JasperViewer(jasperPrint, false);
+		viewer.setVisible(true);
+
 	}
 }

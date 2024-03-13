@@ -27,6 +27,7 @@ public class DegraApplication extends Application {
 	private Parent rootNode;
 
 	public static void main(final String[] args) {
+		System.setProperty("java.awt.headless", "false");
 		Application.launch(args);
 	}
 

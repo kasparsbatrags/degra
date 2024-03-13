@@ -47,3 +47,5 @@ databaseChangeLog:
         file: db/changelog/add-account-plan.yaml
     - include:
         file: db/changelog/add-account-plan-data.yaml
+    - include:
+        file: db/changelog/add-reports-table.yaml

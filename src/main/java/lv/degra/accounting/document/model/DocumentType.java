@@ -22,6 +22,11 @@ public class DocumentType implements Serializable {
 	@Column(name = "id", nullable = false)
 	private Integer id;
 
+
+	@Size(max = 30)
+	@Column(name = "title", nullable = false)
+	private String title;
+
 	@Size(max = 30)
 	@Column(name = "name", nullable = false)
 	private String name;
@@ -32,7 +37,7 @@ public class DocumentType implements Serializable {
 
 	@Override
 	public String toString() {
-		return getName();
+		return getTitle();
 	}
 }
 
