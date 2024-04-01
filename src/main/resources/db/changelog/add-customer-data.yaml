@@ -27,8 +27,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40203495758
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 118031480
 
   - changeSet:
       id: AddCustomerEmako
@@ -58,8 +58,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40103341230
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 101834612
   - changeSet:
       id: AddCustomerSwedbank
       author: Kaspars Batrags
@@ -88,8 +88,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40003074764
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 101818622
   - changeSet:
       id: AddCustomerSebBanka
       author: Kaspars Batrags
@@ -118,8 +118,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40003151743
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 105640841
 
   - changeSet:
       id: AddCustomerCitadeleBanka
@@ -149,8 +149,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40103303559
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 104602888
 
 
   - changeSet:
@@ -181,8 +181,8 @@ databaseChangeLog:
                   name: vat_number
                   value: LV41201008501
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 105595873
 
 
   - changeSet:
@@ -213,5 +213,5 @@ databaseChangeLog:
                   name: vat_number
                   value: LV40203154352
               - column:
-                  name: address_id
-                  value: 1
+                  name: address_code
+                  value: 105491641

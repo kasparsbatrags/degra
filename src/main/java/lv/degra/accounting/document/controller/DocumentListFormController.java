@@ -1,8 +1,8 @@
 package lv.degra.accounting.document.controller;
 
 import static javafx.stage.Modality.APPLICATION_MODAL;
-import static lv.degra.accounting.configuration.DegraConfig.CRATE_FORM_TITLE;
-import static lv.degra.accounting.configuration.DegraConfig.EDIT_FORM_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.CRATE_FORM_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.EDIT_FORM_TITLE;
 
 import java.io.IOException;
 

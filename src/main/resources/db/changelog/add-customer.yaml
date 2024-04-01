@@ -34,7 +34,7 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: address_id
+                  name: address_code
                   type: int
                   constraints:
                     nullable: false

@@ -1,4 +1,4 @@
-package lv.degra.accounting.configuration.mapper;
+package lv.degra.accounting.system.configuration.mapper;
 
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;

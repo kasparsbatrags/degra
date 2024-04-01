@@ -1,12 +1,9 @@
 package lv.degra.accounting.document.controller;
 
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
-import static lv.degra.accounting.configuration.DegraConfig.VAT_PERCENTS;
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.VAT_PERCENTS;
 import static lv.degra.accounting.document.DocumentFieldsUtils.fillCombo;
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 package lv.degra.accounting.system.utils;
 
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
+import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
+import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

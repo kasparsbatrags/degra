@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.address.model.Address;
 
 import java.io.Serializable;
 
@@ -37,10 +38,9 @@ public class Customer implements Serializable {
     @Column(name = "vat_number", length = 15)
     private String vatNumber;
 
-    @NotNull
-    @Column(name = "address_id", nullable = false)
-    private Integer addressId;
-
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "address_code", referencedColumnName = "code")
+    private Address address;
 
     @Override
     public String toString() {

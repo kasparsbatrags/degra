@@ -8,9 +8,13 @@ databaseChangeLog:
     - include:
           file: db/changelog/add-exchange-rate.yaml
     - include:
+          file: db/changelog/add-address.yaml
+    - include:
         file: db/changelog/add-customer.yaml
     - include:
-        file: db/changelog/add-customer-data.yaml
+          file: db/changelog/add-customer-data.yaml
+    - include:
+          file: db/changelog/add-address-data.yaml
     - include:
         file: db/changelog/add-bank.yaml
     - include:

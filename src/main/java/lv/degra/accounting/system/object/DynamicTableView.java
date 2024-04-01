@@ -1,7 +1,7 @@
 package lv.degra.accounting.system.object;
 
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
-import static lv.degra.accounting.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
+import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
+import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
 import java.lang.reflect.Constructor;
@@ -209,34 +209,36 @@ public class DynamicTableView<T> extends TableView<T> {
 
 	private TableColumn<T, Void> createMenuButtonColumn(List<Pair<String, Consumer<T>>> actions) {
 		TableColumn<T, Void> btnCol = new TableColumn<>();
-		btnCol.setCellFactory(param -> new TableCell<>() {
-			private final MenuButton menuButton = new MenuButton();
+		btnCol.setCellFactory(param -> {
+            return new TableCell<>() {
+                private final MenuButton menuButton = new MenuButton();
 
-			{
-				FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
-				icon.setIconSize(20);
-				menuButton.setGraphic(icon);
+                {
+                    FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
+                    icon.setIconSize(20);
+                    menuButton.setGraphic(icon);
 
-				actions.forEach(action -> {
-					MenuItem menuItem = new MenuItem(action.getKey());
-					menuItem.setOnAction(event -> {
-						T item = getTableView().getItems().get(getIndex());
-						action.getValue().accept(item);
-					});
-					menuButton.getItems().add(menuItem);
-				});
-			}
+                    actions.forEach(action -> {
+                        MenuItem menuItem = new MenuItem(action.getKey());
+                        menuItem.setOnAction(event -> {
+                            T item = getTableView().getItems().get(getIndex());
+                            action.getValue().accept(item);
+                        });
+                        menuButton.getItems().add(menuItem);
+                    });
+                }
 
-			@Override
-			protected void updateItem(Void item, boolean empty) {
-				super.updateItem(item, empty);
-				if (empty) {
-					setGraphic(null);
-				} else {
-					setGraphic(menuButton);
-				}
-			}
-		});
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(menuButton);
+                    }
+                }
+            };
+        });
 		return btnCol;
 	}
 }
