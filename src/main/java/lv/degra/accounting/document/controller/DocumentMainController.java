@@ -41,8 +41,7 @@ public class DocumentMainController extends DegraController {
     private Tab billContentTab;
 
     @Autowired
-    public DocumentMainController(DocumentInfoController documentInfoController, BillController billController,
-                                  DocumentService documentService, ReportService reportService) {
+    public DocumentMainController(DocumentInfoController documentInfoController, BillController billController, DocumentService documentService, ReportService reportService) {
         this.documentInfoController = documentInfoController;
         this.billController = billController;
         this.documentService = documentService;
@@ -80,7 +79,7 @@ public class DocumentMainController extends DegraController {
         documentService.saveDocument(documentDto);
     }
 
-    private boolean saveDocument() {
+    public boolean saveDocument() {
         boolean result = true;
         try {
             documentDto = documentInfoController.fillDocumentDto();
@@ -89,7 +88,9 @@ public class DocumentMainController extends DegraController {
             if (isItNewRecord) {
                 this.documentObservableList.add(documentDto);
             } else {
-                billController.billRowService.deleteBillRowByDocumentId(documentDto.getId());
+                if (!documentInfoController.isDocumentBill()) {
+                    billController.billRowService.deleteBillRowByDocumentId(documentDto.getId());
+                }
             }
         } catch (Exception e) {
             switchToDocumentInfoTab();
@@ -156,5 +157,10 @@ public class DocumentMainController extends DegraController {
         JasperViewer viewer = new JasperViewer(jasperPrint, false);
         viewer.setVisible(true);
 
+    }
+
+    public void setDocumentInfoSumTotalFieldValue(Double value) {
+        documentInfoController.sumTotalField.setText(String.valueOf(value));
+        documentInfoController.sumTotalOnAction();
     }
 }
