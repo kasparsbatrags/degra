@@ -10,8 +10,8 @@ import lv.degra.accounting.DegraApplication;
 import java.io.InputStream;
 import java.util.Optional;
 
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_ICON_FILE;
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_ICON_FILE;
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.alert.AlertResponseType.NO;
 import static lv.degra.accounting.system.alert.AlertResponseType.YES;
 

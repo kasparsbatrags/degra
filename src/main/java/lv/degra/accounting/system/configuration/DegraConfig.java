@@ -1,4 +1,4 @@
-package lv.degra.accounting.configuration;
+package lv.degra.accounting.system.configuration;
 
 import org.springframework.context.annotation.Configuration;
 
@@ -7,7 +7,7 @@ public class DegraConfig {
 
 	public static final String MAIN = "/system/main.fxml";
 	public static final String STYLE = "/style.css";
-	public static final String APPLICATION_TITLE = "DeGra v1.0";
+	public static final String APPLICATION_TITLE = "DeGra grāmatvedības sistēmas v1.0";
 	public static final int DEFAULT_PAY_DAY = 10;
 	public static final String SUM_FORMAT_REGEX = "\\d*|\\d+\\.\\d*";
 	public static final String CURRENCY_EXCHANGE_RATE_FORMAT_REGEX = "\\d+\\.\\d+";
@@ -20,5 +20,6 @@ public class DegraConfig {
 	public static final String BILL_SERIES_KEY = "BILL_SERIES";
 	public static final String VAT_PERCENTS = "DEFAULT_VAT_PERCENTS";
 	public static final String DEFAULT_ERROR_MESSAGE = "Kļūda datu ievadē";
+	public static final String ADDRESS_DOWNLOAD_LINK = "ADDRESS_DATA_LINK";
 
 }

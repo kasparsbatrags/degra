@@ -1,8 +1,8 @@
 package lv.degra.accounting.system.utils;
 
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_ICON_FILE;
-import static lv.degra.accounting.configuration.DegraConfig.APPLICATION_TITLE;
-import static lv.degra.accounting.configuration.DegraConfig.STYLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_ICON_FILE;
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.STYLE;
 
 import java.io.IOException;
 import java.io.InputStream;

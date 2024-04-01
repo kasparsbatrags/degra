@@ -20,6 +20,9 @@ databaseChangeLog:
               - column:
                   name: name
                   value: Rēķins par pakalpojumu
+              - column:
+                  name: title
+                  value: Rēķins
   - changeSet:
       id: AddDocumentTypeMaksajums
       author: Kaspars Batrags
@@ -40,6 +43,9 @@ databaseChangeLog:
                   value: PAYMENT
               - column:
                   name: name
+                  value: Maksājums
+              - column:
+                  name: title
                   value: Maksājums
 
   - changeSet:
@@ -62,4 +68,7 @@ databaseChangeLog:
                   value: ENTRY
               - column:
                   name: name
+                  value: Grāmatojums
+              - column:
+                  name: title
                   value: Grāmatojums

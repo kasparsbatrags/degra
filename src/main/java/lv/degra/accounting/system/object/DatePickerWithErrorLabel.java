@@ -1,6 +1,6 @@
 package lv.degra.accounting.system.object;
 
-import static lv.degra.accounting.configuration.DegraConfig.DATE_FORMAT;
+import static lv.degra.accounting.system.configuration.DegraConfig.DATE_FORMAT;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

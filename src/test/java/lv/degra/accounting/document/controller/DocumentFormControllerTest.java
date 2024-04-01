@@ -1,6 +1,6 @@
 package lv.degra.accounting.document.controller;
 
-import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,10 +18,9 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
-import lv.degra.accounting.document.controller.BillController;
 import lv.degra.accounting.system.exception.IncorrectSumException;
 
-class DocumentFormdocumentFormControllerTest extends ApplicationTest {
+class DocumentFormDocumentFormControllerTest extends ApplicationTest {
 
 	private static final String CORRECT_SUM_INPUT = "123.45";
 	private static final String INCORRECT_CORRECT_SUM_INPUT = "abc";

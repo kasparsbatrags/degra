@@ -1,9 +1,9 @@
 package lv.degra.accounting.document.controller;
 
 import static liquibase.util.StringUtil.isNotEmpty;
-import static lv.degra.accounting.configuration.DegraConfig.BILL_SERIES_KEY;
-import static lv.degra.accounting.configuration.DegraConfig.DEFAULT_PAY_DAY;
-import static lv.degra.accounting.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.system.configuration.DegraConfig.BILL_SERIES_KEY;
+import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_PAY_DAY;
+import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 
