@@ -24,7 +24,7 @@ import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
-import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
+import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.distribution.model.Distribution;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
@@ -118,7 +118,7 @@ public class Document {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "publisher_customer_bank_account_id")
-	private CustomerBankAccount publisherCustomerBankAccount;
+	private CustomerAccount publisherCustomerBankAccount;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -133,6 +133,6 @@ public class Document {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "receiver_customer_bank_account_id")
-	private CustomerBankAccount receiverCustomerBankAccount;
+	private CustomerAccount receiverCustomerBankAccount;
 
 }

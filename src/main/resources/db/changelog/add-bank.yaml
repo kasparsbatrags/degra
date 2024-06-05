@@ -13,16 +13,19 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: "Unikālais identifikātors"
               - column:
                   name: customer_id
                   type: int
                   constraints:
                     nullable: false
+                  remarks: "Bankas nosaukums = klienta nosaukums"
               - column:
                   name: bic
                   type: varchar(11)
                   constraints:
                     nullable: false
+                  remarks: "Bankas starptautiskais identifikācijas kods (BIC)"
 
   - changeSet:
       id: ConstraintForeignKeysBankToCustomer

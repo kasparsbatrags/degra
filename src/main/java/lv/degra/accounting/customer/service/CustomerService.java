@@ -5,5 +5,7 @@ import java.util.List;
 import lv.degra.accounting.customer.model.Customer;
 
 public interface CustomerService {
-    List<Customer> getCustomerList();
+    List<Customer> getTop30Suggestions(String searchTerm);
+    Customer getByNameAndRegistrationNumber(String name, String registrationNumber);
+
 }

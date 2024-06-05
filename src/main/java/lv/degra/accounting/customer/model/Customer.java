@@ -8,6 +8,7 @@ import lombok.Setter;
 import lv.degra.accounting.address.model.Address;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class Customer implements Serializable {
     private String name;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "customer_type_id", nullable = false)
     private CustomerType customerType;
 
@@ -45,5 +46,18 @@ public class Customer implements Serializable {
     @Override
     public String toString() {
         return name + ' ' + registrationNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(id, customer.id);
+    }
+//
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
