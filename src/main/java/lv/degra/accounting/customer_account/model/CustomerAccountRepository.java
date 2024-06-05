@@ -1,4 +1,4 @@
-package lv.degra.accounting.customerAccount.model;
+package lv.degra.accounting.customer_account.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -6,11 +6,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CustomerAccountRepository extends JpaRepository<CustomerBankAccount, Integer> {
+public interface CustomerAccountRepository extends JpaRepository<CustomerAccount, Integer> {
     @Query(value = "SELECT a.* FROM customer_account a WHERE customer_id = :customerId", nativeQuery = true)
-    List<CustomerBankAccount> findByCustomer(@Param("customerId") Integer customerId);
+    List<CustomerAccount> findByCustomer(@Param("customerId") Integer customerId);
 
     @Query(value = "SELECT a.* FROM customer_account a WHERE customer_id = :customerId AND bank_id= :bankId", nativeQuery = true)
-    List<CustomerBankAccount> findByCustomerAndBank(@Param("customerId") Integer customerId, @Param("bankId") Integer bankId);
+    List<CustomerAccount> findByCustomerAndBank(@Param("customerId") Integer customerId, @Param("bankId") Integer bankId);
 
 }

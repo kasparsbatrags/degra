@@ -1,7 +1,5 @@
 package lv.degra.accounting.bank.service;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import lombok.AllArgsConstructor;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.model.BankRepository;
@@ -17,7 +15,7 @@ public class BankServiceImpl implements BankService {
     @Autowired
     private BankRepository bankRepository;
 
-    public ObservableList<Bank> getCustomerBanksByBanksIdList(List<Integer> bankIdList) {
-        return FXCollections.observableList(bankRepository.findByBankIdList(bankIdList));
+    public List<Bank> getCustomerBanksByBanksIdList(List<Integer> bankIdList) {
+        return bankRepository.findByBankIdList(bankIdList);
     }
 }

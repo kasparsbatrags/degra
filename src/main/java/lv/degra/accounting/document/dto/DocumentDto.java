@@ -15,7 +15,7 @@ import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
-import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
+import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.Document;
 import lv.degra.accounting.document.model.DocumentTransactionType;
@@ -61,9 +61,9 @@ public class DocumentDto implements Serializable {
 	String internalNotes;
 	@NotNull Customer publisherCustomer;
 	@NotNull Bank publisherCustomerBank;
-	@NotNull CustomerBankAccount publisherCustomerBankAccount;
+	@NotNull CustomerAccount publisherCustomerBankAccount;
 	@NotNull Customer receiverCustomer;
 	@NotNull Bank receiverCustomerBank;
-	@NotNull CustomerBankAccount receiverCustomerBankAccount;
+	@NotNull CustomerAccount receiverCustomerBankAccount;
 
 }

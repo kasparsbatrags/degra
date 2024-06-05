@@ -3,19 +3,21 @@ package lv.degra.accounting.bank.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.customer.model.Customer;
-import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "bank")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Bank implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +34,21 @@ public class Bank implements Serializable {
     @Column(name = "bic", nullable = false, length = 11)
     private String bic;
 
-    @OneToMany(mappedBy = "bank")
-    private Set<CustomerBankAccount> customerBankAccounts = new LinkedHashSet<>();
-
     @Override
     public String toString() {
         return customer.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bank bank = (Bank) o;
+        return Objects.equals(id, bank.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

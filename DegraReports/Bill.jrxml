@@ -63,10 +63,10 @@
 	</parameter>
 	<parameter name="publisherCustomer" class="lv.degra.accounting.customer.model.Customer"/>
 	<parameter name="publisherCustomerBank" class="lv.degra.accounting.bank.model.Bank"/>
-	<parameter name="publisherCustomerBankAccount" class="lv.degra.accounting.customerAccount.model.CustomerBankAccount"/>
+	<parameter name="publisherCustomerBankAccount" class="lv.degra.accounting.customer_account.model.CustomerAccount"/>
 	<parameter name="receiverCustomer" class="lv.degra.accounting.customer.model.Customer"/>
 	<parameter name="receiverCustomerBank" class="lv.degra.accounting.bank.model.Bank"/>
-	<parameter name="receiverCustomerBankAccount" class="lv.degra.accounting.customerAccount.model.CustomerBankAccount"/>
+	<parameter name="receiverCustomerBankAccount" class="lv.degra.accounting.customer_account.model.CustomerAccount"/>
 	<parameter name="paymentDate" class="java.sql.Date"/>
 	<parameter name="sumTotal" class="java.lang.Double"/>
 	<parameter name="sumTotalText" class="java.lang.String"/>

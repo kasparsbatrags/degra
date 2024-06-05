@@ -97,7 +97,7 @@ public class DocumentMainController extends DegraController {
             Alert alert = new Alert(Alert.AlertType.NONE);
             alert.setTitle(APPLICATION_TITLE);
             alert.setAlertType(Alert.AlertType.ERROR);
-            alert.setContentText(DEFAULT_ERROR_MESSAGE);
+            alert.setContentText(DEFAULT_ERROR_MESSAGE + e.getMessage());
             alert.show();
             result = false;
         }

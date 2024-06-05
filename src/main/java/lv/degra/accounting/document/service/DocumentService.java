@@ -1,16 +1,17 @@
 package lv.degra.accounting.document.service;
 
+import lv.degra.accounting.document.dto.DocumentDto;
+
 import java.util.List;
 
-import lv.degra.accounting.document.dto.DocumentDto;
 
 public interface DocumentService {
 
-	DocumentDto getDocumentById(Integer id);
+    DocumentDto getDocumentById(Integer id);
 
-	DocumentDto saveDocument(DocumentDto documentDto);
+    DocumentDto saveDocument(DocumentDto documentDto);
 
-	List<DocumentDto> getDocumentList();
+    List<DocumentDto> getDocumentList();
 
-	void deleteDocumentById(Integer documentId);
+    void deleteDocumentById(Integer documentId);
 }

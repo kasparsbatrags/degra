@@ -1,5 +1,7 @@
 package lv.degra.accounting.report.service;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.report.model.ReportRepository;
 import lv.degra.accounting.system.utils.NumberToWordUtil;
@@ -20,6 +22,8 @@ import java.util.Map;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 
 @Service
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReportService {
 
     @Autowired
@@ -29,36 +33,24 @@ public class ReportService {
         JasperPrint jasperPrint = null;
         try {
 
-            //			Optional<Report> reportOptional = reportRepository.findByReportName(reportName);
-            //			if (!reportOptional.isPresent()) {
-            //				throw new Exception("Report not found with name: " + reportName);
-            //			}
-            //			byte[] reportContent = reportOptional.get().getReportContent();
-
             Path path = Paths.get("DegraReports/Bill.jrxml");
             byte[] reportContent = Files.readAllBytes(path);
 
-            // Compile the Jasper report from .jrxml to .japser
             InputStream reportStream = new ByteArrayInputStream(reportContent);
             JasperReport report = JasperCompileManager.compileReport(reportStream);
 
-            // Create the data source
             JRDataSource dataSource = new JRBeanCollectionDataSource(data);
 
-            // Add parameters if any
             Map<String, Object> parameters = ReflectionUtil.convertObjectToMap(documentDto);
             parameters.put("documentTypeString", documentDto.getDocumentType().toString());
             parameters.put("sumTotalText", getSumWords(documentDto));
             parameters.put("printElectronicSign", printElectronicSign);
             parameters.put("version", APPLICATION_TITLE);
 
-
-            // Fill the report
             jasperPrint = JasperFillManager.fillReport(report, parameters, dataSource);
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Handle exceptions appropriately in your application
         }
         return jasperPrint;
     }

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
-import lv.degra.accounting.customerAccount.model.CustomerBankAccount;
+import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentTransactionType;
 import lv.degra.accounting.document.model.DocumentType;
@@ -18,8 +18,8 @@ public class DocumentDtoValidator {
 			String documentSeries, DocumentType documentType, DocumentTransactionType documentTransactionType, LocalDate accountingDate,
 			LocalDate documentDate, LocalDate paymentDate, Integer paymentTypeId, Double sumTotal, Double sumTotalInCurrency,
 			Currency currency, CurrencyExchangeRate currencyExchangeRate, String notesForCustomer, String internalNotes,
-			Customer publisherCustomer, Bank publisherCustomerBank, CustomerBankAccount publisherCustomerBankAccount,
-			Customer receiverCustomer, Bank receiverCustomerBank, CustomerBankAccount receiverCustomerBankAccount) {
+			Customer publisherCustomer, Bank publisherCustomerBank, CustomerAccount publisherCustomerBankAccount,
+			Customer receiverCustomer, Bank receiverCustomerBank, CustomerAccount receiverCustomerBankAccount) {
 		validateNotNull("DocumentDirection", documentDirection);
 		validateNotNull("DocumentNumber", documentNumber);
 		validateStringLength("DocumentSeries", documentSeries, 20);

@@ -50,14 +50,22 @@ public class BillController extends DegraController {
     public Button billRowSaveButton;
     @FXML
     public DynamicTableView<BillContentDto> billContentListView = new DynamicTableView<>();
-    @Autowired
-    protected BillRowService billRowService;
+
     private DocumentMainController documentMainController;
-    @Autowired
+    protected BillRowService billRowService;
     private ConfigService configService;
 
-    @Autowired
     private UnitTypeService unitTypeService;
+
+    @Autowired
+    public BillController(BillRowService billRowService, UnitTypeService unitTypeService, ConfigService configService) {
+        this.billRowService = billRowService;
+        this.unitTypeService = unitTypeService;
+        this.configService = configService;
+    }
+
+    public BillController() {
+    }
 
     @FXML
     public void addToBillRowButtonAction() {
