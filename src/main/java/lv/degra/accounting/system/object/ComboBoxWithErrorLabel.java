@@ -1,62 +1,114 @@
 package lv.degra.accounting.system.object;
 
+import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.util.function.Predicate;
+
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ComboBoxWithErrorLabel<T> extends VBox {
+@Setter
+@Getter
+public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implements DataSavable {
 
-    private final ComboBox<T> comboBox;
-    private final Label errorLabel;
+	private final ComboBox<T> comboBox;
 
-    public ComboBoxWithErrorLabel() {
-        comboBox = new ComboBox<>();
-        errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red;");
+	public ComboBoxWithErrorLabel() {
+		comboBox = new ComboBox<>();
+		comboBox.setMaxWidth(Double.MAX_VALUE);
 
-        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != newValue) {
-                clearError();
-            }
-        });
+		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (oldValue != newValue) {
+				dataSaved.set(false);
+			}
+			validate();
+//			validateCombinedConditions();
+		});
+		validate();
+//		validateCombinedConditions();
 
-        getChildren().addAll(comboBox, errorLabel);
-    }
+		getChildren().add(0, comboBox);
+	}
 
-    public void setOnAction(EventHandler<ActionEvent> eventHandler) {
-        this.comboBox.setOnAction(eventHandler);
-    }
+	public void setOnAction(EventHandler<ActionEvent> eventHandler) {
+		this.comboBox.setOnAction(eventHandler);
+	}
 
-    public T getValue() {
-        return this.comboBox.getValue();
-    }
+	public T getValue() {
+		return this.comboBox.getValue();
+	}
 
-    public void setValue(T value) {
-        this.comboBox.setValue(value);
-    }
+	public void setValue(T value) {
+		this.comboBox.setValue(value);
+	}
 
-    public void setItems(ObservableList<T> items) {
-        this.comboBox.setItems(items);
-    }
+	public void setItems(ObservableList<T> items) {
+		this.comboBox.setItems(items);
+	}
 
-    public void setCellFactory(Callback<ListView<T>, ListCell<T>> factory) {
-        this.comboBox.setCellFactory(factory);
-    }
+	public void setCellFactory(Callback<ListView<T>, ListCell<T>> factory) {
+		this.comboBox.setCellFactory(factory);
+	}
 
-    public void setButtonCell(ListCell<T> value) {
-        this.comboBox.setButtonCell(value);
-    }
+	public void setButtonCell(ListCell<T> value) {
+		this.comboBox.setButtonCell(value);
+	}
 
-    public void clearError() {
-        errorLabel.setText("");
-    }
+	@Override
+	public void setValidationCondition(Predicate<T> validationCondition) {
+		this.validationCondition = validationCondition;
+		markAsRequired(this.validationCondition != null);
+	}
 
-    public void setError(String errorMessage) {
-        errorLabel.setText(errorMessage);
-    }
+	public void markAsRequired(boolean isRequired) {
+		super.markAsRequired(isRequired, comboBox);
+	}
+
+	@Override
+	protected void validate() {
+		boolean isValid = true;
+		if (validationCondition != null) {
+			isValid = validationCondition.test(comboBox.getValue());
+		}
+		setValid(isValid);
+		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
+		markAsRequired(!isValid);
+	}
+
+
+	@Override
+	protected void validateCombinedConditions() {
+		boolean isValid = true;
+		if (validationCondition != null) {
+			isValid = validationCondition.test(comboBox.getValue());
+		}
+		setValid(isValid);
+		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
+		markAsRequired(!isValid);
+	}
+
+	@Override
+	public boolean isDataSaved() {
+		return dataSaved.get();
+	}
+
+	@Override
+	public void setDataSaved(boolean dataSaved) {
+		this.dataSaved.set(dataSaved);
+	}
+
+	@Override
+	public BooleanProperty dataSavedProperty() {
+		return dataSaved;
+	}
+
 }

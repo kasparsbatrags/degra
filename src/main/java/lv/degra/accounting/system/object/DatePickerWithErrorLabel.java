@@ -1,38 +1,41 @@
 package lv.degra.accounting.system.object;
 
 import static lv.degra.accounting.system.configuration.DegraConfig.DATE_FORMAT;
+import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Predicate;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.DatePicker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-import lv.degra.accounting.document.controller.Validatable;
+import lv.degra.accounting.document.controller.DocumentMainController;
 
-public class DatePickerWithErrorLabel extends VBox implements Validatable {
+public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> implements DataSavable {
 
 	private final DatePicker datePicker;
-	private final javafx.scene.control.Label errorLabel;
 
 	public DatePickerWithErrorLabel() {
 
 		datePicker = new DatePicker();
-		datePicker.getStyleClass().add("custom-date-picker");
-		errorLabel = new Label();
-
-		errorLabel.setStyle("-fx-text-fill: red;");
 
 		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (oldValue!=newValue) {
-				clearError();
+			if (oldValue != newValue) {
+				dataSaved.set(false);
+				validate();
 			}
+
+//			validateCombinedConditions();
 		});
+		validate();
+//		validateCombinedConditions();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+		StringConverter<LocalDate> converter = new StringConverter<>() {
 			@Override
 			public String toString(LocalDate date) {
 				if (date != null) {
@@ -61,8 +64,9 @@ public class DatePickerWithErrorLabel extends VBox implements Validatable {
 			}
 		});
 
-		this.getChildren().addAll(datePicker, errorLabel);
+		this.getChildren().add(0, datePicker);
 
+		DocumentMainController.addToDataSavableFields(this);
 	}
 
 	public java.time.LocalDate getValue() {
@@ -73,12 +77,51 @@ public class DatePickerWithErrorLabel extends VBox implements Validatable {
 		datePicker.setValue(date);
 	}
 
-	public void clearError() {
-		errorLabel.setText("");
+	@Override
+	public void setValidationCondition(Predicate<LocalDate> validationCondition) {
+		this.validationCondition = validationCondition;
+		markAsRequired(this.validationCondition != null);
 	}
 
-	public void setError(String errorMessage) {
-		errorLabel.setText(errorMessage);
+	@Override
+	protected void validateCombinedConditions() {
+		boolean isValid = true;
+		if (validationCondition != null) {
+			isValid = validationCondition.test(datePicker.getValue());
+		}
+		setValid(isValid);
+		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
+		markAsRequired(!isValid);
+	}
+
+	@Override
+	protected void validate() {
+		boolean isValid = true;
+		if (validationCondition != null) {
+			isValid = validationCondition.test(datePicker.getValue());
+		}
+		setValid(isValid);
+		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
+		markAsRequired(!isValid);
+	}
+
+	public void markAsRequired(boolean isRequired) {
+		super.markAsRequired(isRequired, datePicker);
+	}
+
+	@Override
+	public boolean isDataSaved() {
+		return dataSaved.get();
+	}
+
+	@Override
+	public void setDataSaved(boolean dataSaved) {
+		this.dataSaved.set(dataSaved);
+	}
+
+	@Override
+	public BooleanProperty dataSavedProperty() {
+		return dataSaved;
 	}
 
 }

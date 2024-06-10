@@ -1,5 +1,15 @@
 package lv.degra.accounting.document.controller;
 
+import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_ERROR_MESSAGE;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,157 +20,176 @@ import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.report.service.ReportService;
+import lv.degra.accounting.system.object.DataSavable;
 import lv.degra.accounting.system.utils.DegraController;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
-
-import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
-import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_ERROR_MESSAGE;
 
 @Component
 public class DocumentMainController extends DegraController {
 
-    private final DocumentInfoController documentInfoController;
-    private final BillController billController;
-    private final DocumentService documentService;
-    private final ReportService reportService;
-    public DocumentDto documentDto;
-    @FXML
-    public TabPane documentTabPane;
-    @FXML
-    public Tab documentInfoTab;
-    @FXML
-    public Button saveButton;
-    private ObservableList<DocumentDto> documentObservableList;
-    @FXML
-    private Tab billContentTab;
+	private static final List<DataSavable> dataSavableFields = new ArrayList<>();
+	private static boolean dataSaved = true;
+	private final DocumentInfoController documentInfoController;
+	private final BillController billController;
+	private final DocumentService documentService;
+	private final ReportService reportService;
+	@FXML
+	public TabPane documentTabPane;
+	@FXML
+	public Tab documentInfoTab;
+	@FXML
+	public Button saveButton;
+	private DocumentDto documentDto = null;
+	private ObservableList<DocumentDto> documentObservableList;
+	@FXML
+	private Tab billContentTab;
 
-    @Autowired
-    public DocumentMainController(DocumentInfoController documentInfoController, BillController billController, DocumentService documentService, ReportService reportService) {
-        this.documentInfoController = documentInfoController;
-        this.billController = billController;
-        this.documentService = documentService;
-        this.reportService = reportService;
-    }
+	@Autowired
+	public DocumentMainController(DocumentInfoController documentInfoController, BillController billController,
+			DocumentService documentService, ReportService reportService) {
+		this.documentInfoController = documentInfoController;
+		this.billController = billController;
+		this.documentService = documentService;
+		this.reportService = reportService;
+	}
 
-    @FXML
-    private void initialize() {
-        documentInfoController.injectMainController(this);
-        billController.injectMainController(this);
-        actualizeDocumentTabs();
-    }
+	public static void addToDataSavableFields(DataSavable dataSavable) {
+		dataSavableFields.add(dataSavable);
+		dataSavable.dataSavedProperty().addListener((obs, wasSaved, isNowSaved) -> {
+			if (!isNowSaved) {
+				dataSaved = false;
+			}
+		});
+	}
 
-    @FXML
-    public void onSaveDocumentButton() {
-        if (saveDocument()) {
-            closeWindows();
-        }
-    }
+	@FXML
+	private void initialize() {
+		dataSaved = true;
+		//		for (DataSavable field : dataSavableFields) {
+		//			field.dataSavedProperty().addListener((obs, wasSaved, isNowSaved) -> {
+		//				if (!isNowSaved) {
+		//					dataSaved.set(false);
+		//				}
+		//			});
+		//		}
+		documentInfoController.injectMainController(this);
+		billController.injectMainController(this);
+		actualizeDocumentTabs();
+	}
 
-    @FXML
-    public void billContentOpenAction() {
-        billController.setBillContentOpenAction();
-    }
+	@FXML
+	public void onSaveDocumentButton() {
+		if (saveDocument()) {
+			for (DataSavable field : dataSavableFields) {
+				field.setDataSaved(true);
+			}
+			dataSaved = true;
 
-    public void actualizeDocumentTabs() {
-        if (documentInfoController.isDocumentBill()) {
-            showBillTab();
-        } else {
-            hideBillTab();
-        }
-    }
+			closeWindows();
+		}
+	}
 
-    protected void saveDocumentMainInfo() {
-        documentService.saveDocument(documentDto);
-    }
+	@FXML
+	public void billContentOpenAction() {
+		billController.setBillContentOpenAction();
+	}
 
-    public boolean saveDocument() {
-        boolean result = true;
-        try {
-            documentDto = documentInfoController.fillDocumentDto();
-            boolean isItNewRecord = isItNewRecord();
-            saveDocumentMainInfo();
-            if (isItNewRecord) {
-                this.documentObservableList.add(documentDto);
-            } else {
-                if (!documentInfoController.isDocumentBill()) {
-                    billController.billRowService.deleteBillRowByDocumentId(documentDto.getId());
-                }
-            }
-        } catch (Exception e) {
-            switchToDocumentInfoTab();
-            Alert alert = new Alert(Alert.AlertType.NONE);
-            alert.setTitle(APPLICATION_TITLE);
-            alert.setAlertType(Alert.AlertType.ERROR);
-            alert.setContentText(DEFAULT_ERROR_MESSAGE + e.getMessage());
-            alert.show();
-            result = false;
-        }
-        return result;
-    }
+	public void actualizeDocumentTabs() {
+		if (documentInfoController.isDocumentBill()) {
+			showBillTab();
+		} else {
+			hideBillTab();
+		}
+	}
 
-    public DocumentDto getDocumentDto() {
-        return Optional.ofNullable(documentInfoController).map(DocumentInfoController::fillDocumentDto).orElse(null);
-    }
+	protected void saveDocumentMainInfo() {
+		documentService.saveDocument(documentDto);
+	}
 
-    public void enableDocumentButtons() {
-        changeDocumentButtonStatus(false);
-    }
+	public boolean saveDocument() {
+		boolean result = true;
+		try {
+			documentDto = documentInfoController.fillDocumentDto();
+			boolean isItNewRecord = isNewRecord();
+			saveDocumentMainInfo();
+			if (isItNewRecord) {
+				this.documentObservableList.add(documentDto);
+			} else {
+				if (!documentInfoController.isDocumentBill()) {
+					billController.billRowService.deleteBillRowByDocumentId(documentDto.getId());
+				}
+			}
+		} catch (Exception e) {
+			switchToDocumentInfoTab();
+			Alert alert = new Alert(Alert.AlertType.NONE);
+			alert.setTitle(APPLICATION_TITLE);
+			alert.setAlertType(Alert.AlertType.ERROR);
+			alert.setContentText(DEFAULT_ERROR_MESSAGE + e.getMessage());
+			alert.show();
+			result = false;
+		}
+		return result;
+	}
 
-    public void switchToDocumentInfoTab() {
-        documentTabPane.getSelectionModel().select(documentInfoTab);
-    }
+	public DocumentDto getDocumentDto() {
+		return Optional.ofNullable(documentInfoController).map(DocumentInfoController::fillDocumentDto).orElse(null);
+	}
 
-    private boolean isItNewRecord() {
-        return this.documentDto != null && this.documentDto.getId() == null;
-    }
+	public void enableDocumentButtons() {
+		changeDocumentButtonStatus(false);
+	}
 
-    public void setDocument(DocumentDto documentDto) {
-        this.documentDto = documentDto;
-        if (documentDto != null) {
-            documentInfoController.fillDocumentFormWithExistData(documentDto);
-        }
-        showBillTab();
-    }
+	public void switchToDocumentInfoTab() {
+		documentTabPane.getSelectionModel().select(documentInfoTab);
+	}
 
-    public void showBillTab() {
-        if (!documentTabPane.getTabs().contains(billContentTab)) {
-            documentTabPane.getTabs().add(billContentTab);
-        }
-    }
+	private boolean isNewRecord() {
+		return this.documentDto != null && this.documentDto.getId() == null;
+	}
 
-    public void hideBillTab() {
-        documentTabPane.getTabs().remove(billContentTab);
-    }
+	public void setDocument(DocumentDto documentDto) {
+		this.documentDto = documentDto;
+		if (documentDto != null) {
+			documentInfoController.fillDocumentFormWithExistData(documentDto);
+		}
+		showBillTab();
+	}
 
-    public void setDocumentList(ObservableList<DocumentDto> documentList) {
-        this.documentObservableList = documentList;
-    }
+	public void showBillTab() {
+		if (!documentTabPane.getTabs().contains(billContentTab)) {
+			documentTabPane.getTabs().add(billContentTab);
+		}
+	}
 
-    protected void changeDocumentButtonStatus(boolean setDisable) {
-        saveButton.setDisable(setDisable);
-        closeButton.setDisable(setDisable);
-    }
+	public void hideBillTab() {
+		documentTabPane.getTabs().remove(billContentTab);
+	}
 
-    public void disableDocumentButtons() {
-        changeDocumentButtonStatus(true);
-    }
+	public void setDocumentList(ObservableList<DocumentDto> documentList) {
+		this.documentObservableList = documentList;
+	}
 
-    public void onPrintDocumentButton() {
-        List<BillContentDto> billPositionData = billController.billRowService.getByDocumentId(documentDto.getId());
-        JasperPrint jasperPrint = reportService.getReportWithData(billPositionData, documentDto, "BILL", false);
-        JasperViewer viewer = new JasperViewer(jasperPrint, false);
-        viewer.setVisible(true);
+	protected void changeDocumentButtonStatus(boolean setDisable) {
+		saveButton.setDisable(setDisable);
+		closeButton.setDisable(setDisable);
+	}
 
-    }
+	public void disableDocumentButtons() {
+		changeDocumentButtonStatus(true);
+	}
 
-    public void setDocumentInfoSumTotalFieldValue(Double value) {
-        documentInfoController.sumTotalField.setText(String.valueOf(value));
-        documentInfoController.sumTotalOnAction();
-    }
+	public void onPrintDocumentButton() {
+		List<BillContentDto> billPositionData = billController.billRowService.getByDocumentId(documentDto.getId());
+		JasperPrint jasperPrint = reportService.getReportWithData(billPositionData, documentDto, "BILL", false);
+		JasperViewer viewer = new JasperViewer(jasperPrint, false);
+		viewer.setVisible(true);
+
+	}
+
+	public void setDocumentInfoSumTotalFieldValue(Double value) {
+		documentInfoController.sumTotalField.setText(String.valueOf(value));
+		documentInfoController.sumTotalOnAction();
+	}
+
 }

@@ -98,7 +98,7 @@ public class BillController extends DegraController {
         }
         billRowService.deleteBillRowById(billContentDto.getId());
         billContentListView.getItems().removeAll(billContentListView.getSelectionModel().getSelectedItem());
-        actualizeDocumentInfo(documentMainController.documentDto.getId());
+        actualizeDocumentInfo(documentMainController.getDocumentDto().getId());
     }
 
     public void injectMainController(DocumentMainController documentMainController) {

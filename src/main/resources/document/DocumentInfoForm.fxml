@@ -8,17 +8,18 @@
 <?import lv.degra.accounting.system.object.ComboBoxWithErrorLabel?>
 <?import lv.degra.accounting.system.object.DatePickerWithErrorLabel?>
 <?import lv.degra.accounting.system.object.Label?>
-
 <?import lv.degra.accounting.system.object.lazycombo.SearchableComboBox?>
+
 <AnchorPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.document.controller.DocumentInfoController">
 	<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="606.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 		<children>
 			<Pane prefHeight="146.0" prefWidth="588.0" AnchorPane.leftAnchor="21.0" AnchorPane.topAnchor="20.0">
 				<children>
-					<DatePickerWithErrorLabel fx:id="documentDateDp" layoutX="148.0" layoutY="17.0" prefHeight="25.0" prefWidth="133.0" />
-					<Label layoutX="26.0" layoutY="18.0" text="Dokumenta datums" />
+					<Label contentDisplay="RIGHT" layoutX="26.0" layoutY="18.0" prefHeight="17.0" prefWidth="105.0" text="Dokumenta datums" />
 
+					<DatePickerWithErrorLabel fx:id="documentDateDp" layoutX="148.0" layoutY="17.0" prefHeight="25.0" prefWidth="133.0" />
 					<Label contentDisplay="RIGHT" layoutX="325.0" layoutY="18.0" prefHeight="17.0" prefWidth="105.0" text="Apmaksas datums" textAlignment="RIGHT" />
+
 					<DatePickerWithErrorLabel fx:id="paymentDateDp" layoutX="430.0" layoutY="14.0" prefHeight="25.0" prefWidth="133.0" />
 					<Label contentDisplay="RIGHT" layoutX="325.0" layoutY="62.0" prefHeight="17.0" prefWidth="105.0" text="Uzskaites datums" textAlignment="RIGHT" wrapText="true" />
 					<DatePickerWithErrorLabel fx:id="accountingDateDp" layoutX="430.0" layoutY="58.0" prefHeight="25.0" prefWidth="133.0" />
@@ -53,11 +54,15 @@
 
 			<Pane prefHeight="108.0" prefWidth="304.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="20.0">
 				<children>
-					<Label layoutX="9.0" layoutY="18.0" prefHeight="17.0" prefWidth="108.0" text="Dokumenta virziens" />
-					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="130.0" layoutY="14.0" prefHeight="25.0" prefWidth="108.0" />
-					<Label fx:id="documentIdLabel" layoutX="29.0" layoutY="685.0" prefHeight="17.0" prefWidth="87.0" />
+					<Label contentDisplay="RIGHT" layoutX="17.0" layoutY="18.0" prefHeight="17.0" prefWidth="108.0" text="Dokumenta virziens" />
+					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="130.0" layoutY="14.0" prefHeight="42.0" prefWidth="144.0" />
+
 					<Label contentDisplay="RIGHT" layoutX="17.0" layoutY="62.0" prefHeight="17.0" prefWidth="108.0" text="Dokumenta tips" textAlignment="RIGHT" />
-					<ComboBoxWithErrorLabel fx:id="documentTypeCombo" layoutX="130.0" layoutY="58.0" prefHeight="25.0" prefWidth="108.0" />
+					<ComboBoxWithErrorLabel fx:id="documentTypeCombo" layoutX="130.0" layoutY="58.0" prefHeight="42.0" prefWidth="144.0" />
+
+
+					<Label fx:id="documentIdLabel" layoutX="29.0" layoutY="685.0" prefHeight="17.0" prefWidth="87.0" />
+
 				</children>
 			</Pane>
 
