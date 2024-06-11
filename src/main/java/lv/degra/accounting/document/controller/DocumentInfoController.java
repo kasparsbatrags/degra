@@ -1,12 +1,13 @@
 package lv.degra.accounting.document.controller;
 
-import static liquibase.util.StringUtil.isNotEmpty;
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.configuration.DegraConfig.BILL_SERIES_KEY;
 import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -45,7 +46,6 @@ import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.customer_account.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
-import lv.degra.accounting.document.dto.DocumentDtoValidator;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentTransactionType;
 import lv.degra.accounting.document.model.DocumentType;
@@ -54,7 +54,6 @@ import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
-import lv.degra.accounting.system.exception.IllegalDataArgumentException;
 import lv.degra.accounting.system.object.ComboBoxWithErrorLabel;
 import lv.degra.accounting.system.object.DatePickerWithErrorLabel;
 import lv.degra.accounting.system.object.lazycombo.SearchableComboBox;
@@ -142,7 +141,7 @@ public class DocumentInfoController extends DegraController {
 
 	public void initialize() {
 
-		setFieldValidationConditions();
+		setDocumentInfoValidationRules();
 
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
 
@@ -171,17 +170,15 @@ public class DocumentInfoController extends DegraController {
 		setFieldFormat(sumTotalField, SUM_FORMAT_REGEX);
 		setFieldFormat(sumTotalInCurrencyField, SUM_FORMAT_REGEX);
 		setDefaultValues();
-
 		publisherCombo.setCustomerService(customerService);
 		receiverCombo.setCustomerService(customerService);
 
 	}
 
-	private void setFieldValidationConditions() {
-
-		documentDateDp.setValidationCondition(Objects::nonNull);
-		directionCombo.setValidationCondition(Objects::nonNull);
-		documentTypeCombo.setValidationCondition(Objects::nonNull);
+	private void setDocumentInfoValidationRules() {
+		addValidationControl(documentDateDp, Objects::nonNull);
+		addValidationControl(directionCombo, Objects::nonNull);
+		addValidationControl(documentTypeCombo, Objects::nonNull);
 	}
 
 	protected boolean promptSaveDocumentInfoChanges() {
@@ -343,7 +340,7 @@ public class DocumentInfoController extends DegraController {
 		seriesField.setText(documentDto.getDocumentSeries());
 		documentTypeCombo.setValue(documentDto.getDocumentType());
 		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
-		numberField.setText(String.valueOf(documentDto.getDocumentNumber()));
+		numberField.setText(!isBlank(documentDto.getDocumentNumber()) ? documentDto.getDocumentNumber() : EMPTY);
 		accountingDateDp.setValue(documentDto.getAccountingDate());
 		documentDateDp.setValue(documentDto.getDocumentDate());
 		paymentDateDp.setValue(documentDto.getPaymentDate());
@@ -397,37 +394,13 @@ public class DocumentInfoController extends DegraController {
 
 	public DocumentDto fillDocumentDto() {
 
-		//		validateAndSetError(documentDateDp, DocumentDtoValidator::validateDateNotNull, DatePickerWithErrorLabel::getValue);
-		//		validateAndSetError(accountingDateDp, DocumentDtoValidator::validateDateNotNull, DatePickerWithErrorLabel::getValue);
-		//
-		//		validateEmptyDirectionAndSetError(directionCombo);
-		//		validateEmptyDirectionAndSetError(documentTypeCombo);
-
-		return DocumentDtoValidator.validateAndCreateDocumentDto(
-				documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()), directionCombo.getValue(),
-				numberField.getText(), seriesField.getText(), documentTypeCombo.getValue(), documentTransactionTypeCombo.getValue(),
-				accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(), null, getDouble(sumTotalField.getText()),
-				getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(), currencyExchangeRate,
-				notesForCustomerField.getText(), internalNotesField.getText(), publisherCombo.getValue(), publisherBankCombo.getValue(),
-				publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
+		return new DocumentDto(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()),
+				directionCombo.getValue(), numberField.getText(), seriesField.getText(), documentTypeCombo.getValue(),
+				documentTransactionTypeCombo.getValue(), accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(),
+				null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(),
+				currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), publisherCombo.getValue(),
+				publisherBankCombo.getValue(), publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
 				receiverBankAccountCombo.getValue());
 	}
 
-	private <T> void validateEmptyDirectionAndSetError(ComboBoxWithErrorLabel<T> comboBox) {
-		String errorMessage = DocumentDtoValidator.validateDateNotNull(comboBox.getValue());
-		if (isNotEmpty(errorMessage)) {
-			comboBox.setErrorText(errorMessage);
-			throw new IllegalDataArgumentException(errorMessage);
-		}
-	}
-
-	private <T extends Validatable, U> void validateAndSetError(T field, Function<U, String> validationFunction,
-			Function<T, U> valueExtractor) {
-		U value = valueExtractor.apply(field);
-		String errorMessage = validationFunction.apply(value);
-		if (isNotEmpty(errorMessage)) {
-			field.setError(errorMessage);
-			throw new IllegalDataArgumentException(errorMessage);
-		}
-	}
 }

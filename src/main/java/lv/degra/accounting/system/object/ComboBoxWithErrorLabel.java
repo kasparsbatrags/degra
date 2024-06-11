@@ -31,11 +31,8 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implemen
 				dataSaved.set(false);
 			}
 			validate();
-//			validateCombinedConditions();
 		});
 		validate();
-//		validateCombinedConditions();
-
 		getChildren().add(0, comboBox);
 	}
 
@@ -74,19 +71,7 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implemen
 	}
 
 	@Override
-	protected void validate() {
-		boolean isValid = true;
-		if (validationCondition != null) {
-			isValid = validationCondition.test(comboBox.getValue());
-		}
-		setValid(isValid);
-		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid);
-	}
-
-
-	@Override
-	protected void validateCombinedConditions() {
+	public void validate() {
 		boolean isValid = true;
 		if (validationCondition != null) {
 			isValid = validationCondition.test(comboBox.getValue());

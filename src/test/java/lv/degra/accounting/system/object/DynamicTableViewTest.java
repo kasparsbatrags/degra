@@ -36,22 +36,4 @@ class DynamicTableViewTest extends ApplicationTest {
 
 		assertThrows(IllegalStateException.class, () -> tableView.setData(data));
 	}
-//	@Test
-//	public void testSetEmptyData() {
-//		// Arrange
-//		Creator<Object> mockCreator = mock(Creator.class);
-//		Updater<Object> mockUpdater = mock(Updater.class);
-//		Deleter<Object> mockDeleter = mock(Deleter.class);
-//		tableView.setCreator(mockCreator);
-//		tableView.setUpdater(mockUpdater);
-//		tableView.setDeleter(mockDeleter);
-//		ObservableList<Object> data = FXCollections.observableArrayList();
-//
-//		// Act
-//		tableView.setData(data);
-//
-//		// Assert
-//		// Here you would add assertions to verify the state of tableView
-//		// For example, you might verify that the correct columns were added
-//	}
 }

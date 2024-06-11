@@ -28,11 +28,8 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> i
 				dataSaved.set(false);
 				validate();
 			}
-
-//			validateCombinedConditions();
 		});
 		validate();
-//		validateCombinedConditions();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 		StringConverter<LocalDate> converter = new StringConverter<>() {
@@ -84,18 +81,7 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> i
 	}
 
 	@Override
-	protected void validateCombinedConditions() {
-		boolean isValid = true;
-		if (validationCondition != null) {
-			isValid = validationCondition.test(datePicker.getValue());
-		}
-		setValid(isValid);
-		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid);
-	}
-
-	@Override
-	protected void validate() {
+	public void validate() {
 		boolean isValid = true;
 		if (validationCondition != null) {
 			isValid = validationCondition.test(datePicker.getValue());

@@ -7,13 +7,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import lombok.Setter;
 
 public abstract class ControlWithErrorLabel<T> extends VBox {
 	protected Label errorLabel;
 	protected BooleanProperty valid;
+	@Setter
 	protected Predicate<T> validationCondition;
 	protected BooleanProperty dataSaved;
-	protected Predicate<Void> combinedValidationCondition;
 
 	protected ControlWithErrorLabel() {
 		errorLabel = new Label();
@@ -29,20 +30,15 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		errorLabel.setVisible(!errorText.isEmpty());
 	}
 
+	public boolean isValid() {
+		return valid.get();
+	}
+
 	public void setValid(boolean isValid) {
 		this.valid.set(isValid);
 	}
 
-	public void setValidationCondition(Predicate<T> validationCondition) {
-		this.validationCondition = validationCondition;
-	}
-
-	public void setCombinedValidationCondition(Predicate<Void> combinedValidationCondition) {
-		this.combinedValidationCondition = combinedValidationCondition;
-	}
-
-	protected abstract void validate();
-	protected abstract void validateCombinedConditions();
+	public abstract void validate();
 
 	protected void markAsRequired(boolean isRequired, Control control) {
 		if (isRequired) {

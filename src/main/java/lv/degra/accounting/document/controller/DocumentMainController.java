@@ -14,12 +14,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.report.service.ReportService;
+import lv.degra.accounting.system.object.ControlWithErrorLabel;
 import lv.degra.accounting.system.object.DataSavable;
 import lv.degra.accounting.system.utils.DegraController;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -80,14 +82,14 @@ public class DocumentMainController extends DegraController {
 
 	@FXML
 	public void onSaveDocumentButton() {
-		if (saveDocument()) {
+		if (validateDocumentInfo() && saveDocument()) {
 			for (DataSavable field : dataSavableFields) {
 				field.setDataSaved(true);
 			}
 			dataSaved = true;
-
 			closeWindows();
 		}
+
 	}
 
 	@FXML
@@ -103,6 +105,26 @@ public class DocumentMainController extends DegraController {
 		}
 	}
 
+	private boolean validateDocumentInfo() {
+		List<ControlWithErrorLabel<?>> validationControls = documentInfoController.getValidationControls();
+		boolean allValid = true;
+
+		for (ControlWithErrorLabel<?> control : validationControls) {
+			control.validate();
+			if (!control.isValid()) {
+				allValid = false;
+			}
+		}
+
+		if (!allValid) {
+			Alert alert = new Alert(Alert.AlertType.ERROR, "Lūdzu, aizpildiet visus nepieciešamos laukus.", ButtonType.OK);
+			alert.setTitle(APPLICATION_TITLE);
+			alert.showAndWait();
+		}
+
+		return allValid;
+	}
+
 	protected void saveDocumentMainInfo() {
 		documentService.saveDocument(documentDto);
 	}
@@ -110,7 +132,7 @@ public class DocumentMainController extends DegraController {
 	public boolean saveDocument() {
 		boolean result = true;
 		try {
-			documentDto = documentInfoController.fillDocumentDto();
+			documentDto = getDocumentDto();
 			boolean isItNewRecord = isNewRecord();
 			saveDocumentMainInfo();
 			if (isItNewRecord) {

@@ -43,8 +43,8 @@ public class Document {
 	@Enumerated(EnumType.ORDINAL)
 	private DocumentDirection direction;
 
-	@Column(name = "document_number", nullable = false)
-	private Integer documentNumber;
+	@Column(name = "document_number", nullable = false, length = 20)
+	private String documentNumber;
 
 	@Size(max = 20)
 	@Column(name = "document_series", length = 20)
@@ -55,8 +55,7 @@ public class Document {
 	@JoinColumn(name = "document_type_id", nullable = false)
 	private DocumentType documentType;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "document_transaction_type_id")
 	private DocumentTransactionType documentTransactionType;
 
@@ -105,32 +104,26 @@ public class Document {
 	@OneToMany(mappedBy = "document", fetch = FetchType.EAGER)
 	private Set<Distribution> distributions = new LinkedHashSet<>();
 
-	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "publisher_customer_id")
 	private Customer publisherCustomer;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "publisher_customer_bank_id", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "publisher_customer_bank_id")
 	private Bank publisherCustomerBank;
 
-	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "publisher_customer_bank_account_id")
 	private CustomerAccount publisherCustomerBankAccount;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "receiver_customer_id", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "receiver_customer_id")
 	private Customer receiverCustomer;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "receiver_customer_bank_id", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "receiver_customer_bank_id")
 	private Bank receiverCustomerBank;
 
-	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "receiver_customer_bank_account_id")
 	private CustomerAccount receiverCustomerBankAccount;

@@ -37,15 +37,14 @@ public class DocumentServiceImpl implements DocumentService {
 	public DocumentDto saveDocument(DocumentDto documentDto) {
 		try {
 			if (documentDto.getId() != null) {
-				Document document = documentRepository.getById(documentDto.getId());
-				if (document != null) {
+				return documentRepository.findById(Long.valueOf(documentDto.getId())).map(document -> {
 					modelMapper.map(documentDto, document);
 					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
-				} else {
-					throw new EntityNotFoundException("Document not found with ID: " + documentDto.getId());
-				}
+				}).orElseThrow(() -> new EntityNotFoundException("Document not found with ID: " + documentDto.getId()));
 			} else {
-				return modelMapper.map(documentRepository.save(modelMapper.map(documentDto, Document.class)), DocumentDto.class);
+				Document document = modelMapper.map(documentDto, Document.class);
+				Document savedDocument = documentRepository.save(document);
+				return modelMapper.map(savedDocument, DocumentDto.class);
 			}
 		} catch (DataIntegrityViolationException e) {
 			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
@@ -53,10 +52,8 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public List<DocumentDto> getDocumentList() {
-		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
-				.stream()
-				.map(document -> modelMapper.map(document, DocumentDto.class))
-				.toList();
+		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream()
+				.map(document -> modelMapper.map(document, DocumentDto.class)).toList();
 	}
 
 	public void deleteDocumentById(Integer documentId) {
