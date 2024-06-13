@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.function.Predicate;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,7 +17,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implements DataSavable {
+public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 
 	private final ComboBox<T> comboBox;
 
@@ -27,9 +26,6 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implemen
 		comboBox.setMaxWidth(Double.MAX_VALUE);
 
 		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (oldValue != newValue) {
-				dataSaved.set(false);
-			}
 			validate();
 		});
 		validate();
@@ -79,21 +75,6 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> implemen
 		setValid(isValid);
 		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
 		markAsRequired(!isValid);
-	}
-
-	@Override
-	public boolean isDataSaved() {
-		return dataSaved.get();
-	}
-
-	@Override
-	public void setDataSaved(boolean dataSaved) {
-		this.dataSaved.set(dataSaved);
-	}
-
-	@Override
-	public BooleanProperty dataSavedProperty() {
-		return dataSaved;
 	}
 
 }

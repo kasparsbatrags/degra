@@ -8,14 +8,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Predicate;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.DatePicker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
-import lv.degra.accounting.document.controller.DocumentMainController;
 
-public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> implements DataSavable {
+public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 
 	private final DatePicker datePicker;
 
@@ -24,10 +22,7 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> i
 		datePicker = new DatePicker();
 
 		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (oldValue != newValue) {
-				dataSaved.set(false);
-				validate();
-			}
+			validate();
 		});
 		validate();
 
@@ -62,8 +57,6 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> i
 		});
 
 		this.getChildren().add(0, datePicker);
-
-		DocumentMainController.addToDataSavableFields(this);
 	}
 
 	public java.time.LocalDate getValue() {
@@ -94,20 +87,4 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> i
 	public void markAsRequired(boolean isRequired) {
 		super.markAsRequired(isRequired, datePicker);
 	}
-
-	@Override
-	public boolean isDataSaved() {
-		return dataSaved.get();
-	}
-
-	@Override
-	public void setDataSaved(boolean dataSaved) {
-		this.dataSaved.set(dataSaved);
-	}
-
-	@Override
-	public BooleanProperty dataSavedProperty() {
-		return dataSaved;
-	}
-
 }

@@ -22,7 +22,7 @@ import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.report.service.ReportService;
 import lv.degra.accounting.system.object.ControlWithErrorLabel;
-import lv.degra.accounting.system.object.DataSavable;
+import lv.degra.accounting.system.object.DataValueChangeListener;
 import lv.degra.accounting.system.utils.DegraController;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
@@ -30,8 +30,7 @@ import net.sf.jasperreports.view.JasperViewer;
 @Component
 public class DocumentMainController extends DegraController {
 
-	private static final List<DataSavable> dataSavableFields = new ArrayList<>();
-	private static boolean dataSaved = true;
+	private static final List<DataValueChangeListener> dataValueChangesList = new ArrayList<>();
 	private final DocumentInfoController documentInfoController;
 	private final BillController billController;
 	private final DocumentService documentService;
@@ -56,25 +55,12 @@ public class DocumentMainController extends DegraController {
 		this.reportService = reportService;
 	}
 
-	public static void addToDataSavableFields(DataSavable dataSavable) {
-		dataSavableFields.add(dataSavable);
-		dataSavable.dataSavedProperty().addListener((obs, wasSaved, isNowSaved) -> {
-			if (!isNowSaved) {
-				dataSaved = false;
-			}
-		});
+	public static void addToDataValueChangesList(DataValueChangeListener dataSavable) {
+		dataValueChangesList.add(dataSavable);
 	}
 
 	@FXML
 	private void initialize() {
-		dataSaved = true;
-		//		for (DataSavable field : dataSavableFields) {
-		//			field.dataSavedProperty().addListener((obs, wasSaved, isNowSaved) -> {
-		//				if (!isNowSaved) {
-		//					dataSaved.set(false);
-		//				}
-		//			});
-		//		}
 		documentInfoController.injectMainController(this);
 		billController.injectMainController(this);
 		actualizeDocumentTabs();
@@ -83,10 +69,6 @@ public class DocumentMainController extends DegraController {
 	@FXML
 	public void onSaveDocumentButton() {
 		if (validateDocumentInfo() && saveDocument()) {
-			for (DataSavable field : dataSavableFields) {
-				field.setDataSaved(true);
-			}
-			dataSaved = true;
 			closeWindows();
 		}
 
@@ -94,7 +76,16 @@ public class DocumentMainController extends DegraController {
 
 	@FXML
 	public void billContentOpenAction() {
+
+		//		if (infoChanged) {
+		//			Alert alert = new Alert(Alert.AlertType.ERROR, "Dokumenta pamatinformācija nav saglabāta! Saglabāju tagad!", ButtonType.OK);
+		//			alert.setTitle(APPLICATION_TITLE);
+		//			alert.showAndWait();
+		//			saveDocumentMainInfo();
+		//			billController.setBillContentOpenAction();
+		//		} else {
 		billController.setBillContentOpenAction();
+		//		}
 	}
 
 	public void actualizeDocumentTabs() {
@@ -124,6 +115,13 @@ public class DocumentMainController extends DegraController {
 
 		return allValid;
 	}
+
+	//	private boolean isDocumentInfoChanged() {
+	//		return dataValueChangesList.stream()
+	//				.filter(object -> object.isValueChanged())
+	//				.findFirst()
+	//				.isPresent();
+	//	}
 
 	protected void saveDocumentMainInfo() {
 		documentService.saveDocument(documentDto);

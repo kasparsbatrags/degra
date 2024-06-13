@@ -23,11 +23,7 @@ public class DegraController {
 	@FXML
 	public Button closeButton;
 	@Getter
-	protected List<ControlWithErrorLabel<?>> validationControls;
-
-	protected DegraController() {
-		validationControls = new ArrayList<>();
-	}
+	protected List<ControlWithErrorLabel<?>> validationControls = new ArrayList<>();
 
 	@FXML
 	public void onCloseButton() {

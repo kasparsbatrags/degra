@@ -14,13 +14,11 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 	protected BooleanProperty valid;
 	@Setter
 	protected Predicate<T> validationCondition;
-	protected BooleanProperty dataSaved;
 
 	protected ControlWithErrorLabel() {
 		errorLabel = new Label();
 		valid = new SimpleBooleanProperty(true);
 		errorLabel.setStyle("-fx-text-fill: red;");
-		dataSaved = new SimpleBooleanProperty(true);
 		this.getChildren().add(errorLabel);
 		errorLabel.setVisible(false);
 	}
