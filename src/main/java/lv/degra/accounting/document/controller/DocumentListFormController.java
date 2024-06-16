@@ -107,6 +107,7 @@ public class DocumentListFormController extends DegraController {
                 documentMainController.setDocumentList(documentObservableList);
                 documentMainController.setDocument(documentDto);
             }
+			documentMainController.setDocumentDtoOld();
             stage.setMaximized(true);
             stage.initModality(APPLICATION_MODAL);
             stage.showAndWait();

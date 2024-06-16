@@ -17,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import lombok.Getter;
 import lv.degra.accounting.document.dto.BillContentDto;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
@@ -42,6 +43,8 @@ public class DocumentMainController extends DegraController {
 	@FXML
 	public Button saveButton;
 	private DocumentDto documentDto = null;
+	@Getter
+	private DocumentDto documentDtoOld = null;
 	private ObservableList<DocumentDto> documentObservableList;
 	@FXML
 	private Tab billContentTab;
@@ -77,15 +80,14 @@ public class DocumentMainController extends DegraController {
 	@FXML
 	public void billContentOpenAction() {
 
-		//		if (infoChanged) {
-		//			Alert alert = new Alert(Alert.AlertType.ERROR, "Dokumenta pamatinformācija nav saglabāta! Saglabāju tagad!", ButtonType.OK);
-		//			alert.setTitle(APPLICATION_TITLE);
-		//			alert.showAndWait();
-		//			saveDocumentMainInfo();
-		//			billController.setBillContentOpenAction();
-		//		} else {
+		if (documentInfoController.isDocumentInfoChanged()) {
+			Alert alert = new Alert(Alert.AlertType.ERROR, "Dokumenta pamatinformācija nav saglabāta! Saglabāju tagad!", ButtonType.OK);
+			alert.setTitle(APPLICATION_TITLE);
+			alert.showAndWait();
+			saveDocumentMainInfo();
+		}
+
 		billController.setBillContentOpenAction();
-		//		}
 	}
 
 	public void actualizeDocumentTabs() {
@@ -115,13 +117,6 @@ public class DocumentMainController extends DegraController {
 
 		return allValid;
 	}
-
-	//	private boolean isDocumentInfoChanged() {
-	//		return dataValueChangesList.stream()
-	//				.filter(object -> object.isValueChanged())
-	//				.findFirst()
-	//				.isPresent();
-	//	}
 
 	protected void saveDocumentMainInfo() {
 		documentService.saveDocument(documentDto);
@@ -210,6 +205,10 @@ public class DocumentMainController extends DegraController {
 	public void setDocumentInfoSumTotalFieldValue(Double value) {
 		documentInfoController.sumTotalField.setText(String.valueOf(value));
 		documentInfoController.sumTotalOnAction();
+	}
+
+	public void setDocumentDtoOld() {
+		this.documentDtoOld=this.documentDto;
 	}
 
 }
