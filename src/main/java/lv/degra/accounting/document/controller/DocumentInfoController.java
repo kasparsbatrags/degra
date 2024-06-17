@@ -9,7 +9,6 @@ import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_RE
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +25,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -60,7 +55,6 @@ import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
 import lv.degra.accounting.system.object.ComboBoxWithErrorLabel;
-import lv.degra.accounting.system.object.DataValueChangeListener;
 import lv.degra.accounting.system.object.DatePickerWithErrorLabel;
 import lv.degra.accounting.system.object.lazycombo.SearchableComboBox;
 import lv.degra.accounting.system.utils.DegraController;
@@ -146,7 +140,7 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void initialize() {
-//		setDefaultValues();
+		setDefaultValues();
 		setDocumentInfoValidationRules();
 
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
@@ -234,7 +228,6 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void setCustomerAccountInfo(SearchableComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
-		this.customerCombo = customerCombo;
 		Customer selectedCustomer = (Customer) customerCombo.getValue();
 		Bank selectedBank = (Bank) bankCombo.getValue();
 		if (selectedBank != null) {
@@ -336,14 +329,13 @@ public class DocumentInfoController extends DegraController {
 		Currency currencyDefault = currencyService.getDefaultCurrency();
 		currencyCombo.setValue(currencyDefault);
 		setExchangeRate(currencyDefault);
-
 		sumTotalField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 		sumTotalInCurrencyField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 	}
 
 	public void fillDocumentFormWithExistData(DocumentDto documentDto) {
 		directionCombo.setValue(documentDto.getDocumentDirection());
-		documentIdLabel.setText(documentDto.getId().toString());
+		documentIdLabel.setText(documentDto.getId()!=null ? documentDto.getId().toString() : EMPTY);
 		seriesField.setText(documentDto.getDocumentSeries());
 		documentTypeCombo.setValue(documentDto.getDocumentType());
 		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
@@ -410,7 +402,6 @@ public class DocumentInfoController extends DegraController {
 				publisherBankCombo.getValue(), publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
 				receiverBankAccountCombo.getValue());
 	}
-
 
 	public boolean isDocumentInfoChanged() {
 		documentMainController.setDocument(fillDocumentDto());

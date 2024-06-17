@@ -58,10 +58,6 @@ public class DocumentMainController extends DegraController {
 		this.reportService = reportService;
 	}
 
-	public static void addToDataValueChangesList(DataValueChangeListener dataSavable) {
-		dataValueChangesList.add(dataSavable);
-	}
-
 	@FXML
 	private void initialize() {
 		documentInfoController.injectMainController(this);
@@ -84,7 +80,11 @@ public class DocumentMainController extends DegraController {
 			Alert alert = new Alert(Alert.AlertType.ERROR, "Dokumenta pamatinformācija nav saglabāta! Saglabāju tagad!", ButtonType.OK);
 			alert.setTitle(APPLICATION_TITLE);
 			alert.showAndWait();
-			saveDocumentMainInfo();
+			if (validateDocumentInfo()) {
+				saveDocumentMainInfo();
+			} else {
+				switchToDocumentInfoTab();
+			}
 		}
 
 		billController.setBillContentOpenAction();
