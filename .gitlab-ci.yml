@@ -7,6 +7,9 @@ sonarcloud-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
+  before_script:
+    - apt-get update
+    - apt-get install -y libx11-6
   script:
     - mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra
   only:
