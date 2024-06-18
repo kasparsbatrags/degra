@@ -325,7 +325,6 @@ public class DocumentInfoController extends DegraController {
 		seriesField.setText(configService.get(BILL_SERIES_KEY));
 		documentDateDp.setValue(LocalDate.now());
 		accountingDateDp.setValue(LocalDate.now());
-		paymentDateDp.setValue(LocalDate.now().plusDays(DEFAULT_PAY_DAY));
 		Currency currencyDefault = currencyService.getDefaultCurrency();
 		currencyCombo.setValue(currencyDefault);
 		setExchangeRate(currencyDefault);

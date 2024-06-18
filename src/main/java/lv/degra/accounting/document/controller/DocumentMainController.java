@@ -3,7 +3,6 @@ package lv.degra.accounting.document.controller;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_ERROR_MESSAGE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +22,6 @@ import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.service.DocumentService;
 import lv.degra.accounting.report.service.ReportService;
 import lv.degra.accounting.system.object.ControlWithErrorLabel;
-import lv.degra.accounting.system.object.DataValueChangeListener;
 import lv.degra.accounting.system.utils.DegraController;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
@@ -31,7 +29,6 @@ import net.sf.jasperreports.view.JasperViewer;
 @Component
 public class DocumentMainController extends DegraController {
 
-	private static final List<DataValueChangeListener> dataValueChangesList = new ArrayList<>();
 	private final DocumentInfoController documentInfoController;
 	private final BillController billController;
 	private final DocumentService documentService;
@@ -208,7 +205,7 @@ public class DocumentMainController extends DegraController {
 	}
 
 	public void setDocumentDtoOld() {
-		this.documentDtoOld=this.documentDto;
+		this.documentDtoOld = this.documentDto;
 	}
 
 }
