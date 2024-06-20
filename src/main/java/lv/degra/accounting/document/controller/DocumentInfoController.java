@@ -4,7 +4,6 @@ import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.configuration.DegraConfig.BILL_SERIES_KEY;
-import static lv.degra.accounting.system.configuration.DegraConfig.DEFAULT_PAY_DAY;
 import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -28,6 +27,7 @@ import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -251,8 +251,6 @@ public class DocumentInfoController extends DegraController {
 	public void setBankInfo(SearchableComboBox<Customer> customerCombo, ComboBox<Bank> bankCombo, ComboBox<CustomerAccount> accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
 		if (selectedCustomer == null) {
-			accountCombo.setValue(null);
-			bankCombo.setValue(null);
 			return;
 		}
 
@@ -279,6 +277,7 @@ public class DocumentInfoController extends DegraController {
 				accountCombo.setValue(customerBankAccounts.get(0));
 			} else {
 				accountCombo.setValue(null);
+				accountCombo.setItems(FXCollections.observableArrayList());
 			}
 		}
 	}
@@ -334,7 +333,7 @@ public class DocumentInfoController extends DegraController {
 
 	public void fillDocumentFormWithExistData(DocumentDto documentDto) {
 		directionCombo.setValue(documentDto.getDocumentDirection());
-		documentIdLabel.setText(documentDto.getId()!=null ? documentDto.getId().toString() : EMPTY);
+		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
 		seriesField.setText(documentDto.getDocumentSeries());
 		documentTypeCombo.setValue(documentDto.getDocumentType());
 		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
@@ -406,4 +405,9 @@ public class DocumentInfoController extends DegraController {
 		documentMainController.setDocument(fillDocumentDto());
 		return !documentMainController.getDocumentDto().equals(documentMainController.getDocumentDtoOld());
 	}
+
+	public Scene getScene() {
+		return documentIdLabel.getScene();
+	}
+
 }
