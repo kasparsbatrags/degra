@@ -8,6 +8,7 @@ import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_RE
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,7 @@ import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
 import lv.degra.accounting.system.object.ComboBoxWithErrorLabel;
 import lv.degra.accounting.system.object.DatePickerWithErrorLabel;
+import lv.degra.accounting.system.object.TextFieldWithErrorLabel;
 import lv.degra.accounting.system.object.lazycombo.SearchableComboBox;
 import lv.degra.accounting.system.utils.DegraController;
 
@@ -81,7 +83,7 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentDirection> directionCombo;
 	@FXML
-	public ComboBox<Currency> currencyCombo;
+	public ComboBoxWithErrorLabel<Currency> currencyCombo;
 	@FXML
 	public Label documentIdLabel;
 	@FXML
@@ -89,11 +91,11 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public TextField numberField;
 	@FXML
-	public TextField sumTotalField;
+	public TextFieldWithErrorLabel sumTotalField;
 	@FXML
-	public TextField sumTotalInCurrencyField;
+	public TextFieldWithErrorLabel sumTotalInCurrencyField;
 	@FXML
-	public TextField exchangeRateField;
+	public TextFieldWithErrorLabel exchangeRateField;
 	@FXML
 	public DatePickerWithErrorLabel accountingDateDp;
 	@FXML
@@ -146,7 +148,7 @@ public class DocumentInfoController extends DegraController {
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
 
 		exchangeRateField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-			if (!newValue) {
+			if (Boolean.FALSE.equals(newValue)) {
 				sumTotalOnAction();
 			}
 		});
@@ -167,8 +169,8 @@ public class DocumentInfoController extends DegraController {
 
 		documentTypeCombo.setOnAction(event -> this.documentMainController.actualizeDocumentTabs());
 		fillDocumentInfoDataCombos();
-		setFieldFormat(sumTotalField, SUM_FORMAT_REGEX);
-		setFieldFormat(sumTotalInCurrencyField, SUM_FORMAT_REGEX);
+		setFieldFormat(sumTotalField.getTextField(), SUM_FORMAT_REGEX);
+		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
 
 		publisherCombo.setCustomerService(customerService);
 		receiverCombo.setCustomerService(customerService);
@@ -176,9 +178,20 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	private void setDocumentInfoValidationRules() {
+
+		Predicate<String> documentAmountValidation = value -> {
+			try {
+				BigDecimal amount = new BigDecimal(value);
+				return amount.compareTo(BigDecimal.ZERO) >= 0 && amount.scale() <= 2;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		};
+
 		addValidationControl(documentDateDp, Objects::nonNull);
 		addValidationControl(directionCombo, Objects::nonNull);
 		addValidationControl(documentTypeCombo, Objects::nonNull);
+		addValidationControl(sumTotalField, documentAmountValidation);
 	}
 
 	protected boolean promptSaveDocumentInfoChanges() {
@@ -227,8 +240,8 @@ public class DocumentInfoController extends DegraController {
 				.map(BILL_CODE::equals).orElse(false);
 	}
 
-	public void setCustomerAccountInfo(SearchableComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
-		Customer selectedCustomer = (Customer) customerCombo.getValue();
+	public void setCustomerAccountInfo(SearchableComboBox<Customer>  customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+		Customer selectedCustomer = customerCombo.getValue();
 		Bank selectedBank = (Bank) bankCombo.getValue();
 		if (selectedBank != null) {
 			ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
@@ -365,9 +378,9 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	public void fetchAndSetBankAccountDetails(SearchableComboBox customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer>  customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
 		ObservableList<CustomerAccount> accountsList = FXCollections.observableList(
-				customerAccountService.getCustomerAccounts((Customer) customerCombo.getValue()));
+				customerAccountService.getCustomerAccounts(customerCombo.getValue()));
 		List<Integer> uniqueCustomerBankIdList = accountsList.stream().filter(getDistinctValues(CustomerAccount::getBank))
 				.map(account -> account.getBank().getId()).distinct().toList();
 
@@ -376,7 +389,7 @@ public class DocumentInfoController extends DegraController {
 		bankCombo.setItems(customerBankList);
 
 		ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-				customerAccountService.getCustomerBankAccounts((Customer) customerCombo.getValue(), (Bank) bankCombo.getValue()));
+				customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), (Bank) bankCombo.getValue()));
 		accountCombo.setItems(customerBankAccounts);
 	}
 

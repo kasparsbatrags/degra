@@ -18,12 +18,10 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 	private final DatePicker datePicker;
 
 	public DatePickerWithErrorLabel() {
-
+		super(new DatePicker());
 		datePicker = new DatePicker();
 
-		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-			validate();
-		});
+		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> validate());
 		validate();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -70,7 +68,7 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 	@Override
 	public void setValidationCondition(Predicate<LocalDate> validationCondition) {
 		this.validationCondition = validationCondition;
-		markAsRequired(this.validationCondition != null);
+		markAsRequired(this.validationCondition != null, datePicker);
 	}
 
 	@Override
@@ -81,10 +79,7 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 		}
 		setValid(isValid);
 		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid);
+		markAsRequired(!isValid, datePicker);
 	}
 
-	public void markAsRequired(boolean isRequired) {
-		super.markAsRequired(isRequired, datePicker);
-	}
 }

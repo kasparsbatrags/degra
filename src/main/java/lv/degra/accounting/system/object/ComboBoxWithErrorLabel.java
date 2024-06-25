@@ -1,13 +1,8 @@
 package lv.degra.accounting.system.object;
 
-import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -22,26 +17,13 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 	private final ComboBox<T> comboBox;
 
 	public ComboBoxWithErrorLabel() {
+		super(new ComboBox());
 		comboBox = new ComboBox<>();
 		comboBox.setMaxWidth(Double.MAX_VALUE);
 
-		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-			validate();
-		});
+		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> validate());
 		validate();
 		getChildren().add(0, comboBox);
-	}
-
-	public void setOnAction(EventHandler<ActionEvent> eventHandler) {
-		this.comboBox.setOnAction(eventHandler);
-	}
-
-	public T getValue() {
-		return this.comboBox.getValue();
-	}
-
-	public void setValue(T value) {
-		this.comboBox.setValue(value);
 	}
 
 	public void setItems(ObservableList<T> items) {
@@ -59,22 +41,15 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 	@Override
 	public void setValidationCondition(Predicate<T> validationCondition) {
 		this.validationCondition = validationCondition;
-		markAsRequired(this.validationCondition != null);
-	}
-
-	public void markAsRequired(boolean isRequired) {
-		super.markAsRequired(isRequired, comboBox);
+		markAsRequired(this.validationCondition != null, comboBox);
 	}
 
 	@Override
-	public void validate() {
-		boolean isValid = true;
-		if (validationCondition != null) {
-			isValid = validationCondition.test(comboBox.getValue());
-		}
-		setValid(isValid);
-		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid);
+	public T getValue() {
+		return comboBox.getValue();
 	}
 
+	public void setValue(T value) {
+		this.comboBox.setValue(value);
+	}
 }

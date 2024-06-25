@@ -1,9 +1,16 @@
 package lv.degra.accounting.system.object;
 
+import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import java.util.function.Predicate;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -14,8 +21,30 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 	protected BooleanProperty valid;
 	@Setter
 	protected Predicate<T> validationCondition;
+	protected Control control;
+	private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
+		@Override
+		protected void invalidated() {
+			if (control instanceof javafx.scene.control.ComboBox) {
+				((javafx.scene.control.ComboBox<?>) control).setOnAction(get());
+			} else if (control instanceof javafx.scene.control.TextField) {
+				((javafx.scene.control.TextField) control).setOnAction(get());
+			}
+		}
 
-	protected ControlWithErrorLabel() {
+		@Override
+		public Object getBean() {
+			return ControlWithErrorLabel.this;
+		}
+
+		@Override
+		public String getName() {
+			return "onAction";
+		}
+	};
+
+	protected ControlWithErrorLabel(Control control) {
+		this.control = control;
 		errorLabel = new Label();
 		valid = new SimpleBooleanProperty(true);
 		errorLabel.setStyle("-fx-text-fill: red;");
@@ -36,7 +65,17 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		this.valid.set(isValid);
 	}
 
-	public abstract void validate();
+	public void validate() {
+		boolean isValid = true;
+		if (validationCondition != null) {
+			isValid = validationCondition.test(getValue());
+		}
+		setValid(isValid);
+		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
+		markAsRequired(!isValid, control);
+	}
+
+	protected abstract T getValue();
 
 	protected void markAsRequired(boolean isRequired, Control control) {
 		if (isRequired) {
@@ -44,6 +83,18 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		} else {
 			control.getStyleClass().remove("required-field");
 		}
+	}
+
+	public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty() {
+		return onAction;
+	}
+
+	public final EventHandler<ActionEvent> getOnAction() {
+		return onAction.get();
+	}
+
+	public final void setOnAction(EventHandler<ActionEvent> value) {
+		onAction.set(value);
 	}
 
 }
