@@ -31,14 +31,15 @@ public class TextFieldWithErrorLabel extends ControlWithErrorLabel<String> {
 	}
 
 	@Override
-	public void setValidationCondition(Predicate<String> validationCondition) {
-		this.validationCondition = validationCondition;
-		markAsRequired(this.validationCondition != null, textField);
+	protected String getValue() {
+		return textField.getText();
 	}
 
 	@Override
-	protected String getValue() {
-		return textField.getText();
+	public void setValidationCondition(Predicate<String> validationCondition, String errorMessage) {
+		validationConditions.put(validationCondition, errorMessage);
+		markAsRequired(validationCondition != null, textField);
+
 	}
 
 }

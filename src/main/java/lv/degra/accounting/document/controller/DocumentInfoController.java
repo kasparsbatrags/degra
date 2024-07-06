@@ -2,8 +2,10 @@ package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
+import static lv.degra.accounting.system.configuration.DegraConfig.AMOUNT_PRECISION_2;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.configuration.DegraConfig.BILL_SERIES_KEY;
+import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED_MESSAGE;
 import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -179,7 +181,7 @@ public class DocumentInfoController extends DegraController {
 
 	private void setDocumentInfoValidationRules() {
 
-		Predicate<String> documentAmountValidation = value -> {
+		Predicate<String> documentAmountValidationDoublePrecisionPredicate = value -> {
 			try {
 				BigDecimal amount = new BigDecimal(value);
 				return amount.compareTo(BigDecimal.ZERO) >= 0 && amount.scale() <= 2;
@@ -188,10 +190,10 @@ public class DocumentInfoController extends DegraController {
 			}
 		};
 
-		addValidationControl(documentDateDp, Objects::nonNull);
-		addValidationControl(directionCombo, Objects::nonNull);
-		addValidationControl(documentTypeCombo, Objects::nonNull);
-		addValidationControl(sumTotalField, documentAmountValidation);
+		addValidationControl(documentDateDp, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(directionCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(documentTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
 	}
 
 	protected boolean promptSaveDocumentInfoChanges() {
@@ -240,7 +242,7 @@ public class DocumentInfoController extends DegraController {
 				.map(BILL_CODE::equals).orElse(false);
 	}
 
-	public void setCustomerAccountInfo(SearchableComboBox<Customer>  customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
 		Bank selectedBank = (Bank) bankCombo.getValue();
 		if (selectedBank != null) {
@@ -378,7 +380,7 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer>  customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
 		ObservableList<CustomerAccount> accountsList = FXCollections.observableList(
 				customerAccountService.getCustomerAccounts(customerCombo.getValue()));
 		List<Integer> uniqueCustomerBankIdList = accountsList.stream().filter(getDistinctValues(CustomerAccount::getBank))

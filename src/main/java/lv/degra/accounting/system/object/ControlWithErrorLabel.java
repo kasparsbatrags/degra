@@ -1,8 +1,11 @@
 package lv.degra.accounting.system.object;
 
-import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
+import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED_MESSAGE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import javafx.beans.property.BooleanProperty;
@@ -19,8 +22,9 @@ import lombok.Setter;
 public abstract class ControlWithErrorLabel<T> extends VBox {
 	protected Label errorLabel;
 	protected BooleanProperty valid;
+	protected BooleanProperty required;
 	@Setter
-	protected Predicate<T> validationCondition;
+	protected Map<Predicate<T>, String> validationConditions = new HashMap<>();
 	protected Control control;
 	private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
 		@Override
@@ -47,9 +51,14 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		this.control = control;
 		errorLabel = new Label();
 		valid = new SimpleBooleanProperty(true);
+		required = new SimpleBooleanProperty(false);
 		errorLabel.setStyle("-fx-text-fill: red;");
 		this.getChildren().add(errorLabel);
 		errorLabel.setVisible(false);
+	}
+
+	public String getErrorText() {
+		return errorLabel.getText();
 	}
 
 	public void setErrorText(String errorText) {
@@ -65,14 +74,36 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		this.valid.set(isValid);
 	}
 
+	public boolean isRequired() {
+		return required.get();
+	}
+
+	public void setRequired(boolean isRequired) {
+		this.required.set(isRequired);
+	}
+
 	public void validate() {
 		boolean isValid = true;
-		if (validationCondition != null) {
-			isValid = validationCondition.test(getValue());
+		T value = getValue();
+
+		if (isRequired() && (value == null || value.toString().trim().isEmpty())) {
+			isValid = false;
+			setErrorText(FIELD_REQUIRED_MESSAGE);
+		} else {
+
+			for (Map.Entry<Predicate<T>, String> entry : validationConditions.entrySet()) {
+				if (!entry.getKey().test(value)) {
+					isValid = false;
+					setErrorText(entry.getValue());
+					break;
+				}
+			}
+			if (isValid) {
+				setErrorText(EMPTY);
+			}
 		}
+
 		setValid(isValid);
-		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid, control);
 	}
 
 	protected abstract T getValue();
@@ -96,5 +127,7 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 	public final void setOnAction(EventHandler<ActionEvent> value) {
 		onAction.set(value);
 	}
+
+	public abstract void setValidationCondition(Predicate<T> validationCondition, String errorMessage);
 
 }

@@ -39,17 +39,17 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 	}
 
 	@Override
-	public void setValidationCondition(Predicate<T> validationCondition) {
-		this.validationCondition = validationCondition;
-		markAsRequired(this.validationCondition != null, comboBox);
-	}
-
-	@Override
 	public T getValue() {
 		return comboBox.getValue();
 	}
 
 	public void setValue(T value) {
 		this.comboBox.setValue(value);
+	}
+
+	@Override
+	public void setValidationCondition(Predicate<T> validationCondition, String errorMessage) {
+		validationConditions.put(validationCondition, errorMessage);
+		markAsRequired(validationCondition != null, comboBox);
 	}
 }

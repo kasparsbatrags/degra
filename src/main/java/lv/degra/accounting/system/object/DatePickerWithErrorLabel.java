@@ -1,8 +1,6 @@
 package lv.degra.accounting.system.object;
 
 import static lv.degra.accounting.system.configuration.DegraConfig.DATE_FORMAT;
-import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -66,20 +64,9 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 	}
 
 	@Override
-	public void setValidationCondition(Predicate<LocalDate> validationCondition) {
-		this.validationCondition = validationCondition;
-		markAsRequired(this.validationCondition != null, datePicker);
-	}
-
-	@Override
-	public void validate() {
-		boolean isValid = true;
-		if (validationCondition != null) {
-			isValid = validationCondition.test(datePicker.getValue());
-		}
-		setValid(isValid);
-		setErrorText(isValid ? EMPTY : FIELD_REQUIRED);
-		markAsRequired(!isValid, datePicker);
+	public void setValidationCondition(Predicate<LocalDate> validationCondition, String errorMessage) {
+		validationConditions.put(validationCondition, errorMessage);
+		markAsRequired(validationCondition != null, datePicker);
 	}
 
 }
