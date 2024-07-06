@@ -4,35 +4,26 @@ import static lv.degra.accounting.system.configuration.DegraConfig.DATE_FORMAT;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Predicate;
 
 import javafx.scene.control.DatePicker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-import lv.degra.accounting.document.controller.Validatable;
 
-public class DatePickerWithErrorLabel extends VBox implements Validatable {
+public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 
 	private final DatePicker datePicker;
-	private final javafx.scene.control.Label errorLabel;
 
 	public DatePickerWithErrorLabel() {
-
+		super(new DatePicker());
 		datePicker = new DatePicker();
-		datePicker.getStyleClass().add("custom-date-picker");
-		errorLabel = new Label();
 
-		errorLabel.setStyle("-fx-text-fill: red;");
-
-		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (oldValue!=newValue) {
-				clearError();
-			}
-		});
+		datePicker.valueProperty().addListener((observable, oldValue, newValue) -> validate());
+		validate();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+		StringConverter<LocalDate> converter = new StringConverter<>() {
 			@Override
 			public String toString(LocalDate date) {
 				if (date != null) {
@@ -61,8 +52,7 @@ public class DatePickerWithErrorLabel extends VBox implements Validatable {
 			}
 		});
 
-		this.getChildren().addAll(datePicker, errorLabel);
-
+		this.getChildren().add(0, datePicker);
 	}
 
 	public java.time.LocalDate getValue() {
@@ -73,12 +63,10 @@ public class DatePickerWithErrorLabel extends VBox implements Validatable {
 		datePicker.setValue(date);
 	}
 
-	public void clearError() {
-		errorLabel.setText("");
-	}
-
-	public void setError(String errorMessage) {
-		errorLabel.setText(errorMessage);
+	@Override
+	public void setValidationCondition(Predicate<LocalDate> validationCondition, String errorMessage) {
+		validationConditions.put(validationCondition, errorMessage);
+		markAsRequired(validationCondition != null, datePicker);
 	}
 
 }

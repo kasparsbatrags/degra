@@ -1,7 +1,13 @@
-
+#https://www.materialpalette.com/blue-grey/amber
 
 .custom-date-picker {
     -fx-border-color: #708090;
     -fx-border-width: 1;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2;
+}
+
+.required-field {
+    -fx-border-color: #FFC107;
+    -fx-border-width: 1;
+    -fx-border-radius: 2;
 }

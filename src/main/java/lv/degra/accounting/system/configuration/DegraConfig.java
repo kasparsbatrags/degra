@@ -20,5 +20,7 @@ public class DegraConfig {
     public static final String VAT_PERCENTS = "DEFAULT_VAT_PERCENTS";
     public static final String DEFAULT_ERROR_MESSAGE = "Kļūda datu ievadē";
     public static final String ADDRESS_DOWNLOAD_LINK = "ADDRESS_DATA_LINK";
+	public static final String FIELD_REQUIRED_MESSAGE = "Obligāti jāaizpilda";
+		public static final String AMOUNT_PRECISION_2 = "Pārāk daudz ciparu aiz komata!";
 
 }

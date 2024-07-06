@@ -2,7 +2,9 @@ package lv.degra.accounting.document.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotNull;
@@ -65,5 +67,46 @@ public class DocumentDto implements Serializable {
 	@NotNull Customer receiverCustomer;
 	@NotNull Bank receiverCustomerBank;
 	@NotNull CustomerAccount receiverCustomerBankAccount;
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		DocumentDto that = (DocumentDto) obj;
+ 		return Objects.equals(id, that.id) &&
+				documentDirection == that.documentDirection &&
+				StringUtils.equals(documentNumber, that.documentNumber) &&
+				StringUtils.equals(documentSeries, that.documentSeries) &&
+				documentType == that.documentType &&
+				documentTransactionType == that.documentTransactionType &&
+				Objects.equals(accountingDate, that.accountingDate) &&
+				Objects.equals(documentDate, that.documentDate) &&
+				Objects.equals(paymentDate, that.paymentDate) &&
+				Objects.equals(paymentTypeId, that.paymentTypeId) &&
+				Objects.equals(sumTotal, that.sumTotal) &&
+				Objects.equals(sumTotalInCurrency, that.sumTotalInCurrency) &&
+				Objects.equals(currency, that.currency) &&
+				Objects.equals(currencyExchangeRate, that.currencyExchangeRate) &&
+				StringUtils.equals(notesForCustomer, that.notesForCustomer) &&
+				StringUtils.equals(internalNotes, that.internalNotes) &&
+				Objects.equals(publisherCustomer, that.publisherCustomer) &&
+				Objects.equals(publisherCustomerBank, that.publisherCustomerBank) &&
+				Objects.equals(publisherCustomerBankAccount, that.publisherCustomerBankAccount) &&
+				Objects.equals(receiverCustomer, that.receiverCustomer) &&
+				Objects.equals(receiverCustomerBank, that.receiverCustomerBank) &&
+				Objects.equals(receiverCustomerBankAccount, that.receiverCustomerBankAccount);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(
+				id, documentDirection, documentNumber, documentSeries, documentType, documentTransactionType,
+				accountingDate, documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency,
+				currency, currencyExchangeRate, notesForCustomer, internalNotes,
+				publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount,
+				receiverCustomer, receiverCustomerBank, receiverCustomerBankAccount
+		);
+	}
 
 }

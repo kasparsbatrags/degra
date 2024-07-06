@@ -16,7 +16,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: document_number
-                  type: int
+                  type: varchar(20)
                   constraints:
                     nullable: true
               - column:
@@ -93,12 +93,12 @@ databaseChangeLog:
                   name: publisher_customer_bank_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: publisher_customer_bank_account_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: secondary_publisher_customer_id
                   type: int
@@ -109,17 +109,17 @@ databaseChangeLog:
                   name: receiver_customer_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: receiver_customer_bank_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: receiver_customer_bank_account_id
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: secondary_receiver_customer_id
                   type: int

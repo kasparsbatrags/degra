@@ -3,19 +3,27 @@ package lv.degra.accounting.system.utils;
 import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_CONTEXT_TEXT;
 import static lv.degra.accounting.system.configuration.DegraConfig.DELETE_QUESTION_HEADER_TEXT;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
 import lv.degra.accounting.system.exception.CannotPerformException;
+import lv.degra.accounting.system.object.ControlWithErrorLabel;
 
 public class DegraController {
 
 	@FXML
 	public Button closeButton;
+	@Getter
+	protected List<ControlWithErrorLabel<?>> validationControls = new ArrayList<>();
 
 	@FXML
 	public void onCloseButton() {
@@ -28,6 +36,11 @@ public class DegraController {
 		if (key == KeyCode.ESCAPE) {
 			closeWindows();
 		}
+	}
+
+	protected <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
+		control.setValidationCondition(validationCondition, errorMessage);
+		validationControls.add(control);
 	}
 
 	public void closeWindows() {

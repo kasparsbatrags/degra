@@ -1,62 +1,55 @@
 package lv.degra.accounting.system.object;
 
+import java.util.function.Predicate;
+
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ComboBoxWithErrorLabel<T> extends VBox {
+@Setter
+@Getter
+public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 
-    private final ComboBox<T> comboBox;
-    private final Label errorLabel;
+	private final ComboBox<T> comboBox;
 
-    public ComboBoxWithErrorLabel() {
-        comboBox = new ComboBox<>();
-        errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red;");
+	public ComboBoxWithErrorLabel() {
+		super(new ComboBox());
+		comboBox = new ComboBox<>();
+		comboBox.setMaxWidth(Double.MAX_VALUE);
 
-        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != newValue) {
-                clearError();
-            }
-        });
+		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> validate());
+		validate();
+		getChildren().add(0, comboBox);
+	}
 
-        getChildren().addAll(comboBox, errorLabel);
-    }
+	public void setItems(ObservableList<T> items) {
+		this.comboBox.setItems(items);
+	}
 
-    public void setOnAction(EventHandler<ActionEvent> eventHandler) {
-        this.comboBox.setOnAction(eventHandler);
-    }
+	public void setCellFactory(Callback<ListView<T>, ListCell<T>> factory) {
+		this.comboBox.setCellFactory(factory);
+	}
 
-    public T getValue() {
-        return this.comboBox.getValue();
-    }
+	public void setButtonCell(ListCell<T> value) {
+		this.comboBox.setButtonCell(value);
+	}
 
-    public void setValue(T value) {
-        this.comboBox.setValue(value);
-    }
+	@Override
+	public T getValue() {
+		return comboBox.getValue();
+	}
 
-    public void setItems(ObservableList<T> items) {
-        this.comboBox.setItems(items);
-    }
+	public void setValue(T value) {
+		this.comboBox.setValue(value);
+	}
 
-    public void setCellFactory(Callback<ListView<T>, ListCell<T>> factory) {
-        this.comboBox.setCellFactory(factory);
-    }
-
-    public void setButtonCell(ListCell<T> value) {
-        this.comboBox.setButtonCell(value);
-    }
-
-    public void clearError() {
-        errorLabel.setText("");
-    }
-
-    public void setError(String errorMessage) {
-        errorLabel.setText(errorMessage);
-    }
+	@Override
+	public void setValidationCondition(Predicate<T> validationCondition, String errorMessage) {
+		validationConditions.put(validationCondition, errorMessage);
+		markAsRequired(validationCondition != null, comboBox);
+	}
 }
