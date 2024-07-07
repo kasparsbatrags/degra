@@ -53,3 +53,7 @@ databaseChangeLog:
         file: db/changelog/add-account-plan-data.yaml
     - include:
         file: db/changelog/add-reports-table.yaml
+    - include:
+        file: db/changelog/add-document-sub-type.yaml
+    - include:
+        file: db/changelog/add-document-sub-type-data.yaml

@@ -52,8 +52,8 @@ public class Document {
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "document_type_id", nullable = false)
-	private DocumentType documentType;
+	@JoinColumn(name = "document_sub_type_id", nullable = false)
+	private DocumentSubType documentSubType;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "document_transaction_type_id")

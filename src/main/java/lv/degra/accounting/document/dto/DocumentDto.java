@@ -20,8 +20,8 @@ import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.document.model.Document;
+import lv.degra.accounting.document.model.DocumentSubType;
 import lv.degra.accounting.document.model.DocumentTransactionType;
-import lv.degra.accounting.document.model.DocumentType;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.system.object.TableViewInfo;
 
@@ -42,7 +42,7 @@ public class DocumentDto implements Serializable {
 	@TableViewInfo(displayName = "Sērija", columnOrder = 2)
 	String documentSeries;
 	@TableViewInfo(displayName = "Tips", columnOrder = 4)
-	DocumentType documentType;
+	DocumentSubType documentSubType;
 	DocumentTransactionType documentTransactionType;
 
 	@NotNull LocalDate accountingDate;
@@ -78,7 +78,7 @@ public class DocumentDto implements Serializable {
 				documentDirection == that.documentDirection &&
 				StringUtils.equals(documentNumber, that.documentNumber) &&
 				StringUtils.equals(documentSeries, that.documentSeries) &&
-				documentType == that.documentType &&
+				documentSubType == that.documentSubType &&
 				documentTransactionType == that.documentTransactionType &&
 				Objects.equals(accountingDate, that.accountingDate) &&
 				Objects.equals(documentDate, that.documentDate) &&
@@ -101,7 +101,7 @@ public class DocumentDto implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(
-				id, documentDirection, documentNumber, documentSeries, documentType, documentTransactionType,
+				id, documentDirection, documentNumber, documentSeries, documentSubType, documentTransactionType,
 				accountingDate, documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency,
 				currency, currencyExchangeRate, notesForCustomer, internalNotes,
 				publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount,

@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddDocumentSubTypeGBS
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM document_sub_type WHERE code = 'GBS'
+      changes:
+        - insert:
+            tableName: document_sub_type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: code
+                  value: GBS
+              - column:
+                  name: name
+                  value: Gada bilances saldo
+              - column:
+                  name: title
+                  value: Gada saldo
+              - column:
+                  name: document_type_id
+                  value: 3
+              - column:
+                  name: document_direction
+                  value: 3

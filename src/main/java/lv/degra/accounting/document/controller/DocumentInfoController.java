@@ -50,10 +50,10 @@ import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.customer_account.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
 import lv.degra.accounting.document.enums.DocumentDirection;
+import lv.degra.accounting.document.model.DocumentSubType;
 import lv.degra.accounting.document.model.DocumentTransactionType;
-import lv.degra.accounting.document.model.DocumentType;
+import lv.degra.accounting.document.service.DocumentSubTypeService;
 import lv.degra.accounting.document.service.DocumentTransactionTypeService;
-import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
@@ -109,14 +109,14 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public TextArea internalNotesField;
 	@FXML
-	public ComboBoxWithErrorLabel<DocumentType> documentTypeCombo;
+	public ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
 
 	private CurrencyExchangeRate currencyExchangeRate;
 	@Autowired
-	private DocumentTypeService documentTypeService;
+	private DocumentSubTypeService documentSubTypeService;
 	@Autowired
 	private DocumentTransactionTypeService documentTransactionTypeService;
 	@Autowired
@@ -169,7 +169,7 @@ public class DocumentInfoController extends DegraController {
 			}
 		});
 
-		documentTypeCombo.setOnAction(event -> this.documentMainController.actualizeDocumentTabs());
+		documentSubTypeCombo.setOnAction(event -> this.documentMainController.actualizeDocumentTabs());
 		fillDocumentInfoDataCombos();
 		setFieldFormat(sumTotalField.getTextField(), SUM_FORMAT_REGEX);
 		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
@@ -192,7 +192,7 @@ public class DocumentInfoController extends DegraController {
 
 		addValidationControl(documentDateDp, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(directionCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-		addValidationControl(documentTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
 	}
 
@@ -238,7 +238,7 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public boolean isDocumentBill() {
-		return Optional.ofNullable(documentTypeCombo).map(ComboBoxWithErrorLabel::getValue).map(DocumentType::getCode)
+		return Optional.ofNullable(documentSubTypeCombo).map(ComboBoxWithErrorLabel::getValue).map(DocumentSubType::getCode)
 				.map(BILL_CODE::equals).orElse(false);
 	}
 
@@ -300,7 +300,7 @@ public class DocumentInfoController extends DegraController {
 	public void fillDocumentInfoDataCombos() {
 
 		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
-		documentTypeCombo.setItems(FXCollections.observableList(documentTypeService.getDocumentTypeList()));
+		documentSubTypeCombo.setItems(FXCollections.observableList(documentSubTypeService.getDocumentSubTypeList()));
 		documentTransactionTypeCombo.setItems(
 				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
 
@@ -350,7 +350,7 @@ public class DocumentInfoController extends DegraController {
 		directionCombo.setValue(documentDto.getDocumentDirection());
 		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
 		seriesField.setText(documentDto.getDocumentSeries());
-		documentTypeCombo.setValue(documentDto.getDocumentType());
+		documentSubTypeCombo.setValue(documentDto.getDocumentSubType());
 		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
 		numberField.setText(!isBlank(documentDto.getDocumentNumber()) ? documentDto.getDocumentNumber() : EMPTY);
 		accountingDateDp.setValue(documentDto.getAccountingDate());
@@ -408,7 +408,7 @@ public class DocumentInfoController extends DegraController {
 	public DocumentDto fillDocumentDto() {
 
 		return new DocumentDto(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()),
-				directionCombo.getValue(), numberField.getText(), seriesField.getText(), documentTypeCombo.getValue(),
+				directionCombo.getValue(), numberField.getText(), seriesField.getText(), documentSubTypeCombo.getValue(),
 				documentTransactionTypeCombo.getValue(), accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(),
 				null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(),
 				currencyExchangeRate, notesForCustomerField.getText(), internalNotesField.getText(), publisherCombo.getValue(),

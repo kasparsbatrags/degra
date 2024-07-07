@@ -42,7 +42,7 @@ public class ReportService {
             JRDataSource dataSource = new JRBeanCollectionDataSource(data);
 
             Map<String, Object> parameters = ReflectionUtil.convertObjectToMap(documentDto);
-            parameters.put("documentTypeString", documentDto.getDocumentType().toString());
+            parameters.put("documentTypeString", documentDto.getDocumentSubType().toString());
             parameters.put("sumTotalText", getSumWords(documentDto));
             parameters.put("printElectronicSign", printElectronicSign);
             parameters.put("version", APPLICATION_TITLE);
