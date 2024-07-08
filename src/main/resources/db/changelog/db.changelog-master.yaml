@@ -57,3 +57,9 @@ databaseChangeLog:
         file: db/changelog/add-document-sub-type.yaml
     - include:
         file: db/changelog/add-document-sub-type-data.yaml
+    - include:
+        file: db/changelog/add-document-direction.yaml
+    - include:
+        file: db/changelog/add-document-direction-data.yaml
+    - include:
+        file: db/changelog/add-document-direction-relations.yaml

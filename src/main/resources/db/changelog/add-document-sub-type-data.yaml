@@ -27,5 +27,5 @@ databaseChangeLog:
                   name: document_type_id
                   value: 3
               - column:
-                  name: document_direction
+                  name: document_direction_id
                   value: 3

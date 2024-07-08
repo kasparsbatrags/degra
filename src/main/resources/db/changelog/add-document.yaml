@@ -34,12 +34,6 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Iekšējais numurs"
               - column:
-                  name: direction_id
-                  type: int
-                  constraints:
-                    nullable: false
-                  remarks: "Dokumenta virziens"
-              - column:
                   name: document_sub_type_id
                   type: int
                   constraints:

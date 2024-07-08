@@ -16,7 +16,7 @@
 		<children>
 			<Pane fx:id="Pamatinformācija" prefHeight="173.0" prefWidth="1228.0" AnchorPane.leftAnchor="21.0" AnchorPane.topAnchor="20.0">
 				<children>
-					<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" layoutX="153.0" layoutY="15.0" prefHeight="42.0" prefWidth="287.0" />
+					<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" layoutX="153.0" layoutY="15.0" onAction="#documentSubTypeComboOnAction" prefHeight="42.0" prefWidth="287.0" />
 					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="594.0" layoutY="14.0" prefHeight="42.0" prefWidth="144.0" />
 					<DatePickerWithErrorLabel fx:id="accountingDateDp" layoutX="1070.0" layoutY="15.0" prefHeight="25.0" prefWidth="133.0" />
 
