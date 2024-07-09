@@ -3,7 +3,6 @@ package lv.degra.accounting.system.object;
 import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED_MESSAGE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;

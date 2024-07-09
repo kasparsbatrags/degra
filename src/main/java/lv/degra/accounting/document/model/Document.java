@@ -7,8 +7,6 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +24,6 @@ import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.distribution.model.Distribution;
-import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 
 @Getter
@@ -38,10 +35,6 @@ public class Document {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Integer id;
-
-	@Column(name = "direction_id")
-	@Enumerated(EnumType.ORDINAL)
-	private DocumentDirection direction;
 
 	@Column(name = "document_number", nullable = false, length = 20)
 	private String documentNumber;

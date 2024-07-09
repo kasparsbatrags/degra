@@ -35,11 +35,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
@@ -49,9 +46,10 @@ import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.customer_account.service.CustomerAccountService;
 import lv.degra.accounting.document.dto.DocumentDto;
-import lv.degra.accounting.document.enums.DocumentDirection;
+import lv.degra.accounting.document.model.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentSubType;
 import lv.degra.accounting.document.model.DocumentTransactionType;
+import lv.degra.accounting.document.service.DocumentDirectionService;
 import lv.degra.accounting.document.service.DocumentSubTypeService;
 import lv.degra.accounting.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
@@ -118,6 +116,8 @@ public class DocumentInfoController extends DegraController {
 	@Autowired
 	private DocumentSubTypeService documentSubTypeService;
 	@Autowired
+	private DocumentDirectionService documentDirectionService;
+	@Autowired
 	private DocumentTransactionTypeService documentTransactionTypeService;
 	@Autowired
 	private ExchangeService exchangeService;
@@ -169,7 +169,6 @@ public class DocumentInfoController extends DegraController {
 			}
 		});
 
-		documentSubTypeCombo.setOnAction(event -> this.documentMainController.actualizeDocumentTabs());
 		fillDocumentInfoDataCombos();
 		setFieldFormat(sumTotalField.getTextField(), SUM_FORMAT_REGEX);
 		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
@@ -232,6 +231,20 @@ public class DocumentInfoController extends DegraController {
 	public void publisherBankOnAction() {
 		setCustomerAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
 	}
+
+	@FXML
+	public void documentSubTypeComboOnAction() {
+		this.documentMainController.actualizeDocumentTabs();
+		refreshScreenControls();
+
+	}
+
+
+	private void refreshScreenControls(){
+		documentTransactionTypeCombo.setDisable(!documentSubTypeCombo.getValue().getDocumentType().getCode().equals("BILL"));
+		directionCombo.setValue(documentSubTypeCombo.getValue().getDirection());
+	}
+
 
 	public void injectMainController(DocumentMainController documentMainController) {
 		this.documentMainController = documentMainController;
@@ -304,34 +317,8 @@ public class DocumentInfoController extends DegraController {
 		documentTransactionTypeCombo.setItems(
 				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
 
-		directionCombo.setItems(FXCollections.observableArrayList(DocumentDirection.values()));
-		directionCombo.setCellFactory(new Callback<ListView<DocumentDirection>, ListCell<DocumentDirection>>() {
-			@Override
-			public ListCell<DocumentDirection> call(ListView<DocumentDirection> param) {
-				return new ListCell<DocumentDirection>() {
-					@Override
-					protected void updateItem(DocumentDirection item, boolean empty) {
-						super.updateItem(item, empty);
-						if (item != null && !empty) {
-							setText(item.getDisplayName());
-						} else {
-							setText(null);
-						}
-					}
-				};
-			}
-		});
-		directionCombo.setButtonCell(new ListCell<DocumentDirection>() {
-			@Override
-			protected void updateItem(DocumentDirection item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item != null && !empty) {
-					setText(item.getDisplayName());
-				} else {
-					setText(null);
-				}
-			}
-		});
+		directionCombo.setItems(FXCollections.observableArrayList(documentDirectionService.getDocumentDirectionList()));
+
 
 	}
 

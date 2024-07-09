@@ -25,7 +25,6 @@ public class DocumentSubType implements Serializable {
 	@Column(name = "id", nullable = false)
 	private Integer id;
 
-
 	@Size(max = 30)
 	@Column(name = "title", nullable = false)
 	private String title;
@@ -41,6 +40,10 @@ public class DocumentSubType implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "document_type_id")
 	private DocumentType documentType;
+
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "document_direction_id", nullable = false)
+	private DocumentDirection direction;
 
 	@Override
 	public String toString() {

@@ -17,8 +17,8 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 	private final ComboBox<T> comboBox;
 
 	public ComboBoxWithErrorLabel() {
-		super(new ComboBox());
-		comboBox = new ComboBox<>();
+		super(new ComboBox<T>());
+		this.comboBox = (ComboBox<T>) this.control; // Ensure the superclass uses this ComboBox
 		comboBox.setMaxWidth(Double.MAX_VALUE);
 
 		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> validate());
