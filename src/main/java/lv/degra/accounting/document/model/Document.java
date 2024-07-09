@@ -48,7 +48,7 @@ public class Document {
 	@JoinColumn(name = "document_sub_type_id", nullable = false)
 	private DocumentSubType documentSubType;
 
-	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "document_transaction_type_id")
 	private DocumentTransactionType documentTransactionType;
 

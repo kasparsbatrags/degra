@@ -3,7 +3,7 @@ package lv.degra.accounting.system.enums;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
-import lv.degra.accounting.document.enums.DocumentDirection;
+import lv.degra.accounting.document.model.DocumentDirection;
 
 public abstract class EnumNameCellFactory<S, T extends Enum<T>> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
 	@Override
