@@ -30,10 +30,10 @@ sonarcloud-check:
   services:
     - docker:20-dind
   script:
-    - ls -al
+    - ls -al  # Pārbaudiet, vai artefakts ir pieejams
     - gzip -d my-custom-docker-image.tar.gz
     - docker load -i my-custom-docker-image.tar
-    - docker run --rm my-custom-docker-image:latest sh -c "Xvfb :99 -screen 0 1024x768x16 & mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17"
+    - docker run --rm my-custom-docker-image:latest sh -c "Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17"
   dependencies:
     - build
   only:
