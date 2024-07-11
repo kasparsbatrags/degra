@@ -11,6 +11,7 @@ stages:
 
 build:
   stage: build
+  image: docker:20
   script:
     - docker build -t my-custom-docker-image:latest .
 
