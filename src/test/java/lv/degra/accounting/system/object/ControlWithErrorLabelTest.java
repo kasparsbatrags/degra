@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.util.function.Predicate;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testfx.api.FxToolkit;
 
 import javafx.embed.swing.JFXPanel;
 
@@ -18,6 +21,17 @@ class ControlWithErrorLabelTest {
 		// Initializes JavaFX runtime to avoid "Toolkit not initialized" exception
 		new JFXPanel();
 	}
+
+	@BeforeEach
+	public void setUpClass() throws Exception {
+		FxToolkit.registerPrimaryStage();
+	}
+
+	@AfterEach
+	public void tearDown() throws Exception {
+		FxToolkit.cleanupStages();
+	}
+
 
 	@Test
 	void testTextFieldWithErrorLabelValidation() {
