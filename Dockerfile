@@ -1,7 +1,8 @@
 FROM azul/zulu-openjdk-alpine:17
 
+# Instalē nepieciešamās pakotnes, ieskaitot Xvfb
 RUN apk add --no-cache bash procps curl tar \
-    mesa-gl mesa-egl libxext-dev libxrender-dev libxtst-dev
+    xvfb libxext-dev libxrender-dev libxtst-dev
 
 # common for all images
 LABEL org.opencontainers.image.title="Apache Maven"
@@ -13,7 +14,7 @@ ENV MAVEN_HOME /usr/share/maven
 
 COPY --from=maven:3.9.8-eclipse-temurin-11 ${MAVEN_HOME} ${MAVEN_HOME}
 COPY --from=maven:3.9.8-eclipse-temurin-11 /usr/local/bin/mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
-COPY --from=maven:3.9.8-eclipse-temurin-11 /usr/share/maven/ref/settings-docker.xml /usr/share/maven/ref/settings-docker.xml
+COPY --from/maven:3.9.8-eclipse-temurin-11 /usr/share/maven/ref/settings-docker.xml /usr/share/maven/ref/settings-docker.xml
 
 RUN ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn
 
@@ -27,5 +28,5 @@ WORKDIR /usr/src/app
 # Copy the project files to the working directory
 COPY . .
 
-# Run Maven build and tests
-CMD ["mvn", "verify", "sonar:sonar", "-Dsonar.projectKey=kaspars.batrags_degra"]
+# Run Maven build and tests with Xvfb
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra"]
