@@ -22,6 +22,7 @@
         <java.version>17</java.version>
         <javafx.version>20</javafx.version>
         <postgres.version>42.7.1</postgres.version>
+		<sonar.organization>kaspars-batrags</sonar.organization>
     </properties>
 
     <dependencies>
