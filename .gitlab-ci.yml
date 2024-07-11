@@ -17,7 +17,8 @@ build:
   image: docker:20
   script:
     - docker build -t my-custom-docker-image:latest .
-    - docker save my-custom-docker-image:latest | gzip > my-custom-docker-image.tar.gz
+    - docker save my-custom-docker-image:latest -o my-custom-docker-image.tar
+    - gzip my-custom-docker-image.tar
   artifacts:
     paths:
       - my-custom-docker-image.tar.gz
@@ -31,6 +32,8 @@ sonarcloud-check:
     - gzip -d my-custom-docker-image.tar.gz
     - docker load -i my-custom-docker-image.tar
     - docker run --rm my-custom-docker-image:latest mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17
+  dependencies:
+    - build
   only:
     - merge_requests
     - master
