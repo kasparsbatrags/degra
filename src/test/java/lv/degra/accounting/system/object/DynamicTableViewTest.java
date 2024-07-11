@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationTest;
 
 import javafx.scene.Scene;
@@ -26,6 +28,16 @@ class DynamicTableViewTest extends ApplicationTest {
 	@BeforeEach
 	public void setUp() {
 		tableView = new DynamicTableView<>();
+	}
+
+	@BeforeEach
+	public void setUpClass() throws Exception {
+		FxToolkit.registerPrimaryStage();
+	}
+
+	@AfterEach
+	public void tearDown() throws Exception {
+		FxToolkit.cleanupStages();
 	}
 
 	@Test
