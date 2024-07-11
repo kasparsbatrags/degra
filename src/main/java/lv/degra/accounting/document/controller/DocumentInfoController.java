@@ -33,10 +33,8 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
@@ -67,19 +65,19 @@ public class DocumentInfoController extends DegraController {
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 	private static final String BILL_CODE = "BILL";
 	@FXML
-	public ComboBox<DocumentTransactionType> documentTransactionTypeCombo;
+	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
 	public SearchableComboBox<Customer> publisherCombo;
 	@FXML
-	public ComboBox<Bank> publisherBankCombo;
+	public ComboBoxWithErrorLabel<Bank> publisherBankCombo;
 	@FXML
-	public ComboBox<CustomerAccount> publisherBankAccountCombo;
+	public ComboBoxWithErrorLabel<CustomerAccount> publisherBankAccountCombo;
 	@FXML
 	public SearchableComboBox<Customer> receiverCombo;
 	@FXML
-	public ComboBox<Bank> receiverBankCombo;
+	public ComboBoxWithErrorLabel<Bank> receiverBankCombo;
 	@FXML
-	public ComboBox<CustomerAccount> receiverBankAccountCombo;
+	public ComboBoxWithErrorLabel<CustomerAccount> receiverBankAccountCombo;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentDirection> directionCombo;
 	@FXML
@@ -87,9 +85,9 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public Label documentIdLabel;
 	@FXML
-	public TextField seriesField;
+	public TextFieldWithErrorLabel seriesField;
 	@FXML
-	public TextField numberField;
+	public TextFieldWithErrorLabel numberField;
 	@FXML
 	public TextFieldWithErrorLabel sumTotalField;
 	@FXML
@@ -193,6 +191,9 @@ public class DocumentInfoController extends DegraController {
 		addValidationControl(directionCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
+		addValidationControl(publisherCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(publisherBankAccountCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+
 	}
 
 	protected boolean promptSaveDocumentInfoChanges() {
@@ -239,12 +240,10 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-
-	private void refreshScreenControls(){
+	private void refreshScreenControls() {
 		documentTransactionTypeCombo.setDisable(!documentSubTypeCombo.getValue().getDocumentType().getCode().equals("BILL"));
 		directionCombo.setValue(documentSubTypeCombo.getValue().getDirection());
 	}
-
 
 	public void injectMainController(DocumentMainController documentMainController) {
 		this.documentMainController = documentMainController;
@@ -255,9 +254,10 @@ public class DocumentInfoController extends DegraController {
 				.map(BILL_CODE::equals).orElse(false);
 	}
 
-	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
-		Bank selectedBank = (Bank) bankCombo.getValue();
+		Bank selectedBank = bankCombo.getValue();
 		if (selectedBank != null) {
 			ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
 					customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank));
@@ -276,7 +276,8 @@ public class DocumentInfoController extends DegraController {
 		}
 	}
 
-	public void setBankInfo(SearchableComboBox<Customer> customerCombo, ComboBox<Bank> bankCombo, ComboBox<CustomerAccount> accountCombo) {
+	public void setBankInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
 		if (selectedCustomer == null) {
 			return;
@@ -318,7 +319,6 @@ public class DocumentInfoController extends DegraController {
 				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
 
 		directionCombo.setItems(FXCollections.observableArrayList(documentDirectionService.getDocumentDirectionList()));
-
 
 	}
 
@@ -367,7 +367,8 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBox bankCombo, ComboBox accountCombo) {
+	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		ObservableList<CustomerAccount> accountsList = FXCollections.observableList(
 				customerAccountService.getCustomerAccounts(customerCombo.getValue()));
 		List<Integer> uniqueCustomerBankIdList = accountsList.stream().filter(getDistinctValues(CustomerAccount::getBank))
@@ -378,7 +379,7 @@ public class DocumentInfoController extends DegraController {
 		bankCombo.setItems(customerBankList);
 
 		ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-				customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), (Bank) bankCombo.getValue()));
+				customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), bankCombo.getValue()));
 		accountCombo.setItems(customerBankAccounts);
 	}
 
