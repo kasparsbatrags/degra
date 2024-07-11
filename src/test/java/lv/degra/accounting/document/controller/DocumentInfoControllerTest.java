@@ -22,6 +22,8 @@ import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER1_NAME;
 import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER1_REGISTRATION_NUMBER;
 import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER1_VAT_NUMBER;
 import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER2_NAME;
+import static lv.degra.accounting.data.DocumentDirectionDataFactory.getDocumentDirectionList;
+import static lv.degra.accounting.data.DocumentSubTypeDataFactory.getDocumentSubTypeList;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -39,28 +41,25 @@ import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
-import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
 import lv.degra.accounting.currency.service.CurrencyService;
 import lv.degra.accounting.customer.model.Customer;
 import lv.degra.accounting.customer.model.CustomerRepository;
 import lv.degra.accounting.customer.service.CustomerService;
-import lv.degra.accounting.customer_account.model.CustomerAccount;
 import lv.degra.accounting.customer_account.service.CustomerAccountService;
 import lv.degra.accounting.data.CustomerTypeStaticData;
+import lv.degra.accounting.document.service.DocumentDirectionService;
+import lv.degra.accounting.document.service.DocumentSubTypeService;
 import lv.degra.accounting.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
-import lv.degra.accounting.system.object.lazycombo.SearchableComboBox;
 
 class DocumentInfoControllerTest extends ApplicationTest {
 
@@ -80,6 +79,11 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	private CustomerService customerService;
 	@Mock
 	private CustomerAccountService customerAccountService;
+	@Mock
+	private DocumentSubTypeService documentSubTypeService;
+	@Mock
+	private DocumentDirectionService documentDirectionService;
+
 	@Mock
 	private BankService bankService;
 	@InjectMocks
@@ -105,6 +109,10 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	@Override
 	public void start(Stage stage) throws Exception {
 		mocks = MockitoAnnotations.openMocks(this);
+		when(documentSubTypeService.getDocumentSubTypeList()).thenReturn(getDocumentSubTypeList());
+		when(documentSubTypeService.getDocumentSubTypeList()).thenReturn(getDocumentSubTypeList());
+		when(documentDirectionService.getDocumentDirectionList()).thenReturn(getDocumentDirectionList());
+
 		when(currencyService.getDefaultCurrency()).thenReturn(getEurCurrency());
 		when(exchangeService.getActuallyExchangeRate(Mockito.any(LocalDate.class), Mockito.any(Currency.class))).thenReturn(
 				getDefaultCurrencyExchangeRate());
