@@ -29,8 +29,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
-import lv.degra.accounting.document.enums.DirectionEnumCellFactory;
-import lv.degra.accounting.document.enums.DocumentDirection;
 import lv.degra.accounting.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.system.alert.AlertAsk;
 import lv.degra.accounting.system.alert.AlertResponseType;
@@ -201,9 +199,6 @@ public class DynamicTableView<T> extends TableView<T> {
 				e.printStackTrace();
 			}
 		});
-		if (field.getType() == DocumentDirection.class) {
-			column.setCellFactory(new DirectionEnumCellFactory());
-		}
 		return column;
 	}
 
