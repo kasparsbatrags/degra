@@ -1,6 +1,7 @@
+FROM maven:3.9.8-eclipse-temurin-11 as maven-build
+
 FROM azul/zulu-openjdk-alpine:17
 
-# Instalē nepieciešamās pakotnes, ieskaitot Xvfb
 RUN apk add --no-cache bash procps curl tar \
     xvfb libxext-dev libxrender-dev libxtst-dev
 
@@ -12,9 +13,9 @@ LABEL org.opencontainers.image.description="Apache Maven is a software project m
 
 ENV MAVEN_HOME /usr/share/maven
 
-COPY --from=maven:3.9.8-eclipse-temurin-11 ${MAVEN_HOME} ${MAVEN_HOME}
-COPY --from=maven:3.9.8-eclipse-temurin-11 /usr/local/bin/mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
-COPY --from/maven:3.9.8-eclipse-temurin-11 /usr/share/maven/ref/settings-docker.xml /usr/share/maven/ref/settings-docker.xml
+COPY --from=maven-build ${MAVEN_HOME} ${MAVEN_HOME}
+COPY --from=maven-build /usr/local/bin/mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
+COPY --from=maven-build /usr/share/maven/ref/settings-docker.xml /usr/share/maven/ref/settings-docker.xml
 
 RUN ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn
 
