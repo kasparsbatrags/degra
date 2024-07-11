@@ -29,6 +29,8 @@ sonarcloud-check:
   image: docker:20
   services:
     - docker:20-dind
+  needs:
+    - build
   script:
     - ls -al  # Pārbaudiet, vai artefakts ir pieejams
     - if [ -f my-custom-docker-image.tar.gz ]; then echo "File exists"; else echo "File does not exist"; fi
