@@ -22,12 +22,12 @@
 		<java.version>17</java.version>
 		<javafx.version>20</javafx.version>
 		<postgres.version>42.7.1</postgres.version>
-		<sonar.organization>kaspars-batrags</sonar.organization>
+		<sonar.organization>degra</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.projectKey>kaspars.batrags_degra</sonar.projectKey>
 	</properties>
 
 	<dependencies>
+
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -129,6 +129,7 @@
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
+
 			<version>6.21.0</version>
 		</dependency>
 
@@ -260,7 +261,16 @@
 				<groupId>org.sonarsource.scanner.maven</groupId>
 				<artifactId>sonar-maven-plugin</artifactId>
 				<version>4.0.0.4121</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>sonar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
+		<defaultGoal>package</defaultGoal>
 	</build>
 </project>
