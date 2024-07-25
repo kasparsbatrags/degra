@@ -84,7 +84,7 @@ databaseChangeLog:
               - column:
                   name: custom_validation_type
                   type: varchar(50)
-                  remarks: "Speciāli konfigurējami nosacījumi"
+                  remarks: "Paplašināti konfigurējami nosacījumi"
               - column:
                   name: error_message_id
                   type: int
