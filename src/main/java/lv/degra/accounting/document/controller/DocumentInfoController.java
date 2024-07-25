@@ -192,6 +192,7 @@ public class DocumentInfoController extends DegraController {
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
 		addValidationControl(publisherCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(publisherBankCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 		addValidationControl(publisherBankAccountCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
 	}

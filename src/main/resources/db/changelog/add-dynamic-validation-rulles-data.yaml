@@ -1,0 +1,405 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddValidationRullesObjectDocumentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'documentDateDp'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: documentDateDp
+              - column:
+                  name: label
+                  value: Dokumenta datums
+
+  - changeSet:
+      id: AddValidationRullesObjectDirectionCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'directionCombo'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: directionCombo
+              - column:
+                  name: label
+                  value: Dokumenta virziens
+
+
+  - changeSet:
+      id: AddValidationRullesObjectDocumentSubTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'documentSubTypeCombo'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: documentSubTypeCombo
+              - column:
+                  name: label
+                  value: Dokumenta apakštips
+
+  - changeSet:
+      id: AddValidationRullesObjectSumTotalField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'sumTotalField'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: name
+                  value: sumTotalField
+              - column:
+                  name: label
+                  value: Dokumenta summa
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherCombo'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: name
+                  value: publisherCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevējs
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherBankCombo'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: name
+                  value: publisherBankCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevēja norēķinu baka
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherBankAccountCombo'
+      changes:
+        - insert:
+            tableName: validation_rules_object
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: name
+                  value: publisherBankAccountCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevēja norēķinu konts
+
+
+
+
+
+  - changeSet:
+      id: AddValidationRulleErrorMessageFieldRequiredMessage
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_error_message WHERE short_message = 'Obligāti jāaizpilda!'
+      changes:
+        - insert:
+            tableName: validation_rules_error_message
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: short_message
+                  value: Obligāti jāaizpilda!
+              - column:
+                  name: full_message
+                  value: Laukā obligādi jāaizpilda prasītā informācija - citādi netiks turpināts
+
+  - changeSet:
+      id: AddValidationRulleErrorMessageFieldAmountPrecision2
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules_error_message WHERE short_message = 'Pārāk daudz ciparu aiz komata!'
+      changes:
+        - insert:
+            tableName: validation_rules_error_message
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: short_message
+                  value: Pārāk daudz ciparu aiz komata!
+              - column:
+                  name: full_message
+                  value: Jāprecizē skaitlis  - ar noteikto skaitu ciparu aiz komata - citādi netiks turpināts
+
+
+
+
+
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 1 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: object_id
+                  value: 1
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDirectionCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 2 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: object_id
+                  value: 2
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentSubTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 3 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: object_id
+                  value: 3
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentSumTotalField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 4 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: object_id
+                  value: 4
+              - column:
+                  name: custom_validation_type
+                  value: {"type":"decimal_precision","min":0,"scale":2}
+              - column:
+                  name: error_message_id
+                  value: 2
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentPublisherCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 5 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: object_id
+                  value: 5
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentPublisherBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 6 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: object_id
+                  value: 6
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoDocumentPublisherBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 7 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rules
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: object_id
+                  value: 7
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
