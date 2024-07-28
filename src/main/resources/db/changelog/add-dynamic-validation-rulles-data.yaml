@@ -6,10 +6,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'documentDateDp'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'documentDateDp'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -28,10 +28,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'directionCombo'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'directionCombo'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -51,10 +51,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'documentSubTypeCombo'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'documentSubTypeCombo'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -73,10 +73,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'sumTotalField'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'sumTotalField'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -95,10 +95,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherCombo'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherCombo'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -117,10 +117,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherBankCombo'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherBankCombo'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -139,10 +139,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_object WHERE name = 'publisherBankAccountCombo'
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherBankAccountCombo'
       changes:
         - insert:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -165,10 +165,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_error_message WHERE short_message = 'Obligāti jāaizpilda!'
+            sql: SELECT COUNT(*) FROM validation_rule_error_message WHERE short_message = 'Obligāti jāaizpilda!'
       changes:
         - insert:
-            tableName: validation_rules_error_message
+            tableName: validation_rule_error_message
             columns:
               - column:
                   name: id
@@ -187,10 +187,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules_error_message WHERE short_message = 'Pārāk daudz ciparu aiz komata!'
+            sql: SELECT COUNT(*) FROM validation_rule_error_message WHERE short_message = 'Pārāk daudz ciparu aiz komata!'
       changes:
         - insert:
-            tableName: validation_rules_error_message
+            tableName: validation_rule_error_message
             columns:
               - column:
                   name: id
@@ -215,10 +215,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 1 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 1 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -243,10 +243,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 2 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 2 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -271,10 +271,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 3 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 3 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -299,10 +299,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 4 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 4 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -311,7 +311,7 @@ databaseChangeLog:
                   name: object_id
                   value: 4
               - column:
-                  name: custom_validation_type
+                  name: custom_validation
                   value: '{"type":"decimal_precision","min":0,"scale":2}'
               - column:
                   name: error_message_id
@@ -327,10 +327,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 5 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 5 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -355,10 +355,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 6 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 6 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -383,10 +383,10 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM validation_rules WHERE object_id = 7 AND error_message_id = 1 AND document_sub_type_id = 1
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 7 AND error_message_id = 1 AND document_sub_type_id = 1
       changes:
         - insert:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id

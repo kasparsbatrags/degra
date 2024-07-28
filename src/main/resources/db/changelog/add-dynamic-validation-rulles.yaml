@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: validation_rules_object
+            tableName: validation_rule_object
             columns:
               - column:
                   name: id
@@ -31,7 +31,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: validation_rules_error_message
+            tableName: validation_rule_error_message
             columns:
               - column:
                   name: id
@@ -58,7 +58,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: validation_rules
+            tableName: validation_rule
             columns:
               - column:
                   name: id
@@ -82,8 +82,8 @@ databaseChangeLog:
                   defaultValue: false
                   remarks: "Objekta dati ir obligāti jāaizpilda"
               - column:
-                  name: custom_validation_type
-                  type: varchar(50)
+                  name: custom_validation
+                  type: varchar(100)
                   remarks: "Paplašināti konfigurējami nosacījumi"
               - column:
                   name: error_message_id
@@ -102,11 +102,11 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: error_message_id
-            baseTableName: validation_rules
-            constraintName: fk_error_message_to_validation_rules
+            baseTableName: validation_rule
+            constraintName: fk_error_message_to_validation_rule
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: validation_rules_error_message
+            referencedTableName: validation_rule_error_message
 
   - changeSet:
       id: ConstraintValidationRullesToDocumentSubType
@@ -114,7 +114,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: document_sub_type_id
-            baseTableName: validation_rules
+            baseTableName: validation_rule
             constraintName: fk_error_message_to_document_sub_type
             onDelete: NO ACTION
             referencedColumnNames: id
@@ -127,8 +127,8 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: object_id
-            baseTableName: validation_rules
-            constraintName: fk_validation_rules_to_validation_rules_object
+            baseTableName: validation_rule
+            constraintName: fk_validation_rule_to_validation_rule_object
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: validation_rules_object
+            referencedTableName: validation_rule_object
