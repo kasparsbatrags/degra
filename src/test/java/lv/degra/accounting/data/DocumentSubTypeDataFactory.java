@@ -29,4 +29,10 @@ public class DocumentSubTypeDataFactory {
 		return subTypeList;
 	}
 
+	public static DocumentSubType getGbsDocumentSubType(){
+		DocumentType documentType = DocumentTypeDataFactory.createDocumentType(1, "Grāmatojums", "Grāmatojums", "ENTRY");
+		DocumentDirection documentDirection = DocumentDirectionDataFactory.createDocumentDirection(3, "Iekšējais");
+		return createDocumentSubType(1, "Gada saldo", "Gada bilances saldo", "GBS", documentType, documentDirection);
+	}
+
 }

@@ -11,10 +11,10 @@ import lv.degra.accounting.document.model.DocumentDirection;
 import lv.degra.accounting.document.model.DocumentSubType;
 import lv.degra.accounting.document.model.DocumentType;
 
-public class DataFactoryTest {
+class DataFactoryTest {
 
 	@Test
-	public void testCreateDocumentType() {
+	void testCreateDocumentType() {
 		DocumentType documentType = createDocumentType(1, "Invoice", "Invoice", "INV");
 		assertEquals(1, documentType.getId());
 		assertEquals("Invoice", documentType.getTitle());
@@ -23,14 +23,14 @@ public class DataFactoryTest {
 	}
 
 	@Test
-	public void testCreateDocumentDirection() {
+	void testCreateDocumentDirection() {
 		DocumentDirection documentDirection = createDocumentDirection(1, "Inbound");
 		assertEquals(1, documentDirection.getId());
 		assertEquals("Inbound", documentDirection.getName());
 	}
 
 	@Test
-	public void testCreateDocumentSubType() {
+	void testCreateDocumentSubType() {
 		DocumentType documentType = createDocumentType(1, "Invoice", "Invoice", "INV");
 		DocumentDirection documentDirection = createDocumentDirection(1, "Inbound");
 		DocumentSubType documentSubType = createDocumentSubType(1, "Invoice SubType", "InvoiceSub", "INV_SUB",

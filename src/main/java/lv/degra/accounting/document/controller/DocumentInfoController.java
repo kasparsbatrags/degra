@@ -2,19 +2,17 @@ package lv.degra.accounting.document.controller;
 
 import static lv.degra.accounting.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.document.DocumentFieldsUtils.setFieldFormat;
-import static lv.degra.accounting.system.configuration.DegraConfig.AMOUNT_PRECISION_2;
 import static lv.degra.accounting.system.configuration.DegraConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.system.configuration.DegraConfig.BILL_SERIES_KEY;
-import static lv.degra.accounting.system.configuration.DegraConfig.FIELD_REQUIRED_MESSAGE;
 import static lv.degra.accounting.system.configuration.DegraConfig.SUM_FORMAT_REGEX;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +33,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import lombok.Getter;
+import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
@@ -58,8 +58,12 @@ import lv.degra.accounting.system.object.DatePickerWithErrorLabel;
 import lv.degra.accounting.system.object.TextFieldWithErrorLabel;
 import lv.degra.accounting.system.object.lazycombo.SearchableComboBox;
 import lv.degra.accounting.system.utils.DegraController;
+import lv.degra.accounting.validation.ValidationFunction;
+import lv.degra.accounting.validation.model.ValidationRule;
+import lv.degra.accounting.validation.service.ValidationService;
 
 @Component
+@Getter
 public class DocumentInfoController extends DegraController {
 
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
@@ -106,10 +110,11 @@ public class DocumentInfoController extends DegraController {
 	public TextArea internalNotesField;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
+	@Setter
+	public Map<String, ValidationFunction> validationFunctions = new HashMap<>();
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
-
 	private CurrencyExchangeRate currencyExchangeRate;
 	@Autowired
 	private DocumentSubTypeService documentSubTypeService;
@@ -128,6 +133,8 @@ public class DocumentInfoController extends DegraController {
 	@Autowired
 	private ConfigService configService;
 	@Autowired
+	private ValidationService validationService;
+	@Autowired
 	private ConfigurableApplicationContext springContext;
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
@@ -142,9 +149,10 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void initialize() {
-		setDefaultValues();
-		setDocumentInfoValidationRules();
+		validationFunctions.put("required", this::applyRequiredValidation);
+		validationFunctions.put("custom", this::applyCustomValidation);
 
+		setDefaultValues();
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
 
 		exchangeRateField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -176,24 +184,29 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	private void setDocumentInfoValidationRules() {
+	protected void setDocumentInfoValidationRules() {
+		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
+			return;
+		}
 
-		Predicate<String> documentAmountValidationDoublePrecisionPredicate = value -> {
-			try {
-				BigDecimal amount = new BigDecimal(value);
-				return amount.compareTo(BigDecimal.ZERO) >= 0 && amount.scale() <= 2;
-			} catch (NumberFormatException e) {
-				return false;
+		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
+		List<ValidationRule> validationRulesList = validationService.getValidationRulesByDocumentSybType(documentSubTypeId);
+
+		for (ValidationRule rule : validationRulesList) {
+			String validationType = rule.isRequired() ? "required" : "custom";
+			ValidationFunction validationFunction = validationFunctions.get(validationType);
+			if (validationFunction != null) {
+				validationFunction.apply(rule);
 			}
-		};
+		}
+	}
 
-		addValidationControl(documentDateDp, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-		addValidationControl(directionCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
-		addValidationControl(publisherCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-		addValidationControl(publisherBankAccountCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+	protected void applyRequiredValidation(ValidationRule validationRule) {
+		validationService.applyRequiredValidation(validationRule, this);
+	}
 
+	protected void applyCustomValidation(ValidationRule validationRule) {
+		validationService.applyCustomValidation(validationRule, this);
 	}
 
 	protected boolean promptSaveDocumentInfoChanges() {
@@ -236,6 +249,7 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public void documentSubTypeComboOnAction() {
 		this.documentMainController.actualizeDocumentTabs();
+		setDocumentInfoValidationRules();
 		refreshScreenControls();
 
 	}
@@ -364,7 +378,7 @@ public class DocumentInfoController extends DegraController {
 		if (receiverCombo.getValue() != null) {
 			fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 		}
-
+		setDocumentInfoValidationRules();
 	}
 
 	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,

@@ -24,6 +24,9 @@ import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER1_VAT_NUMBER;
 import static lv.degra.accounting.data.CustomersStaticData.CUSTOMER2_NAME;
 import static lv.degra.accounting.data.DocumentDirectionDataFactory.getDocumentDirectionList;
 import static lv.degra.accounting.data.DocumentSubTypeDataFactory.getDocumentSubTypeList;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -54,12 +57,15 @@ import lv.degra.accounting.customer.model.CustomerRepository;
 import lv.degra.accounting.customer.service.CustomerService;
 import lv.degra.accounting.customer_account.service.CustomerAccountService;
 import lv.degra.accounting.data.CustomerTypeStaticData;
+import lv.degra.accounting.document.model.DocumentSubType;
 import lv.degra.accounting.document.service.DocumentDirectionService;
 import lv.degra.accounting.document.service.DocumentSubTypeService;
 import lv.degra.accounting.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.document.service.DocumentTypeService;
 import lv.degra.accounting.exchange.service.ExchangeService;
 import lv.degra.accounting.system.configuration.service.ConfigService;
+import lv.degra.accounting.system.object.ComboBoxWithErrorLabel;
+import lv.degra.accounting.validation.service.ValidationService;
 
 class DocumentInfoControllerTest extends ApplicationTest {
 
@@ -83,6 +89,8 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	private DocumentSubTypeService documentSubTypeService;
 	@Mock
 	private DocumentDirectionService documentDirectionService;
+	@Mock
+	private ValidationService validationService;
 
 	@Mock
 	private BankService bankService;
@@ -90,6 +98,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	private DocumentInfoController documentInfoController;
 
 	private AutoCloseable mocks;
+	private ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
 
 	@AfterEach
 	public void tearDown() throws Exception {
@@ -176,5 +185,20 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		Assertions.assertEquals(CUSTOMER2_BANK1, documentInfoController.publisherBankCombo.getValue());
 		Assertions.assertNull(documentInfoController.publisherBankAccountCombo.getValue());
 	}
+
+	@Test
+	void testSetDocumentInfoValidationRules_documentSubTypeCombo_is_NullCombo() {
+		documentInfoController.setDocumentInfoValidationRules();
+		verify(validationService, never()).getValidationRulesByDocumentSybType(anyInt());
+	}
+
+	@Test
+	void testSetDocumentInfoValidationRules_documentSubTypeCombo_have_NullComboValue() {
+		documentSubTypeCombo = new ComboBoxWithErrorLabel<>();
+		documentSubTypeCombo.setValue(null);
+		documentInfoController.setDocumentInfoValidationRules();
+		verify(validationService, never()).getValidationRulesByDocumentSybType(anyInt());
+	}
+
 }
 

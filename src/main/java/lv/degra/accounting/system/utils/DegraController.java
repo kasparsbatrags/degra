@@ -38,7 +38,7 @@ public class DegraController {
 		}
 	}
 
-	protected <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
+	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
 		control.setValidationCondition(validationCondition, errorMessage);
 		validationControls.add(control);
 	}

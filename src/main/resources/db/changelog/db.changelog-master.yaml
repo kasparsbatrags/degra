@@ -63,3 +63,7 @@ databaseChangeLog:
         file: db/changelog/add-document-direction-data.yaml
     - include:
         file: db/changelog/add-document-direction-relations.yaml
+    - include:
+        file: db/changelog/add-dynamic-validation-rulles.yaml
+    - include:
+        file: db/changelog/add-dynamic-validation-rulles-data.yaml
