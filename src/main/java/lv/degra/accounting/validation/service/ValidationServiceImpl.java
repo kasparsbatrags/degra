@@ -60,7 +60,7 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 	}
 
-	private Predicate<String> createCustomPredicate(String validationValue) {
+	protected Predicate<String> createCustomPredicate(String validationValue) {
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode validationNode = objectMapper.readTree(validationValue);

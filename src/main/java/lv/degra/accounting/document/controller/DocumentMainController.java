@@ -95,7 +95,7 @@ public class DocumentMainController extends DegraController {
 		}
 	}
 
-	private boolean validateDocumentInfo() {
+	protected boolean validateDocumentInfo() {
 		List<ControlWithErrorLabel<?>> validationControls = documentInfoController.getValidationControls();
 		boolean allValid = true;
 

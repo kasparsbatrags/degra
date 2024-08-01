@@ -10,6 +10,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import lombok.Getter;
+import lombok.Setter;
 import lv.degra.accounting.bank.model.Bank;
 import lv.degra.accounting.bank.service.BankService;
 import lv.degra.accounting.currency.model.Currency;
@@ -108,6 +110,8 @@ public class DocumentInfoController extends DegraController {
 	public TextArea internalNotesField;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
+	@Setter
+	public Map<String, ValidationFunction> validationFunctions = new HashMap<>();
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
@@ -130,8 +134,6 @@ public class DocumentInfoController extends DegraController {
 	private ConfigService configService;
 	@Autowired
 	private ValidationService validationService;
-	private final Map<String, ValidationFunction> validationFunctions = Map.of("required", this::applyRequiredValidation, "custom",
-			this::applyCustomValidation);
 	@Autowired
 	private ConfigurableApplicationContext springContext;
 
@@ -147,6 +149,9 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void initialize() {
+		validationFunctions.put("required", this::applyRequiredValidation);
+		validationFunctions.put("custom", this::applyCustomValidation);
+
 		setDefaultValues();
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
 
@@ -179,7 +184,7 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	private void setDocumentInfoValidationRules() {
+	protected void setDocumentInfoValidationRules() {
 		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
 			return;
 		}
@@ -196,11 +201,11 @@ public class DocumentInfoController extends DegraController {
 		}
 	}
 
-	private void applyRequiredValidation(ValidationRule validationRule) {
+	protected void applyRequiredValidation(ValidationRule validationRule) {
 		validationService.applyRequiredValidation(validationRule, this);
 	}
 
-	private void applyCustomValidation(ValidationRule validationRule) {
+	protected void applyCustomValidation(ValidationRule validationRule) {
 		validationService.applyCustomValidation(validationRule, this);
 	}
 
