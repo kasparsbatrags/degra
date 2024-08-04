@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddUnitMeter
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM unit_type WHERE code = 'm'
+      changes:
+        - insert:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: code
+                  value: m
+              - column:
+                  name: name
+                  value: Metrs(i)
+
+  - changeSet:
+      id: AddUnitPiece
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM unit_type WHERE code = 'gab'
+      changes:
+        - insert:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: code
+                  value: gab.
+              - column:
+                  name: name
+                  value: Gabals(i)
+
+  - changeSet:
+      id: AddUnitLiter
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM unit_type WHERE code = 'l'
+      changes:
+        - insert:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: code
+                  value: l
+              - column:
+                  name: name
+                  value: Litrs(i)

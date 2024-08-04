@@ -1,0 +1,388 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddElmitAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 1
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: code
+                  value: 118031480
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 101108224
+              - column:
+                  name: parent_type
+                  value: 108
+              - column:
+                  name: name
+                  value: 45
+              - column:
+                  name: sort_by_value
+                  value: 00045
+              - column:
+                  name: zip
+                  value: null
+              - column:
+                  name: date_from
+                  value: 2008-10-20
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2009-06-30 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Nogāzes iela 2B - 45, Ogre, Ogres nov., LV-5001
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+  - changeSet:
+      id: AddEmakoAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 2
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: code
+                  value: 101834612
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100304293
+              - column:
+                  name: parent_type
+                  value: 107
+              - column:
+                  name: name
+                  value: 1A
+              - column:
+                  name: sort_by_value
+                  value: 0001A
+              - column:
+                  name: zip
+                  value: LV-1063
+              - column:
+                  name: date_from
+                  value: 2001-01-25
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2003-01-10 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Ķengaraga iela 1A, Rīga, LV-1063
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+  - changeSet:
+      id: AddSwedbankAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 3
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: code
+                  value: 101818622
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100301335
+              - column:
+                  name: parent_type
+                  value: 107
+              - column:
+                  name: name
+                  value: 15
+              - column:
+                  name: sort_by_value
+                  value: 0015
+              - column:
+                  name: zip
+                  value: LV-1048
+              - column:
+                  name: date_from
+                  value: 2001-01-25
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2015-07-23 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Balasta dambis 15, Rīga, LV-1048
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+  - changeSet:
+      id: AddSebbankAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 4
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: code
+                  value: 105640841
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100457961
+              - column:
+                  name: parent_type
+                  value: 107
+              - column:
+                  name: name
+                  value: 1
+              - column:
+                  name: sort_by_value
+                  value: 0001
+              - column:
+                  name: zip
+                  value: LV-1076
+              - column:
+                  name: date_from
+                  value: 2008-02-22
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2009-07-15 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Meistaru iela 1, Valdlauči, Ķekavas pag., Ķekavas nov., LV-1076
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+  - changeSet:
+      id: AddCitadeleAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 5
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: code
+                  value: 104602888
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100310578
+              - column:
+                  name: parent_type
+                  value: 107
+              - column:
+                  name: name
+                  value: 2A
+              - column:
+                  name: sort_by_value
+                  value: 0002A
+              - column:
+                  name: zip
+                  value: LV-1010
+              - column:
+                  name: date_from
+                  value: 2004-03-01
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2014-08-05 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Republikas laukums 2A, Rīga, LV-1010
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+
+  - changeSet:
+      id: AddVenta1Address
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 6
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: code
+                  value: 105595873
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100014707
+              - column:
+                  name: parent_type
+                  value: 105
+              - column:
+                  name: name
+                  value: Ceļinieki
+              - column:
+                  name: sort_by_value
+                  value: Ceļinieki
+              - column:
+                  name: zip
+                  value: LV-3621
+              - column:
+                  name: date_from
+                  value: 2007-12-28
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2009-06-30 00:00:00.000
+              - column:
+                  name: full_name
+                  value: "\"Ceļinieki\", Tārgales pag., Ventspils nov., LV-3621"
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+  - changeSet:
+      id: AddLuminorAddress
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM address WHERE id = 7
+      changes:
+        - insert:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: code
+                  value: 105491641
+              - column:
+                  name: type
+                  value: 108
+              - column:
+                  name: status
+                  value: 1
+              - column:
+                  name: parent_code
+                  value: 100311596
+              - column:
+                  name: parent_type
+                  value: 107
+              - column:
+                  name: name
+                  value: 12
+              - column:
+                  name: sort_by_value
+                  value: 0012
+              - column:
+                  name: zip
+                  value: LV-1013
+              - column:
+                  name: date_from
+                  value: 2007-08-01
+              - column:
+                  name: date_to
+                  value: null
+              - column:
+                  name: update_date_public
+                  value: 2021-03-10 00:00:00.000
+              - column:
+                  name: full_name
+                  value: Skanstes iela 12, Rīga, LV-1013
+              - column:
+                  name: territorial_unit_code
+                  value: 4
+
+

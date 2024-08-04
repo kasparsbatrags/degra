@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="lv.degra.accounting.system.controller.MainController">
+	<left>
+		<VBox prefHeight="513.0" prefWidth="200.0">
+			<children>
+				<Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList" prefHeight="25.0" prefWidth="207.0"
+					text="Dokumenti" />
+			</children>
+		</VBox>
+	</left>
+	<center>
+		<BorderPane prefHeight="800.0" prefWidth="1080.0">
+			<center>
+				<BorderPane fx:id="mainBorderPane">
+					<center>
+						<StackPane />
+					</center>
+				</BorderPane>
+			</center>
+		</BorderPane>
+	</center>
+</BorderPane>

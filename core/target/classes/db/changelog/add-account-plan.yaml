@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddAccountPlan
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: account_plan
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: account
+                  type: VARCHAR(8)
+              - column:
+                  name: name
+                  type: VARCHAR(80)
+              - column:
+                  name: is_assets_account
+                  type: BOOLEAN
+              - column:
+                  name: use_for_bilance
+                  type: BOOLEAN
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+              - column:
+                  name: amount_in_account
+                  type: numeric(17, 5)
+              - column:
+                  name: parent_id
+                  type: INTEGER
+  - changeSet:
+      id: AddUnicalCounstrainForAccountPlanAccount
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  account
+            constraintName: unique_account
+            tableName: account_plan
+
+  - changeSet:
+      id: ParentIdKeyToIdOnAccountPlan
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: parent_id
+            baseTableName: account_plan
+            constraintName: fk_parent_id_to_account_plan
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: account_plan
