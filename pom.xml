@@ -21,11 +21,12 @@
 		<java.version>17</java.version>
 		<javafx.version>20</javafx.version>
 		<postgres.version>42.7.1</postgres.version>
-		<sonar.organization>degra</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
 		<spring-cloud.version>2022.0.1</spring-cloud.version>
 		<jacoco.version>0.8.8</jacoco.version>
-		<sonar.projectKey>degra_accounting</sonar.projectKey>
+		<sonar.organization>kaspars-batrags</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.projectKey>kaspars.batrags_degra</sonar.projectKey>
 		<sonar.scm.provider>git</sonar.scm.provider>
 	</properties>
 
