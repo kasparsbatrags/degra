@@ -17,7 +17,7 @@ RUN curl -fSL https://cdn.azul.com/zulu/bin/zulu17.42.19-ca-jdk17.0.7-linux_amd6
     && dpkg -i zulu-openjdk.deb \
     && rm zulu-openjdk.deb
 
-# common for all images
+# Common for all images
 LABEL org.opencontainers.image.title="Apache Maven"
 LABEL org.opencontainers.image.source="https://github.com/carlossg/docker-maven"
 LABEL org.opencontainers.image.url="https://github.com/carlossg/docker-maven"
@@ -40,5 +40,5 @@ WORKDIR /usr/src/app
 # Copy the project files to the working directory
 COPY . .
 
-# Run Maven build and tests with Xvfb
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.verbose=true -Djunit.jupiter.extensions.autodetection.enabled=true"]
+# Run Maven build and tests with Xvfb and Monocle
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.verbose=true -Djunit.jupiter.extensions.autodetection.enabled=true -Dglass.platform=Monocle -Dmonocle.platform=Headless"]
