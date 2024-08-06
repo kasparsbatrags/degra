@@ -65,11 +65,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
@@ -91,7 +86,19 @@
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
-					<argLine>--add-exports javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-exports javafx.graphics/com.sun.prism=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk.quantum=ALL-UNNAMED</argLine>
+					<argLine>
+						--add-exports javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.prism=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED
+						--add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
+						--add-opens javafx.graphics/com.sun.javafx.tk.quantum=ALL-UNNAMED
+						--add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-opens javafx.graphics/com.sun.javafx.application.ParametersImpl=ALL-UNNAMED
+					</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
