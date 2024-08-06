@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libgtk-3-0 \
     maven \
+    x11-apps \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalē Zulu OpenJDK
@@ -41,4 +42,4 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Run Maven build and tests with Xvfb and Monocle
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & sleep 3 && export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.verbose=true -Djunit.jupiter.extensions.autodetection.enabled=true -Dglass.platform=Monocle -Dmonocle.platform=Headless"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & sleep 5 && export DISPLAY=:99 && xclock & mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.verbose=true -Djunit.jupiter.extensions.autodetection.enabled=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Djavafx.verbose=true -Dprism.maxvram=128M"]
