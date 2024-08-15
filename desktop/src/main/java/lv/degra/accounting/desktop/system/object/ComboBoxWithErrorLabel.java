@@ -99,4 +99,5 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		validationConditions.put(validationCondition, errorMessage);
 		markAsRequired(validationCondition != null, comboBox);
 	}
+
 }

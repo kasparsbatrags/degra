@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddDynamicValidationRullesObjects
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta ID"
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Objekta nosaukums (kodā)"
+              - column:
+                  name: label
+                  type: varchar(255)
+                  remarks: "Objekta etiķete (label)"
+            remarks: "Ekrāna formu objektu saraksti"

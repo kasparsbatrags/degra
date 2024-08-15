@@ -64,6 +64,14 @@ databaseChangeLog:
     - include:
         file: db/changelog/add-document-direction-relations.yaml
     - include:
+        file: db/changelog/add-validation-rule-error-message.yaml
+    - include:
+        file: db/changelog/add-validation-rule-error-message-data.yaml
+    - include:
+        file: db/changelog/add-validation-rule-object.yaml
+    - include:
+        file: db/changelog/add-validation-rule-object-data.yaml
+    - include:
         file: db/changelog/add-dynamic-validation-rulles.yaml
     - include:
-        file: db/changelog/add-dynamic-validation-rulles-data.yaml
+        file: db/changelog/add-dynamic-validation-rulles-data-gsb.yaml

@@ -28,8 +28,9 @@ public class ValidationRule {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "object_id")
 	private ValidationRuleObject validationObject;
-
+	private boolean isShowInForm;
 	private boolean isRequired;
+	private boolean isDefaultDisabled;
 	private String customValidation;
 
 	@ManyToOne(fetch = FetchType.EAGER)
