@@ -1,7 +1,7 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.10
 
 # Instalē nepieciešamās pakotnes
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get --no-install-recommends install -y \
     curl \
     xvfb \
     libxext-dev \
@@ -27,7 +27,7 @@ LABEL org.opencontainers.image.description="Apache Maven is a software project m
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_VERSION 3.9.8
 ENV PATH $MAVEN_HOME/bin:$PATH
-RUN curl -fsSL https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xz -C /usr/share \
+RUN curl --tlsv1.2 -fsSL https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xz -C /usr/share \
     && mv /usr/share/apache-maven-${MAVEN_VERSION} /usr/share/maven \
     && rm -f /usr/bin/mvn \
     && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn

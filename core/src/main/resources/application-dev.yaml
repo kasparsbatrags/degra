@@ -1,9 +1,5 @@
-server:
-  port: 8080
-
 spring:
   datasource:
-#    url: jdbc:h2:mem:testdb;MODE=MYSQL
     url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver
     username: postgres

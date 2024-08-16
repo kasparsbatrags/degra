@@ -1,6 +1,6 @@
 package lv.degra.accounting.core.address.service;
 
-import static lv.degra.accounting.core.address.enums.ArRecordStatus.statusOnSystemByCode;
+import static lv.degra.accounting.core.address.enums.ArRecordStatus.getStatusOnSystemByCode;
 import static lv.degra.accounting.core.system.configuration.DegraConfig.ADDRESS_DOWNLOAD_LINK;
 
 import java.io.ByteArrayInputStream;
@@ -196,7 +196,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 				Address address = addressList.get(i);
 				ps.setInt(1, address.getCode());
 				ps.setInt(2, address.getType() != null ? address.getType() : null);
-				ps.setInt(3, statusOnSystemByCode(address.getStatus()));
+				ps.setInt(3, getStatusOnSystemByCode(address.getStatus()));
 				ps.setInt(4, address.getParentCode());
 				ps.setInt(5, address.getParentType());
 				ps.setString(6, address.getName());

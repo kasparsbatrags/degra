@@ -4,6 +4,7 @@ import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.BILL_SERIES_KEY;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,11 +30,12 @@ import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.layout.Pane;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.bank.model.Bank;
@@ -53,13 +56,15 @@ import lv.degra.accounting.core.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
+import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.desktop.system.object.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.object.DatePickerWithErrorLabel;
+import lv.degra.accounting.desktop.system.object.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.object.TextFieldWithErrorLabel;
 import lv.degra.accounting.desktop.system.object.lazycombo.SearchableComboBox;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
-import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
 @Component
@@ -68,6 +73,8 @@ public class DocumentInfoController extends DegraController {
 
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 	private static final String BILL_CODE = "BILL";
+	private static final String VALIDATION_TYPE_REQUIRED = "required";
+	private static final String VALIDATION_TYPE_CUSTOM = "custom";
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
@@ -105,13 +112,19 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public DatePickerWithErrorLabel paymentDateDp;
 	@FXML
-	public TextArea notesForCustomerField;
+	public TextAreaWithErrorLabel notesForCustomerField;
 	@FXML
-	public TextArea internalNotesField;
+	public TextAreaWithErrorLabel internalNotesField;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
 	@Setter
 	public Map<String, ValidationFunction> validationFunctions = new HashMap<>();
+	@FXML
+	public Pane publisherPane;
+	@FXML
+	public Pane receiverPane;
+	@FXML
+	public Pane paymentPane;
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
@@ -149,8 +162,8 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void initialize() {
-		validationFunctions.put("required", this::applyRequiredValidation);
-		validationFunctions.put("custom", this::applyCustomValidation);
+		validationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
+		validationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
 
 		setDefaultValues();
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
@@ -181,24 +194,15 @@ public class DocumentInfoController extends DegraController {
 
 		publisherCombo.setCustomerService(customerService);
 		receiverCombo.setCustomerService(customerService);
-
+		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 	}
 
 	protected void setDocumentInfoValidationRules() {
 		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
 			return;
 		}
-
 		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
-		List<ValidationRule> validationRulesList = validationService.getValidationRulesByDocumentSybType(documentSubTypeId);
-
-		for (ValidationRule rule : validationRulesList) {
-			String validationType = rule.isRequired() ? "required" : "custom";
-			ValidationFunction validationFunction = validationFunctions.get(validationType);
-			if (validationFunction != null) {
-				validationFunction.apply(rule);
-			}
-		}
+		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId);
 	}
 
 	protected void applyRequiredValidation(ValidationRule validationRule) {
@@ -254,9 +258,30 @@ public class DocumentInfoController extends DegraController {
 
 	}
 
-	private void refreshScreenControls() {
+	public void refreshScreenControls() {
 		documentTransactionTypeCombo.setDisable(!documentSubTypeCombo.getValue().getDocumentType().getCode().equals("BILL"));
 		directionCombo.setValue(documentSubTypeCombo.getValue().getDirection());
+
+		Integer documentSubtypeId = documentSubTypeCombo.getValue().getId();
+
+		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
+
+		for (ValidationRule rule : validationRuleList) {
+			Object field = validationService.getFieldByName(this, rule.getValidationObject().getName());
+			if (field instanceof ControlWithErrorLabel) {
+				ControlWithErrorLabel<Object> control = (ControlWithErrorLabel<Object>) field;
+				control.setVisible(rule.isShowInForm());
+				control.setDisable(rule.isDefaultDisabled());
+			} else if (field instanceof Node) {
+				Node node = (Node) field;
+				node.setVisible(rule.isShowInForm());
+				node.setDisable(rule.isDefaultDisabled());
+			} else {
+				throw new IllegalArgumentException("Unsupported field type: " + field.getClass().getName());
+			}
+
+		}
+
 	}
 
 	public void injectMainController(DocumentMainController documentMainController) {

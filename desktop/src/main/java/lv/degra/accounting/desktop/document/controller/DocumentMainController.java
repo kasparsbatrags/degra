@@ -166,6 +166,7 @@ public class DocumentMainController extends DegraController {
 			documentInfoController.fillDocumentFormWithExistData(documentDto);
 		}
 		actualizeDocumentTabs();
+		documentInfoController.refreshScreenControls();
 	}
 
 	public void showBillTab() {

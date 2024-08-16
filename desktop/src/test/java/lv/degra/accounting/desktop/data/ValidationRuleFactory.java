@@ -36,21 +36,21 @@ public class ValidationRuleFactory {
 
 	public static List<ValidationRule> getGbsValidationRules() {
 		return Arrays.asList(
-				new ValidationRule(1, createValidationRuleObject(DOCUMENT_DATE_DP_ID, DOCUMENT_DATE_DP_NAME, DOCUMENT_DATE_DP_LABEL), true,
+				new ValidationRule(1, createValidationRuleObject(DOCUMENT_DATE_DP_ID, DOCUMENT_DATE_DP_NAME, DOCUMENT_DATE_DP_LABEL), true, true, true,
 						null, getRequiredValidationRuleErrorMessage(), getGbsDocumentSubType()),
-				new ValidationRule(2, createValidationRuleObject(DIRECTION_COMBO_ID, DIRECTION_COMBO_NAME, DIRECTION_COMBO_LABEL), true,
+				new ValidationRule(2, createValidationRuleObject(DIRECTION_COMBO_ID, DIRECTION_COMBO_NAME, DIRECTION_COMBO_LABEL), true, true,true,
 						null, getRequiredValidationRuleErrorMessage(), getGbsDocumentSubType()), new ValidationRule(3,
-						createValidationRuleObject(DOCUMENT_SUB_TYPE_COMBO_ID, DOCUMENT_SUB_TYPE_COMBO_NAME, DOCUMENT_SUB_TYPE_COMBO_LABEL),
+						createValidationRuleObject(DOCUMENT_SUB_TYPE_COMBO_ID, DOCUMENT_SUB_TYPE_COMBO_NAME, DOCUMENT_SUB_TYPE_COMBO_LABEL),true, true,
 						true, null, getRequiredValidationRuleErrorMessage(), getGbsDocumentSubType()),
-				new ValidationRule(4, createValidationRuleObject(SUM_TOTAL_FIELD_ID, SUM_TOTAL_FIELD_NAME, SUM_TOTAL_FIELD_LABEL), false,
+				new ValidationRule(4, createValidationRuleObject(SUM_TOTAL_FIELD_ID, SUM_TOTAL_FIELD_NAME, SUM_TOTAL_FIELD_LABEL), true, true,false,
 						"{\"type\":\"decimal_precision\",\"min\":0,\"scale\":2}", getPrecizionValidationRuleErrorMessage(),
 						getGbsDocumentSubType()),
-				new ValidationRule(5, createValidationRuleObject(PUBLISHER_COMBO_ID, PUBLISHER_COMBO_NAME, PUBLISHER_COMBO_LABEL), true,
+				new ValidationRule(5, createValidationRuleObject(PUBLISHER_COMBO_ID, PUBLISHER_COMBO_NAME, PUBLISHER_COMBO_LABEL), true, true,true,
 						null, getPrecizionValidationRuleErrorMessage(), getGbsDocumentSubType()), new ValidationRule(6,
-						createValidationRuleObject(PUBLISHER_BANK_COMBO_ID, PUBLISHER_BANK_COMBO_NAME, PUBLISHER_BANK_COMBO_LABEL), true,
+						createValidationRuleObject(PUBLISHER_BANK_COMBO_ID, PUBLISHER_BANK_COMBO_NAME, PUBLISHER_BANK_COMBO_LABEL), false, false,true,
 						null, getPrecizionValidationRuleErrorMessage(), getGbsDocumentSubType()), new ValidationRule(7,
 						createValidationRuleObject(PUBLISHER_BANK_ACCOUNT_COMBO_ID, PUBLISHER_BANK_ACCOUNT_COMBO_NAME,
-								PUBLISHER_BANK_ACCOUNT_COMBO_LABEL), true, null, getPrecizionValidationRuleErrorMessage(),
+								PUBLISHER_BANK_ACCOUNT_COMBO_LABEL), false, false,true, null, getPrecizionValidationRuleErrorMessage(),
 						getGbsDocumentSubType()));
 	}
 }

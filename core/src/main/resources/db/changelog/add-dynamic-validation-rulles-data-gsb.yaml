@@ -1,0 +1,630 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 1 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: object_id
+                  value: 1
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDirectionCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 2 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: object_id
+                  value: 2
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_default_disabled
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentSubTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 3 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: object_id
+                  value: 3
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentSumTotalField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 4 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: object_id
+                  value: 4
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: custom_validation
+                  value: '{"type":"decimal_precision","min":0,"scale":2}'
+              - column:
+                  name: error_message_id
+                  value: 2
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentPublisherCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 5 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: object_id
+                  value: 5
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentPublisherBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 6 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: object_id
+                  value: 6
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: is_required
+                  value: false
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentPublisherBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 7 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: object_id
+                  value: 7
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: is_required
+                  value: false
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentCurrencyCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 8 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 8
+              - column:
+                  name: object_id
+                  value: 8
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentExchangeRateField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 9 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 9
+              - column:
+                  name: object_id
+                  value: 9
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentSumTotalInCurrencyField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 10 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 10
+              - column:
+                  name: object_id
+                  value: 10
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: is_required
+                  value: true
+              - column:
+                  name: error_message_id
+                  value: 1
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentDocumentTransactionTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 11 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 11
+              - column:
+                  name: object_id
+                  value: 11
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: is_required
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceDocumentPaymentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 12 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 12
+              - column:
+                  name: object_id
+                  value: 12
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: is_required
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceReceiverCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 13 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 13
+              - column:
+                  name: object_id
+                  value: 13
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: is_required
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceReceiverBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 14 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 14
+              - column:
+                  name: object_id
+                  value: 14
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceReceiverBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 15 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 15
+              - column:
+                  name: object_id
+                  value: 15
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceNotesForCustomerField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 16 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 16
+              - column:
+                  name: object_id
+                  value: 16
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceInternalNotesField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 17 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 17
+              - column:
+                  name: object_id
+                  value: 17
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceSeriesField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 18 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 18
+              - column:
+                  name: object_id
+                  value: 18
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceNumberField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 19 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 19
+              - column:
+                  name: object_id
+                  value: 19
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilancePublisherPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 20 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 20
+              - column:
+                  name: object_id
+                  value: 20
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilanceReceiverPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 21 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 21
+              - column:
+                  name: object_id
+                  value: 21
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1
+
+  - changeSet:
+      id: AddValidationRullesDataForGadaSaldoBilancePaymentPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 22 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 22
+              - column:
+                  name: object_id
+                  value: 22
+              - column:
+                  name: is_show_in_form
+                  value: false
+              - column:
+                  name: document_sub_type_id
+                  value: 1

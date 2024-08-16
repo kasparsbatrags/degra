@@ -36,7 +36,6 @@ sonarcloud-check:
     - if [ -f my-custom-docker-image.tar.gz ]; then echo "File exists"; else echo "File does not exist"; fi
     - gzip -d my-custom-docker-image.tar.gz
     - docker load -i my-custom-docker-image.tar
-    #- docker run --rm -v $CI_PROJECT_DIR:/usr/src/app my-custom-docker-image:latest sh -c "cd /usr/src/app && git init && git remote add origin $CI_REPOSITORY_URL && git fetch --all && git reset --hard origin/$CI_COMMIT_REF_NAME && Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify -Djavafx.version=17"
     - docker run --rm -v $CI_PROJECT_DIR:/usr/src/app my-custom-docker-image:latest sh -c "cd /usr/src/app && git init && git remote add origin $CI_REPOSITORY_URL && git fetch --all && git reset --hard origin/$CI_COMMIT_REF_NAME && Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17"
   dependencies:
     - build

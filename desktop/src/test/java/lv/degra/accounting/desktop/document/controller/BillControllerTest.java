@@ -1,12 +1,16 @@
 package lv.degra.accounting.desktop.document.controller;
 
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
 import static lv.degra.accounting.desktop.data.BankDataFactory.BANK1_BIC;
 import static lv.degra.accounting.desktop.data.BankDataFactory.CUSTOMER1_BANK1;
 import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
-import static org.junit.jupiter.api.Assertions.*;
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.regex.Pattern;
 
@@ -20,7 +24,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.customer.model.Customer;
-import lv.degra.accounting.desktop.document.controller.BillController;
 import lv.degra.accounting.desktop.system.exception.IncorrectSumException;
 
 class BillControllerTest extends ApplicationTest {

@@ -1,6 +1,10 @@
 package lv.degra.accounting.desktop.validation.service;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,15 +17,16 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
+import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
+import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
 
 @Service
 public class ValidationServiceImpl implements ValidationService {
-
+	private final Map<String, BiConsumer<DocumentInfoController, String>> validationActions = new HashMap<>();
 	@Autowired
-	private ValidationRulesRepository validationRulesRepository;
+	private final ValidationRulesRepository validationRulesRepository;
 
 	@Autowired
 	public ValidationServiceImpl(ValidationRulesRepository validationRulesRepository) {
@@ -32,19 +37,45 @@ public class ValidationServiceImpl implements ValidationService {
 		return validationRulesRepository.getByDocumentSubTypeId(documentSubtypeId);
 	}
 
-	private final Map<String, BiConsumer<DocumentInfoController, String>> validationActions = Map.of("documentDateDp",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getDocumentDateDp(), Objects::nonNull, errorMessage),
-			"directionCombo",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getDirectionCombo(), Objects::nonNull, errorMessage),
-			"documentSubTypeCombo",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getDocumentSubTypeCombo(), Objects::nonNull,
-					errorMessage), "publisherCombo",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getPublisherCombo(), Objects::nonNull, errorMessage),
-			"publisherBankCombo",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getPublisherBankCombo(), Objects::nonNull,
-					errorMessage), "publisherBankAccountCombo",
-			(controller, errorMessage) -> controller.addValidationControl(controller.getPublisherBankAccountCombo(), Objects::nonNull,
-					errorMessage));
+	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId) {
+		List<ValidationRule> validationRules = getValidationRulesByDocumentSybType(documentSubtypeId);
+
+		for (ValidationRule rule : validationRules) {
+
+			String validationObjectName = rule.getValidationObject().getName();
+			String errorMessage;
+
+			if (rule.isRequired()) {
+				errorMessage =
+						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
+				addValidationControl(controller, validationObjectName, Objects::nonNull, errorMessage);
+			}
+			if (rule.getCustomValidation() != null) {
+				errorMessage =
+						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
+				Predicate<String> predicate = createCustomPredicate(rule.getCustomValidation());
+				addValidationControl(controller, validationObjectName, predicate, errorMessage);
+			}
+
+		}
+	}
+
+	public <T> T getFieldByName(DocumentInfoController controller, String fieldName) {
+		try {
+			Field field = DocumentInfoController.class.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return (T) field.get(controller);
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new RuntimeException("Field not found: " + fieldName, e);
+		}
+	}
+
+
+	private <T> void addValidationControl(DocumentInfoController controller, String fieldName, Predicate<T> predicate,
+			String errorMessage) {
+		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName);
+		controller.addValidationControl(control, predicate, errorMessage);
+	}
 
 
 	public void applyRequiredValidation(ValidationRule validationRule, DocumentInfoController controller) {
@@ -88,5 +119,4 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 		return value -> true; // Default predicate that always returns true
 	}
-
 }
