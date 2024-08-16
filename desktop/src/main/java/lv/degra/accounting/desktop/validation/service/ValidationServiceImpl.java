@@ -60,28 +60,11 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 	}
 
-//	public  <T> ControlWithErrorLabel<T> getFieldByName(DocumentInfoController controller, String fieldName) {
-//		try {
-//			Field field = DocumentInfoController.class.getDeclaredField(fieldName);
-//			field.setAccessible(true);
-//			return (ControlWithErrorLabel<T>) field.get(controller);
-//		} catch (NoSuchFieldException | IllegalAccessException e) {
-//			throw new RuntimeException("Field not found: " + fieldName, e);
-//		}
-//	}
-
-
 	public <T> T getFieldByName(DocumentInfoController controller, String fieldName) {
 		try {
 			Field field = DocumentInfoController.class.getDeclaredField(fieldName);
 			field.setAccessible(true);
-			Object fieldValue = field.get(controller);
-
-			if (fieldValue instanceof ControlWithErrorLabel) {
-					return (T) fieldValue;
-			} else {
-					return (T) fieldValue;
-			}
+			return (T) field.get(controller);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new RuntimeException("Field not found: " + fieldName, e);
 		}
