@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
 import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
-import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 
 @Service
 public class ValidationServiceImpl implements ValidationService {

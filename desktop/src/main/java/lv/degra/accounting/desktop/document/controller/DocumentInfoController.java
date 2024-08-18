@@ -57,12 +57,12 @@ import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.validation.model.ValidationRule;
-import lv.degra.accounting.desktop.system.object.ComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
-import lv.degra.accounting.desktop.system.object.DatePickerWithErrorLabel;
-import lv.degra.accounting.desktop.system.object.TextAreaWithErrorLabel;
-import lv.degra.accounting.desktop.system.object.TextFieldWithErrorLabel;
-import lv.degra.accounting.desktop.system.object.lazycombo.SearchableComboBox;
+import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
@@ -259,10 +259,24 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void refreshScreenControls() {
-		documentTransactionTypeCombo.setDisable(!documentSubTypeCombo.getValue().getDocumentType().getCode().equals("BILL"));
-		directionCombo.setValue(documentSubTypeCombo.getValue().getDirection());
+		Optional.ofNullable(documentSubTypeCombo.getValue())
+				.map(documentSubType -> documentSubType.getDocumentType())
+				.map(documentType -> documentType.getCode())
+				.ifPresentOrElse(
+						code -> documentTransactionTypeCombo.setDisable(!code.equals("BILL")),
+						() -> documentTransactionTypeCombo.setDisable(true)
+				);
 
-		Integer documentSubtypeId = documentSubTypeCombo.getValue().getId();
+		Optional.ofNullable(documentSubTypeCombo.getValue())
+				.map(documentSubType -> documentSubType.getDirection())
+				.ifPresentOrElse(
+						direction -> directionCombo.setValue(direction),
+						() -> directionCombo.setValue(null)
+				);
+
+		Integer documentSubtypeId = Optional.ofNullable(documentSubTypeCombo.getValue())
+				.map(documentSubType -> documentSubType.getId())
+				.orElse(null);
 
 		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
 

@@ -1,14 +1,22 @@
-package lv.degra.accounting.desktop.system.object;
+package lv.degra.accounting.desktop.system.component;
 
 import java.util.function.Predicate;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign.MaterialDesign;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import lombok.Getter;
@@ -19,6 +27,7 @@ import lombok.Setter;
 public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 
 	private final ComboBox<T> comboBox;
+	private Button clearButton = new Button();
 
 	public ComboBoxWithErrorLabel() {
 		super(new ComboBox<T>());
@@ -26,8 +35,28 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		comboBox.setMaxWidth(Double.MAX_VALUE);
 
 		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> validate());
+
+		FontIcon icon = new FontIcon(MaterialDesign.MDI_CLOSE);
+		icon.setIconSize(20);
+		clearButton.setGraphic(icon);
+		clearButton.setOnAction(e -> comboBox.setValue(null));
+
 		validate();
-		getChildren().add(0, comboBox);
+
+		HBox comboBoxContainer = new HBox();
+		comboBoxContainer.getChildren().addAll(comboBox, clearButton);
+
+		HBox.setHgrow(comboBox, Priority.ALWAYS);
+		clearButton.setMinHeight(comboBox.getHeight());
+		clearButton.setPrefHeight(comboBox.getHeight());
+		clearButton.setMaxHeight(Double.MAX_VALUE);
+		clearButton.prefWidthProperty().bind(clearButton.heightProperty());
+
+		getChildren().add(0, comboBoxContainer);
+	}
+
+	public void setOnClearButtonAction(EventHandler<ActionEvent> handler) {
+		clearButton.setOnAction(handler);
 	}
 
 	public void setCellFactory(Callback<ListView<T>, ListCell<T>> factory) {
@@ -69,20 +98,20 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 
 	}
 
-	public SingleSelectionModel<T> getSelectionModel(){
+	public void setItems(ObservableList<T> items) {
+		this.comboBox.setItems(items);
+	}
+
+	public SingleSelectionModel<T> getSelectionModel() {
 		return comboBox.getSelectionModel();
 	}
-	public void hide(){
+
+	public void hide() {
 		comboBox.hide();
 	}
 
-	public void show(){
+	public void show() {
 		comboBox.show();
-	}
-
-
-	public void setItems(ObservableList<T> items) {
-		this.comboBox.setItems(items);
 	}
 
 	@Override

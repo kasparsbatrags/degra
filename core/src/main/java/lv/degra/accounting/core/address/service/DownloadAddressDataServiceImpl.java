@@ -47,19 +47,20 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	public static final Integer STATE_CODE = 100000000;
 	public static final String STATE_NAME = "Latvija";
 	public static final Integer STATE_TYPE = 101;
-	@Autowired
 	private final FileService fileService;
 	private final JdbcTemplate jdbcTemplate;
-	@Autowired
 	ObjectMapper objectMapper;
-	@Autowired
-	private ConfigService configService;
+	private final ConfigService configService;
 	private String previousArResponseChecksum = "";
 
 	@Autowired
-	public DownloadAddressDataServiceImpl(FileService fileService, JdbcTemplate jdbcTemplate) {
+	public DownloadAddressDataServiceImpl(FileService fileService, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper,
+			ConfigService configService, String previousArResponseChecksum) {
 		this.fileService = fileService;
 		this.jdbcTemplate = jdbcTemplate;
+		this.objectMapper = objectMapper;
+		this.configService = configService;
+		this.previousArResponseChecksum = previousArResponseChecksum;
 	}
 
 	@Scheduled(cron = "${application.address-download-cron}")
@@ -173,19 +174,19 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 
 	public void batchInsertUsers(List<Address> addressList) {
 		String sql = """
-				INSERT INTO public.address
-				(code, 
-				"type", 
-				status, 
-				parent_code, 
-				parent_type, 
-				"name", 
-				sort_by_value, 
-				zip, 
-				date_from, 
-				date_to, 
-				update_date_public, 
-				full_name, 
+				INSERT INTO address
+				(code,
+				"type",
+				status,
+				parent_code,
+				parent_type,
+				"name",
+				sort_by_value,
+				zip,
+				date_from,
+				date_to,
+				update_date_public,
+				full_name,
 				territorial_unit_code)
 				VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
 
@@ -195,7 +196,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				Address address = addressList.get(i);
 				ps.setInt(1, address.getCode());
-				ps.setInt(2, address.getType() != null ? address.getType() : null);
+				ps.setInt(2, (address.getType() != null) ? address.getType() : null);
 				ps.setInt(3, getStatusOnSystemByCode(address.getStatus()));
 				ps.setInt(4, address.getParentCode());
 				ps.setInt(5, address.getParentType());

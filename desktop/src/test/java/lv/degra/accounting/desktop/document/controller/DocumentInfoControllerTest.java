@@ -64,7 +64,7 @@ import lv.degra.accounting.core.document.service.DocumentTypeService;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.desktop.data.CustomerTypeStaticData;
-import lv.degra.accounting.desktop.system.object.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
 class DocumentInfoControllerTest extends ApplicationTest {

@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.object.lazycombo;
+package lv.degra.accounting.desktop.system.component.lazycombo;
 
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 import lv.degra.accounting.core.customer.service.CustomerService;
-import lv.degra.accounting.desktop.system.object.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
 
 @Component
 public class SearchableComboBox<T> extends ComboBoxWithErrorLabel<T> {

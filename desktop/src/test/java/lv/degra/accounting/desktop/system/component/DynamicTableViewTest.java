@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.object;
+package lv.degra.accounting.desktop.system.component;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

@@ -16,7 +16,7 @@ import lombok.Getter;
 import lv.degra.accounting.desktop.system.alert.AlertAsk;
 import lv.degra.accounting.desktop.system.alert.AlertResponseType;
 import lv.degra.accounting.desktop.system.exception.CannotPerformException;
-import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 
 public class DegraController {
 
