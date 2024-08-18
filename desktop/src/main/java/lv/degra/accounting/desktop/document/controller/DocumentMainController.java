@@ -21,7 +21,7 @@ import lv.degra.accounting.core.document.dto.BillContentDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
 import lv.degra.accounting.desktop.report.service.ReportService;
-import lv.degra.accounting.desktop.system.object.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;

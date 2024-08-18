@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.object.lazycombo;
+package lv.degra.accounting.desktop.system.component.lazycombo;
 
 import javafx.util.StringConverter;
 import lv.degra.accounting.core.customer.model.Customer;

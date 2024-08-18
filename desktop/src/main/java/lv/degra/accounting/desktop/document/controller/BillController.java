@@ -14,7 +14,7 @@ import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.bill.service.UnitTypeService;
 import lv.degra.accounting.core.document.dto.BillContentDto;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.desktop.system.object.DynamicTableView;
+import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

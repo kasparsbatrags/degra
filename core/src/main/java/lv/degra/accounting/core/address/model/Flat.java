@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.address.model.CsvDataBase;
 
 @Setter
 @Getter

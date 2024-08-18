@@ -47,19 +47,20 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	public static final Integer STATE_CODE = 100000000;
 	public static final String STATE_NAME = "Latvija";
 	public static final Integer STATE_TYPE = 101;
-	@Autowired
 	private final FileService fileService;
 	private final JdbcTemplate jdbcTemplate;
-	@Autowired
 	ObjectMapper objectMapper;
-	@Autowired
-	private ConfigService configService;
+	private final ConfigService configService;
 	private String previousArResponseChecksum = "";
 
 	@Autowired
-	public DownloadAddressDataServiceImpl(FileService fileService, JdbcTemplate jdbcTemplate) {
+	public DownloadAddressDataServiceImpl(FileService fileService, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper,
+			ConfigService configService, String previousArResponseChecksum) {
 		this.fileService = fileService;
 		this.jdbcTemplate = jdbcTemplate;
+		this.objectMapper = objectMapper;
+		this.configService = configService;
+		this.previousArResponseChecksum = previousArResponseChecksum;
 	}
 
 	@Scheduled(cron = "${application.address-download-cron}")

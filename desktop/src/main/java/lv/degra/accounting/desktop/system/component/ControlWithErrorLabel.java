@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.object;
+package lv.degra.accounting.desktop.system.component;
 
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
