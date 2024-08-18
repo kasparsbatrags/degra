@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AddressServiceImpl implements AddressService {
 
-    private AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
 
 	@Autowired
 	public AddressServiceImpl(AddressRepository addressRepository) {

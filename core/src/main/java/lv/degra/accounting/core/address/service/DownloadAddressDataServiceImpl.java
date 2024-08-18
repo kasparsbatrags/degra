@@ -174,19 +174,19 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 
 	public void batchInsertUsers(List<Address> addressList) {
 		String sql = """
-				INSERT INTO public.address
-				(code, 
-				"type", 
-				status, 
-				parent_code, 
-				parent_type, 
-				"name", 
-				sort_by_value, 
-				zip, 
-				date_from, 
-				date_to, 
-				update_date_public, 
-				full_name, 
+				INSERT INTO address
+				(code,
+				"type",
+				status,
+				parent_code,
+				parent_type,
+				"name",
+				sort_by_value,
+				zip,
+				date_from,
+				date_to,
+				update_date_public,
+				full_name,
 				territorial_unit_code)
 				VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
 
@@ -196,7 +196,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				Address address = addressList.get(i);
 				ps.setInt(1, address.getCode());
-				ps.setInt(2, address.getType() != null ? address.getType() : null);
+				ps.setInt(2, (address.getType() != null) ? address.getType() : null);
 				ps.setInt(3, getStatusOnSystemByCode(address.getStatus()));
 				ps.setInt(4, address.getParentCode());
 				ps.setInt(5, address.getParentType());

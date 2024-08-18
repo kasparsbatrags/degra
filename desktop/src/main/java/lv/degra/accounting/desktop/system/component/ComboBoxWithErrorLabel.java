@@ -39,9 +39,7 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		FontIcon icon = new FontIcon(MaterialDesign.MDI_CLOSE);
 		icon.setIconSize(20);
 		clearButton.setGraphic(icon);
-		clearButton.setOnAction(e -> {
-			comboBox.setValue(null);
-		});
+		clearButton.setOnAction(e -> comboBox.setValue(null));
 
 		validate();
 
