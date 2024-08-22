@@ -48,9 +48,9 @@ databaseChangeLog:
     - include:
         file: db/changelog/add-config-data.yaml
     - include:
-        file: db/changelog/add-account-plan.yaml
+        file: db/changelog/add-account-chart.yaml
     - include:
-        file: db/changelog/add-account-plan-data.yaml
+        file: db/changelog/add-account-chart-data.yaml
     - include:
         file: db/changelog/add-reports-table.yaml
     - include:

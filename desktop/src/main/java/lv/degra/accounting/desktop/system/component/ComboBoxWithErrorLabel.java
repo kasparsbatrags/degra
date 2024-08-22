@@ -27,11 +27,11 @@ import lombok.Setter;
 public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 
 	private final ComboBox<T> comboBox;
-	private Button clearButton = new Button();
+	private final Button clearButton = new Button();
 
 	public ComboBoxWithErrorLabel() {
 		super(new ComboBox<T>());
-		this.comboBox = (ComboBox<T>) this.control; // Ensure the superclass uses this ComboBox
+		this.comboBox = (ComboBox<T>) this.control;
 		comboBox.setMaxWidth(Double.MAX_VALUE);
 
 		comboBox.valueProperty().addListener((observable, oldValue, newValue) -> validate());

@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: account_plan
+            tableName: account_chart
             columns:
               - column:
                   name: id
@@ -16,7 +16,7 @@ databaseChangeLog:
               - column:
                   constraints:
                     nullable: false
-                  name: account
+                  name: code
                   type: VARCHAR(8)
               - column:
                   name: name
@@ -28,8 +28,8 @@ databaseChangeLog:
                   name: use_for_bilance
                   type: BOOLEAN
               - column:
-                  name: currency
-                  type: VARCHAR(3)
+                  name: currency_id
+                  type: INTEGER
               - column:
                   name: amount_in_account
                   type: numeric(17, 5)
@@ -41,9 +41,9 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - addUniqueConstraint:
-            columnNames:  account
-            constraintName: unique_account
-            tableName: account_plan
+            columnNames:  code
+            constraintName: unique_account_code
+            tableName: account_chart
 
   - changeSet:
       id: ParentIdKeyToIdOnAccountPlan
@@ -51,8 +51,20 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: parent_id
-            baseTableName: account_plan
-            constraintName: fk_parent_id_to_account_plan
+            baseTableName: account_chart
+            constraintName: fk_parent_id_to_account_chart
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: account_plan
+            referencedTableName: account_chart
+
+  - changeSet:
+      id: CurrencIdToCurrency
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: currency_id
+            baseTableName: account_chart
+            constraintName: fk_currency_id_to_curency
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: currency

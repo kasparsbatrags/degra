@@ -10,12 +10,19 @@ import lv.degra.accounting.core.customer.model.CustomerRepository;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+
+	private final CustomerRepository customerRepository;
+
 	@Autowired
-	private CustomerRepository customerRepository;
-    public List<Customer> getTop30Suggestions(String searchTerm) {
-        return customerRepository.getTop30Suggestions(searchTerm);
-    }
-	public Customer getByNameAndRegistrationNumber(String name, String registrationNumber){
-		return customerRepository.getByNameAndRegistrationNumber(name,registrationNumber);
+	public CustomerServiceImpl(CustomerRepository customerRepository) {
+		this.customerRepository = customerRepository;
+	}
+
+	public List<Customer> getTop30Suggestions(String searchTerm) {
+		return customerRepository.getTop30Suggestions(searchTerm);
+	}
+
+	public Customer getByNameAndRegistrationNumber(String name, String registrationNumber) {
+		return customerRepository.getByNameAndRegistrationNumber(name, registrationNumber);
 	}
 }

@@ -29,12 +29,14 @@ import org.springframework.stereotype.Component;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import lombok.Getter;
 import lombok.Setter;
@@ -125,6 +127,10 @@ public class DocumentInfoController extends DegraController {
 	public Pane receiverPane;
 	@FXML
 	public Pane paymentPane;
+	@FXML
+	public TabPane documentAdditionalInfoTabPane;
+	@FXML
+	public Pane documentAdditionalInfoPane;
 	private DocumentMainController documentMainController;
 	@Autowired
 	private CurrencyService currencyService;
@@ -466,4 +472,6 @@ public class DocumentInfoController extends DegraController {
 		return documentIdLabel.getScene();
 	}
 
+	public void onAddAccountingRowButton(ActionEvent actionEvent) {
+	}
 }
