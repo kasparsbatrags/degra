@@ -22,7 +22,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -77,6 +76,17 @@ public class DocumentInfoController extends DegraController {
 	private static final String BILL_CODE = "BILL";
 	private static final String VALIDATION_TYPE_REQUIRED = "required";
 	private static final String VALIDATION_TYPE_CUSTOM = "custom";
+	private final CurrencyService currencyService;
+	private final DocumentSubTypeService documentSubTypeService;
+	private final DocumentDirectionService documentDirectionService;
+	private final DocumentTransactionTypeService documentTransactionTypeService;
+	private final ExchangeService exchangeService;
+	private final CustomerService customerService;
+	private final BankService bankService;
+	private final CustomerAccountService customerAccountService;
+	private final ConfigService configService;
+	private final ValidationService validationService;
+	private final ConfigurableApplicationContext springContext;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
@@ -132,29 +142,25 @@ public class DocumentInfoController extends DegraController {
 	@FXML
 	public Pane documentAdditionalInfoPane;
 	private DocumentMainController documentMainController;
-	@Autowired
-	private CurrencyService currencyService;
 	private CurrencyExchangeRate currencyExchangeRate;
-	@Autowired
-	private DocumentSubTypeService documentSubTypeService;
-	@Autowired
-	private DocumentDirectionService documentDirectionService;
-	@Autowired
-	private DocumentTransactionTypeService documentTransactionTypeService;
-	@Autowired
-	private ExchangeService exchangeService;
-	@Autowired
-	private CustomerService customerService;
-	@Autowired
-	private BankService bankService;
-	@Autowired
-	private CustomerAccountService customerAccountService;
-	@Autowired
-	private ConfigService configService;
-	@Autowired
-	private ValidationService validationService;
-	@Autowired
-	private ConfigurableApplicationContext springContext;
+
+	public DocumentInfoController(CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
+			DocumentDirectionService documentDirectionService, DocumentTransactionTypeService documentTransactionTypeService,
+			ExchangeService exchangeService, CustomerService customerService, BankService bankService,
+			CustomerAccountService customerAccountService, ConfigService configService, ValidationService validationService,
+			ConfigurableApplicationContext springContext) {
+		this.currencyService = currencyService;
+		this.documentSubTypeService = documentSubTypeService;
+		this.documentDirectionService = documentDirectionService;
+		this.documentTransactionTypeService = documentTransactionTypeService;
+		this.exchangeService = exchangeService;
+		this.customerService = customerService;
+		this.bankService = bankService;
+		this.customerAccountService = customerAccountService;
+		this.configService = configService;
+		this.validationService = validationService;
+		this.springContext = springContext;
+	}
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
@@ -265,23 +271,15 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void refreshScreenControls() {
-		Optional.ofNullable(documentSubTypeCombo.getValue())
-				.map(documentSubType -> documentSubType.getDocumentType())
+		Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getDocumentType())
 				.map(documentType -> documentType.getCode())
-				.ifPresentOrElse(
-						code -> documentTransactionTypeCombo.setDisable(!code.equals("BILL")),
-						() -> documentTransactionTypeCombo.setDisable(true)
-				);
+				.ifPresentOrElse(code -> documentTransactionTypeCombo.setDisable(!code.equals("BILL")),
+						() -> documentTransactionTypeCombo.setDisable(true));
 
-		Optional.ofNullable(documentSubTypeCombo.getValue())
-				.map(documentSubType -> documentSubType.getDirection())
-				.ifPresentOrElse(
-						direction -> directionCombo.setValue(direction),
-						() -> directionCombo.setValue(null)
-				);
+		Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getDirection())
+				.ifPresentOrElse(direction -> directionCombo.setValue(direction), () -> directionCombo.setValue(null));
 
-		Integer documentSubtypeId = Optional.ofNullable(documentSubTypeCombo.getValue())
-				.map(documentSubType -> documentSubType.getId())
+		Integer documentSubtypeId = Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getId())
 				.orElse(null);
 
 		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
@@ -292,8 +290,7 @@ public class DocumentInfoController extends DegraController {
 				ControlWithErrorLabel<Object> control = (ControlWithErrorLabel<Object>) field;
 				control.setVisible(rule.isShowInForm());
 				control.setDisable(rule.isDefaultDisabled());
-			} else if (field instanceof Node) {
-				Node node = (Node) field;
+			} else if (field instanceof Node node) {
 				node.setVisible(rule.isShowInForm());
 				node.setDisable(rule.isDefaultDisabled());
 			} else {
