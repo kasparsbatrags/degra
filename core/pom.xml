@@ -117,17 +117,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-javafx</artifactId>
-			<version>12.3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-materialdesign-pack</artifactId>
-			<version>12.3.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>${hibernate.validator.version}</version>

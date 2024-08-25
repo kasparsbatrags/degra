@@ -68,3 +68,28 @@ databaseChangeLog:
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: currency
+
+
+  - changeSet:
+      id: DebitAccountIdToAccountChart
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: debit_account_id
+            baseTableName: account_code_distribution
+            constraintName: fk_debit_account_id_to_account_chart
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: account_chart
+
+  - changeSet:
+      id: CreditAccountIdToAccountChart
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: credit_account_id
+            baseTableName: account_code_distribution
+            constraintName: fk_credit_account_id_to_account_chart
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: account_chart
