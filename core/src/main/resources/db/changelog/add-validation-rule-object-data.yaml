@@ -1,0 +1,486 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddValidationRullesObjectDocumentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'documentDateDp'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: documentDateDp
+              - column:
+                  name: label
+                  value: Dokumenta datums
+
+  - changeSet:
+      id: AddValidationRullesObjectDirectionCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'directionCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: directionCombo
+              - column:
+                  name: label
+                  value: Dokumenta virziens
+
+
+  - changeSet:
+      id: AddValidationRullesObjectDocumentSubTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'documentSubTypeCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: documentSubTypeCombo
+              - column:
+                  name: label
+                  value: Dokumenta apakštips
+
+  - changeSet:
+      id: AddValidationRullesObjectSumTotalField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'sumTotalField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: name
+                  value: sumTotalField
+              - column:
+                  name: label
+                  value: Dokumenta summa
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: name
+                  value: publisherCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevējs
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherBankCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: name
+                  value: publisherBankCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevēja norēķinu baka
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherBankAccountCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: name
+                  value: publisherBankAccountCombo
+              - column:
+                  name: label
+                  value: Dokumenta izdevēja norēķinu konts
+
+  - changeSet:
+      id: AddValidationRullesObjectCurrencyCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'currencyCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 8
+              - column:
+                  name: name
+                  value: 'currencyCombo'
+              - column:
+                  name: label
+                  value: 'Valūta'
+
+  - changeSet:
+      id: AddValidationRullesObjectExchangeRateField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'exchangeRateField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 9
+              - column:
+                  name: name
+                  value: 'exchangeRateField'
+              - column:
+                  name: label
+                  value: 'Valūtas kurss'
+
+  - changeSet:
+      id: AddValidationRullesObjectSumTotalInCurrencyField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'sumTotalInCurrencyField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 10
+              - column:
+                  name: name
+                  value: 'sumTotalInCurrencyField'
+              - column:
+                  name: label
+                  value: 'Summa valūtā'
+
+  - changeSet:
+      id: AddValidationRullesObjectDocumentTransactionTypeCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'documentTransactionTypeCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 11
+              - column:
+                  name: name
+                  value: 'documentTransactionTypeCombo'
+              - column:
+                  name: label
+                  value: 'Darījuma veids (VID klasifikācija)'
+
+  - changeSet:
+      id: AddValidationRullesObjectPaymentDateDp
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'paymentDateDp'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 12
+              - column:
+                  name: name
+                  value: 'paymentDateDp'
+              - column:
+                  name: label
+                  value: 'Apmaksas veids'
+
+  - changeSet:
+      id: AddValidationRullesObjectReceiverCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'receiverCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 13
+              - column:
+                  name: name
+                  value: 'receiverCombo'
+              - column:
+                  name: label
+                  value: 'Dokumenta saņēmējs'
+
+  - changeSet:
+      id: AddValidationRullesObjectReceiverBankCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'receiverBankCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 14
+              - column:
+                  name: name
+                  value: 'receiverBankCombo'
+              - column:
+                  name: label
+                  value: 'Dokumenta saņēmēja banka'
+
+  - changeSet:
+      id: AddValidationRullesObjectReceiverBankAccountCombo
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'receiverBankAccountCombo'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 15
+              - column:
+                  name: name
+                  value: 'receiverBankAccountCombo'
+              - column:
+                  name: label
+                  value: 'Dokumenta saņēmēja bankas konts'
+
+  - changeSet:
+      id: AddValidationRullesObjectNotesForCustomerField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'notesForCustomerField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 16
+              - column:
+                  name: name
+                  value: 'notesForCustomerField'
+              - column:
+                  name: label
+                  value: 'Piezīmes dokumenta izdrukā'
+
+  - changeSet:
+      id: AddValidationRullesObjectInternalNotesField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'internalNotesField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 17
+              - column:
+                  name: name
+                  value: 'internalNotesField'
+              - column:
+                  name: label
+                  value: 'Piezīmes iekšējās'
+
+
+  - changeSet:
+      id: AddValidationRullesObjectSeriesField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'seriesField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 18
+              - column:
+                  name: name
+                  value: 'seriesField'
+              - column:
+                  name: label
+                  value: 'Dokumenta sērija'
+
+  - changeSet:
+      id: AddValidationRullesObjectNumberField
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'numberField'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 19
+              - column:
+                  name: name
+                  value: 'numberField'
+              - column:
+                  name: label
+                  value: 'Dokumenta numurs'
+
+  - changeSet:
+      id: AddValidationRullesObjectPublisherPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'publisherPane'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 20
+              - column:
+                  name: name
+                  value: 'publisherPane'
+              - column:
+                  name: label
+                  value: 'Dokumenta izdevējs'
+
+  - changeSet:
+      id: AddValidationRullesObjectReceiverPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'receiverPane'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 21
+              - column:
+                  name: name
+                  value: 'receiverPane'
+              - column:
+                  name: label
+                  value: 'Dokumenta saņēmējs'
+
+  - changeSet:
+      id: AddValidationRullesObjectPaymentPane
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'paymentPane'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 22
+              - column:
+                  name: name
+                  value: 'paymentPane'
+              - column:
+                  name: label
+                  value: 'Apsmaksa'
