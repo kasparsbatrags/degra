@@ -1,7 +1,7 @@
 package lv.degra.accounting.desktop.document.controller;
 
-import static lv.degra.accounting.desktop.data.BankDataFactory.BANK1_BIC;
-import static lv.degra.accounting.desktop.data.BankDataFactory.CUSTOMER1_BANK1;
+import static lv.degra.accounting.desktop.data.BankDataFactory.SWED_BANK_BIC;
+import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
 import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
@@ -106,8 +106,8 @@ class BillControllerTest extends ApplicationTest {
 		Bank actualbank = new Bank();
 		actualbank.setId(1);
 		actualbank.setCustomer(mockCustomer);
-		actualbank.setBic(BANK1_BIC);
-		Assertions.assertEquals(CUSTOMER1_BANK1, actualbank);
+		actualbank.setBic(SWED_BANK_BIC);
+		Assertions.assertEquals(ACUSTOMER_SWED_BANK, actualbank);
 	}
 
 }

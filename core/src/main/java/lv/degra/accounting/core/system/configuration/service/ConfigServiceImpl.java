@@ -11,8 +11,13 @@ import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 public class ConfigServiceImpl implements ConfigService {
 
 	private static final int DEFAULT_INT_VALUE = 0;
+
+	private final ConfigurationRepository configurationRepository;
+
 	@Autowired
-	private ConfigurationRepository configurationRepository;
+	public ConfigServiceImpl(ConfigurationRepository configurationRepository) {
+		this.configurationRepository = configurationRepository;
+	}
 
 	public void save(String key, String value) {
 		if (key == null || value == null) {
@@ -47,7 +52,7 @@ public class ConfigServiceImpl implements ConfigService {
 
 	public boolean getBoolean(String key) {
 		String value = get(key);
-		return value != null && Boolean.parseBoolean(value);
+		return Boolean.parseBoolean(value);
 	}
 
 }

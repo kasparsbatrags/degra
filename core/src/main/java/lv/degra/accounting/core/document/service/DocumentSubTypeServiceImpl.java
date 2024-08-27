@@ -11,8 +11,13 @@ import lv.degra.accounting.core.document.model.DocumentSubTypeRepository;
 
 @Service
 public class DocumentSubTypeServiceImpl implements DocumentSubTypeService {
+
+	private final DocumentSubTypeRepository documentSubTypeRepository;
+
 	@Autowired
-	private DocumentSubTypeRepository documentSubTypeRepository;
+	public DocumentSubTypeServiceImpl(DocumentSubTypeRepository documentSubTypeRepository) {
+		this.documentSubTypeRepository = documentSubTypeRepository;
+	}
 
 	public List<DocumentSubType> getDocumentSubTypeList() {
 		return documentSubTypeRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));

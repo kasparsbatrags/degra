@@ -11,8 +11,13 @@ import lv.degra.accounting.core.document.model.DocumentDirectionRepository;
 
 @Service
 public class DocumentDirectionServiceImpl implements DocumentDirectionService {
+
+	private final DocumentDirectionRepository documentDirectionRepository;
+
 	@Autowired
-	private DocumentDirectionRepository documentDirectionRepository;
+	public DocumentDirectionServiceImpl(DocumentDirectionRepository documentDirectionRepository) {
+		this.documentDirectionRepository = documentDirectionRepository;
+	}
 
 	public List<DocumentDirection> getDocumentDirectionList() {
 		return documentDirectionRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));

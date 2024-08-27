@@ -13,7 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +46,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	public static final Integer STATE_CODE = 100000000;
 	public static final String STATE_NAME = "Latvija";
 	public static final Integer STATE_TYPE = 101;
+
 	private final FileService fileService;
 	private final JdbcTemplate jdbcTemplate;
 	private final ObjectMapper objectMapper;
@@ -72,44 +72,40 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	}
 
 	public void downloadArData() {
-
 		log.info("Address data import started");
 		byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(ADDRESS_DOWNLOAD_LINK), "");
-		if (csvFileBytes != null && csvFileBytes.length > 0 && isArDataChanged(csvFileBytes)) {
-			try {
-				fileService.unzipFileInFolder(csvFileBytes);
-			} catch (Exception e) {
-				throw new ExtractZipFileException(e.getMessage());
-			}
-			truncateAddressTable();
-			importState();
-			importArData();
-			createIndexes();
-			fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
-		} else if (csvFileBytes != null && csvFileBytes.length > 0 && !isArDataChanged(csvFileBytes)) {
-			previousArResponseChecksum = "";
-			log.info("Address csv file not changed");
-		} else if (csvFileBytes == null || csvFileBytes.length == 0) {
-			previousArResponseChecksum = "";
-			log.info("Address csv file unable to download");
 
+		if (csvFileBytes == null || csvFileBytes.length == 0) {
+			handleEmptyDownload();
+			return;
 		}
+
+		if (isArDataChanged(csvFileBytes)) {
+			processAndImportData(csvFileBytes);
+		} else {
+			log.info("Address CSV file not changed");
+		}
+
 		log.info("Address data import finished");
 	}
 
-	private Address getState() {
-		Address stateAddress = new Address();
-		stateAddress.setCode(STATE_CODE);
-		stateAddress.setParentCode(STATE_CODE);
-		stateAddress.setName(STATE_NAME);
-		stateAddress.setSortByValue(STATE_NAME);
-		stateAddress.setType(STATE_TYPE);
-		stateAddress.setParentType(STATE_TYPE);
-		stateAddress.setFullName(STATE_NAME);
-		stateAddress.setStatus(ArRecordStatus.EXIST.getCode());
-		stateAddress.setDateFrom(LocalDate.now());
-		stateAddress.setUpdateDatePublic(LocalDate.now());
-		return stateAddress;
+	private void handleEmptyDownload() {
+		previousArResponseChecksum = "";
+		log.info("Address CSV file unable to download");
+	}
+
+	private void processAndImportData(byte[] csvFileBytes) {
+		try {
+			fileService.unzipFileInFolder(csvFileBytes);
+		} catch (Exception e) {
+			throw new ExtractZipFileException(e.getMessage());
+		}
+
+		truncateAddressTable();
+		importState();
+		importArData();
+		createIndexes();
+		fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
 	}
 
 	private void truncateAddressTable() {
@@ -126,34 +122,39 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	}
 
 	private void importArData() {
-		Arrays.asList(ArZipContentFiles.values()).forEach(fileInfo -> {
-			File archiveFile = new File(
-					fileService.getTempDirectoryPath() + FileSystems.getDefault().getSeparator() + fileInfo.getFileName());
-			byte[] fileContent;
-			if (archiveFile.exists()) {
-				fileContent = fileService.loadFileLocally(archiveFile.getAbsolutePath());
-			} else {
-				throw new ReadArCsvFileContentException("Unable to get file:" + archiveFile.getAbsolutePath());
-			}
+		Arrays.stream(ArZipContentFiles.values()).forEach(this::processFile);
+	}
 
-			importFile(new InputStreamReader(new ByteArrayInputStream(fileContent)), fileInfo);
+	private void processFile(ArZipContentFiles fileInfo) {
+		File archiveFile = new File(fileService.getTempDirectoryPath() + FileSystems.getDefault().getSeparator() + fileInfo.getFileName());
+		byte[] fileContent = getFileContent(archiveFile);
 
-		});
+		List<AddressData> csvData = parseCsvArDataFileToList(new InputStreamReader(new ByteArrayInputStream(fileContent)),
+				fileInfo.getClasName());
+		List<Address> addressList = mapCsvDataToAddressList(csvData);
 
+		batchInsertAddresses(addressList);
+	}
+
+	private byte[] getFileContent(File archiveFile) {
+		if (!archiveFile.exists()) {
+			throw new ReadArCsvFileContentException("Unable to get file: " + archiveFile.getAbsolutePath());
+		}
+		return fileService.loadFileLocally(archiveFile.getAbsolutePath());
+	}
+
+	private List<Address> mapCsvDataToAddressList(List<AddressData> csvData) {
+		return csvData.parallelStream().map(row -> objectMapper.convertValue(row, Address.class))
+				.filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus())).toList();
 	}
 
 	private void importState() {
-		List<Address> addressList = new ArrayList<>();
-		addressList.add(getState());
-		batchInsertUsers(addressList);
+		List<Address> addressList = List.of(getState());
+		batchInsertAddresses(addressList);
 	}
 
-	private void importFile(InputStreamReader file, ArZipContentFiles fileInfo) {
-		List<AddressData> csvData = parseCsvArDataFileToList(file, fileInfo.getClasName());
-		List<Address> addressList = csvData.parallelStream().map(row -> objectMapper.convertValue(row, Address.class))
-				.filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus())).toList();
-
-		batchInsertUsers(addressList);
+	private Address getState() {
+		return new Address(STATE_CODE, STATE_NAME, STATE_TYPE, ArRecordStatus.EXIST.getCode(), LocalDate.now());
 	}
 
 	private List<AddressData> parseCsvArDataFileToList(Reader reader, Class<? extends AddressData> clasName) {
@@ -162,40 +163,27 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 	}
 
 	private boolean isArDataChanged(byte[] bytes) {
-		boolean result = false;
 		String md5 = DigestUtils.md5DigestAsHex(bytes);
-		if (!previousArResponseChecksum.equals(md5)) {
+		boolean hasChanged = !previousArResponseChecksum.equals(md5);
+		if (hasChanged) {
 			previousArResponseChecksum = md5;
-			result = true;
 		}
-		return result;
+		return hasChanged;
 	}
 
-	public void batchInsertUsers(List<Address> addressList) {
+	public void batchInsertAddresses(List<Address> addressList) {
 		String sql = """
 				INSERT INTO address
-				(code,
-				"type",
-				status,
-				parent_code,
-				parent_type,
-				"name",
-				sort_by_value,
-				zip,
-				date_from,
-				date_to,
-				update_date_public,
-				full_name,
-				territorial_unit_code)
-				VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
+				(code, "type", status, parent_code, parent_type, "name", sort_by_value, zip, date_from, date_to, update_date_public, full_name, territorial_unit_code)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+				""";
 
-		this.jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-
+		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				Address address = addressList.get(i);
 				ps.setInt(1, address.getCode());
-				ps.setInt(2, (address.getType() != null) ? address.getType() : null);
+				ps.setObject(2, address.getType(), Types.INTEGER);
 				ps.setInt(3, getStatusOnSystemByCode(address.getStatus()));
 				ps.setInt(4, address.getParentCode());
 				ps.setInt(5, address.getParentType());
@@ -206,7 +194,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 				ps.setDate(10, address.getDateTo() != null ? Date.valueOf(address.getDateTo()) : null);
 				ps.setDate(11, Date.valueOf(address.getUpdateDatePublic()));
 				ps.setString(12, address.getFullName());
-				ps.setInt(13, address.getTerritorialUnitCode() != null ? address.getTerritorialUnitCode() : Types.INTEGER);
+				ps.setObject(13, address.getTerritorialUnitCode(), Types.INTEGER);
 			}
 
 			@Override
@@ -215,5 +203,4 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 			}
 		});
 	}
-
 }

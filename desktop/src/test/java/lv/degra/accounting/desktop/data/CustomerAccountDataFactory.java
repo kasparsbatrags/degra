@@ -15,14 +15,14 @@ public class CustomerAccountDataFactory {
     public static final String ACCOUNT4="LV68HABA0121222222224";
     public static final String ACCOUNT5="LV68HABA0121222222225";
 
-    public static final CustomerAccount CUSTOMER1_BANK1_ACCOUNT1 = createCustomerBankAccount(1, CustomersData.getCustomer1(), BankDataFactory.CUSTOMER1_BANK1, ACCOUNT1);
+    public static final CustomerAccount CUSTOMER1_BANK1_ACCOUNT1 = createCustomerBankAccount(1, CustomersData.getCustomer1(), BankDataFactory.ACUSTOMER_SWED_BANK, ACCOUNT1);
 
-    public static final CustomerAccount CUSTOMER2_BANK1_ACCOUNT2 = createCustomerBankAccount(2, CustomersData.getCustomer2(), BankDataFactory.CUSTOMER2_BANK1, ACCOUNT2);
-    public static final CustomerAccount CUSTOMER2_BANK2_ACCOUNT1 = createCustomerBankAccount(2, CustomersData.getCustomer2(), BankDataFactory.CUSTOMER2_BANK2, ACCOUNT1);
+    public static final CustomerAccount CUSTOMER2_BANK1_ACCOUNT2 = createCustomerBankAccount(2, CustomersData.getCustomer2(), BankDataFactory.BCUSTOMER_SWED_BANK, ACCOUNT2);
+    public static final CustomerAccount CUSTOMER2_BANK2_ACCOUNT1 = createCustomerBankAccount(2, CustomersData.getCustomer2(), BankDataFactory.BCUSTOMER_SEB_BANK, ACCOUNT1);
 
-    public static final CustomerAccount CUSTOMER6_BANK1_ACCOUNT3 = createCustomerBankAccount(3, CustomersData.getCustomer6(), BankDataFactory.CUSTOMER6_BANK1, ACCOUNT3);
-    public static final CustomerAccount CUSTOMER7_BANK4_ACCOUNT4 = createCustomerBankAccount(4, CustomersData.getCustomer6(), BankDataFactory.CUSTOMER6_BANK4, ACCOUNT4);
-    public static final CustomerAccount CUSTOMER6_BANK1_ACCOUNT5 = createCustomerBankAccount(5, CustomersData.getCustomer6(), BankDataFactory.CUSTOMER6_BANK1, ACCOUNT5);
+    public static final CustomerAccount CUSTOMER6_BANK1_ACCOUNT3 = createCustomerBankAccount(3, CustomersData.getCustomer6(), BankDataFactory.CCUSTOMER_SWED_BANK, ACCOUNT3);
+    public static final CustomerAccount CUSTOMER7_BANK4_ACCOUNT4 = createCustomerBankAccount(4, CustomersData.getCustomer6(), BankDataFactory.FCUSTOMER_RIKO_BANK, ACCOUNT4);
+    public static final CustomerAccount CUSTOMER6_BANK1_ACCOUNT5 = createCustomerBankAccount(5, CustomersData.getCustomer6(), BankDataFactory.CCUSTOMER_SWED_BANK, ACCOUNT5);
 
     private static CustomerAccount createCustomerBankAccount(int id, Customer customer, Bank bank, String account) {
         CustomerAccount cba = new CustomerAccount();

@@ -11,8 +11,13 @@ import lv.degra.accounting.core.document.model.DocumentTypeRepository;
 
 @Service
 public class DocumentTypeServiceImpl implements DocumentTypeService {
+
+	private final DocumentTypeRepository documentTypeRepository;
+
 	@Autowired
-	private DocumentTypeRepository documentTypeRepository;
+	public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository) {
+		this.documentTypeRepository = documentTypeRepository;
+	}
 
 	public List<DocumentType> getDocumentTypeList() {
 		return documentTypeRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));

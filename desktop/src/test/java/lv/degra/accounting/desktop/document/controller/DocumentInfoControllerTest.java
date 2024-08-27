@@ -1,8 +1,8 @@
 package lv.degra.accounting.desktop.document.controller;
 
 import static lv.degra.accounting.desktop.data.AddressStaticData.ADDRESS1;
-import static lv.degra.accounting.desktop.data.BankDataFactory.CUSTOMER1_BANK1;
-import static lv.degra.accounting.desktop.data.BankDataFactory.CUSTOMER2_BANK1;
+import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
+import static lv.degra.accounting.desktop.data.BankDataFactory.BCUSTOMER_SWED_BANK;
 import static lv.degra.accounting.desktop.data.BankDataFactory.getCustomer1BankList;
 import static lv.degra.accounting.desktop.data.BankDataFactory.getCustomer2BankList;
 import static lv.degra.accounting.desktop.data.BankDataFactory.getUniqueCustomer1BankIdList;
@@ -128,12 +128,12 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		when(customerService.getTop30Suggestions(CUSTOMER1_NAME)).thenReturn(getCustomer1List());
 		when(customerAccountService.getCustomerAccounts(getCustomer1())).thenReturn(getCustomer1AccountList());
 		when(bankService.getCustomerBanksByBanksIdList(getUniqueCustomer1BankIdList())).thenReturn(getCustomer1BankList());
-		when(customerAccountService.getCustomerBankAccounts(getCustomer1(), CUSTOMER1_BANK1)).thenReturn(getCustomer1AccountList());
+		when(customerAccountService.getCustomerBankAccounts(getCustomer1(), ACUSTOMER_SWED_BANK)).thenReturn(getCustomer1AccountList());
 
 		when(customerService.getTop30Suggestions(CUSTOMER2_NAME)).thenReturn(getCustomer2List());
 		when(customerAccountService.getCustomerAccounts(getCustomer2())).thenReturn(getCustomer2AccountList());
 		when(bankService.getCustomerBanksByBanksIdList(getUniqueCustomer2BankIdList())).thenReturn(getCustomer2BankList());
-		when(customerAccountService.getCustomerBankAccounts(getCustomer2(), CUSTOMER2_BANK1)).thenReturn(getCustomer2AccountList());
+		when(customerAccountService.getCustomerBankAccounts(getCustomer2(), BCUSTOMER_SWED_BANK)).thenReturn(getCustomer2AccountList());
 
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/document/DocumentInfoForm.fxml"));
 		loader.setControllerFactory(clazz -> documentInfoController);
@@ -171,7 +171,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		robot.write(CUSTOMER1_NAME);
 		robot.press(KeyCode.ENTER);
 		Assertions.assertEquals(getCustomer1(), documentInfoController.publisherCombo.getValue());
-		Assertions.assertEquals(CUSTOMER1_BANK1, documentInfoController.publisherBankCombo.getValue());
+		Assertions.assertEquals(ACUSTOMER_SWED_BANK, documentInfoController.publisherBankCombo.getValue());
 		Assertions.assertEquals(CUSTOMER1_BANK1_ACCOUNT1, documentInfoController.publisherBankAccountCombo.getValue());
 	}
 
@@ -182,7 +182,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		robot.write(CUSTOMER2_NAME);
 		robot.press(KeyCode.ENTER);
 		Assertions.assertEquals(getCustomer2(), documentInfoController.publisherCombo.getValue());
-		Assertions.assertEquals(CUSTOMER2_BANK1, documentInfoController.publisherBankCombo.getValue());
+		Assertions.assertEquals(BCUSTOMER_SWED_BANK, documentInfoController.publisherBankCombo.getValue());
 		Assertions.assertNull(documentInfoController.publisherBankAccountCombo.getValue());
 	}
 

@@ -12,6 +12,7 @@ import lv.degra.accounting.core.address.service.DownloadAddressDataService;
 public class AddressDownloadController {
 	public static final String ADDRESS_REGISTER = "/API/address-register";
 	public static final String DOWNLOAD = "/download";
+
 	private final DownloadAddressDataService downloadAddressDataService;
 
 	@Autowired

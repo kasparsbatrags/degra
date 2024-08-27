@@ -24,8 +24,8 @@ import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 
 @Service
 public class ValidationServiceImpl implements ValidationService {
+
 	private final Map<String, BiConsumer<DocumentInfoController, String>> validationActions = new HashMap<>();
-	@Autowired
 	private final ValidationRulesRepository validationRulesRepository;
 
 	@Autowired
@@ -38,6 +38,7 @@ public class ValidationServiceImpl implements ValidationService {
 	}
 
 	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId) {
+		controller.clearValidationControls();
 		List<ValidationRule> validationRules = getValidationRulesByDocumentSybType(documentSubtypeId);
 
 		for (ValidationRule rule : validationRules) {
@@ -117,6 +118,6 @@ public class ValidationServiceImpl implements ValidationService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return value -> true; // Default predicate that always returns true
+		return value -> true;
 	}
 }

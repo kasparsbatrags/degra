@@ -194,7 +194,7 @@ public class DocumentMainController extends DegraController {
 
 	public void onPrintDocumentButton() {
 		List<BillContentDto> billPositionData = billController.billRowService.getByDocumentId(documentDto.getId());
-		JasperPrint jasperPrint = reportService.getReportWithData(billPositionData, documentDto, "BILL", false);
+		JasperPrint jasperPrint = reportService.getReportWithData(billPositionData, documentDto, false);
 		JasperViewer viewer = new JasperViewer(jasperPrint, false);
 		viewer.setVisible(true);
 

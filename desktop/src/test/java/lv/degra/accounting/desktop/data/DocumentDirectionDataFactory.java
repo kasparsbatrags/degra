@@ -7,12 +7,12 @@ import lv.degra.accounting.core.document.model.DocumentDirection;
 
 public class DocumentDirectionDataFactory {
 
-	public static Integer INBOUND_ID = 1;
-	public static String INBOUND_NAME = "Ienākošais";
-	public static Integer OUTBOUND_ID = 2;
-	public static String OUTBOUND_NAME = "Izejošais";
-	public static Integer INTERNAL_ID = 3;
-	public static String INTERNAL_NAME = "Iekšējais";
+	public static final Integer INBOUND_ID = 1;
+	public static final String INBOUND_NAME = "Ienākošais";
+	public static final Integer OUTBOUND_ID = 2;
+	public static final String OUTBOUND_NAME = "Izejošais";
+	public static final Integer INTERNAL_ID = 3;
+	public static final String INTERNAL_NAME = "Iekšējais";
 
 	public static DocumentDirection createDocumentDirection(Integer id, String name) {
 		DocumentDirection documentDirection = new DocumentDirection();

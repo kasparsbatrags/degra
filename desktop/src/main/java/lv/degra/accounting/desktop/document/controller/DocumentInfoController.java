@@ -2,7 +2,6 @@ package lv.degra.accounting.desktop.document.controller;
 
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.BILL_SERIES_KEY;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
@@ -32,8 +31,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
@@ -51,6 +48,7 @@ import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.DocumentDirection;
 import lv.degra.accounting.core.document.model.DocumentSubType;
 import lv.degra.accounting.core.document.model.DocumentTransactionType;
+import lv.degra.accounting.core.document.model.DocumentType;
 import lv.degra.accounting.core.document.service.DocumentDirectionService;
 import lv.degra.accounting.core.document.service.DocumentSubTypeService;
 import lv.degra.accounting.core.document.service.DocumentTransactionTypeService;
@@ -225,13 +223,6 @@ public class DocumentInfoController extends DegraController {
 		validationService.applyCustomValidation(validationRule, this);
 	}
 
-	protected boolean promptSaveDocumentInfoChanges() {
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Vai vēlaties saglabāt izmaiņas?", ButtonType.YES, ButtonType.NO);
-		alert.setTitle(APPLICATION_TITLE);
-		alert.showAndWait();
-		return alert.getResult() == ButtonType.YES;
-	}
-
 	@FXML
 	public void sumTotalOnAction() {
 		sumTotalInCurrencyField.setText(calculateCurrencyTotal(sumTotalField.getText(), exchangeRateField.getText()));
@@ -271,23 +262,22 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void refreshScreenControls() {
-		Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getDocumentType())
-				.map(documentType -> documentType.getCode())
-				.ifPresentOrElse(code -> documentTransactionTypeCombo.setDisable(!code.equals("BILL")),
+		Optional<DocumentSubType> optionalDocumentSubType = Optional.ofNullable(documentSubTypeCombo.getValue());
+
+		optionalDocumentSubType.map(DocumentSubType::getDocumentType).map(DocumentType::getCode)
+				.ifPresentOrElse(code -> documentTransactionTypeCombo.setDisable(!"BILL".equals(code)),
 						() -> documentTransactionTypeCombo.setDisable(true));
 
-		Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getDirection())
-				.ifPresentOrElse(direction -> directionCombo.setValue(direction), () -> directionCombo.setValue(null));
+		optionalDocumentSubType.map(DocumentSubType::getDirection)
+				.ifPresentOrElse(directionCombo::setValue, () -> directionCombo.setValue(null));
 
-		Integer documentSubtypeId = Optional.ofNullable(documentSubTypeCombo.getValue()).map(documentSubType -> documentSubType.getId())
-				.orElse(null);
+		Integer documentSubtypeId = optionalDocumentSubType.map(DocumentSubType::getId).orElse(null);
 
 		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
 
-		for (ValidationRule rule : validationRuleList) {
+		validationRuleList.forEach(rule -> {
 			Object field = validationService.getFieldByName(this, rule.getValidationObject().getName());
-			if (field instanceof ControlWithErrorLabel) {
-				ControlWithErrorLabel<Object> control = (ControlWithErrorLabel<Object>) field;
+			if (field instanceof ControlWithErrorLabel<?> control) {
 				control.setVisible(rule.isShowInForm());
 				control.setDisable(rule.isDefaultDisabled());
 			} else if (field instanceof Node node) {
@@ -296,9 +286,7 @@ public class DocumentInfoController extends DegraController {
 			} else {
 				throw new IllegalArgumentException("Unsupported field type: " + field.getClass().getName());
 			}
-
-		}
-
+		});
 	}
 
 	public void injectMainController(DocumentMainController documentMainController) {
@@ -318,13 +306,13 @@ public class DocumentInfoController extends DegraController {
 			ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
 					customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank));
 			if (customerBankAccounts.size() == 1) {
-				CustomerAccount account = customerBankAccounts.get(0);
+				CustomerAccount account = customerBankAccounts.getFirst();
 				accountCombo.setItems(customerBankAccounts);
 				accountCombo.setValue(account);
 			} else {
 				accountCombo.setItems(customerBankAccounts);
 				if (customerBankAccounts.size() == 1) {
-					accountCombo.setValue(customerBankAccounts.get(0));
+					accountCombo.setValue(customerBankAccounts.getFirst());
 				} else {
 					accountCombo.setValue(null);
 				}
@@ -359,7 +347,7 @@ public class DocumentInfoController extends DegraController {
 					customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank));
 			accountCombo.setItems(customerBankAccounts);
 			if (customerBankAccounts.size() == 1) {
-				accountCombo.setValue(customerBankAccounts.get(0));
+				accountCombo.setValue(customerBankAccounts.getFirst());
 			} else {
 				accountCombo.setValue(null);
 				accountCombo.setItems(FXCollections.observableArrayList());

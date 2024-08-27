@@ -1,5 +1,6 @@
 package lv.degra.accounting.core.document.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -23,14 +24,14 @@ import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
-import lv.degra.accounting.core.distribution.model.Distribution;
+import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "document")
-public class Document {
+public class Document implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
@@ -95,7 +96,7 @@ public class Document {
 	private Instant lastModifiedAt;
 
 	@OneToMany(mappedBy = "document", fetch = FetchType.EAGER)
-	private Set<Distribution> distributions = new LinkedHashSet<>();
+	private Set<AccountCodeDistribution> distributions = new LinkedHashSet<>();
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "publisher_customer_id")

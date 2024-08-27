@@ -11,8 +11,13 @@ import lv.degra.accounting.core.document.model.DocumentTransactionTypeRepository
 
 @Service
 public class DocumentTransactionTypeServiceImpl implements DocumentTransactionTypeService {
+
+	private final DocumentTransactionTypeRepository documentTransactionTypeRepository;
+
 	@Autowired
-	private DocumentTransactionTypeRepository documentTransactionTypeRepository;
+	public DocumentTransactionTypeServiceImpl(DocumentTransactionTypeRepository documentTransactionTypeRepository) {
+		this.documentTransactionTypeRepository = documentTransactionTypeRepository;
+	}
 
 	public List<DocumentTransactionType> getDocumentTransactionTypeList() {
 		return documentTransactionTypeRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));

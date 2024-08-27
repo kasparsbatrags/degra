@@ -10,23 +10,25 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
 import lv.degra.accounting.core.system.exception.SaveDocumentException;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
 
 	private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";
+
+	private final DocumentRepository documentRepository;
+
+	private final ModelMapper modelMapper;
+
 	@Autowired
-	private DocumentRepository documentRepository;
-	@Autowired
-	private ModelMapper modelMapper;
+	public DocumentServiceImpl(DocumentRepository documentRepository, ModelMapper modelMapper) {
+		this.documentRepository = documentRepository;
+		this.modelMapper = modelMapper;
+	}
 
 	@Override
 	public DocumentDto getDocumentById(Integer id) {

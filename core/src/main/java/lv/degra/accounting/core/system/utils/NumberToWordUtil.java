@@ -9,7 +9,10 @@ public class NumberToWordUtil {
     private static final String SPACE = " ";
     static ValueConverters intConverter = ValueConverters.LATVIAN_INTEGER;
 
-    public static String getWordsFromDouble(double number, String currency) {
+	public NumberToWordUtil() {
+	}
+
+	public static String getWordsFromDouble(double number, String currency) {
         BigDecimal bigDecimalNumber = BigDecimal.valueOf(number);
         int numberPart = bigDecimalNumber.intValue();
 

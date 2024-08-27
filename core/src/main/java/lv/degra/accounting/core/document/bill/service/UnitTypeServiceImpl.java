@@ -9,10 +9,14 @@ import lv.degra.accounting.core.document.bill.model.UnitType;
 import lv.degra.accounting.core.document.bill.model.UnitTypeRepository;
 
 @Service
-public class UnitTypeServiceImpl  implements UnitTypeService {
+public class UnitTypeServiceImpl implements UnitTypeService {
+
+	private final UnitTypeRepository unitTypeRepository;
 
 	@Autowired
-	private UnitTypeRepository unitTypeRepository;
+	public UnitTypeServiceImpl(UnitTypeRepository unitTypeRepository) {
+		this.unitTypeRepository = unitTypeRepository;
+	}
 
 	public List<UnitType> getAllUnitTypes() {
 		return unitTypeRepository.findAll();

@@ -1,8 +1,5 @@
 package lv.degra.accounting.desktop.system.configuration;
 
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
 public class DegraDesktopConfig {
 
 	public static final String MAIN = "/system/main.fxml";
@@ -23,4 +20,7 @@ public class DegraDesktopConfig {
 	public static final String FIELD_REQUIRED_MESSAGE = "Obligāti jāaizpilda";
 	public static final String AMOUNT_PRECISION_2 = "Pārāk daudz ciparu aiz komata!";
 
+	private DegraDesktopConfig() {
+		throw new UnsupportedOperationException("DegraDesktopConfig class");
+	}
 }

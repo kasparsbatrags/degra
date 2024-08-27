@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectionUtil {
+
+	public ReflectionUtil() {
+		throw new IllegalStateException("ReflectionUtil class");
+	}
+
 	public static Map<String, Object> convertObjectToMap(Object obj) {
 		Map<String, Object> dataMap = new HashMap<>();
 		Class<?> objClass = obj.getClass();
@@ -15,8 +20,8 @@ public class ReflectionUtil {
 			try {
 				field.setAccessible(true);
 				Object value = field.get(obj);
-				if (value instanceof LocalDate) {
-					LocalDate localDate = (LocalDate) value;
+				if (value instanceof LocalDate localDate) {
+					localDate = (LocalDate) value;
 					java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
 					dataMap.put(field.getName(), sqlDate);
 				} else {

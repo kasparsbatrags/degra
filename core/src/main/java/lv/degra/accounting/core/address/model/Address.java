@@ -5,9 +5,17 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.customer.model.Customer;
 
@@ -15,6 +23,7 @@ import lv.degra.accounting.core.customer.model.Customer;
 @Setter
 @Getter
 @Table(name = "address")
+@NoArgsConstructor
 public class Address implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +48,13 @@ public class Address implements Serializable {
 
 	@OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Customer> customers;
+
+	public Address(Integer code, String name, Integer type, String status, LocalDate dateFrom) {
+		this.code = code;
+		this.name = name;
+		this.type = type;
+		this.status = status;
+		this.dateFrom = dateFrom;
+	}
+
 }

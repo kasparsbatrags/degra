@@ -1,6 +1,6 @@
 package lv.degra.accounting.desktop.document.controller;
 
-import static lv.degra.accounting.desktop.data.BankDataFactory.CUSTOMER1_BANK1;
+import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
 import static lv.degra.accounting.desktop.data.CustomerAccountDataFactory.CUSTOMER1_BANK1_ACCOUNT1;
 import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
 import static lv.degra.accounting.desktop.data.DocumentDirectionDataFactory.INTERNAL_ID;
@@ -106,7 +106,7 @@ class GbsDocumentInfoControllerTest {
 		directionCombo.setValue(createDocumentDirection(INTERNAL_ID, INTERNAL_NAME));
 		documentDateDp.setValue(LocalDate.now());
 		publisherCombo.setValue(getCustomer1());
-		publisherBankCombo.setValue(CUSTOMER1_BANK1);
+		publisherBankCombo.setValue(ACUSTOMER_SWED_BANK);
 		publisherBankAccountCombo.setValue(CUSTOMER1_BANK1_ACCOUNT1);
 
 		when(validationService.getValidationRulesByDocumentSybType(gbsDocumentSubType.getId())).thenReturn(getGbsValidationRules());

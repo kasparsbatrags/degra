@@ -26,8 +26,13 @@ import lv.degra.accounting.desktop.system.exception.FxmlFileLoaderException;
 @Component
 public class ApplicationFormBuilder {
 
+
+	private final ApplicationContext context;
+
 	@Autowired
-	private ApplicationContext context;
+	public ApplicationFormBuilder(ApplicationContext context) {
+		this.context = context;
+	}
 
 	public Parent loadFxml(String sceneFormFile) {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(sceneFormFile));

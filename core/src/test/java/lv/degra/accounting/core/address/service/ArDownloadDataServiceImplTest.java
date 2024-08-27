@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.address.service;
 
 import static lv.degra.accounting.core.system.configuration.DegraConfig.ADDRESS_DOWNLOAD_LINK;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,11 +32,13 @@ class ArDownloadDataServiceImplTest {
 	}
 
 	@Test
-	void testDownloadArData() {
+	void whenDownloadArDataThenDownloadIsCorrect() {
 		String expectedUrl = "https://example.com/data.zip";
 		byte[] testData = new byte[] { 1, 2, 3, 4, 5 };
+
 		when(configService.get(ADDRESS_DOWNLOAD_LINK)).thenReturn(expectedUrl);
 		when(fileService.downloadFileByUrl(expectedUrl, "")).thenReturn(testData);
 		downloadAddressDataService.downloadArData();
+		verifyNoMoreInteractions(fileService);
 	}
 }
