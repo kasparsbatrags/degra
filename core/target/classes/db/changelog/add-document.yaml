@@ -1,0 +1,161 @@
+databaseChangeLog:
+  - changeSet:
+      id: Document
+      author: Kaspars Batrags
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: document
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta ID"
+              - column:
+                  name: document_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+                  remarks: "Dokumenta numurs"
+              - column:
+                  name: document_series
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+                  remarks: "Dokumenta sērija"
+              - column:
+                  name: internal_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+                  remarks: "Iekšējais numurs"
+              - column:
+                  name: document_sub_type_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Dokumenta apakštipa nosaukums"
+              - column:
+                  name: document_transaction_type_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: accounting_date
+                  type: date
+                  constraints:
+                    nullable: false
+                  remarks: "Grāmatojuma datums"
+              - column:
+                  name: document_date
+                  type: date
+                  constraints:
+                    nullable: false
+                  remarks: "Dokumenta datums"
+              - column:
+                  name: payment_date
+                  type: date
+                  constraints:
+                    nullable: true
+                  remarks: "Apmaksas datums"
+              - column:
+                  name: payment_type_id
+                  type: int
+                  constraints:
+                    nullable: true
+                  remarks: "Apmaksas tips"
+              - column:
+                  name: sum_total
+                  type: double
+                  constraints:
+                    nullable: true
+                  remarks: "Summa kopā"
+              - column:
+                  name: sum_total_in_currency
+                  type: double
+                  constraints:
+                    nullable: true
+                  remarks: "Summa kopā valūtā"
+              - column:
+                  name: currency_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Valūtas nosaukuma identifikators"
+              - column:
+                  name: exchange_rate_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Valūtas kurasa identifikators"
+              - column:
+                  name: publisher_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+                  remarks: "Dokumenta izdevēja identifikators"
+              - column:
+                  name: publisher_customer_bank_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: publisher_customer_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: secondary_publisher_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+                  remarks: "Dokumenta sekundārā izdevēja klienta identifikators"
+
+              - column:
+                  name: receiver_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: receiver_customer_bank_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: receiver_customer_bank_account_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: secondary_receiver_customer_id
+                  type: int
+                  constraints:
+                    nullable: true
+                  remarks: "Dokumenta sekundārā saņēmēja klienta identifikators"
+
+              - column:
+                  name: notes_for_customer
+                  type: text
+                  constraints:
+                    nullable: true
+                  remarks: "Piezīme klientam"
+              - column:
+                  name: internal_notes
+                  type: text
+                  constraints:
+                    nullable: true
+                  remarks: "Iekšējās piezīmes"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: NOW()
+                  remarks: "Dokumenta izviedošanas laika zīmogs"
+              - column:
+                  name: last_modified_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  remarks: "Dokumenta pēdējāslabošanas laika zīmogs"
+            remarks: "Dokumentu saraksts"

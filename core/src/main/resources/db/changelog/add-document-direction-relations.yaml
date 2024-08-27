@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: ConstraintForeignKeysDocumentDirectionToDocumentSubType
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: document_direction_id
+            baseTableName: document_sub_type
+            constraintName: fk_document_direction_id_to_document_sub_type
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: document_direction

@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddDeclarationSection
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: declaration_section
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: ConstraintForeignKeysDeclarationSectionToDocumentTransactionType
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: declaration_section_id
+            baseTableName: document_transaction_type
+            constraintName: fk_declaration_section_to_document_transaction_type
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: declaration_section

@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddBankSwedBank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM bank WHERE bic = 'HABALV22'
+      changes:
+        - insert:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: customer_id
+                  value: 3
+              - column:
+                  name: bic
+                  value: HABALV22
+
+  - changeSet:
+      id: AddBankSebBank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM bank WHERE bic = 'UNLALV2X'
+      changes:
+        - insert:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: customer_id
+                  value: 4
+              - column:
+                  name: bic
+                  value: UNLALV2X
+
+  - changeSet:
+      id: AddBankCitadeleBank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM bank WHERE bic = 'PARXLV22'
+      changes:
+        - insert:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: customer_id
+                  value: 5
+              - column:
+                  name: bic
+                  value: PARXLV22
+
+  - changeSet:
+      id: AddBankLuminorBank
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM bank WHERE bic = 'RIKOLV2X'
+      changes:
+        - insert:
+            tableName: bank
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: customer_id
+                  value: 7
+              - column:
+                  name: bic
+                  value: RIKOLV2X

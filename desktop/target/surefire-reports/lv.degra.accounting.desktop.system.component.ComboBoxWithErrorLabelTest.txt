@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabelTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.006 s - in lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabelTest
