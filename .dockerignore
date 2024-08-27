@@ -1,0 +1,5 @@
+target
+.git
+.sonar
+node_modules
+dist
