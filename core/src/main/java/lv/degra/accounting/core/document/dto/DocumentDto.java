@@ -35,13 +35,15 @@ import lv.degra.accounting.core.system.object.TableViewInfo;
 @Setter
 public class DocumentDto implements Serializable {
 	Integer id;
-	@TableViewInfo(displayName = "Virziens", columnOrder = 3)
+	@TableViewInfo(displayName = "Virziens", columnOrder = 4)
 	DocumentDirection documentDirection;
+	@TableViewInfo(displayName = "Numurs", columnOrder =3)
 	String documentNumber;
 	@Size(max = 20)
 	@TableViewInfo(displayName = "Sērija", columnOrder = 2)
 	String documentSeries;
-	@TableViewInfo(displayName = "Tips", columnOrder = 4)
+
+	@TableViewInfo(displayName = "Tips", columnOrder = 5)
 	DocumentSubType documentSubType;
 	DocumentTransactionType documentTransactionType;
 
@@ -53,14 +55,14 @@ public class DocumentDto implements Serializable {
 	LocalDate documentDate;
 	LocalDate paymentDate;
 	Integer paymentTypeId;
-	@TableViewInfo(displayName = "Summa", columnOrder = 5)
+	@TableViewInfo(displayName = "Summa", columnOrder = 6)
 	Double sumTotal;
-	@TableViewInfo(displayName = "Summa valūtā", columnOrder = 8)
+	@TableViewInfo(displayName = "Summa valūtā", columnOrder = 9)
 	Double sumTotalInCurrency;
-	@TableViewInfo(displayName = "Valūta", columnOrder = 6)
+	@TableViewInfo(displayName = "Valūta", columnOrder = 7)
 	@NotNull
 	Currency currency;
-	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 7)
+	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 8)
 	@NotNull
 	CurrencyExchangeRate currencyExchangeRate;
 	String notesForCustomer;

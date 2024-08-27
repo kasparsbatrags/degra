@@ -38,6 +38,9 @@ public class DegraController {
 		}
 	}
 
+	public void clearValidationControls(){
+		validationControls.clear();
+	}
 	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
 		control.setValidationCondition(validationCondition, errorMessage);
 		validationControls.add(control);
