@@ -1,33 +1,8 @@
 package lv.degra.accounting.desktop.document.controller;
 
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.BILL_SERIES_KEY;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.stereotype.Component;
-
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -56,15 +31,26 @@ import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.validation.model.ValidationRule;
-import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.*;
 import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.*;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 @Getter
