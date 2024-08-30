@@ -47,7 +47,7 @@ public class PrintServiceImpl implements PrintService {
 			return buildReport(parameters, reportContent);
 		} catch (Exception e) {
 			log.error("Failed to generate report: {}", reportName, e);
-			throw new RuntimeException("Failed to generate report", e);
+			throw new IllegalArgumentException("Failed to generate report", e);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class PrintServiceImpl implements PrintService {
 			return JasperFillManager.fillReport(jreport, parameters, connection);
 		} catch (Exception e) {
 			log.error("Error building report", e);
-			throw new RuntimeException("Error building report", e);
+			throw new IllegalArgumentException("Error building report", e);
 		}
 	}
 }

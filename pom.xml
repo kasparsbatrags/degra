@@ -18,25 +18,43 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<java.version>21</java.version>
-		<javafx.version>21</javafx.version>
+		<java.version>17</java.version>
+		<javafx.version>17.0.12</javafx.version>
 		<postgres.version>42.7.1</postgres.version>
 		<jacoco.version>0.8.8</jacoco.version>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.organization>elmits</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>degra_accounting</sonar.projectKey>
+		<sonar.java.binaries>target/classes</sonar.java.binaries>
+		<sonar.exclusions>**/*.java</sonar.exclusions>
 	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+	</dependencies>
 
 	<modules>
 		<module>core</module>
 		<module>desktop</module>
+		<module>companies</module>
 		<module>web</module>
 	</modules>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -67,7 +85,7 @@
 			<plugin>
 				<groupId>org.sonarsource.scanner.maven</groupId>
 				<artifactId>sonar-maven-plugin</artifactId>
-				<version>4.0.0.4121</version>
+				<version>3.11.0.3922</version>
 				<executions>
 					<execution>
 						<phase>verify</phase>
@@ -98,7 +116,6 @@
 			</plugin>
 		</plugins>
 		<defaultGoal>package</defaultGoal>
-
 	</build>
 </project>
 

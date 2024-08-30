@@ -4,8 +4,8 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - loadData:
-            file: db/changelog/account_chart.csv
-            tableName: account_chart
+            file: db/changelog/account_code_chart.csv
+            tableName: account_code_chart
             separator: ","
             quoteChar: "\""
             columns:
@@ -40,4 +40,4 @@ databaseChangeLog:
        author:  Kaspars Batrags
        changes:
           - sql:
-              sql: SELECT setval('account_chart_id_seq', (SELECT MAX(id)+1 FROM account_chart));
+              sql: SELECT setval('account_code_chart_id_seq', (SELECT MAX(id)+1 FROM account_code_chart));

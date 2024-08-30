@@ -5,7 +5,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.Getter;
-import lv.degra.accounting.desktop.DegraApplication;
+import lv.degra.accounting.desktop.DesktopApplication;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class AlertAsk extends Alert {
 
 
     private void addDialogIconTo() {
-        InputStream iconStream = DegraApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
+        InputStream iconStream = DesktopApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
         Stage dialogStage = (Stage) this.getDialogPane().getScene().getWindow();
         if (iconStream != null) {
             dialogStage.getIcons().add(new Image(iconStream));
