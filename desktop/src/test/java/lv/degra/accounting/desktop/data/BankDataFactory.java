@@ -9,13 +9,13 @@ import static lv.degra.accounting.desktop.data.CustomersData.*;
 
 public class BankDataFactory {
 
-    public static String SWED_BANK_BIC = "HABALV22";
+    public static final String SWED_BANK_BIC = "HABALV22";
     public static final Bank ACUSTOMER_SWED_BANK = new Bank(1, getCustomer1(), SWED_BANK_BIC);
     public static final Bank BCUSTOMER_SWED_BANK = new Bank(1, getCustomer2(), SWED_BANK_BIC);
     public static final Bank CCUSTOMER_SWED_BANK = new Bank(1, getCustomer3(), SWED_BANK_BIC);
-    public static String SEB_BANK_BIC = "UNLALV2X";
+    public static final String SEB_BANK_BIC = "UNLALV2X";
     public static final Bank BCUSTOMER_SEB_BANK = new Bank(2, getCustomer2(), SEB_BANK_BIC);
-    public static String RIKO_BANK_BIC = "RIKOLV2X";
+    public static final String RIKO_BANK_BIC = "RIKOLV2X";
     public static final Bank FCUSTOMER_RIKO_BANK = new Bank(1, getCustomer6(), RIKO_BANK_BIC);
 
 

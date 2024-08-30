@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: account_chart
+            tableName: account_code_chart
             columns:
               - column:
                   name: id
@@ -43,7 +43,7 @@ databaseChangeLog:
         - addUniqueConstraint:
             columnNames:  code
             constraintName: unique_account_code
-            tableName: account_chart
+            tableName: account_code_chart
 
   - changeSet:
       id: ParentIdKeyToIdOnAccountPlan
@@ -51,11 +51,11 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: parent_id
-            baseTableName: account_chart
-            constraintName: fk_parent_id_to_account_chart
+            baseTableName: account_code_chart
+            constraintName: fk_parent_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: account_chart
+            referencedTableName: account_code_chart
 
   - changeSet:
       id: CurrencIdToCurrency
@@ -63,7 +63,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: currency_id
-            baseTableName: account_chart
+            baseTableName: account_code_chart
             constraintName: fk_currency_id_to_curency
             onDelete: NO ACTION
             referencedColumnNames: id
@@ -77,10 +77,10 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseColumnNames: debit_account_id
             baseTableName: account_code_distribution
-            constraintName: fk_debit_account_id_to_account_chart
+            constraintName: fk_debit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: account_chart
+            referencedTableName: account_code_chart
 
   - changeSet:
       id: CreditAccountIdToAccountChart
@@ -89,7 +89,7 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseColumnNames: credit_account_id
             baseTableName: account_code_distribution
-            constraintName: fk_credit_account_id_to_account_chart
+            constraintName: fk_credit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: account_chart
+            referencedTableName: account_code_chart

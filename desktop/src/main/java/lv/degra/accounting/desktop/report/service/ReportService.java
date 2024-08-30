@@ -3,6 +3,7 @@ package lv.degra.accounting.desktop.report.service;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,38 +28,39 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 @Slf4j
 public class ReportService {
 
-	@Autowired
-	public ReportService() {
-	}
+	private static final Path REPORT_PATH = Paths.get("DegraReports/Bill.jrxml");
 
 	public JasperPrint getReportWithData(List<?> data, DocumentDto documentDto, boolean printElectronicSign) {
-		JasperPrint jasperPrint = null;
 		try {
-
-			Path path = Paths.get("DegraReports/Bill.jrxml");
-			byte[] reportContent = Files.readAllBytes(path);
-
+			byte[] reportContent = readReportContent();
 			InputStream reportStream = new ByteArrayInputStream(reportContent);
 			JasperReport report = JasperCompileManager.compileReport(reportStream);
 
 			JRDataSource dataSource = new JRBeanCollectionDataSource(data);
 
-			Map<String, Object> parameters = ReflectionUtil.convertObjectToMap(documentDto);
-			parameters.put("documentTypeString", documentDto.getDocumentSubType().toString());
-			parameters.put("sumTotalText", getSumWords(documentDto));
-			parameters.put("printElectronicSign", printElectronicSign);
-			parameters.put("version", APPLICATION_TITLE);
+			Map<String, Object> parameters = prepareParameters(documentDto, printElectronicSign);
 
-			jasperPrint = JasperFillManager.fillReport(report, parameters, dataSource);
-
+			return JasperFillManager.fillReport(report, parameters, dataSource);
 		} catch (Exception e) {
-			log.error(e.toString());
+			log.error("Error generating report: ", e);
+			return null;
 		}
-		return jasperPrint;
+	}
+
+	private byte[] readReportContent() throws IOException {
+		return Files.readAllBytes(REPORT_PATH);
+	}
+
+	private Map<String, Object> prepareParameters(DocumentDto documentDto, boolean printElectronicSign) {
+		Map<String, Object> parameters = ReflectionUtil.convertObjectToMap(documentDto);
+		parameters.put("documentTypeString", documentDto.getDocumentSubType().toString());
+		parameters.put("sumTotalText", getSumWords(documentDto));
+		parameters.put("printElectronicSign", printElectronicSign);
+		parameters.put("version", APPLICATION_TITLE);
+		return parameters;
 	}
 
 	private String getSumWords(DocumentDto documentDto) {
 		return NumberToWordUtil.getWordsFromDouble(documentDto.getSumTotal(), documentDto.getCurrency().getCurrencyCode());
 	}
-
 }

@@ -19,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import lv.degra.accounting.desktop.DegraApplication;
+import lv.degra.accounting.desktop.DesktopApplication;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
 import lv.degra.accounting.desktop.system.exception.FxmlFileLoaderException;
 
@@ -66,7 +66,7 @@ public class ApplicationFormBuilder {
 		Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 		Scene scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
 		scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
-		InputStream mainIconStream = DegraApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
+		InputStream mainIconStream = DesktopApplication.class.getResourceAsStream(APPLICATION_ICON_FILE);
 		if (mainIconStream != null) {
 			stage.getIcons().add(new Image(mainIconStream));
 		}
