@@ -56,7 +56,7 @@ public class AccountCodeChart implements Serializable {
 	private Double amountInAccount;
 
 	@ManyToOne
-	@JoinColumn(name = "parent_account_id")
+	@JoinColumn(name = "parent_id")
 	private AccountCodeChart parentAccount;
 
 }

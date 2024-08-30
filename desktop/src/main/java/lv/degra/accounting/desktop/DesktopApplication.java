@@ -21,6 +21,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig;
 
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.STYLE;
+
 @SpringBootApplication
 @ComponentScan(basePackages = {"lv.degra.accounting.core", "lv.degra.accounting.desktop"})
 @EnableJpaRepositories(basePackages = {"lv.degra.accounting.core"})
@@ -52,7 +54,7 @@ public class DesktopApplication extends Application {
 
 		primaryStage.setScene(scene);
 
-		scene.getStylesheets().add(getClass().getResource(DegraDesktopConfig.STYLE).toExternalForm());
+		scene.getStylesheets().add(getClass().getResource(STYLE).toExternalForm());
 		if (degraIconStream != null) {
 			primaryStage.getIcons().add(new Image(degraIconStream));
 		}

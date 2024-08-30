@@ -457,6 +457,6 @@ public class DocumentInfoController extends DegraController {
 		return documentIdLabel.getScene();
 	}
 
-	public void onAddAccountingRowButton(ActionEvent actionEvent) {
+	public void onAddAccountingRowButton() {
 	}
 }
