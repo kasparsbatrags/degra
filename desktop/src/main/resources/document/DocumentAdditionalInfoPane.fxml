@@ -18,7 +18,7 @@
 					<center>
 						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="193.0">
 							<children>
-								<DynamicTableView layoutX="14.0" layoutY="6.0" prefHeight="241.0" AnchorPane.bottomAnchor="0.0"
+								<DynamicTableView id="distributionListView" layoutX="14.0" layoutY="6.0" prefHeight="241.0" AnchorPane.bottomAnchor="0.0"
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0">
 									<placeholder>
 										<Label text="Dokuments nav kontēts!" />

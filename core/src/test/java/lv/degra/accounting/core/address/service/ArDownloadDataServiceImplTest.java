@@ -37,7 +37,7 @@ class ArDownloadDataServiceImplTest {
 		byte[] testData = new byte[] { 1, 2, 3, 4, 5 };
 
 		when(configService.get(ADDRESS_DOWNLOAD_LINK)).thenReturn(expectedUrl);
-		when(fileService.downloadFileByUrl(expectedUrl, "")).thenReturn(testData);
+		when(fileService.downloadFileByUrl(expectedUrl)).thenReturn(testData);
 		downloadAddressDataService.downloadArData();
 		verifyNoMoreInteractions(fileService);
 	}

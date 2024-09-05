@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.address.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.exception.DeleteFileException;
 import lv.degra.accounting.core.system.files.exception.DeleteFolderException;
+import lv.degra.accounting.core.system.files.exception.DownloadFileException;
 import lv.degra.accounting.core.system.files.exception.SaveFileException;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +45,7 @@ public class FileServiceImpl implements FileService {
         this.restTemplate = restTemplate;
     }
 
-    public byte[] downloadFileByUrl(String fileUrl, String orLocalOpenFilePath) {
+    public byte[] downloadFileByUrl(String fileUrl) {
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -56,7 +57,7 @@ public class FileServiceImpl implements FileService {
             return response.getBody() != null ? response.getBody() : new byte[]{};
         } catch (Exception e) {
             log.error("File download exception:", e);
-            return orLocalOpenFilePath!=null && orLocalOpenFilePath.isEmpty() ? loadFileLocally(orLocalOpenFilePath) : new byte[]{};
+            throw new DownloadFileException(e.getMessage(),e.getCause());
         }
     }
 

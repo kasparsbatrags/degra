@@ -1,13 +1,6 @@
 package lv.degra.accounting.core.account.chart.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -47,7 +40,7 @@ public class AccountCodeChart implements Serializable {
 	@Column(name = "use_for_bilance")
 	private boolean useForBilance;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@NotNull
 	@JoinColumn(name = "currency_id")
 	private Currency currency;
@@ -55,7 +48,7 @@ public class AccountCodeChart implements Serializable {
 	@Column(name = "amount_in_account")
 	private Double amountInAccount;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "parent_id")
 	private AccountCodeChart parentAccount;
 

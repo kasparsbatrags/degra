@@ -73,7 +73,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
 
 	public void downloadArData() {
 		log.info("Address data import started");
-		byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(ADDRESS_DOWNLOAD_LINK), "");
+		byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(ADDRESS_DOWNLOAD_LINK));
 
 		if (csvFileBytes == null || csvFileBytes.length == 0) {
 			handleEmptyDownload();

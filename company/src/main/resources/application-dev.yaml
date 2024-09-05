@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: 1
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 15
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        transaction:
+          coordinator_class: jdbc
+        ddl-auto: update
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+server:
+  port: 8083
+
+application:
+  company_data_file_url: https://dati.ur.gov.lv/register/register.csv
+
+
+logging:
+  level:
+    ROOT: 'INFO'
+#      org.springframework: DEBUG
+#    org.springframework.jdbc.datasource: 'DEBUG'
+#    com.zaxxer.hikari: 'DEBUG'

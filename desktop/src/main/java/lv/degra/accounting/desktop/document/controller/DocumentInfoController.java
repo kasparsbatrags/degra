@@ -1,5 +1,6 @@
 package lv.degra.accounting.desktop.document.controller;
 
+import jakarta.annotation.PostConstruct;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -7,10 +8,12 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
+import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
+import lv.degra.accounting.core.account.distribution.service.AccountCodeDistributionService;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.bank.service.BankService;
 import lv.degra.accounting.core.currency.model.Currency;
@@ -71,6 +74,8 @@ public class DocumentInfoController extends DegraController {
     private final ConfigService configService;
     private final ValidationService validationService;
     private final ConfigurableApplicationContext springContext;
+    private final AccountCodeChartService accountCodeChartService;
+    private final AccountCodeDistributionService accountCodeDistributionService;
     @FXML
     public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
     @FXML
@@ -122,9 +127,7 @@ public class DocumentInfoController extends DegraController {
     @FXML
     public Pane paymentPane;
     @FXML
-    public TabPane documentAdditionalInfoTabPane;
-    @FXML
-    public Pane documentAdditionalInfoPane;
+    private DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
     private DocumentMainController documentMainController;
     private CurrencyExchangeRate currencyExchangeRate;
 
@@ -132,7 +135,7 @@ public class DocumentInfoController extends DegraController {
                                   DocumentDirectionService documentDirectionService, DocumentTransactionTypeService documentTransactionTypeService,
                                   ExchangeService exchangeService, CustomerService customerService, BankService bankService,
                                   CustomerAccountService customerAccountService, ConfigService configService, ValidationService validationService,
-                                  ConfigurableApplicationContext springContext) {
+                                  ConfigurableApplicationContext springContext, AccountCodeChartService accountCodeChartService, AccountCodeDistributionService accountCodeDistributionService) {
         this.currencyService = currencyService;
         this.documentSubTypeService = documentSubTypeService;
         this.documentDirectionService = documentDirectionService;
@@ -144,6 +147,8 @@ public class DocumentInfoController extends DegraController {
         this.configService = configService;
         this.validationService = validationService;
         this.springContext = springContext;
+        this.accountCodeChartService = accountCodeChartService;
+        this.accountCodeDistributionService = accountCodeDistributionService;
     }
 
     public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
@@ -157,6 +162,7 @@ public class DocumentInfoController extends DegraController {
         }
     }
 
+    @FXML
     public void initialize() {
         validationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
         validationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
@@ -191,7 +197,27 @@ public class DocumentInfoController extends DegraController {
         publisherCombo.setCustomerService(customerService);
         receiverCombo.setCustomerService(customerService);
         addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+
+        distributionListView.setType(AccountCodeDistributionDto.class);
+        distributionListView.setCreator(item -> {
+            addRecord();
+            refreshDistributionTable();
+        });
+        distributionListView.setUpdater(item -> editRecord());
+        distributionListView.setDeleter(item -> {
+            deleteRecord();
+            refreshDistributionTable();
+        });
     }
+
+
+    private void refreshDistributionTable() {
+        ObservableList<AccountCodeDistributionDto> accountCodeDistributionDtoObservableList = FXCollections.observableArrayList();
+        accountCodeDistributionDtoObservableList.clear();
+        accountCodeDistributionDtoObservableList.addAll(accountCodeDistributionService.getDistributionByDocumentId(this.documentMainController.getDocumentDto().getId()));
+        distributionListView.setData(accountCodeDistributionDtoObservableList);
+    }
+
 
     protected void setDocumentInfoValidationRules() {
         if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
@@ -290,7 +316,7 @@ public class DocumentInfoController extends DegraController {
         Bank selectedBank = bankCombo.getValue();
         if (selectedBank != null) {
             ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-                    customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank));
+                    FXCollections.observableList(customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank)));
             if (customerBankAccounts.size() == 1) {
                 CustomerAccount account = customerBankAccounts.get(0);
                 accountCombo.setItems(customerBankAccounts);
@@ -330,7 +356,7 @@ public class DocumentInfoController extends DegraController {
         Bank selectedBank = bankCombo.getValue();
         if (selectedBank != null) {
             ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-                    customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank));
+                    FXCollections.observableList(customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank)));
             accountCombo.setItems(customerBankAccounts);
             if (customerBankAccounts.size() == 1) {
                 accountCombo.setValue(customerBankAccounts.get(0));
@@ -394,6 +420,7 @@ public class DocumentInfoController extends DegraController {
         if (receiverCombo.getValue() != null) {
             fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
         }
+        refreshDistributionTable();
         setDocumentInfoValidationRules();
     }
 
@@ -409,7 +436,7 @@ public class DocumentInfoController extends DegraController {
         bankCombo.setItems(customerBankList);
 
         ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-                customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), bankCombo.getValue()));
+                FXCollections.observableList(customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), bankCombo.getValue())));
         accountCombo.setItems(customerBankAccounts);
     }
 

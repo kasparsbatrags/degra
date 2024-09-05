@@ -1,19 +1,23 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
+    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public33
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 1
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
-    test-on-borrow: true
-    validation-query: SELECT 1
+      connection-test-query: SELECT 1
   jpa:
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
+        transaction:
+          coordinator_class: jdbc
+        ddl-auto: update
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           lob:
             non_contextual_creation: true
@@ -29,6 +33,8 @@ application:
 logging:
   level:
     ROOT: 'INFO'
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.envers: DEBUG
 #      org.springframework: DEBUG
 #    org.springframework.jdbc.datasource: 'DEBUG'
 #    com.zaxxer.hikari: 'DEBUG'

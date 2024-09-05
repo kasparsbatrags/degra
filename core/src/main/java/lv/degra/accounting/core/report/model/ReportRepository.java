@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
-	@Query(value = "SELECT r FROM Report r WHERE r.reportName = :reportName")
-	Optional<Report> findByReportName(@Param("reportName") String reportName);
+//	@Query(value = "SELECT r FROM Report r WHERE r.reportName = :reportName")
+//	Optional<Report> findByReportName(@Param("reportName") String reportName);
 }
