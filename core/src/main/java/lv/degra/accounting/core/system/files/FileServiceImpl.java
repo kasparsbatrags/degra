@@ -1,7 +1,7 @@
 package lv.degra.accounting.core.system.files;
 
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.address.exception.ExtractZipFileException;
+import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.exception.DeleteFileException;
 import lv.degra.accounting.core.system.files.exception.DeleteFolderException;
 import lv.degra.accounting.core.system.files.exception.DownloadFileException;
@@ -35,10 +35,10 @@ public class FileServiceImpl implements FileService {
 
     public static final String ZIP_EXTRACT_TEMP_DIRECTORY_PREFIX = "extracted_zip";
     private final RestTemplateBuilder restTemplate;
-    @Value("${file-download-connect-timeout-sec:300}")
+    @Value("${application.file-download-connect-timeout-sec:300}")
     private int fileDownloadConnectTimeoutSec;
 
-    @Value("${file-download-read-timeout-sec:300}")
+    @Value("${application.file-download-read-timeout-sec:300}")
     private int fileDownloadReadTimeoutSec;
 
     public FileServiceImpl(RestTemplateBuilder restTemplate) {
@@ -65,10 +65,10 @@ public class FileServiceImpl implements FileService {
         try {
             Path path = Paths.get(localFilePath);
             if (Files.exists(path)) {
-                log.info("File load locally: " + localFilePath);
+                log.info("File load locally: {}", localFilePath);
                 return Files.readAllBytes(path);
             } else {
-                log.error("Unable to find file locally at:" + path);
+                log.error("Unable to find file locally at:{}", path);
                 return new byte[]{};
             }
         } catch (Exception e) {
@@ -93,13 +93,10 @@ public class FileServiceImpl implements FileService {
 
     public void saveFileInFolder(byte[] content, Path fileNamePath) {
         try {
-            File folder = new File(fileNamePath.getParent().toString());
-            if (!folder.exists()) {
-                folder.mkdir();
-            }
-            Files.write(fileNamePath, content);
+            Files.createDirectories(fileNamePath.getParent());
+       Files.write(fileNamePath, content);
         } catch (IOException e) {
-            throw new SaveFileException(e.getMessage(), e.getCause());
+            throw new SaveFileException(e.getMessage(), e);
         }
     }
 

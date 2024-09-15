@@ -44,7 +44,7 @@ public class Company implements Serializable {
     private String nameAfterQuotes;
 
     private String withoutQuotes;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn(name = "company_type_id", nullable = false)
     private CompanyType companyType;
 
@@ -58,9 +58,9 @@ public class Company implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate terminatedDate;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", nullable = false)
-    private Address address;
+//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "address_id", nullable = false)
+//    private Address address;
 
 
     public String getNameNormalized() {

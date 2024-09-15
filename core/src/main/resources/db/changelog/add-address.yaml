@@ -95,9 +95,18 @@ databaseChangeLog:
               - column:
                   name: created_at
                   type: TIMESTAMP WITHOUT TIME ZONE
-                  defaultValueComputed: NOW()
                   remarks: Ieraksta izveidošanas laika zīmogs
               - column:
                   name: last_modified_at
                   type: TIMESTAMP WITHOUT TIME ZONE
                   remarks: Ieraksta pēdējās labošanas laika zīmogs
+
+
+  - changeSet:
+      id: ConstraintUniqueKeyCode
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            columnNames:  code
+            constraintName: unique_address_code
+            tableName: address

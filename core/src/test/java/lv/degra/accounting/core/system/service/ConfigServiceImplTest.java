@@ -23,139 +23,139 @@ import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 
 class ConfigServiceImplTest {
 
-	@Mock
-	private ConfigurationRepository configurationRepository;
+    @Mock
+    private ConfigurationRepository configurationRepository;
 
-	@InjectMocks
-	private ConfigServiceImpl configService;
+    @InjectMocks
+    private ConfigServiceImpl configService;
 
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-	}
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-	@Test
-	void save_ValidKeyAndValue_ShouldSaveConfiguration() {
-		String key = "testKey";
-		String value = "testValue";
-		Configuration existingConfiguration = new Configuration(key, null);
+    @Test
+    void save_ValidKeyAndValue_ShouldSaveConfiguration() {
+        String key = "testKey";
+        String value = "testValue";
+        Configuration existingConfiguration = new Configuration(key, null);
 
-		when(configurationRepository.findByKey(key)).thenReturn(existingConfiguration);
+        when(configurationRepository.findByKey(key)).thenReturn(existingConfiguration);
 
-		configService.save(key, value);
+        configService.save(key, value);
 
-		ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
-		verify(configurationRepository).save(configurationCaptor.capture());
-		Configuration savedConfiguration = configurationCaptor.getValue();
-		assertEquals(key, savedConfiguration.getKey());
-		assertEquals(value, savedConfiguration.getValue());
-	}
+        ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
+        verify(configurationRepository).save(configurationCaptor.capture());
+        Configuration savedConfiguration = configurationCaptor.getValue();
+        assertEquals(key, savedConfiguration.getKey());
+        assertEquals(value, savedConfiguration.getValue());
+    }
 
-	@Test
-	void save_NewKeyAndValue_ShouldSaveNewConfiguration() {
-		String key = "newKey";
-		String value = "newValue";
+    @Test
+    void save_NewKeyAndValue_ShouldSaveNewConfiguration() {
+        String key = "newKey";
+        String value = "newValue";
 
-		when(configurationRepository.findByKey(key)).thenReturn(null);
+        when(configurationRepository.findByKey(key)).thenReturn(null);
 
-		configService.save(key, value);
+        configService.save(key, value);
 
-		ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
-		verify(configurationRepository).save(configurationCaptor.capture());
+        ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
+        verify(configurationRepository).save(configurationCaptor.capture());
 
-		Configuration savedConfiguration = configurationCaptor.getValue();
-		assertNotNull(savedConfiguration);
-		assertEquals(key, savedConfiguration.getKey());
-		assertEquals(value, savedConfiguration.getValue());
-	}
+        Configuration savedConfiguration = configurationCaptor.getValue();
+        assertNotNull(savedConfiguration);
+        assertEquals(key, savedConfiguration.getKey());
+        assertEquals(value, savedConfiguration.getValue());
+    }
 
-	@Test
-	void save_NullKey_ShouldThrowIllegalDataArgumentException() {
-		assertThrows(IllegalDataArgumentException.class, () -> configService.save(null, "value"));
-	}
+    @Test
+    void save_NullKey_ShouldThrowIllegalDataArgumentException() {
+        assertThrows(IllegalDataArgumentException.class, () -> configService.save(null, "value"));
+    }
 
-	@Test
-	void save_NullValue_ShouldThrowIllegalDataArgumentException() {
-		assertThrows(IllegalDataArgumentException.class, () -> configService.save("key", null));
-	}
+    @Test
+    void save_NullValue_ShouldThrowIllegalDataArgumentException() {
+        assertThrows(IllegalDataArgumentException.class, () -> configService.save("key", null));
+    }
 
-	@Test
-	void get_ExistingKey_ShouldReturnValue() {
-		String key = "existingKey";
-		String expectedValue = "existingValue";
-		Configuration existingConfiguration = new Configuration();
-		existingConfiguration.setKey(key);
-		existingConfiguration.setValue(expectedValue);
+    @Test
+    void get_ExistingKey_ShouldReturnValue() {
+        String key = "existingKey";
+        String expectedValue = "existingValue";
+        Configuration existingConfiguration = new Configuration();
+        existingConfiguration.setKey(key);
+        existingConfiguration.setValue(expectedValue);
 
-		when(configurationRepository.findByKey(key)).thenReturn(existingConfiguration);
+        when(configurationRepository.findByKey(key)).thenReturn(existingConfiguration);
 
-		String actualValue = configService.get(key);
+        String actualValue = configService.get(key);
 
-		assertEquals(expectedValue, actualValue);
-	}
+        assertEquals(expectedValue, actualValue);
+    }
 
-	@Test
-	void get_NonexistentKey_ShouldReturnNull() {
-		String key = "nonexistentKey";
+    @Test
+    void get_NonexistentKey_ShouldReturnNull() {
+        String key = "nonexistentKey";
 
-		when(configurationRepository.findByKey(key)).thenReturn(null);
+        when(configurationRepository.findByKey(key)).thenReturn(null);
 
-		String actualValue = configService.get(key);
+        String actualValue = configService.get(key);
 
-		assertNull(actualValue);
-	}
+        assertNull(actualValue);
+    }
 
-	@Test
-	void getInt_ValidKeyAndValue_ShouldReturnIntValue() {
-		String key = "intKey";
-		String value = "42";
+    @Test
+    void getInt_ValidKeyAndValue_ShouldReturnIntValue() {
+        String key = "intKey";
+        String value = "42";
 
-		when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
+        when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
 
-		int intValue = configService.getInt(key);
+        int intValue = configService.getInt(key);
 
-		assertEquals(42, intValue);
-	}
+        assertEquals(42, intValue);
+    }
 
-	@Test
-	void getInt_InvalidKeyOrValue_ShouldReturnDefaultIntValue() {
-		String key = "invalidKey";
-		String invalidValue = "invalidValue";
+    @Test
+    void getInt_InvalidKeyOrValue_ShouldReturnDefaultIntValue() {
+        String key = "invalidKey";
+        String invalidValue = "invalidValue";
 
-		when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, invalidValue));
+        when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, invalidValue));
 
-		int defaultValue = configService.getInt(key);
+        int defaultValue = configService.getInt(key);
 
-		assertEquals(0, defaultValue);
-	}
+        assertEquals(0, defaultValue);
+    }
 
-	@Test
-	void getBoolean_ValidKeyAndValueTrue_ShouldReturnTrue() {
-		String key = "booleanKey";
-		String value = "true";
+    @Test
+    void getBoolean_ValidKeyAndValueTrue_ShouldReturnTrue() {
+        String key = "booleanKey";
+        String value = "true";
 
-		when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
+        when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
 
-		assertTrue(configService.getBoolean(key));
-	}
+        assertTrue(configService.getBoolean(key));
+    }
 
-	@Test
-	void getBoolean_ValidKeyAndValueFalse_ShouldReturnFalse() {
-		String key = "booleanKey";
-		String value = "false";
+    @Test
+    void getBoolean_ValidKeyAndValueFalse_ShouldReturnFalse() {
+        String key = "booleanKey";
+        String value = "false";
 
-		when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
+        when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, value));
 
-		assertFalse(configService.getBoolean(key));
-	}
+        assertFalse(configService.getBoolean(key));
+    }
 
-	@Test
-	void getBoolean_InvalidKeyOrValue_ShouldReturnFalse() {
-		String key = "invalidBooleanKey";
-		String invalidValue = "invalidValue";
+    @Test
+    void getBoolean_InvalidKeyOrValue_ShouldReturnFalse() {
+        String key = "invalidBooleanKey";
+        String invalidValue = "invalidValue";
 
-		when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, invalidValue));
+        when(configurationRepository.findByKey(key)).thenReturn(new Configuration(key, invalidValue));
 
-		assertFalse(configService.getBoolean(key));
-	}
+        assertFalse(configService.getBoolean(key));
+    }
 }

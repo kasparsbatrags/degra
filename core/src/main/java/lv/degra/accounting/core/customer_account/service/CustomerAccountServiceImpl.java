@@ -21,12 +21,12 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
 		this.customerAccountRepository = customerAccountRepository;
 	}
 
-	@Cacheable
+	@Cacheable("customer_account")
 	public List<CustomerAccount> getCustomerAccounts(Customer customer) {
 		return customerAccountRepository.findByCustomer(customer.getId());
 	}
 
-	@Cacheable
+	@Cacheable("customer_bank_accounts")
 	public List<CustomerAccount> getCustomerBankAccounts(Customer customer, Bank bank) {
 		return customerAccountRepository.findByCustomerAndBank(customer.getId(), bank.getId());
 	}

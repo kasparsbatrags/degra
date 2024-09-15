@@ -197,3 +197,15 @@ databaseChangeLog:
             columnNames:  vat_number
             constraintName: unique_customer_vat_number
             tableName: customer
+
+  - changeSet:
+      id: ConstraintForeignKeysCustomerToAddress
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: address_code
+            baseTableName: customer
+            constraintName: fk_customer_to_address
+            onDelete: NO ACTION
+            referencedColumnNames: code
+            referencedTableName: address

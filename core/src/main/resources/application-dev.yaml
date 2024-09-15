@@ -11,20 +11,9 @@ spring:
   jpa:
     show-sql: false
     open-in-view: false
-    properties:
-      hibernate:
-        transaction:
-          coordinator_class: jdbc
-        ddl-auto: update
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
 
 
 application:
-  title: Degra v.1.0
   file-download-connect-timeout-sec: 300
   file-download-read-timeout-sec: 300
 

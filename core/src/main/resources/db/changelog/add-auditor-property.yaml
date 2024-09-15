@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddAuditorProperty
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: auditor_property
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Unikālais identifikātors"
+              - column:
+                  name: revision_timestamp
+                  type: integer
+                  remarks: "Laika zīmogs"
+

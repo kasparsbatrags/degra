@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EnableJpaAuditing
 @Audited
 public class CompanyType implements Serializable {
     @Id
@@ -26,12 +27,11 @@ public class CompanyType implements Serializable {
     private Long id;
     private String code;
     private String name;
+
     @CreatedDate
-    @Column(nullable = false, updatable = false)
     private LocalDateTime createdDateTime;
 
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime lastModifiedDateTime;
 
 }

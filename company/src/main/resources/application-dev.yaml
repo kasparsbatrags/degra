@@ -8,20 +8,14 @@ spring:
     hikari:
       maximum-pool-size: 15
   jpa:
-    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
     open-in-view: false
-    properties:
-      hibernate:
-        transaction:
-          coordinator_class: jdbc
-        ddl-auto: update
-        format_sql: true
-        jdbc:
-          lob:
-            non_contextual_creation: true
+    show-sql: true
 
 server:
-  port: 8083
+  port: 8084
 
 application:
   company_data_file_url: https://dati.ur.gov.lv/register/register.csv

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -7,32 +6,49 @@
     <artifactId>accounting</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
-    <name>accounting</name>
-    <description>Degra accounting</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.3</version>
+        <relativePath/>
+    </parent>
 
     <modules>
         <module>core</module>
         <module>desktop</module>
         <module>company</module>
+        <module>address</module>
     </modules>
 
     <properties>
+        <java.version>21</java.version>
+        <javafx.version>21</javafx.version>
         <spring.version>3.3.3</spring.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>21.0.4</java.version>
-        <javafx.version>21.0.4</javafx.version>
         <postgres.version>42.7.1</postgres.version>
-        <jacoco.version>0.8.8</jacoco.version>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.organization>elmits</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>degra_accounting</sonar.projectKey>
         <sonar.java.binaries>target/classes</sonar.java.binaries>
         <sonar.exclusions>**/*.java</sonar.exclusions>
         <sonar.scm.provider>git</sonar.scm.provider>
-        <version.org.hibernate>6.4.4.Final</version.org.hibernate>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.13.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.13.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -43,39 +59,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Centralizēta atkarību versiju pārvaldība -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
-
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>lv.degra</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>6.4.4.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>6.4.4.Final</version>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -90,34 +82,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.3</version>
-                <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
-                    <argLine>
-                        --add-exports javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.prism=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports
-                        javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED --add-opens
-                        javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens
-                        javafx.graphics/com.sun.javafx.tk.quantum=ALL-UNNAMED
-                    </argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
@@ -143,7 +107,8 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}${file.separator}site${file.separator}jacoco</outputDirectory>
+                            <outputDirectory>${project.build.directory}${file.separator}site${file.separator}jacoco
+                            </outputDirectory>
                             <formats>
                                 <format>XML</format>
                             </formats>
@@ -152,7 +117,5 @@
                 </executions>
             </plugin>
         </plugins>
-        <defaultGoal>package</defaultGoal>
     </build>
 </project>
-

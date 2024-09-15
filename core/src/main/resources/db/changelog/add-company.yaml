@@ -76,11 +76,11 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Darbības izbeigšanas datums"
               - column:
-                  name: address_id
+                  name: address_code
                   type: integer
                   constraints:
                     nullable: true
-                  remarks: "Juridiskās adreses id"
+                  remarks: "Juridiskās adreses kods"
             remarks: "Kompāniju saraksts"
 
   - changeSet:
@@ -94,3 +94,15 @@ databaseChangeLog:
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: company_type
+
+  - changeSet:
+      id: AddCompanyAddressToAddress
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: address_code
+            baseTableName: company
+            constraintName: fk_company_address_code_to_address
+            onDelete: NO ACTION
+            referencedColumnNames: code
+            referencedTableName: address

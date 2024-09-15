@@ -21,7 +21,7 @@ public class ReflectionUtil {
 				field.setAccessible(true);
 				Object value = field.get(obj);
 				if (value instanceof LocalDate localDate) {
-					localDate = (LocalDate) value;
+//					localDate = (LocalDate) value;
 					java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
 					dataMap.put(field.getName(), sqlDate);
 				} else {
