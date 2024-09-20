@@ -9,9 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BillContentRepository extends JpaRepository<BillContent, Long> {
-	@Query("SELECT d FROM BillContent d WHERE d.id=:id")
-	BillContent getById(@Param("id") Integer id);
-
-	@Query(value = "SELECT d.* FROM document_bill_content d WHERE d.document_id = :documentId ORDER BY d.id" , nativeQuery = true)
-	List<BillContent> findByDocumentId(@Param("documentId") Integer documentId);
+	List<BillContent> getByDocumentId(@Param("documentId") Integer documentId);
 }

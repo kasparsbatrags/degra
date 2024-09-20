@@ -7,6 +7,5 @@ public class AuditorRevisionListener implements RevisionListener {
     @Override
     public void newRevision(Object revisionEntity) {
         AuditorProperty auditorProperty = (AuditorProperty) revisionEntity;
-        System.out.println("New revision created: " + auditorProperty.getRevisionId());
     }
 }

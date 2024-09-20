@@ -59,11 +59,20 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Centralizēta atkarību versiju pārvaldība -->
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+                <version>3.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-cache</artifactId>
+                <version>3.3.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

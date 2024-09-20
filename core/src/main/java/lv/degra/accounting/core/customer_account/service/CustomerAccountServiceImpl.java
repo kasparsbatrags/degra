@@ -23,11 +23,11 @@ public class CustomerAccountServiceImpl implements CustomerAccountService {
 
 	@Cacheable("customer_account")
 	public List<CustomerAccount> getCustomerAccounts(Customer customer) {
-		return customerAccountRepository.findByCustomer(customer.getId());
+		return customerAccountRepository.getByCustomerId(customer.getId());
 	}
 
 	@Cacheable("customer_bank_accounts")
 	public List<CustomerAccount> getCustomerBankAccounts(Customer customer, Bank bank) {
-		return customerAccountRepository.findByCustomerAndBank(customer.getId(), bank.getId());
+		return customerAccountRepository.findByCustomerIdAndBankId(customer.getId(), bank.getId());
 	}
 }

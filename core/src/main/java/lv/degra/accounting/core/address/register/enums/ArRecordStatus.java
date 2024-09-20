@@ -1,4 +1,4 @@
-package lv.degra.accounting.address.enums;
+package lv.degra.accounting.core.address.register.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

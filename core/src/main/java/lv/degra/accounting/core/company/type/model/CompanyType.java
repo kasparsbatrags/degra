@@ -5,33 +5,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.AuditorRevisionListener;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import org.hibernate.envers.Audited;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@EnableJpaAuditing
+@EntityListeners({AuditorRevisionListener.class})
 @Audited
-public class CompanyType implements Serializable {
+public class CompanyType extends AuditInfo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private Integer id;
     private String code;
     private String name;
-
-    @CreatedDate
-    private LocalDateTime createdDateTime;
-
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDateTime;
-
 }

@@ -1,4 +1,4 @@
-package lv.degra.accounting.address.model;
+package lv.degra.accounting.core.address.register.model;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class City extends CsvDataBase {
+public class Region extends CsvDataBase {
 
 	@CsvBindByPosition(position = 2)
 	private String name;
@@ -52,4 +52,5 @@ public class City extends CsvDataBase {
 
 	@CsvBindByPosition(position = 13)
 	private String fullAddress;
+
 }

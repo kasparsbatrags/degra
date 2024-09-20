@@ -1,4 +1,4 @@
-package lv.degra.accounting.address.model;
+package lv.degra.accounting.core.address.register.model;
 
 import java.time.LocalDate;
 

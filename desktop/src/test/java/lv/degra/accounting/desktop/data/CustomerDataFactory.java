@@ -62,10 +62,8 @@ public class CustomerDataFactory {
         address.setDateFrom(dateFrom);
         address.setUpdateDatePublic(updateDatePublic);
         address.setDateTo(dateTo);
-        address.setFullName(fullName);
+        address.setFullAddress(fullName);
         address.setTerritorialUnitCode(territorialUnitCode);
-        address.setCreatedAt(createdAt);
-        address.setLastModifiedAt(lastModifiedAt);
         return address;
     }
 

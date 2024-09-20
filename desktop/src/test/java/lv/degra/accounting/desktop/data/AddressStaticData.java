@@ -32,10 +32,8 @@ public class AddressStaticData {
         address.setDateFrom(dateFrom);
         address.setDateTo(dateTo);
         address.setUpdateDatePublic(updateDatePublic);
-        address.setFullName(fullName);
+        address.setFullAddress(fullName);
         address.setTerritorialUnitCode(territorialUnitCode);
-        address.setCreatedAt(createdAt);
-        address.setLastModifiedAt(lastModifiedAt);
         return address;
     }
 }

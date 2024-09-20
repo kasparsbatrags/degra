@@ -1,14 +1,20 @@
 package lv.degra.accounting.core.address.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.AuditorRevisionListener;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.customer.model.Customer;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,7 +22,10 @@ import java.util.Set;
 @Getter
 @Table(name = "address")
 @NoArgsConstructor
-public class Address implements Serializable {
+@AllArgsConstructor
+@EntityListeners(AuditorRevisionListener.class)
+@Audited
+public class Address extends AuditInfo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -33,12 +42,12 @@ public class Address implements Serializable {
     private LocalDate dateFrom;
     private LocalDate updateDatePublic;
     private LocalDate dateTo;
-    private String fullName;
+    @Column(name = "full_name")
+    private String fullAddress;
     private Integer territorialUnitCode;
-    private Instant createdAt;
-    private Instant lastModifiedAt;
 
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @NotAudited
     private Set<Customer> customers;
 
     public Address(Integer code, String name, Integer type, String status, LocalDate dateFrom) {

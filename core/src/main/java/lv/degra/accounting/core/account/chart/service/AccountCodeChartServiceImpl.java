@@ -19,6 +19,6 @@ public class AccountCodeChartServiceImpl implements AccountCodeChartService {
 	}
 
 	public List<AccountCodeChart> getAccountCodeChart() {
-		return accountChartRepository.getNonAssets();
+		return accountChartRepository.getByIsAssetsAccountFalse();
 	}
 }

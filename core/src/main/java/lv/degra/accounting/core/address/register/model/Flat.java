@@ -1,4 +1,4 @@
-package lv.degra.accounting.address.model;
+package lv.degra.accounting.core.address.register.model;
 
 import java.time.LocalDate;
 
@@ -15,34 +15,34 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommonData extends CsvDataBase {
+public class Flat extends CsvDataBase {
 
 	@CsvBindByPosition(position = 2)
-	private String name;
+	private String status;
 
-	@CsvBindByPosition(position = 3)
+	@CsvBindByPosition(position = 5)
 	@CsvNumber("0")
 	private Long parentCode;
 
-	@CsvBindByPosition(position = 4)
+	@CsvBindByPosition(position = 6)
 	@CsvNumber("0")
 	private Integer parentType;
 
 	@CsvBindByPosition(position = 7)
-	private String status;
+	private String name;
 
 	@CsvBindByPosition(position = 8)
 	private String sortName;
 
-	@CsvBindByPosition(position = 9)
+	@CsvBindByPosition(position = 10)
 	@CsvDate(value = "yyyy.MM.dd")
 	private LocalDate dateFrom;
 
-	@CsvBindByPosition(position = 10)
+	@CsvBindByPosition(position = 11)
 	@CsvDate(value = "dd.MM.yyyy HH:mm:ss")
 	private LocalDate dateUpdateAr;
 
-	@CsvBindByPosition(position = 11)
+	@CsvBindByPosition(position = 12)
 	@CsvDate(value = "yyyy.MM.dd")
 	private LocalDate dateTo;
 

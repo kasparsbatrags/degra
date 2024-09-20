@@ -88,6 +88,7 @@ public class DownloadDataServiceImpl implements DownloadDataService {
     }
 
 
+    @Transactional
     public void saveLargeDataBatch(List<Company> companyList) {
         companyRepository.saveAll(companyList);
         entityManager.flush();
@@ -134,7 +135,7 @@ public class DownloadDataServiceImpl implements DownloadDataService {
         uniqueCompanyTypes.forEach(entry -> {
             String code = entry.getKey();
             String name = entry.getValue();
-            CompanyType existingType = companyTypeRepository.findByCode(code).orElse(null);
+            CompanyType existingType = companyTypeRepository.getByCode(code).orElse(null);
             if (existingType == null) {
                 CompanyType newType = new CompanyType();
                 newType.setCode(code);

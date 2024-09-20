@@ -1,21 +1,23 @@
-package lv.degra.accounting.address.service;
+package lv.degra.accounting.core.address.register.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.address.enums.ArRecordStatus;
-import lv.degra.accounting.address.enums.ArZipContentFiles;
-import lv.degra.accounting.address.exception.DownloadAddressDataException;
-import lv.degra.accounting.address.exception.ReadArCsvFileContentException;
-import lv.degra.accounting.address.model.AddressData;
+import lv.degra.accounting.core.address.register.enums.ArRecordStatus;
+import lv.degra.accounting.core.address.register.enums.ArZipContentFiles;
+import lv.degra.accounting.core.address.register.exception.DownloadAddressDataException;
+import lv.degra.accounting.core.address.register.exception.ReadArCsvFileContentException;
+import lv.degra.accounting.core.address.register.model.AddressData;
 import lv.degra.accounting.core.address.register.model.AddressRegister;
+import lv.degra.accounting.core.address.register.model.AddressRegisterRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,18 +38,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static lv.degra.accounting.address.enums.ArRecordStatus.getStatusOnSystemByCode;
+
 
 @Service
 @Slf4j
-public class DownloadAddressDataServiceImpl implements DownloadAddressDataService {
+public class AddressRegisterServiceImpl implements AddressRegisterService {
 
     public static final char CSV_DATA_SEPARATOR = ';';
     public static final char DOUBLE_QUOTES = '#';
-    public static final Integer STATE_CODE = 100000000;
-    public static final String STATE_NAME = "Latvija";
-    public static final Integer STATE_TYPE = 101;
-
+    private final AddressRegisterRepository addressRegisterRepository;
     private final FileService fileService;
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
@@ -57,21 +56,18 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
     private String previousArResponseChecksum = "";
 
     @Autowired
-    public DownloadAddressDataServiceImpl(FileService fileService, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper,
-                                          ConfigService configService) {
+    public AddressRegisterServiceImpl(AddressRegisterRepository addressRegisterRepository, FileService fileService, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper,
+                                      ConfigService configService) {
+        this.addressRegisterRepository = addressRegisterRepository;
         this.fileService = fileService;
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
         this.configService = configService;
     }
 
-    @Scheduled(cron = "${application.address-download-cron}")
-    private void scheduleTaskUsingCronExpression() {
-        try {
-            downloadArData();
-        } catch (ExtractZipFileException e) {
-            throw new DownloadAddressDataException(e.getMessage() + e.getCause());
-        }
+    @Cacheable("addressRegsiterCache")
+    public List<AddressRegister> getByMultipleWords(String searchString) {
+        return addressRegisterRepository.searchByMultipleWords(searchString);
     }
 
     public void downloadArData() {
@@ -188,7 +184,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
                 AddressRegister address = addressList.get(i);
                 ps.setInt(1, address.getCode());
                 ps.setObject(2, address.getType(), Types.INTEGER);
-                ps.setInt(3, getStatusOnSystemByCode(address.getStatus()));
+                ps.setInt(3, ArRecordStatus.getStatusOnSystemByCode(address.getStatus()));
                 ps.setInt(4, address.getParentCode());
                 ps.setInt(5, address.getParentType() != null ? address.getParentType() : 0);
                 ps.setString(6, address.getName());
@@ -196,7 +192,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
                 ps.setString(8, address.getZip());
                 ps.setDate(9, Date.valueOf(address.getDateFrom()));
                 ps.setDate(10, address.getDateTo() != null ? Date.valueOf(address.getDateTo()) : null);
-                ps.setDate(11, Date.valueOf(address.getUpdateDatePublic()!=null ? address.getUpdateDatePublic() : LocalDate.now()));
+                ps.setDate(11, Date.valueOf(address.getUpdateDatePublic() != null ? address.getUpdateDatePublic() : LocalDate.now()));
                 ps.setString(12, address.getFullAddress());
                 ps.setObject(13, address.getTerritorialUnitCode(), Types.INTEGER);
             }

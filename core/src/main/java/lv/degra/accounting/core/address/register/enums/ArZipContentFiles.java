@@ -1,8 +1,7 @@
-package lv.degra.accounting.address.enums;
+package lv.degra.accounting.core.address.register.enums;
 
 import lombok.Getter;
-import lv.degra.accounting.address.model.*;
-import lv.degra.accounting.address.model.AddressData;
+import lv.degra.accounting.core.address.register.model.*;
 
 @Getter
 public enum ArZipContentFiles {
