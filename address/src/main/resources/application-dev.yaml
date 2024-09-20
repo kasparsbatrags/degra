@@ -1,4 +1,8 @@
 spring:
+  jmx:
+    enabled: false
+  main:
+      allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver
@@ -7,19 +11,27 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-    show-sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
 
 server:
   port: 8083
+  tomcat:
+    apr:
+      enabled: false
+
+production-server-url: http://localhost:8083/
+
+application:
+  address-download-cron: 0 0 2 * * ?
 
 logging:
   level:
-    ROOT: 'INFO'
-#      org.springframework: DEBUG
-#    org.springframework.jdbc.datasource: 'DEBUG'
-#    com.zaxxer.hikari: 'DEBUG'
+    ROOT: 'WARN'
+    org.springframework: 'WARN'
+    org.springframework.jdbc.datasource: 'WARN'
+    com.zaxxer.hikari: 'WARN'

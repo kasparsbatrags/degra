@@ -106,14 +106,13 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
         }
 
         truncateAddressTable();
-        importState();
         importArData();
         createIndexes();
         fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
     }
 
     public void truncateAddressTable() {
-        jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_full_name_idx");
+        jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_full_address_idx");
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_code_idx");
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_parent_code_idx");
         jdbcTemplate.execute("TRUNCATE TABLE address_register");
@@ -122,7 +121,7 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
     private void createIndexes() {
         jdbcTemplate.execute("CREATE INDEX address_register_code_idx ON address_register (code)");
         jdbcTemplate.execute("CREATE INDEX address_register_parent_code_idx ON address_register (parent_code)");
-        jdbcTemplate.execute("CREATE INDEX address_register_full_name_idx ON address_register (full_name)");
+        jdbcTemplate.execute("CREATE INDEX address_register_full_address_idx ON address_register (full_address)");
     }
 
     private void importArData() {
@@ -155,15 +154,6 @@ public class DownloadAddressDataServiceImpl implements DownloadAddressDataServic
                 .map(row -> objectMapper.convertValue(row, AddressRegister.class))
                 .filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus()))
                 .collect(Collectors.toList());
-    }
-
-    private void importState() {
-        List<AddressRegister> addressList = List.of(getState());
-        batchInsertAddresses(addressList);
-    }
-
-    private AddressRegister getState() {
-        return new AddressRegister(STATE_CODE, STATE_NAME, STATE_TYPE, ArRecordStatus.EXIST.getCode(), LocalDate.now(), STATE_CODE);
     }
 
     private List<AddressData> parseCsvArDataFileToList(Reader reader, Class<? extends AddressData> clasName) {

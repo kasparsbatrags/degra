@@ -10,13 +10,13 @@
             </layout>
         </appender>
 
-        <root level="debug">
+        <root level="info">
             <appender-ref ref="Console"/>
         </root>
 
         <logger name="lv.degra.accounting.company" level="debug"/>
-        <logger name="org.hibernate.SQL" level="debug"/>
-        <logger name="org.hibernate.type.descriptor.sql" level="trace"/>
+        <logger name="org.hibernate.SQL" level="info"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="info"/>
     </springProfile>
 
     <springProfile name="!dev">
@@ -37,7 +37,7 @@
             <appender-ref ref="RollingFile"/>
         </root>
 
-        <logger name="lv.degra.accounting.company" level="info"/>
+        <logger name="lv.degra.accounting.address" level="info"/>
     </springProfile>
 
 </configuration>
