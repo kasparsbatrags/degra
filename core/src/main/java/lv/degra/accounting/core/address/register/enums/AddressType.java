@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AddressType {
 
-	CITY(104), REGION(113), PARISH(105);
+    CITY(104), REGION(113), PARISH(105);
 
-	private final int value;
+    private final int value;
 }

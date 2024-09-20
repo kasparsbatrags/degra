@@ -2,12 +2,12 @@ package lv.degra.accounting.core.address.register.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.address.register.enums.ArRecordStatus;
 import lv.degra.accounting.core.address.register.enums.ArZipContentFiles;
-import lv.degra.accounting.core.address.register.exception.DownloadAddressDataException;
 import lv.degra.accounting.core.address.register.exception.ReadArCsvFileContentException;
 import lv.degra.accounting.core.address.register.model.AddressData;
 import lv.degra.accounting.core.address.register.model.AddressRegister;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -37,7 +36,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 
 @Service
@@ -180,7 +178,7 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
+            public void setValues(@NotNull PreparedStatement ps, int i) throws SQLException {
                 AddressRegister address = addressList.get(i);
                 ps.setInt(1, address.getCode());
                 ps.setObject(2, address.getType(), Types.INTEGER);

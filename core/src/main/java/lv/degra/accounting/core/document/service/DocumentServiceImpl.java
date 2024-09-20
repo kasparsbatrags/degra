@@ -32,7 +32,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public DocumentDto getDocumentById(Integer id) {
-		return modelMapper.map(documentRepository.getById(id.longValue()), DocumentDto.class);
+		return modelMapper.map(documentRepository.getReferenceById(id.longValue()), DocumentDto.class);
 	}
 
 	@Transactional

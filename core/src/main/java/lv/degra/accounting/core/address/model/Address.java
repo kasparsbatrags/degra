@@ -1,6 +1,5 @@
 package lv.degra.accounting.core.address.model;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +13,6 @@ import org.hibernate.envers.NotAudited;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity

@@ -5,5 +5,5 @@ import lv.degra.accounting.core.address.model.Address;
 import java.util.Optional;
 
 public interface AddressService {
-    Optional<Address> getAddress(Integer addressCode);
+    Optional<Address> findByCode(Integer addressCode);
 }

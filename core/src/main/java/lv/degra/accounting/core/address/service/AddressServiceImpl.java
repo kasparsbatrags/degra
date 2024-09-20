@@ -17,7 +17,7 @@ public class AddressServiceImpl implements AddressService {
         this.addressRepository = addressRepository;
     }
 
-    public Optional<Address> getAddress(Integer addressCode) {
+    public Optional<Address> findByCode(Integer addressCode) {
         return addressRepository.findByCode(addressCode);
     }
 }

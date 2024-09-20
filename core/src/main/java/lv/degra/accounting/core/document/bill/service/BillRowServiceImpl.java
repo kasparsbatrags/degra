@@ -42,7 +42,7 @@ public class BillRowServiceImpl implements BillRowService {
 	}
 
 	public BillContentDto getById(Integer billRowId) {
-		return modelMapper.map(billContentRepository.getById(billRowId.longValue()), BillContentDto.class);
+		return modelMapper.map(billContentRepository.getReferenceById(billRowId.longValue()), BillContentDto.class);
 	}
 
 	public void deleteBillRowById(Integer id) {

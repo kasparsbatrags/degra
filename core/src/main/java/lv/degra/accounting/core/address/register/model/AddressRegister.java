@@ -6,12 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.address.register.view.AddressPublicView;
-import lv.degra.accounting.core.auditor.AuditorRevisionListener;
-import lv.degra.accounting.core.auditor.model.AuditInfo;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity

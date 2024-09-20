@@ -17,10 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,35 +58,45 @@ public class DownloadDataServiceImpl implements DownloadDataService {
         log.info("Company data import started");
         byte[] csvFileBytes = fileService.downloadFileByUrl(companyDataFileUrl);
         if (csvFileBytes != null && csvFileBytes.length > 0) {
-            importCompanyData(new InputStreamReader(new ByteArrayInputStream(csvFileBytes)), COMPANY_CSV_DATA_COLUMN_COUNT);
+            try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(csvFileBytes))) {
+                importCompanyData(reader, COMPANY_CSV_DATA_COLUMN_COUNT);
+            } catch (IOException e) {
+                log.error("Error closing input stream", e);
+            }
         } else {
-            log.info("Company data csv file unable to download");
+            log.warn("Company data CSV file could not be downloaded");
         }
         log.info("Company data import finished");
     }
 
     @Transactional
     public void importCompanyData(Reader file, int rowColumnCount) {
-        List<Company> companiesToSave = Collections.synchronizedList(new ArrayList<>());
+        List<Company> companiesToSave = new ArrayList<>();
         List<String[]> lineData = csvParser.getDataLines(file);
+
+        Map<String, CompanyType> companyTypeMap = companyTypeRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(CompanyType::getName, Function.identity()));
 
         saveUniqueCompanyTypes(getUniqueCompanyTypes(lineData));
 
-        List<CompanyType> companyTypeList = companyTypeRepository.findAll();
-
-        lineData.forEach(line -> {
-            CompanyType companyType = getCompanyType(companyTypeList, line[9]);
-
+        lineData.stream().forEach(line -> {
+            CompanyType companyType = companyTypeMap.getOrDefault(line[9], null);
             companiesToSave.add(getCompanyData(Arrays.asList(line), rowColumnCount, companyType));
 
-            if (companiesToSave.size() >= 100) {
+            if (companiesToSave.size() >= getBatchSize()) {
                 saveLargeDataBatch(companiesToSave);
+                companiesToSave.clear();
             }
         });
 
         if (!companiesToSave.isEmpty()) {
             saveLargeDataBatch(companiesToSave);
         }
+    }
+
+    private int getBatchSize() {
+        return Integer.parseInt(System.getProperty("data.company-data-import.batch.size", "100"));
     }
 
 
