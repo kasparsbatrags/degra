@@ -1,15 +1,3 @@
 spring:
   profiles:
     active: dev
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-    show-sql: true
-    properties:
-      hibernate.format_sql: true
-      hibernate.use_sql_comments: true
-  batch:
-    jdbc:
-      initialize-schema: ALWAYS

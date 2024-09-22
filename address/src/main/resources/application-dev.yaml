@@ -1,8 +1,4 @@
 spring:
-  jmx:
-    enabled: false
-  main:
-      allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver
@@ -12,22 +8,12 @@ spring:
     hikari:
       maximum-pool-size: 15
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-  api-docs:
-    path: /api-docs
-
 server:
   port: 8083
   tomcat:
     apr:
       enabled: false
 
-production-server-url: http://localhost:8083/
-
-application:
-  address-download-cron: 0 0 2 * * ?
 
 logging:
   level:

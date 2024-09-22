@@ -13,13 +13,13 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${production-server-url}")
-    private String productionUrl;
+    @Value("${application:server-url}")
+    private String serverUrl;
 
     @Bean
     public OpenAPI myOpenAPI() {
         Server prodServer = new Server();
-        prodServer.setUrl(productionUrl);
+        prodServer.setUrl(serverUrl);
 
         Contact contact = new Contact();
         contact.setEmail("info@degra.lv");

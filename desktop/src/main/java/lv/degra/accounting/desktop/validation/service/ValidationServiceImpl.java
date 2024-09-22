@@ -34,7 +34,7 @@ public class ValidationServiceImpl implements ValidationService {
 	}
 
 	public List<ValidationRule> getValidationRulesByDocumentSybType(Integer documentSubtypeId) {
-		return validationRulesRepository.getByDocumentSubTypeId(documentSubtypeId);
+		return validationRulesRepository.findByDocumentSubTypeId(documentSubtypeId);
 	}
 
 	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId) {

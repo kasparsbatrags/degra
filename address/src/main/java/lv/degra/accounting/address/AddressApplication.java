@@ -35,7 +35,7 @@ public class AddressApplication {
     @Scheduled(cron = "${application.address-download-cron}")
     private void scheduleTaskUsingCronExpression() {
         try {
-            addressRegisterService.downloadArData();
+            addressRegisterService.importData();
         } catch (ExtractZipFileException e) {
             throw new DownloadAddressDataException(e.getMessage() + e.getCause());
         }

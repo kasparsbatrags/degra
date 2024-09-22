@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCompanyTypeAudit
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: company_type_aud
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  remarks: "Saistīts ar company_type tabulas ierakstu"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revision_id
+                  type: int
+                  autoIncrement: true
+                  remarks: "Auditācijas identifikators"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: revision_type
+                  type: varchar(3)
+                  remarks: "Izmaiņu veids (I - insert, U - update, D - delete)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(3)
+                  remarks: "Uzņēmējdarbības tipa kods auditēts"
+              - column:
+                  name: name
+                  type: varchar(254)
+                  remarks: "Uzņēmējdarbības tipa nosaukums auditēts"
+
+            remarks: "Uzņēmējdarbības tipu auditācijas tabula"
+
+        - addUniqueConstraint:
+            tableName: company_type_aud
+            columnNames: id, revision_id
+            constraintName: uk_company_type_aud_id_revision_id

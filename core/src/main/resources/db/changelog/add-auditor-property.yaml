@@ -15,7 +15,15 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Unikālais identifikātors"
               - column:
+                  name: revision_id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta revīzijas identifikātors"
+              - column:
                   name: revision_timestamp
-                  type: integer
+                  type: bigint
                   remarks: "Laika zīmogs"
 

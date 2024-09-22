@@ -1,4 +1,4 @@
-package lv.degra.accounting.company.exception;
+package lv.degra.accounting.core.company.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.company.model.Company;

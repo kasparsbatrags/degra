@@ -68,7 +68,7 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
         return addressRegisterRepository.searchByMultipleWords(searchString);
     }
 
-    public void downloadArData() {
+    public void importData() {
         log.info("Address data import started");
         byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK));
 
@@ -99,13 +99,13 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
             throw new ExtractZipFileException(e.getMessage() + e.getCause());
         }
 
-        truncateAddressTable();
+        truncateAddressRegisterTable();
         importArData();
         createIndexes();
         fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
     }
 
-    public void truncateAddressTable() {
+    public void truncateAddressRegisterTable() {
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_full_address_idx");
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_code_idx");
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_parent_code_idx");

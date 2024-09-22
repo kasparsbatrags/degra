@@ -7,19 +7,8 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-    show-sql: true
-
 server:
   port: 8084
-
-application:
-  company_data_file_url: https://dati.ur.gov.lv/register/register.csv
-
 
 logging:
   level:

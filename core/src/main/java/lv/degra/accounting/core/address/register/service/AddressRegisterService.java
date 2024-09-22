@@ -5,6 +5,6 @@ import lv.degra.accounting.core.address.register.model.AddressRegister;
 import java.util.List;
 
 public interface AddressRegisterService {
-    void downloadArData();
+    void importData();
     List<AddressRegister> getByMultipleWords(String searchString);
 }

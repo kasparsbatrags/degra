@@ -1,0 +1,13 @@
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-address-master.yaml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+application:
+  server-url: http://localhost:8083/
+  address-download-cron: 0 0 2 * * ?

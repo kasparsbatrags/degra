@@ -8,6 +8,5 @@ import org.springframework.data.repository.query.Param;
 
 public interface ValidationRulesRepository extends JpaRepository<ValidationRule, Long> {
 
-	@Query(value = "SELECT r.* FROM validation_rule r WHERE r.document_sub_type_id = :documentSubtypeId", nativeQuery = true)
-	List<ValidationRule> getByDocumentSubTypeId(@Param("documentSubtypeId") Integer documentSubtypeId);
+	List<ValidationRule> findByDocumentSubTypeId(@Param("documentSubtypeId") Integer documentSubtypeId);
 }

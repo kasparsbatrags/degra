@@ -1,4 +1,6 @@
 databaseChangeLog:
+  - include:
+      file: db/changelog/add-company-type-aud.yaml
   - changeSet:
       id: AddCompanyType
       author: Kaspars Batrags

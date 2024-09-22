@@ -18,6 +18,7 @@ databaseChangeLog:
                   name: code
                   type: int
                   constraints:
+                    unique: true
                     nullable: false
                   remarks: "Adreses kods"
               - column:

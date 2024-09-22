@@ -1,4 +1,4 @@
-package lv.degra.accounting.company;
+package lv.degra.accounting.core.company.service;
 
 import java.io.Reader;
 import java.util.List;
