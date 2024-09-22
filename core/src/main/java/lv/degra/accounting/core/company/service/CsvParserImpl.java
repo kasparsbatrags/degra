@@ -109,7 +109,7 @@ public class CsvParserImpl implements CsvParser {
 
 		boolean isFieldWithEmbeddedDoubleQuotes = true;
 
-		if (field.length() > 0) {
+		if (!field.isEmpty()) {
 			field.append(DOUBLE_QUOTES);
 			isFieldWithEmbeddedDoubleQuotes = false;
 		}

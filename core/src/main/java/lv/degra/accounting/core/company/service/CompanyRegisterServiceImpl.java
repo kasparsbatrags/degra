@@ -10,9 +10,7 @@ import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.files.FileService;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,7 +28,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CompanyRegisterServiceImpl implements CompanyRegisterService {
 
-    public static final Integer COMPANY_CSV_DATA_COLUMN_COUNT = 21;
     private final FileService fileService;
     private final CsvParser csvParser;
     private final CompanyTypeRepository companyTypeRepository;
@@ -51,7 +48,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(DegraConfig.COMPANY_DOWNLOAD_LINK));
         if (csvFileBytes != null && csvFileBytes.length > 0) {
             try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(csvFileBytes))) {
-                importCompanyData(reader, COMPANY_CSV_DATA_COLUMN_COUNT);
+                importCompanyData(reader);
             } catch (IOException e) {
                 log.error("Error closing input stream", e);
             }
@@ -62,7 +59,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
     }
 
 
-    public void importCompanyData(Reader file, int rowColumnCount) {
+    public void importCompanyData(Reader file) {
 
         List<String[]> lineData = csvParser.getDataLines(file);
 
@@ -77,7 +74,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
 
     private List<CompanyRegister> getCompaniesLists(List<String[]> lineData, Map<String, CompanyType> companyTypeMap) {
         List<CompanyRegister> companyRegisterList = new ArrayList<>();
-        lineData.stream().forEach(line -> {
+        lineData.forEach(line -> {
             CompanyType companyType = companyTypeMap.getOrDefault(line[9], null);
             companyRegisterList.add(getCompanyData(Arrays.asList(line), companyType));
         });
@@ -172,18 +169,5 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
                 companyTypeRepository.save(newType);
             }
         });
-    }
-
-    private void downloadFullCompanyData() {
-        importData();
-    }
-
-    private boolean isDataFileChanged(byte[] bytes) {
-        String md5 = DigestUtils.md5DigestAsHex(bytes);
-        if (!previousFilesChecksums.contains(md5)) {
-            previousFilesChecksums.add(md5);
-            return true;
-        }
-        return false;
     }
 }

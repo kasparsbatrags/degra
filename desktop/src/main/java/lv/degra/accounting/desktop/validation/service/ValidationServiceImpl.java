@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.BiConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
 import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
-
+@Slf4j
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
@@ -116,7 +117,7 @@ public class ValidationServiceImpl implements ValidationService {
 				};
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(),e.getCause());
 		}
 		return value -> true;
 	}
