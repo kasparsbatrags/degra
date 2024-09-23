@@ -1,7 +1,7 @@
 package lv.degra.accounting.company;
 
 import lv.degra.accounting.core.address.register.exception.DownloadAddressDataException;
-import lv.degra.accounting.core.company.service.CompanyRegisterService;
+import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

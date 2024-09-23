@@ -26,13 +26,13 @@
         <javafx.version>21</javafx.version>
         <spring.version>3.3.3</spring.version>
         <postgres.version>42.7.1</postgres.version>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco/jacoco.xml
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}${file.separator}target${file.separator}site${file.separator}jacoco${file.separator}jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.organization>elmits</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>degra_accounting</sonar.projectKey>
-        <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.exclusions>**/*.java</sonar.exclusions>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.projectKey>kaspars.batrags_degra_10f646f9-9480-4022-9a8d-8b47125f9b39</sonar.projectKey>
+        <sonar.token>sqp_275f4ba550d9f094cb75f5e42baa75af6776ce78</sonar.token>
+        <sonar.projectName>degra</sonar.projectName>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.scm.provider>git</sonar.scm.provider>
     </properties>
     <dependencies>

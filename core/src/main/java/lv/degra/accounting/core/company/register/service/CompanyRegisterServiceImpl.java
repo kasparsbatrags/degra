@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.company.service;
+package lv.degra.accounting.core.company.register.service;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
