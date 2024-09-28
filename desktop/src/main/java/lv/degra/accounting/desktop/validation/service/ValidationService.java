@@ -12,7 +12,7 @@ public interface ValidationService {
 
 	void applyCustomValidation(ValidationRule validationRule, DocumentInfoController controller);
 
-	void applyValidationRulesByDocumentSubType(DocumentInfoController documentInfoController, int documentSubTypeId);
+	void applyValidationRulesByDocumentSubType(DocumentInfoController documentInfoController, int documentSubTypeId, Class<?> controllerClass);
 
-	<T> T getFieldByName(DocumentInfoController controller, String fieldName);
+	<T, C> T getFieldByName(C controller, String fieldName, Class<?> controllerClass);
 }

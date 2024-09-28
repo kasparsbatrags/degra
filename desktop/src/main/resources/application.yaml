@@ -11,3 +11,5 @@ spring:
       org.hibernate.envers.audit_table_suffix: _aud
       org.hibernate.envers.revision_field_name: revision_id
       org.hibernate.envers.revision_type_field_name: revision_type
+  jmx:
+    enabled: false

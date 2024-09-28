@@ -12,7 +12,7 @@ server:
 
 logging:
   level:
-    ROOT: 'DEBUG'
-    org.springframework: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    com.zaxxer.hikari: DEBUG
+    ROOT: INFO
+    org.springframework: INFO
+    org.springframework.jdbc.datasource: INFO
+    com.zaxxer.hikari: INFO

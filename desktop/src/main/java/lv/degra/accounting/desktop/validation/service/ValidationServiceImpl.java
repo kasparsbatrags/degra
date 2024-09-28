@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.BiConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,12 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
 import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+
 @Slf4j
 @Service
 public class ValidationServiceImpl implements ValidationService {
@@ -38,7 +39,7 @@ public class ValidationServiceImpl implements ValidationService {
 		return validationRulesRepository.findByDocumentSubTypeId(documentSubtypeId);
 	}
 
-	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId) {
+	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId, Class<?> controllerClass) {
 		controller.clearValidationControls();
 		List<ValidationRule> validationRules = getValidationRulesByDocumentSybType(documentSubtypeId);
 
@@ -50,35 +51,42 @@ public class ValidationServiceImpl implements ValidationService {
 			if (rule.isRequired()) {
 				errorMessage =
 						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
-				addValidationControl(controller, validationObjectName, Objects::nonNull, errorMessage);
+				addValidationControl(controller, validationObjectName, Objects::nonNull, errorMessage, controllerClass);
 			}
 			if (rule.getCustomValidation() != null) {
 				errorMessage =
 						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
 				Predicate<String> predicate = createCustomPredicate(rule.getCustomValidation());
-				addValidationControl(controller, validationObjectName, predicate, errorMessage);
+				addValidationControl(controller, validationObjectName, predicate, errorMessage, controllerClass);
 			}
 
 		}
 	}
 
-	public <T> T getFieldByName(DocumentInfoController controller, String fieldName) {
+	public <T, C> T getFieldByName(C controller, String fieldName, Class<?> controllerClass) {
 		try {
-			Field field = DocumentInfoController.class.getDeclaredField(fieldName);
+			Field field = controllerClass.getDeclaredField(fieldName);
 			field.setAccessible(true);
 			return (T) field.get(controller);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException("Field not found: " + fieldName, e);
+		} catch (NoSuchFieldException e) {
+			Class<?> superClass = controllerClass.getSuperclass();
+			if (superClass != null) {
+				return getFieldByName(controller, fieldName, superClass);
+			} else {
+				return null;
+			}
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Cannot access field: " + fieldName, e);
 		}
 	}
 
-
 	private <T> void addValidationControl(DocumentInfoController controller, String fieldName, Predicate<T> predicate,
-			String errorMessage) {
-		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName);
-		controller.addValidationControl(control, predicate, errorMessage);
+			String errorMessage, Class<?> controllerClass) {
+		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName, controllerClass);
+		if (control != null) {
+			controller.addValidationControl(control, predicate, errorMessage);
+		}
 	}
-
 
 	public void applyRequiredValidation(ValidationRule validationRule, DocumentInfoController controller) {
 		String validationObjectName = validationRule.getValidationObject().getName();
@@ -117,7 +125,7 @@ public class ValidationServiceImpl implements ValidationService {
 				};
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(),e.getCause());
+			log.error(e.getMessage(), e.getCause());
 		}
 		return value -> true;
 	}
