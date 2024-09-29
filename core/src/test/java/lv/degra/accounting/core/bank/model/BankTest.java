@@ -3,9 +3,15 @@ package lv.degra.accounting.core.bank.model;
 import static lv.degra.accounting.core.bank.BankModelDataFactory.ACUSTOMER_SWED_BANK;
 import static lv.degra.accounting.core.bank.BankModelDataFactory.BCUSTOMER_SEB_BANK;
 import static lv.degra.accounting.core.bank.BankModelDataFactory.SWED_BANK_BIC;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -13,8 +19,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import lv.degra.accounting.core.customer.CustomersData;
 import lv.degra.accounting.core.customer.model.Customer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 class BankTest {
 
@@ -63,8 +67,10 @@ class BankTest {
 	@Test
 	void testValidationConstraints() {
 		// Izveidojam validācijas instanci
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		Validator validator = factory.getValidator();
+		Validator validator;
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			validator = factory.getValidator();
+		}
 
 		// Validējam BIC, kas ir derīgs
 		bank.setBic("12345678901"); // Derīgs BIC (garums <= 11)

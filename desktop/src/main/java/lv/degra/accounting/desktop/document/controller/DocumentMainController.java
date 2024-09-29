@@ -23,6 +23,7 @@ import lv.degra.accounting.core.document.service.DocumentService;
 import lv.degra.accounting.desktop.report.service.ReportService;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
+import lv.degra.accounting.desktop.validation.service.ValidationService;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
 
@@ -30,9 +31,11 @@ import net.sf.jasperreports.view.JasperViewer;
 public class DocumentMainController extends DegraController {
 
 	private final DocumentInfoController documentInfoController;
+	private final DocumentAdditionalInfoController documentAdditionalInfoController;
 	private final BillController billController;
 	private final DocumentService documentService;
 	private final ReportService reportService;
+	private final ValidationService validationService;
 	@FXML
 	public TabPane documentTabPane;
 	@FXML
@@ -47,18 +50,22 @@ public class DocumentMainController extends DegraController {
 	private Tab billContentTab;
 
 	@Autowired
-	public DocumentMainController(DocumentInfoController documentInfoController, BillController billController,
-			DocumentService documentService, ReportService reportService) {
+	public DocumentMainController(DocumentInfoController documentInfoController,
+			DocumentAdditionalInfoController documentAdditionalInfoController, BillController billController,
+			DocumentService documentService, ReportService reportService, ValidationService validationService) {
 		this.documentInfoController = documentInfoController;
 		this.billController = billController;
+		this.documentAdditionalInfoController = documentAdditionalInfoController;
 		this.documentService = documentService;
 		this.reportService = reportService;
+		this.validationService = validationService;
 	}
 
 	@FXML
 	private void initialize() {
 		documentInfoController.injectMainController(this);
 		billController.injectMainController(this);
+		documentAdditionalInfoController.injectMainController(this);
 		actualizeDocumentTabs();
 	}
 
@@ -200,6 +207,22 @@ public class DocumentMainController extends DegraController {
 
 	}
 
+	public void setDocumentAdditionalInfoSumTotalFieldValue(String text){
+		documentAdditionalInfoController.notesForCustomerField.setText(String.valueOf(text));
+	}
+
+	public void setDocumentAdditionalInternalNotesFieldValue(String text){
+		documentAdditionalInfoController.internalNotesField.setText(String.valueOf(text));
+	}
+
+	public String getDocumentAdditionalInfoControllerNotesForCustomer() {
+		return documentAdditionalInfoController.notesForCustomerField.getText();
+	}
+
+	public String getDocumentAdditionalInfoInternalNotes() {
+		return documentAdditionalInfoController.internalNotesField.getText();
+	}
+
 	public void setDocumentInfoSumTotalFieldValue(Double value) {
 		documentInfoController.sumTotalField.setText(String.valueOf(value));
 		documentInfoController.sumTotalOnAction();
@@ -207,6 +230,19 @@ public class DocumentMainController extends DegraController {
 
 	public void setDocumentDtoOld() {
 		this.documentDtoOld = this.documentDto;
+	}
+
+	public Object getControllerFieldByName(String name) {
+		Object field = validationService.getFieldByName(documentInfoController, name, DocumentInfoController.class);
+		if (field == null) {
+			field = validationService.getFieldByName(documentAdditionalInfoController, name, DocumentAdditionalInfoController.class);
+		}
+		if (field == null) {
+			field = validationService.getFieldByName(billController, name, BillController.class);
+		}
+
+		return field;
+
 	}
 
 }

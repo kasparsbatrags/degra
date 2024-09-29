@@ -1,14 +1,13 @@
 package lv.degra.accounting.core.account.distribution.dto;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
-import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.system.object.TableViewInfo;
-
-import java.io.Serializable;
 
 @Getter
 @Setter
@@ -18,11 +17,16 @@ public class AccountCodeDistributionDto implements Serializable {
 
     private Integer id;
 //    private Document document;
-//    @TableViewInfo(displayName = "Konts debetā", columnOrder = 1)
-//    private AccountCodeChart debitAccount;
-//    private Double amountInDebit;
-//    private AccountCodeChart creditAccount;
-    @TableViewInfo(displayName = "Konts kredītā", columnOrder = 1)
+
+    @TableViewInfo(displayName = "Konts debetā", columnOrder = 1)
+    private AccountCodeChart debitAccount;
+
+	@TableViewInfo(displayName = "Summa debetā", columnOrder = 2)
+    private Double amountInDebit;
+
+    @TableViewInfo(displayName = "Konts kredītā", columnOrder = 3)
     private Double amountInCredit;
 
+	@TableViewInfo(displayName = "Summa Kredītā", columnOrder = 4)
+	private AccountCodeChart creditAccount;
 }

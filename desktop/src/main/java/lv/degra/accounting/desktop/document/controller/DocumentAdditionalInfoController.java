@@ -1,52 +1,92 @@
 package lv.degra.accounting.desktop.document.controller;
 
+import org.springframework.stereotype.Component;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import lombok.Getter;
+import lombok.Setter;
+import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
+import lv.degra.accounting.core.account.distribution.service.DistributionService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
+import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
-import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentAdditionalInfoController extends DegraController {
-    @FXML
-    public TextAreaWithErrorLabel notesForCustomerField;
 
-    @FXML
-    public TextAreaWithErrorLabel internalNotesField;
+	private final ObservableList<AccountCodeDistributionDto> distributionDtoObservableList = FXCollections.observableArrayList();
+	private final DistributionService distributionService;
+	private DocumentMainController documentMainController;
 
+	@FXML
+	@Getter
+	@Setter
+	public TextAreaWithErrorLabel notesForCustomerField;
 
-    DocumentDto documentDto;
-    private final DocumentMainController documentMainController;
-    private final DocumentInfoController documentInfoController;
+	@FXML
+	@Getter
+	@Setter
+	public TextAreaWithErrorLabel internalNotesField;
 
-    public DocumentAdditionalInfoController(DocumentInfoController documentInfoController, DocumentMainController documentMainController) {
-        this.documentInfoController = documentInfoController;
-        this.documentMainController = documentMainController;
-    }
+	DocumentDto documentDto;
 
-    @FXML
-    private void initialize() {
+	@FXML
+	private DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
 
-        documentInfoController.injectAdditionalInfoController(this);
+	public DocumentAdditionalInfoController(DistributionService distributionService) {
+		this.distributionService = distributionService;
+	}
 
-        notesForCustomerField.setOnKeyPressed(event -> {
-            if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
-                event.consume();
-                internalNotesField.requestFocus();
-            }
-        });
+	@FXML
+	private void initialize() {
 
-        internalNotesField.setOnKeyPressed(event -> {
-            if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
-                event.consume();
-                documentMainController.saveButton.requestFocus();
-            }
-        });
+		distributionListView.setType(AccountCodeDistributionDto.class);
+		distributionListView.setCreator(item -> {
+			addRecord();
+			refreshTable();
+		});
+		distributionListView.setUpdater(item -> editRecord());
+		distributionListView.setDeleter(item -> {
+			deleteRecord();
+			refreshTable();
+		});
 
-    }
+		refreshTable();
 
+		notesForCustomerField.setOnKeyPressed(event -> {
+			if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
+				event.consume();
+				internalNotesField.requestFocus();
+			}
+		});
 
-    public void onAddAccountingRowButton() {
-        documentDto = documentMainController.getDocumentDto();
-    }
+		internalNotesField.setOnKeyPressed(event -> {
+			if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
+				event.consume();
+				documentMainController.saveButton.requestFocus();
+			}
+		});
+
+	}
+
+	private void refreshTable() {
+		if (documentMainController != null) {
+			distributionDtoObservableList.clear();
+			distributionDtoObservableList.addAll(
+					distributionService.getDistributionByDocumentId(documentMainController.getDocumentDto().getId()));
+			distributionListView.setData(distributionDtoObservableList);
+		}
+	}
+
+	public void onAddAccountingRowButton() {
+		documentDto = documentMainController.getDocumentDto();
+	}
+
+	public void injectMainController(DocumentMainController documentMainController) {
+		this.documentMainController = documentMainController;
+		refreshTable();
+	}
 }

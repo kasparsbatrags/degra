@@ -1,18 +1,20 @@
 package lv.degra.accounting.core.country;
 
-import static org.junit.jupiter.api.Assertions.*;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import jakarta.validation.ConstraintViolation;
-import lv.degra.accounting.core.country.model.Country;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static jakarta.validation.Validation.buildDefaultValidatorFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import lv.degra.accounting.core.country.model.Country;
 
 class CountryTest {
 
@@ -22,8 +24,9 @@ class CountryTest {
 	@BeforeEach
 	void setUp() {
 		country = new Country();
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
+		try (ValidatorFactory factory = buildDefaultValidatorFactory()) {
+			validator = factory.getValidator();
+		}
 	}
 
 	@Test
