@@ -333,13 +333,13 @@ public class DocumentInfoController extends DegraController {
 			ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
 					FXCollections.observableList(customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank)));
 			if (customerBankAccounts.size() == 1) {
-				CustomerAccount account = customerBankAccounts.get(0);
+				CustomerAccount account = customerBankAccounts.getFirst();
 				accountCombo.setItems(customerBankAccounts);
 				accountCombo.setValue(account);
 			} else {
 				accountCombo.setItems(customerBankAccounts);
 				if (customerBankAccounts.size() == 1) {
-					accountCombo.setValue(customerBankAccounts.get(0));
+					accountCombo.setValue(customerBankAccounts.getFirst());
 				} else {
 					accountCombo.setValue(null);
 				}
@@ -374,7 +374,7 @@ public class DocumentInfoController extends DegraController {
 					FXCollections.observableList(customerAccountService.getCustomerBankAccounts(selectedCustomer, selectedBank)));
 			accountCombo.setItems(customerBankAccounts);
 			if (customerBankAccounts.size() == 1) {
-				accountCombo.setValue(customerBankAccounts.get(0));
+				accountCombo.setValue(customerBankAccounts.getFirst());
 			} else {
 				accountCombo.setValue(null);
 				accountCombo.setItems(FXCollections.observableArrayList());

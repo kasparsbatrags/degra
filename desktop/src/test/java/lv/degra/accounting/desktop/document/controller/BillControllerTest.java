@@ -1,7 +1,7 @@
 package lv.degra.accounting.desktop.document.controller;
 
-import static lv.degra.accounting.desktop.data.BankDataFactory.SWED_BANK_BIC;
 import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
+import static lv.degra.accounting.desktop.data.BankDataFactory.SWED_BANK_BIC;
 import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;

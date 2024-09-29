@@ -1,8 +1,7 @@
 package lv.degra.accounting.desktop.data;
 
-import lv.degra.accounting.core.customer.model.Customer;
 
-import static lv.degra.accounting.desktop.data.AddressStaticData.*;
+import lv.degra.accounting.core.customer.model.Customer;
 
 public class CustomersData {
 
@@ -13,7 +12,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER1_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER1_VAT_NUMBER,
-                ADDRESS1);
+                AddressStaticData.ADDRESS1);
     }
     public static Customer getCustomer2() {
         return CustomerDataFactory.createCustomer(
@@ -22,7 +21,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER2_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER2_VAT_NUMBER,
-                ADDRESS2);
+                AddressStaticData.ADDRESS2);
     }
     public static Customer getCustomer3() {
         return CustomerDataFactory.createCustomer(
@@ -31,7 +30,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER3_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER3_VAT_NUMBER,
-                ADDRESS3);
+                AddressStaticData.ADDRESS3);
     }
 
     public static Customer getCustomer4() {
@@ -41,7 +40,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER4_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER4_VAT_NUMBER,
-                ADDRESS4);
+                AddressStaticData.ADDRESS4);
     }
 
     public static Customer getCustomer5() {
@@ -51,7 +50,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER5_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER5_VAT_NUMBER,
-                ADDRESS5);
+                AddressStaticData.ADDRESS5);
     }
 
     public static Customer getCustomer6() {
@@ -61,7 +60,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER6_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER6_VAT_NUMBER,
-                ADDRESS6);
+                AddressStaticData.ADDRESS6);
     }
 
     public static Customer getCustomer7() {
@@ -71,7 +70,7 @@ public class CustomersData {
                 CustomerDataFactory.createCustomerType(CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON_ID, CustomerTypeStaticData.CUSTOMER_TYPE_LEGAL_PERSON),
                 CustomersStaticData.CUSTOMER7_REGISTRATION_NUMBER,
                 CustomersStaticData.CUSTOMER7_VAT_NUMBER,
-                ADDRESS7);
+                AddressStaticData.ADDRESS7);
     }
 
 

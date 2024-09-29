@@ -1,10 +1,10 @@
 package lv.degra.accounting.desktop.data;
 
-import lv.degra.accounting.core.address.model.Address;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import lv.degra.accounting.core.address.model.Address;
 
 public class AddressStaticData {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");

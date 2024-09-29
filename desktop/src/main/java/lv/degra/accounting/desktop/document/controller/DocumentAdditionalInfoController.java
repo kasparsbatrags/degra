@@ -16,7 +16,7 @@ public class DocumentAdditionalInfoController extends DegraController {
 
 
     DocumentDto documentDto;
-    private DocumentMainController documentMainController;
+    private final DocumentMainController documentMainController;
     private final DocumentInfoController documentInfoController;
 
     public DocumentAdditionalInfoController(DocumentInfoController documentInfoController, DocumentMainController documentMainController) {
