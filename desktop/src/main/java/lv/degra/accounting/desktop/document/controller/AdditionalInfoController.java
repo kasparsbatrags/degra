@@ -15,29 +15,29 @@ import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 
 @Component
-public class DocumentAdditionalInfoController extends DegraController {
+@Setter
+@Getter
+public class AdditionalInfoController extends DegraController {
 
 	private final ObservableList<AccountCodeDistributionDto> distributionDtoObservableList = FXCollections.observableArrayList();
 	private final DistributionService distributionService;
-	private DocumentMainController documentMainController;
-
+	private final Mediator mediator;
 	@FXML
 	@Getter
 	@Setter
 	public TextAreaWithErrorLabel notesForCustomerField;
-
 	@FXML
 	@Getter
 	@Setter
 	public TextAreaWithErrorLabel internalNotesField;
-
 	DocumentDto documentDto;
-
+	private MainController mainController;
 	@FXML
 	private DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
 
-	public DocumentAdditionalInfoController(DistributionService distributionService) {
+	public AdditionalInfoController(DistributionService distributionService, Mediator mediator) {
 		this.distributionService = distributionService;
+		this.mediator = mediator;
 	}
 
 	@FXML
@@ -66,27 +66,33 @@ public class DocumentAdditionalInfoController extends DegraController {
 		internalNotesField.setOnKeyPressed(event -> {
 			if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
 				event.consume();
-				documentMainController.saveButton.requestFocus();
+				mainController.saveButton.requestFocus();
 			}
 		});
 
 	}
 
 	private void refreshTable() {
-		if (documentMainController != null) {
+		if (mainController != null) {
 			distributionDtoObservableList.clear();
 			distributionDtoObservableList.addAll(
-					distributionService.getDistributionByDocumentId(documentMainController.getDocumentDto().getId()));
+					distributionService.getDistributionByDocumentId(mainController.getDocumentDto().getId()));
 			distributionListView.setData(distributionDtoObservableList);
 		}
 	}
 
 	public void onAddAccountingRowButton() {
-		documentDto = documentMainController.getDocumentDto();
+		documentDto = mediator.getDocumentDto();
 	}
 
-	public void injectMainController(DocumentMainController documentMainController) {
-		this.documentMainController = documentMainController;
-		refreshTable();
+	public DocumentDto getAdditionalInfoData(DocumentDto documentDto) {
+		documentDto.setNotesForCustomer(notesForCustomerField.getText());
+		documentDto.setInternalNotes(internalNotesField.getText());
+		return documentDto;
+	}
+
+	public void fillDocumentFormWithExistData(DocumentDto documentDto) {
+		notesForCustomerField.setText(documentDto.getNotesForCustomer());
+		internalNotesField.setText(documentDto.getInternalNotes());
 	}
 }

@@ -107,14 +107,14 @@ public class DocumentListFormController extends DegraController {
 			Parent root1 = fxmlLoader.load();
 			Stage stage = applicationFormBuilder.getApplicationFormatedStage(root1,
 					documentDto == null ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
-			DocumentMainController documentMainController = fxmlLoader.getController();
+			MainController mainController = fxmlLoader.getController();
 			if (isCreateNewDocument(documentDto)) {
-				documentMainController.setDocumentList(documentObservableList);
+				mainController.setDocumentList(documentObservableList);
 			} else {
-				documentMainController.setDocumentList(documentObservableList);
-				documentMainController.setDocument(documentDto);
+				mainController.setDocumentList(documentObservableList);
+				mainController.setDocument(documentDto);
 			}
-			documentMainController.setDocumentDtoOld();
+//			mediator.setDocumentDtoOld();
 			stage.setMaximized(true);
 			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();

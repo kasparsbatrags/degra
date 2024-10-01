@@ -63,16 +63,15 @@ import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
-import lv.degra.accounting.desktop.system.controller.MainController;
+import lv.degra.accounting.desktop.system.controller.SystemController;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
 @Component
-public class DocumentInfoController extends DegraController {
+public class InfoController extends DegraController {
 
 	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
-	private static final String BILL_CODE = "BILL";
 	private static final String VALIDATION_TYPE_REQUIRED = "required";
 	private static final String VALIDATION_TYPE_CUSTOM = "custom";
 	private final CurrencyService currencyService;
@@ -89,7 +88,9 @@ public class DocumentInfoController extends DegraController {
 	private final AccountCodeChartService accountCodeChartService;
 	private final DistributionService distributionService;
 	private final BillController billController;
-	private final MainController mainController;
+	private final SystemController systemController;
+	@Getter
+	private final Mediator mediator;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
@@ -139,16 +140,16 @@ public class DocumentInfoController extends DegraController {
 	public Pane paymentPane;
 	@FXML
 	private DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
-	private DocumentMainController documentMainController;
+	private MainController mainController;
 	private CurrencyExchangeRate currencyExchangeRate;
 
-	public DocumentInfoController(CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
+	public InfoController(CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
 			DocumentDirectionService documentDirectionService, DocumentTransactionTypeService documentTransactionTypeService,
 			ExchangeService exchangeService, CustomerService customerService, BankService bankService,
 			CustomerAccountService customerAccountService, ConfigService configService, ValidationService validationService,
 			ConfigurableApplicationContext springContext, AccountCodeChartService accountCodeChartService,
 			DistributionService distributionService,
-			BillController billController, MainController mainController) {
+			BillController billController, SystemController systemController, Mediator mediator) {
 		this.currencyService = currencyService;
 		this.documentSubTypeService = documentSubTypeService;
 		this.documentDirectionService = documentDirectionService;
@@ -163,7 +164,8 @@ public class DocumentInfoController extends DegraController {
 		this.accountCodeChartService = accountCodeChartService;
 		this.distributionService = distributionService;
 		this.billController = billController;
-		this.mainController = mainController;
+		this.systemController = systemController;
+		this.mediator = mediator;
 	}
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
@@ -197,7 +199,7 @@ public class DocumentInfoController extends DegraController {
 
 		publisherCombo.setCustomerService(customerService);
 		receiverCombo.setCustomerService(customerService);
-		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		mediator.addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
 		distributionListView.setType(AccountCodeDistributionDto.class);
 		distributionListView.setCreator(item -> {
@@ -215,7 +217,7 @@ public class DocumentInfoController extends DegraController {
 		ObservableList<AccountCodeDistributionDto> accountCodeDistributionDtoObservableList = FXCollections.observableArrayList();
 		accountCodeDistributionDtoObservableList.clear();
 		accountCodeDistributionDtoObservableList.addAll(
-				distributionService.getDistributionByDocumentId(this.documentMainController.getDocumentDto().getId()));
+				distributionService.getDistributionByDocumentId(Integer.valueOf(documentIdLabel.getText())));
 		distributionListView.setData(accountCodeDistributionDtoObservableList);
 	}
 
@@ -224,7 +226,7 @@ public class DocumentInfoController extends DegraController {
 			return;
 		}
 		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
-		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId, DocumentAdditionalInfoController.class);
+		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId, InfoController.class);
 	}
 
 	protected void applyRequiredValidation(ValidationRule validationRule) {
@@ -267,7 +269,7 @@ public class DocumentInfoController extends DegraController {
 
 	@FXML
 	public void documentSubTypeComboOnAction() {
-		this.documentMainController.actualizeDocumentTabs();
+		mediator.updateDocumentTabs();
 		setDocumentInfoValidationRules();
 		refreshScreenControls();
 
@@ -287,27 +289,18 @@ public class DocumentInfoController extends DegraController {
 
 		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
 
-		validationRuleList.forEach(rule -> {
-			Object field = documentMainController.getControllerFieldByName(rule.getValidationObject().getName());
-			if (field instanceof ControlWithErrorLabel<?> control) {
-				control.setVisible(rule.isShowInForm());
-				control.setDisable(rule.isDefaultDisabled());
-			} else if (field instanceof Node node) {
-				node.setVisible(rule.isShowInForm());
-				node.setDisable(rule.isDefaultDisabled());
-			} else {
-				throw new IllegalArgumentException("Unsupported field type: " + field.getClass().getName());
-			}
-		});
-	}
-
-	public void injectMainController(DocumentMainController documentMainController) {
-		this.documentMainController = documentMainController;
-	}
-
-	public boolean isDocumentBill() {
-		return Optional.ofNullable(documentSubTypeCombo).map(ComboBoxWithErrorLabel::getValue).map(DocumentSubType::getCode)
-				.map(BILL_CODE::equals).orElse(false);
+				validationRuleList.forEach(rule -> {
+					Object field = mediator.getControllerFieldByName(rule.getValidationObject().getName());
+					if (field instanceof ControlWithErrorLabel<?> control) {
+						control.setVisible(rule.isShowInForm());
+						control.setDisable(rule.isDefaultDisabled());
+					} else if (field instanceof Node node) {
+						node.setVisible(rule.isShowInForm());
+						node.setDisable(rule.isDefaultDisabled());
+					} else {
+						throw new IllegalArgumentException("Unsupported field type: " + field.getClass().getName());
+					}
+				});
 	}
 
 	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
@@ -409,8 +402,6 @@ public class DocumentInfoController extends DegraController {
 		receiverCombo.setValue(documentDto.getReceiverCustomer());
 		receiverBankCombo.setValue(documentDto.getReceiverCustomerBank());
 		receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
-		documentMainController.setDocumentAdditionalInfoSumTotalFieldValue(documentDto.getNotesForCustomer());
-		documentMainController.setDocumentAdditionalInternalNotesFieldValue(documentDto.getInternalNotes());
 		currencyExchangeRate = documentDto.getCurrencyExchangeRate();
 
 		if (publisherCombo.getValue() != null) {
@@ -457,15 +448,15 @@ public class DocumentInfoController extends DegraController {
 				directionCombo.getValue(), numberField.getText(), seriesField.getText(), documentSubTypeCombo.getValue(),
 				documentTransactionTypeCombo.getValue(), accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(),
 				null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(),
-				currencyExchangeRate, documentMainController.getDocumentAdditionalInfoControllerNotesForCustomer(),
-				documentMainController.getDocumentAdditionalInfoInternalNotes(), publisherCombo.getValue(),
+				currencyExchangeRate, mainController.getDocumentAdditionalInfoControllerNotesForCustomer(),
+				mainController.getDocumentAdditionalInfoInternalNotes(), publisherCombo.getValue(),
 				publisherBankCombo.getValue(), publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
 				receiverBankAccountCombo.getValue());
 	}
 
 	public boolean isDocumentInfoChanged() {
-		documentMainController.setDocument(fillDocumentDto());
-		return !documentMainController.getDocumentDto().equals(documentMainController.getDocumentDtoOld());
+		//		mainController.setDocument(fillDocumentDto());
+		return !mainController.getDocumentDto().equals(mainController.getDocumentDtoOld());
 	}
 
 	public Scene getScene() {
@@ -473,5 +464,12 @@ public class DocumentInfoController extends DegraController {
 	}
 
 	public void onAddAccountingRowButton() {
+	}
+
+	public DocumentDto getDocumentData(DocumentDto documentDto) {
+		documentDto.setDocumentNumber(numberField.getText());
+		documentDto.setDocumentDate(documentDateDp.getValue());
+		documentDto.setCurrency(currencyCombo.getValue());
+		return documentDto;
 	}
 }

@@ -10,7 +10,7 @@
 <?import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox?>
 <?import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel?>
 <AnchorPane prefHeight="606.0" prefWidth="1255.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="lv.degra.accounting.desktop.document.controller.DocumentInfoController">
+	fx:controller="lv.degra.accounting.desktop.document.controller.InfoController">
 	<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="606.0" prefWidth="1255.0" AnchorPane.bottomAnchor="0.0"
 		AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 		<children>

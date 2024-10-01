@@ -67,7 +67,7 @@ import lv.degra.accounting.desktop.data.CustomerTypeStaticData;
 import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
-class DocumentInfoControllerTest extends ApplicationTest {
+class InfoControllerTest extends ApplicationTest {
 
 	@Autowired
 	private CustomerRepository customerRepository;
@@ -95,7 +95,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	@Mock
 	private BankService bankService;
 	@InjectMocks
-	private DocumentInfoController documentInfoController;
+	private InfoController infoController;
 
 	private AutoCloseable mocks;
 	private ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
@@ -107,7 +107,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		}
 		WaitForAsyncUtils.waitForFxEvents();
 		Platform.runLater(() -> {
-			Stage stage = (Stage) documentInfoController.publisherCombo.getScene().getWindow();
+			Stage stage = (Stage) infoController.publisherCombo.getScene().getWindow();
 			if (stage != null) {
 				stage.close();
 			}
@@ -136,7 +136,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		when(customerAccountService.getCustomerBankAccounts(getCustomer2(), BCUSTOMER_SWED_BANK)).thenReturn(getCustomer2AccountList());
 
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/document/DocumentInfoForm.fxml"));
-		loader.setControllerFactory(clazz -> documentInfoController);
+		loader.setControllerFactory(clazz -> infoController);
 		Parent root = loader.load();
 
 		Scene scene = new Scene(root);
@@ -170,9 +170,9 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		robot.clickOn("#publisherCombo");
 		robot.write(CUSTOMER1_NAME);
 		robot.press(KeyCode.ENTER);
-		Assertions.assertEquals(getCustomer1(), documentInfoController.publisherCombo.getValue());
-		Assertions.assertEquals(ACUSTOMER_SWED_BANK, documentInfoController.publisherBankCombo.getValue());
-		Assertions.assertEquals(CUSTOMER1_BANK1_ACCOUNT1, documentInfoController.publisherBankAccountCombo.getValue());
+		Assertions.assertEquals(getCustomer1(), infoController.publisherCombo.getValue());
+		Assertions.assertEquals(ACUSTOMER_SWED_BANK, infoController.publisherBankCombo.getValue());
+		Assertions.assertEquals(CUSTOMER1_BANK1_ACCOUNT1, infoController.publisherBankAccountCombo.getValue());
 	}
 
 	@Test
@@ -181,14 +181,14 @@ class DocumentInfoControllerTest extends ApplicationTest {
 		robot.clickOn("#publisherCombo");
 		robot.write(CUSTOMER2_NAME);
 		robot.press(KeyCode.ENTER);
-		Assertions.assertEquals(getCustomer2(), documentInfoController.publisherCombo.getValue());
-		Assertions.assertEquals(BCUSTOMER_SWED_BANK, documentInfoController.publisherBankCombo.getValue());
-		Assertions.assertNull(documentInfoController.publisherBankAccountCombo.getValue());
+		Assertions.assertEquals(getCustomer2(), infoController.publisherCombo.getValue());
+		Assertions.assertEquals(BCUSTOMER_SWED_BANK, infoController.publisherBankCombo.getValue());
+		Assertions.assertNull(infoController.publisherBankAccountCombo.getValue());
 	}
 
 	@Test
 	void testSetDocumentInfoValidationRules_documentSubTypeCombo_is_NullCombo() {
-		documentInfoController.setDocumentInfoValidationRules();
+		infoController.setDocumentInfoValidationRules();
 		verify(validationService, never()).getValidationRulesByDocumentSybType(anyInt());
 	}
 
@@ -196,7 +196,7 @@ class DocumentInfoControllerTest extends ApplicationTest {
 	void testSetDocumentInfoValidationRules_documentSubTypeCombo_have_NullComboValue() {
 		documentSubTypeCombo = new ComboBoxWithErrorLabel<>();
 		documentSubTypeCombo.setValue(null);
-		documentInfoController.setDocumentInfoValidationRules();
+		infoController.setDocumentInfoValidationRules();
 		verify(validationService, never()).getValidationRulesByDocumentSybType(anyInt());
 	}
 

@@ -18,8 +18,8 @@ import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
-import lv.degra.accounting.core.document.model.DocumentDirection;
 import lv.degra.accounting.core.document.model.Document;
+import lv.degra.accounting.core.document.model.DocumentDirection;
 import lv.degra.accounting.core.document.model.DocumentSubType;
 import lv.degra.accounting.core.document.model.DocumentTransactionType;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
@@ -34,10 +34,11 @@ import lv.degra.accounting.core.system.object.TableViewInfo;
 @Getter
 @Setter
 public class DocumentDto implements Serializable {
+	private static final String BILL_CODE = "BILL";
 	Integer id;
 	@TableViewInfo(displayName = "Virziens", columnOrder = 4)
 	DocumentDirection documentDirection;
-	@TableViewInfo(displayName = "Numurs", columnOrder =3)
+	@TableViewInfo(displayName = "Numurs", columnOrder = 3)
 	String documentNumber;
 	@Size(max = 20)
 	@TableViewInfo(displayName = "Sērija", columnOrder = 2)
@@ -79,6 +80,10 @@ public class DocumentDto implements Serializable {
 	Bank receiverCustomerBank;
 	@NotNull
 	CustomerAccount receiverCustomerBankAccount;
+
+	public boolean isBill() {
+		return this.documentSubType!=null && BILL_CODE.equals(this.documentSubType.getCode());
+	}
 
 	@Override
 	public boolean equals(Object obj) {

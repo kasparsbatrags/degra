@@ -9,7 +9,7 @@ import javafx.scene.layout.BorderPane;
 import lv.degra.accounting.desktop.system.utils.ApplicationFormBuilder;
 
 @Controller
-public class MainController {
+public class SystemController {
 
 	private static final String DOCUMENT_LIST_SCREEN_FILE = "/document/DocumentListForm.fxml";
 	private static final String SETTINGS_SCREEN_FILE = "/system/SettingsForm.fxml";
@@ -20,7 +20,7 @@ public class MainController {
 	@FXML
 	public Button documentsButton;
 
-	public MainController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context) {
+	public SystemController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context) {
 		this.applicationFormBuilder = applicationFormBuilder;
 		this.context = context;
 	}

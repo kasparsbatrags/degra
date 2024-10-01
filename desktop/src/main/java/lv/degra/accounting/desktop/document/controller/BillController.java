@@ -1,5 +1,12 @@
 package lv.degra.accounting.desktop.document.controller;
 
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.fillCombo;
+import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.VAT_PERCENTS;
+
+import org.springframework.stereotype.Component;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,27 +16,25 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lv.degra.accounting.core.document.bill.model.UnitType;
 import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.bill.service.UnitTypeService;
 import lv.degra.accounting.core.document.dto.BillContentDto;
+import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.utils.DegraController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.VAT_PERCENTS;
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.fillCombo;
-import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
 
 @Component
+@AllArgsConstructor
+@NoArgsConstructor
 public class BillController extends DegraController {
 
     private static final Double PERCENT_TOTALLY = 100.0;
     private final ObservableList<BillContentDto> billContentObservableList = FXCollections.observableArrayList();
-    public BillContentDto newBillContentDto;
+	public BillContentDto newBillContentDto;
     @FXML
     public TextField billRowServiceNameField;
     @FXML
@@ -53,23 +58,26 @@ public class BillController extends DegraController {
 	@FXML
 	public Button addToBillButton;
 
-	private DocumentMainController documentMainController;
+	private MainController mainController;
     protected BillRowService billRowService;
     private ConfigService configService;
+	private Mediator mediator;
 
     private UnitTypeService unitTypeService;
 
-    @Autowired
-    public BillController(BillRowService billRowService, UnitTypeService unitTypeService, ConfigService configService) {
-        this.billRowService = billRowService;
-        this.unitTypeService = unitTypeService;
-        this.configService = configService;
-    }
+//    @Autowired
+//    public BillController(BillRowService billRowService, UnitTypeService unitTypeService, ConfigService configService, Mediator mediator) {
+//        this.billRowService = billRowService;
+//        this.unitTypeService = unitTypeService;
+//        this.configService = configService;
+//		this.mediator = mediator;
+//	}
+//
+//	public BillController(Mediator mediator) {
+//		this.mediator = mediator;
+//	}
 
-    public BillController() {
-    }
-
-    @FXML
+	@FXML
     public void addToBillRowButtonAction() {
         addRecord();
         billRowServiceNameField.requestFocus();
@@ -77,7 +85,7 @@ public class BillController extends DegraController {
 
     @Override
     protected void addRecord() {
-        documentMainController.disableDocumentButtons();
+        mainController.disableDocumentButtons();
         enableBillRowEnterFields();
         billRowServiceNameField.requestFocus();
         billRowVatPercentField.setText(configService.get(VAT_PERCENTS));
@@ -86,7 +94,7 @@ public class BillController extends DegraController {
     @Override
     protected void editRecord() {
         newBillContentDto = getRowFromTableView(billContentListView);
-        documentMainController.disableDocumentButtons();
+        mainController.disableDocumentButtons();
         enableBillRowEnterFields();
         fillBillRowFields(newBillContentDto);
         billRowServiceNameField.requestFocus();
@@ -100,11 +108,11 @@ public class BillController extends DegraController {
         }
         billRowService.deleteBillRowById(billContentDto.getId());
         billContentListView.getItems().removeAll(billContentListView.getSelectionModel().getSelectedItem());
-        actualizeDocumentInfo(documentMainController.getDocumentDto().getId());
+        actualizeDocumentInfo(mainController.getDocumentDto().getId());
     }
 
-    public void injectMainController(DocumentMainController documentMainController) {
-        this.documentMainController = documentMainController;
+    public void injectMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     public void setBillContentOpenAction() {
@@ -158,7 +166,7 @@ public class BillController extends DegraController {
         if (key == KeyCode.ESCAPE) {
             clearBillEnterFields();
             disableBillRowEnterFields();
-            documentMainController.enableDocumentButtons();
+            mainController.enableDocumentButtons();
             billContentListView.requestFocus();
             keyEvent.consume();
         } else if (key == KeyCode.ENTER) {
@@ -249,7 +257,7 @@ public class BillController extends DegraController {
         var editedBillContentDto = new BillContentDto();
         try {
             editedBillContentDto = new BillContentDto(newBillContentDto == null ? null : newBillContentDto.getId(),
-                    documentMainController.getDocumentDto(), billRowServiceNameField.getText(), getDouble(billRowQuantityField.getText()),
+                    mainController.getDocumentDto(), billRowServiceNameField.getText(), getDouble(billRowQuantityField.getText()),
                     billRowUnitTypeCombo.getValue(), getDouble(billRowPricePerUnitField.getText()),
                     getDouble(billRowSumPerAllField.getText()), getDouble(billRowVatPercentField.getText()),
                     getDouble(billRowVatSumField.getText()), getDouble(billRowSumTotalField.getText()));
@@ -267,7 +275,7 @@ public class BillController extends DegraController {
             billContentObservableList.add(newBillContentDto);
         }
         disableBillRowEnterFields();
-        documentMainController.enableDocumentButtons();
+        mainController.enableDocumentButtons();
         refreshBillContentTable();
         billContentListView.requestFocus();
         billContentListView.scrollTo(newBillContentDto);
@@ -276,8 +284,8 @@ public class BillController extends DegraController {
 
     private void actualizeDocumentInfo(Integer documentId) {
         Double documentTotalSum = billRowService.getBillRowSumByDocumentId(documentId);
-        documentMainController.setDocumentInfoSumTotalFieldValue(documentTotalSum);
-        documentMainController.saveDocument();
+        mainController.setDocumentInfoSumTotalFieldValue(documentTotalSum);
+//        mainController.saveDocument();
     }
 
     public void billRowQuantityOnAction() {
@@ -287,10 +295,17 @@ public class BillController extends DegraController {
 
     protected void refreshBillContentTable() {
         billContentObservableList.clear();
-        if (documentMainController.getDocumentDto() != null) {
-            billContentObservableList.addAll(billRowService.getByDocumentId(documentMainController.getDocumentDto().getId()));
+        if (mainController.getDocumentDto() != null) {
+            billContentObservableList.addAll(billRowService.getByDocumentId(mainController.getDocumentDto().getId()));
             billContentListView.setData(billContentObservableList);
         }
     }
 
+	public DocumentDto getBillData(DocumentDto documentDto) {
+		if (documentDto.isBill()) {
+//			documentDto.setBillAmount(billAmountField.getText());
+//			documentDto.setDueDate(paymentDateDp.getValue());
+		}
+		return documentDto;
+	}
 }

@@ -30,15 +30,15 @@ import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
 import lv.degra.accounting.core.document.model.DocumentDirection;
 import lv.degra.accounting.core.document.model.DocumentSubType;
-import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRuleErrorMessage;
 import lv.degra.accounting.core.validation.model.ValidationRuleObject;
+import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
-class GbsDocumentInfoControllerTest {
+class GbsInfoControllerTest {
 
 	public ComboBoxWithErrorLabel<DocumentDirection> directionCombo;
 	public DatePickerWithErrorLabel documentDateDp;
@@ -50,10 +50,10 @@ class GbsDocumentInfoControllerTest {
 	private ValidationService validationService;
 
 	@InjectMocks
-	private DocumentInfoController documentInfoController;
+	private InfoController infoController;
 
 	@InjectMocks
-	private DocumentMainController documentMainController;
+	private MainController mainController;
 
 	private ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
 
@@ -75,21 +75,21 @@ class GbsDocumentInfoControllerTest {
 		publisherBankAccountCombo = new ComboBoxWithErrorLabel<>();
 
 		// Set the private field 'documentSubTypeCombo' in DocumentInfoController
-		setPrivateField(documentInfoController, "documentSubTypeCombo", documentSubTypeCombo);
-		setPrivateField(documentInfoController, "directionCombo", directionCombo);
-		setPrivateField(documentInfoController, "documentDateDp", documentDateDp);
-		setPrivateField(documentInfoController, "publisherCombo", publisherCombo);
-		setPrivateField(documentInfoController, "publisherBankCombo", publisherBankCombo);
-		setPrivateField(documentInfoController, "publisherBankAccountCombo", publisherBankAccountCombo);
+		setPrivateField(infoController, "documentSubTypeCombo", documentSubTypeCombo);
+		setPrivateField(infoController, "directionCombo", directionCombo);
+		setPrivateField(infoController, "documentDateDp", documentDateDp);
+		setPrivateField(infoController, "publisherCombo", publisherCombo);
+		setPrivateField(infoController, "publisherBankCombo", publisherBankCombo);
+		setPrivateField(infoController, "publisherBankAccountCombo", publisherBankAccountCombo);
 
 		// Initialize validation functions
-		documentInfoController.validationFunctions.put("required",
-				rule -> validationService.applyRequiredValidation(rule, documentInfoController));
-		documentInfoController.validationFunctions.put("custom",
-				rule -> validationService.applyCustomValidation(rule, documentInfoController));
+		infoController.validationFunctions.put("required",
+				rule -> validationService.applyRequiredValidation(rule, infoController));
+		infoController.validationFunctions.put("custom",
+				rule -> validationService.applyCustomValidation(rule, infoController));
 
 		// Inject main controller
-		setPrivateField(documentMainController, "documentInfoController", documentInfoController);
+		setPrivateField(mainController, "documentInfoController", infoController);
 	}
 
 	private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
@@ -111,23 +111,23 @@ class GbsDocumentInfoControllerTest {
 
 		when(validationService.getValidationRulesByDocumentSybType(gbsDocumentSubType.getId())).thenReturn(getGbsValidationRules());
 
-		documentInfoController.addValidationControl(documentSubTypeCombo, Objects::nonNull,
+		infoController.getMediator().addValidationControl(documentSubTypeCombo, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
-		documentInfoController.addValidationControl(directionCombo, Objects::nonNull,
+		infoController.getMediator().addValidationControl(directionCombo, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
-		documentInfoController.addValidationControl(documentDateDp, Objects::nonNull,
+		infoController.getMediator().addValidationControl(documentDateDp, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
-		documentInfoController.addValidationControl(publisherCombo, Objects::nonNull,
+		infoController.getMediator().addValidationControl(publisherCombo, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
-		documentInfoController.addValidationControl(publisherBankCombo, Objects::nonNull,
+		infoController.getMediator().addValidationControl(publisherBankCombo, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
-		documentInfoController.addValidationControl(publisherBankAccountCombo, Objects::nonNull,
+		infoController.getMediator().addValidationControl(publisherBankAccountCombo, Objects::nonNull,
 				getRequiredValidationRuleErrorMessage().getShortMessage());
 
-		documentInfoController.setDocumentInfoValidationRules();
+		infoController.setDocumentInfoValidationRules();
 
 		// Assert the validation
-		Assertions.assertTrue(documentMainController.validateDocumentInfo());
+		Assertions.assertTrue(mainController.validateDocumentInfo());
 	}
 
 	@Test
@@ -140,9 +140,9 @@ class GbsDocumentInfoControllerTest {
 		errorMessage.setShortMessage("Required field");
 		rule.setValidationRulesErrorMessage(errorMessage);
 
-		documentInfoController.applyRequiredValidation(rule);
+		infoController.applyRequiredValidation(rule);
 
-		verify(validationService).applyRequiredValidation(rule, documentInfoController);
+		verify(validationService).applyRequiredValidation(rule, infoController);
 	}
 
 	@Test
@@ -156,8 +156,8 @@ class GbsDocumentInfoControllerTest {
 		rule.setValidationRulesErrorMessage(errorMessage);
 		rule.setCustomValidation("{\"type\":\"decimal_precision\",\"min\":0,\"scale\":2}");
 
-		documentInfoController.applyCustomValidation(rule);
+		infoController.applyCustomValidation(rule);
 
-		verify(validationService).applyCustomValidation(rule, documentInfoController);
+		verify(validationService).applyCustomValidation(rule, infoController);
 	}
 }
