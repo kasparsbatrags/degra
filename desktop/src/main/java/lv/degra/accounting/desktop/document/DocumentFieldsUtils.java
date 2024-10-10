@@ -8,13 +8,15 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import lombok.NoArgsConstructor;
 import lv.degra.accounting.desktop.system.exception.IncorrectSumException;
 
-@NoArgsConstructor
 public class DocumentFieldsUtils {
 
 	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
+
+	private DocumentFieldsUtils() {
+		throw new IllegalStateException("DocumentFieldsUtils class");
+	}
 
 	public static <T> void fillCombo(ComboBox<T> comboBox, List<T> list) {
 		comboBox.setItems(FXCollections.observableList(list));
