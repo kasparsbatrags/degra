@@ -1,10 +1,13 @@
-package lv.degra.accounting.desktop.document.controller;
+package lv.degra.accounting.desktop.document.controllerv;
 
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.BILL_SERIES_KEY;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DEFAULT_DOUBLE_FIELDS_TEXT;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.VALIDATION_TYPE_CUSTOM;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.VALIDATION_TYPE_REQUIRED;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -21,21 +24,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import lombok.Getter;
-import lombok.Setter;
-import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
-import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
 import lv.degra.accounting.core.account.distribution.service.DistributionService;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.bank.service.BankService;
@@ -56,41 +53,29 @@ import lv.degra.accounting.core.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
-import lv.degra.accounting.desktop.system.controller.SystemController;
-import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
 @Component
-public class InfoController extends DegraController {
+public class InfoController extends DocumentControllerComponent {
 
-	private static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
-	private static final String VALIDATION_TYPE_REQUIRED = "required";
-	private static final String VALIDATION_TYPE_CUSTOM = "custom";
+	private final CustomerAccountService customerAccountService;
+	private final BankService bankService;
+	private final ExchangeService exchangeService;
+	private final DistributionService distributionService;
+	private final ConfigService configService;
 	private final CurrencyService currencyService;
 	private final DocumentSubTypeService documentSubTypeService;
-	private final DocumentDirectionService documentDirectionService;
 	private final DocumentTransactionTypeService documentTransactionTypeService;
-	private final ExchangeService exchangeService;
+	private final DocumentDirectionService documentDirectionService;
 	private final CustomerService customerService;
-	private final BankService bankService;
-	private final CustomerAccountService customerAccountService;
-	private final ConfigService configService;
-	private final ValidationService validationService;
-	private final ConfigurableApplicationContext springContext;
-	private final AccountCodeChartService accountCodeChartService;
-	private final DistributionService distributionService;
-	private final BillController billController;
-	private final SystemController systemController;
-	@Getter
-	private final Mediator mediator;
+	private final Map<String, ValidationFunction> infoValidationFunctions = new HashMap<>();
+	private final List<ControlWithErrorLabel<?>> infoValidationControls = new ArrayList<>();
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
@@ -130,42 +115,33 @@ public class InfoController extends DegraController {
 	public DatePickerWithErrorLabel paymentDateDp;
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentSubType> documentSubTypeCombo;
-	@Setter
-	public Map<String, ValidationFunction> validationFunctions = new HashMap<>();
 	@FXML
 	public Pane publisherPane;
 	@FXML
 	public Pane receiverPane;
 	@FXML
 	public Pane paymentPane;
-	@FXML
-	private DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
-	private MainController mainController;
 	private CurrencyExchangeRate currencyExchangeRate;
+	private DocumentDto documentDto;
 
-	public InfoController(CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
-			DocumentDirectionService documentDirectionService, DocumentTransactionTypeService documentTransactionTypeService,
-			ExchangeService exchangeService, CustomerService customerService, BankService bankService,
-			CustomerAccountService customerAccountService, ConfigService configService, ValidationService validationService,
-			ConfigurableApplicationContext springContext, AccountCodeChartService accountCodeChartService,
-			DistributionService distributionService,
-			BillController billController, SystemController systemController, Mediator mediator) {
+	public InfoController(Mediator mediator, CustomerAccountService customerAccountService, BankService bankService,
+			ExchangeService exchangeService, DistributionService distributionService, ConfigService configService,
+			CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
+			DocumentTransactionTypeService documentTransactionTypeService, DocumentDirectionService documentDirectionService,
+			CustomerService customerService, ValidationService validationService) {
+		super(mediator, validationService);
+		this.distributionService = distributionService;
+		this.configService = configService;
 		this.currencyService = currencyService;
 		this.documentSubTypeService = documentSubTypeService;
-		this.documentDirectionService = documentDirectionService;
 		this.documentTransactionTypeService = documentTransactionTypeService;
-		this.exchangeService = exchangeService;
+		this.documentDirectionService = documentDirectionService;
 		this.customerService = customerService;
-		this.bankService = bankService;
+		System.out.println("InfoController constructor");
+
 		this.customerAccountService = customerAccountService;
-		this.configService = configService;
-		this.validationService = validationService;
-		this.springContext = springContext;
-		this.accountCodeChartService = accountCodeChartService;
-		this.distributionService = distributionService;
-		this.billController = billController;
-		this.systemController = systemController;
-		this.mediator = mediator;
+		this.bankService = bankService;
+		this.exchangeService = exchangeService;
 	}
 
 	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
@@ -173,18 +149,52 @@ public class InfoController extends DegraController {
 		return t -> seen.add(keyExtractor.apply(t));
 	}
 
-	private void handleSumTotalFocusChange(Observable observable, boolean oldValue, boolean newValue) {
-		if (!newValue) {
-			sumTotalOnAction();
-		}
+	@FXML
+	public void publisherOnAction() {
+		setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+	}
+
+	@FXML
+	public void publisherBankOnAction() {
+		setCustomerAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+	}
+
+	@FXML
+	public void sumTotalOnAction() {
+		sumTotalInCurrencyField.setText(calculateCurrencyTotal(sumTotalField.getText(), exchangeRateField.getText()));
+	}
+
+	@FXML
+	public void currencyOnAction() {
+		Currency selectedCurrency = currencyCombo.getValue();
+		setExchangeRate(selectedCurrency);
+	}
+
+	@FXML
+	public void documentSubTypeComboOnAction() {
+		mediator.updateDocumentTabs();
+		setDocumentInfoValidationRules();
+		refreshScreenControlsByDocumentSubType();
+
+	}
+
+	@FXML
+	public void receiverOnAction() {
+		setBankInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
+	}
+
+	@FXML
+	public void receiverBankOnAction() {
+		setCustomerAccountInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 	}
 
 	@FXML
 	public void initialize() {
-		validationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
-		validationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
-
+		System.out.println("InfoController initialize");
+		infoValidationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
+		infoValidationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
 		setDefaultValues();
+
 		sumTotalField.focusedProperty().addListener(this::handleSumTotalFocusChange);
 
 		exchangeRateField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -199,108 +209,23 @@ public class InfoController extends DegraController {
 
 		publisherCombo.setCustomerService(customerService);
 		receiverCombo.setCustomerService(customerService);
-		mediator.addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
+		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
-		distributionListView.setType(AccountCodeDistributionDto.class);
-		distributionListView.setCreator(item -> {
-			addRecord();
-			refreshDistributionTable();
-		});
-		distributionListView.setUpdater(item -> editRecord());
-		distributionListView.setDeleter(item -> {
-			deleteRecord();
-			refreshDistributionTable();
-		});
 	}
 
-	private void refreshDistributionTable() {
-		ObservableList<AccountCodeDistributionDto> accountCodeDistributionDtoObservableList = FXCollections.observableArrayList();
-		accountCodeDistributionDtoObservableList.clear();
-		accountCodeDistributionDtoObservableList.addAll(
-				distributionService.getDistributionByDocumentId(Integer.valueOf(documentIdLabel.getText())));
-		distributionListView.setData(accountCodeDistributionDtoObservableList);
-	}
+	//	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
+	//		control.setValidationCondition(validationCondition, errorMessage);
+	//		infoValidationControls.add(control);
+	//	}
 
-	protected void setDocumentInfoValidationRules() {
-		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
-			return;
-		}
-		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
-		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId, InfoController.class);
-	}
-
-	protected void applyRequiredValidation(ValidationRule validationRule) {
-		validationService.applyRequiredValidation(validationRule, this);
-	}
-
-	protected void applyCustomValidation(ValidationRule validationRule) {
-		validationService.applyCustomValidation(validationRule, this);
-	}
-
-	@FXML
-	public void sumTotalOnAction() {
-		sumTotalInCurrencyField.setText(calculateCurrencyTotal(sumTotalField.getText(), exchangeRateField.getText()));
+	private void setExchangeRate(Currency currency) {
+		currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(), currency);
+		exchangeRateField.setText(currencyExchangeRate.getRate().toString());
 	}
 
 	private String calculateCurrencyTotal(String sum, String rate) {
 		double total = getDouble(sum) * getDouble(rate);
 		return String.valueOf(total);
-	}
-
-	@FXML
-	public void receiverOnAction() {
-		setBankInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
-	}
-
-	@FXML
-	public void receiverBankOnAction() {
-		setCustomerAccountInfo(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
-	}
-
-	@FXML
-	public void publisherOnAction() {
-		setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
-	}
-
-	@FXML
-	public void publisherBankOnAction() {
-		setCustomerAccountInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
-	}
-
-	@FXML
-	public void documentSubTypeComboOnAction() {
-		mediator.updateDocumentTabs();
-		setDocumentInfoValidationRules();
-		refreshScreenControls();
-
-	}
-
-	public void refreshScreenControls() {
-		Optional<DocumentSubType> optionalDocumentSubType = Optional.ofNullable(documentSubTypeCombo.getValue());
-
-		optionalDocumentSubType.map(DocumentSubType::getDocumentType).map(DocumentType::getCode)
-				.ifPresentOrElse(code -> documentTransactionTypeCombo.setDisable(!"BILL".equals(code)),
-						() -> documentTransactionTypeCombo.setDisable(true));
-
-		optionalDocumentSubType.map(DocumentSubType::getDirection)
-				.ifPresentOrElse(directionCombo::setValue, () -> directionCombo.setValue(null));
-
-		Integer documentSubtypeId = optionalDocumentSubType.map(DocumentSubType::getId).orElse(null);
-
-		List<ValidationRule> validationRuleList = validationService.getValidationRulesByDocumentSybType(documentSubtypeId);
-
-				validationRuleList.forEach(rule -> {
-					Object field = mediator.getControllerFieldByName(rule.getValidationObject().getName());
-					if (field instanceof ControlWithErrorLabel<?> control) {
-						control.setVisible(rule.isShowInForm());
-						control.setDisable(rule.isDefaultDisabled());
-					} else if (field instanceof Node node) {
-						node.setVisible(rule.isShowInForm());
-						node.setDisable(rule.isDefaultDisabled());
-					} else {
-						throw new IllegalArgumentException("Unsupported field type: " + field.getClass().getName());
-					}
-				});
 	}
 
 	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
@@ -360,29 +285,8 @@ public class InfoController extends DegraController {
 		}
 	}
 
-	public void fillDocumentInfoDataCombos() {
-
-		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
-		documentSubTypeCombo.setItems(FXCollections.observableList(documentSubTypeService.getDocumentSubTypeList()));
-		documentTransactionTypeCombo.setItems(
-				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
-
-		directionCombo.setItems(FXCollections.observableArrayList(documentDirectionService.getDocumentDirectionList()));
-
-	}
-
-	private void setDefaultValues() {
-		seriesField.setText(configService.get(BILL_SERIES_KEY));
-		documentDateDp.setValue(LocalDate.now());
-		accountingDateDp.setValue(LocalDate.now());
-		Currency currencyDefault = currencyService.getDefaultCurrency();
-		currencyCombo.setValue(currencyDefault);
-		setExchangeRate(currencyDefault);
-		sumTotalField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
-		sumTotalInCurrencyField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
-	}
-
-	public void fillDocumentFormWithExistData(DocumentDto documentDto) {
+	public void setDocumentData(DocumentDto documentDto) {
+		this.documentDto = documentDto;
 		directionCombo.setValue(documentDto.getDocumentDirection());
 		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
 		seriesField.setText(documentDto.getDocumentSeries());
@@ -411,8 +315,6 @@ public class InfoController extends DegraController {
 		if (receiverCombo.getValue() != null) {
 			fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 		}
-		refreshDistributionTable();
-		setDocumentInfoValidationRules();
 	}
 
 	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
@@ -426,50 +328,100 @@ public class InfoController extends DegraController {
 				bankService.getCustomerBanksByBanksIdList(uniqueCustomerBankIdList));
 		bankCombo.setItems(customerBankList);
 
-		ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(
-				FXCollections.observableList(
-						customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), bankCombo.getValue())));
+		ObservableList<CustomerAccount> customerBankAccounts = FXCollections.observableList(FXCollections.observableList(
+				customerAccountService.getCustomerBankAccounts(customerCombo.getValue(), bankCombo.getValue())));
 		accountCombo.setItems(customerBankAccounts);
 	}
 
-	public void currencyOnAction() {
-		Currency selectedCurrency = currencyCombo.getValue();
-		setExchangeRate(selectedCurrency);
+	public void refreshScreenControlsByDocumentSubType() {
+		Optional<DocumentSubType> optionalDocumentSubType = Optional.ofNullable(documentSubTypeCombo.getValue());
+
+		optionalDocumentSubType.map(DocumentSubType::getDocumentType).map(DocumentType::getCode)
+				.ifPresentOrElse(code -> documentTransactionTypeCombo.setDisable(!"BILL".equals(code)),
+						() -> documentTransactionTypeCombo.setDisable(true));
+
+		optionalDocumentSubType.map(DocumentSubType::getDirection)
+				.ifPresentOrElse(directionCombo::setValue, () -> directionCombo.setValue(null));
+
+		Integer documentSubtypeId = optionalDocumentSubType.map(DocumentSubType::getId).orElse(null);
+
+		refreshScreenControls(documentSubtypeId);
+
 	}
 
-	private void setExchangeRate(Currency currency) {
-		currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(), currency);
-		exchangeRateField.setText(currencyExchangeRate.getRate().toString());
+	private void setDefaultValues() {
+		seriesField.setText(configService.get(BILL_SERIES_KEY));
+		documentDateDp.setValue(LocalDate.now());
+		accountingDateDp.setValue(LocalDate.now());
+		Currency currencyDefault = currencyService.getDefaultCurrency();
+		currencyCombo.setValue(currencyDefault);
+		setExchangeRate(currencyDefault);
+		sumTotalField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
+		sumTotalInCurrencyField.setText(DEFAULT_DOUBLE_FIELDS_TEXT);
 	}
 
-	public DocumentDto fillDocumentDto() {
-
-		return new DocumentDto(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()),
-				directionCombo.getValue(), numberField.getText(), seriesField.getText(), documentSubTypeCombo.getValue(),
-				documentTransactionTypeCombo.getValue(), accountingDateDp.getValue(), documentDateDp.getValue(), paymentDateDp.getValue(),
-				null, getDouble(sumTotalField.getText()), getDouble(sumTotalInCurrencyField.getText()), currencyCombo.getValue(),
-				currencyExchangeRate, mainController.getDocumentAdditionalInfoControllerNotesForCustomer(),
-				mainController.getDocumentAdditionalInfoInternalNotes(), publisherCombo.getValue(),
-				publisherBankCombo.getValue(), publisherBankAccountCombo.getValue(), receiverCombo.getValue(), receiverBankCombo.getValue(),
-				receiverBankAccountCombo.getValue());
+	private void handleSumTotalFocusChange(Observable observable, boolean oldValue, boolean newValue) {
+		if (!newValue) {
+			sumTotalOnAction();
+		}
 	}
 
-	public boolean isDocumentInfoChanged() {
-		//		mainController.setDocument(fillDocumentDto());
-		return !mainController.getDocumentDto().equals(mainController.getDocumentDtoOld());
+	public void fillDocumentInfoDataCombos() {
+
+		currencyCombo.setItems(FXCollections.observableList(currencyService.getCurrencyList()));
+		documentSubTypeCombo.setItems(FXCollections.observableList(documentSubTypeService.getDocumentSubTypeList()));
+		documentTransactionTypeCombo.setItems(
+				FXCollections.observableList(documentTransactionTypeService.getDocumentTransactionTypeList()));
+
+		directionCombo.setItems(FXCollections.observableArrayList(documentDirectionService.getDocumentDirectionList()));
+
 	}
 
-	public Scene getScene() {
-		return documentIdLabel.getScene();
+	protected void setDocumentInfoValidationRules() {
+		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
+			return;
+		}
+		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
+		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId);
 	}
 
-	public void onAddAccountingRowButton() {
+	@Override
+	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
+		control.setValidationCondition(validationCondition, errorMessage);
+		infoValidationControls.add(control);
+	}
+
+	@Override
+	public void clearValidationControls() {
+		infoValidationControls.clear();
+	}
+
+	@Override
+	public boolean validate() {
+		return validateControllerControls(infoValidationControls);
 	}
 
 	public DocumentDto getDocumentData(DocumentDto documentDto) {
-		documentDto.setDocumentNumber(numberField.getText());
-		documentDto.setDocumentDate(documentDateDp.getValue());
+		documentDto.setId(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()));
+		documentDto.setDocumentTransactionType(documentTransactionTypeCombo.getValue());
+		documentDto.setPublisherCustomer(publisherCombo.getValue());
+		documentDto.setPublisherCustomerBank(publisherBankCombo.getValue());
+		documentDto.setPublisherCustomerBankAccount(publisherBankAccountCombo.getValue());
+		documentDto.setReceiverCustomer(receiverCombo.getValue());
+		documentDto.setReceiverCustomerBank(receiverBankCombo.getValue());
+		documentDto.setReceiverCustomerBankAccount(receiverBankAccountCombo.getValue());
+		documentDto.setDocumentDirection(directionCombo.getValue());
 		documentDto.setCurrency(currencyCombo.getValue());
+		documentDto.setDocumentSeries(seriesField.getText());
+		documentDto.setDocumentNumber(numberField.getText());
+		documentDto.setSumTotal(getDouble(sumTotalField.getText()));
+		documentDto.setSumTotalInCurrency(getDouble(sumTotalInCurrencyField.getText()));
+		documentDto.setCurrencyExchangeRate(currencyExchangeRate);
+		documentDto.setAccountingDate(accountingDateDp.getValue());
+		documentDto.setDocumentDate(documentDateDp.getValue());
+		documentDto.setPaymentDate(paymentDateDp.getValue());
+		documentDto.setDocumentSubType(documentSubTypeCombo.getValue());
 		return documentDto;
 	}
+
 }

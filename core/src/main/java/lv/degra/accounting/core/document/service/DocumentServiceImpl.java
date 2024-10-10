@@ -10,11 +10,13 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
 import lv.degra.accounting.core.system.exception.SaveDocumentException;
-
+@Slf4j
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
@@ -37,18 +39,26 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Transactional
 	public DocumentDto saveDocument(DocumentDto documentDto) {
+		if (documentDto == null) {
+			throw new IllegalArgumentException("DocumentDto cannot be null");
+		}
+
 		try {
 			if (documentDto.getId() != null) {
 				return documentRepository.findById(Long.valueOf(documentDto.getId())).map(document -> {
 					modelMapper.map(documentDto, document);
 					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
-				}).orElseThrow(() -> new EntityNotFoundException("Document not found with ID: " + documentDto.getId()));
+				}).orElseThrow(() -> new EntityNotFoundException("Document with ID " + documentDto.getId() + " not found in the system."));
 			} else {
 				Document document = modelMapper.map(documentDto, Document.class);
 				Document savedDocument = documentRepository.save(document);
 				return modelMapper.map(savedDocument, DocumentDto.class);
 			}
 		} catch (DataIntegrityViolationException e) {
+			log.error("Error saving document: " + e.getMessage(), e);
+			if (e.getCause() instanceof ConstraintViolationException) {
+				throw new SaveDocumentException("Constraint violation: " + e.getMessage());
+			}
 			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
 		}
 	}

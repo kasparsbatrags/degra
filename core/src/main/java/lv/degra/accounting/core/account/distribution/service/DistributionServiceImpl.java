@@ -22,7 +22,7 @@ public class DistributionServiceImpl implements DistributionService {
     }
 
 	public List<AccountCodeDistributionDto> getDistributionByDocumentId(Integer documentId) {
-		return accountCodeDistributionRepository.getByDocumentId(documentId).stream()
+		return accountCodeDistributionRepository.findByDocumentId(documentId).stream()
 		.map(distribution -> modelMapper.map(distribution, AccountCodeDistributionDto.class)).toList();
 	}
 }

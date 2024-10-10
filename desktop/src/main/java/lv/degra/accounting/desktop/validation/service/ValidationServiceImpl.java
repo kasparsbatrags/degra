@@ -20,14 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
-import lv.degra.accounting.desktop.document.controller.InfoController;
+import lv.degra.accounting.desktop.document.controllerv.DocumentControllerComponent;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 
 @Slf4j
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
-	private final Map<String, BiConsumer<InfoController, String>> validationActions = new HashMap<>();
+	private final Map<String, BiConsumer<? extends DocumentControllerComponent, String>> validationActions = new HashMap<>();
 	private final ValidationRulesRepository validationRulesRepository;
 
 	@Autowired
@@ -39,8 +39,8 @@ public class ValidationServiceImpl implements ValidationService {
 		return validationRulesRepository.findByDocumentSubTypeId(documentSubtypeId);
 	}
 
-	public void applyValidationRulesByDocumentSubType(InfoController controller, int documentSubtypeId, Class<?> controllerClass) {
-		controller.getMediator().clearValidationControls();
+	public void applyValidationRulesByDocumentSubType(DocumentControllerComponent controller, int documentSubtypeId) {
+		controller.clearValidationControls();
 		List<ValidationRule> validationRules = getValidationRulesByDocumentSybType(documentSubtypeId);
 
 		for (ValidationRule rule : validationRules) {
@@ -51,48 +51,44 @@ public class ValidationServiceImpl implements ValidationService {
 			if (rule.isRequired()) {
 				errorMessage =
 						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
-				addValidationControl(controller, validationObjectName, Objects::nonNull, errorMessage, controllerClass);
+				addValidationControl(controller, validationObjectName, Objects::nonNull, errorMessage);
 			}
 			if (rule.getCustomValidation() != null) {
 				errorMessage =
 						rule.getValidationRulesErrorMessage() != null ? rule.getValidationRulesErrorMessage().getShortMessage() : EMPTY;
 				Predicate<String> predicate = createCustomPredicate(rule.getCustomValidation());
-				addValidationControl(controller, validationObjectName, predicate, errorMessage, controllerClass);
+				addValidationControl(controller, validationObjectName, predicate, errorMessage);
 			}
 
 		}
 	}
 
-	public <T, C> T getFieldByName(C controller, String fieldName, Class<?> controllerClass) {
+	public <T, C> T getFieldByName(C controller, String fieldName) {
 		try {
-			Field field = controllerClass.getDeclaredField(fieldName);
+			Field field = controller.getClass().getField(fieldName);
 			field.setAccessible(true);
 			return (T) field.get(controller);
 		} catch (NoSuchFieldException e) {
-			Class<?> superClass = controllerClass.getSuperclass();
-			if (superClass != null) {
-				return getFieldByName(controller, fieldName, superClass);
-			} else {
 				return null;
-			}
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("Cannot access field: " + fieldName, e);
 		}
 	}
 
-	private <T> void addValidationControl(InfoController controller, String fieldName, Predicate<T> predicate,
-			String errorMessage, Class<?> controllerClass) {
-		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName, controllerClass);
+	private <T> void addValidationControl(DocumentControllerComponent controller, String fieldName, Predicate<T> predicate,
+			String errorMessage) {
+		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName);
 		if (control != null) {
-			controller.getMediator().addValidationControl(control, predicate, errorMessage);
+			controller.addValidationControl(control, predicate, errorMessage);
 		}
 	}
 
-	public void applyRequiredValidation(ValidationRule validationRule, InfoController controller) {
+	public void applyRequiredValidation(ValidationRule validationRule, DocumentControllerComponent controller) {
 		String validationObjectName = validationRule.getValidationObject().getName();
 		String errorMessage = validationRule.getValidationRulesErrorMessage().getShortMessage();
 
-		BiConsumer<InfoController, String> validationAction = validationActions.get(validationObjectName);
+		BiConsumer<DocumentControllerComponent, String> validationAction = (BiConsumer<DocumentControllerComponent, String>) validationActions.get(
+				validationObjectName);
 		if (validationAction != null) {
 			validationAction.accept(controller, errorMessage);
 		} else {
@@ -100,11 +96,11 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 	}
 
-	public void applyCustomValidation(ValidationRule validationRule, InfoController controller) {
+	public void applyCustomValidation(ValidationRule validationRule, DocumentControllerComponent controller) {
 		String errorMessage = validationRule.getValidationRulesErrorMessage().getShortMessage();
 		if (validationRule.getValidationObject().getName().equals("sumTotalField")) {
 			Predicate<String> predicate = createCustomPredicate(validationRule.getCustomValidation());
-			controller.getMediator().addValidationControl(controller.getSumTotalField(), predicate, errorMessage);
+			controller.addValidationControl(controller.getSumTotalField(), predicate, errorMessage);
 		}
 	}
 

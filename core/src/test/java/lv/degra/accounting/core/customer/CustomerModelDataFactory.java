@@ -1,15 +1,14 @@
 package lv.degra.accounting.core.customer;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import lv.degra.accounting.core.address.model.Address;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer.model.CustomerType;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CustomerModelDataFactory {
 
@@ -48,7 +47,7 @@ public class CustomerModelDataFactory {
 
     }
 
-    public static Address createAddress(Integer id, Integer code, Integer type, String status, Integer parentCode, Integer parentType, String name, String sortByValue, String zip, LocalDate dateFrom, LocalDate updateDatePublic, LocalDate dateTo, String fullName, Integer territorialUnitCode, Instant createdAt, Instant lastModifiedAt) {
+    public static Address createAddress(Integer id, Integer code, Integer type, String status, Integer parentCode, Integer parentType, String name, String sortByValue, String zip, LocalDate dateFrom, LocalDate updateDatePublic, LocalDate dateTo, String fullName, Integer territorialUnitCode) {
         Address address = new Address();
         address.setId(id);
         address.setCode(code);

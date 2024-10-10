@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.document.controller;
+package lv.degra.accounting.desktop.document.list.controller;
 
 import static javafx.stage.Modality.APPLICATION_MODAL;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.CRATE_FORM_TITLE;
@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
+import lv.degra.accounting.desktop.document.controllerv.MainController;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
 import lv.degra.accounting.desktop.system.utils.ApplicationFormBuilder;
@@ -27,7 +28,7 @@ import lv.degra.accounting.desktop.system.utils.DegraController;
 @Controller
 public class DocumentListFormController extends DegraController {
 
-	private static final String DOCUMENT_SCREEN_FILE = "/document/DocumentForm.fxml";
+	private static final String DOCUMENT_SCREEN_FILE = "/document/DocumentMainForm.fxml";
 	private final ObservableList<DocumentDto> documentObservableList = FXCollections.observableArrayList();
 	private final ApplicationFormBuilder applicationFormBuilder;
 	private final ApplicationContext context;
@@ -41,6 +42,7 @@ public class DocumentListFormController extends DegraController {
 
 	public DocumentListFormController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context,
 			DocumentService documentService, BillRowService billRowService) {
+		super();
 		this.applicationFormBuilder = applicationFormBuilder;
 		this.context = context;
 		this.documentService = documentService;
@@ -80,11 +82,11 @@ public class DocumentListFormController extends DegraController {
 
 	@Override
 	protected void editRecord() {
-		DocumentDto newDocumentDto = getRowFromTableView(documentListView);
-		if (newDocumentDto == null) {
+		DocumentDto documentDto = getRowFromTableView(documentListView);
+		if (documentDto == null) {
 			return;
 		}
-		openDocumentEditForm(newDocumentDto);
+		openDocumentEditForm(documentDto);
 	}
 
 	@Override
@@ -109,12 +111,12 @@ public class DocumentListFormController extends DegraController {
 					documentDto == null ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
 			MainController mainController = fxmlLoader.getController();
 			if (isCreateNewDocument(documentDto)) {
-				mainController.setDocumentList(documentObservableList);
+				mainController.setDocumentObservableList(documentObservableList);
 			} else {
-				mainController.setDocumentList(documentObservableList);
-				mainController.setDocument(documentDto);
+				mainController.setDocumentObservableList(documentObservableList);
+				mainController.setDocumentDto(documentDto);
 			}
-//			mediator.setDocumentDtoOld();
+			//			mediator.setDocumentDtoOld();
 			stage.setMaximized(true);
 			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();

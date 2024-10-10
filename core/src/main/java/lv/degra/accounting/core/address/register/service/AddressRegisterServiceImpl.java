@@ -1,7 +1,28 @@
 package lv.degra.accounting.core.address.register.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.FileSystems;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,26 +37,6 @@ import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.FileSystems;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -147,7 +148,7 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
         return csvData.parallelStream()
                 .map(row -> objectMapper.convertValue(row, AddressRegister.class))
                 .filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<AddressData> parseCsvArDataFileToList(Reader reader, Class<? extends AddressData> clasName) {

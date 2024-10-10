@@ -2,9 +2,11 @@ package lv.degra.accounting.core.system.configuration;
 
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
-public class DegraConfig {
+import lombok.NoArgsConstructor;
 
+@Configuration
+@NoArgsConstructor
+public class DegraConfig {
 
 	public static final String API_LINK = "/API";
 	public static final String ADDRESS = "/address";

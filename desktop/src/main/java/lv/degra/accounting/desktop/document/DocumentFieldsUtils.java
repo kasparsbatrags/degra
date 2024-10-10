@@ -8,8 +8,10 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import lombok.NoArgsConstructor;
 import lv.degra.accounting.desktop.system.exception.IncorrectSumException;
 
+@NoArgsConstructor
 public class DocumentFieldsUtils {
 
 	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
@@ -20,7 +22,7 @@ public class DocumentFieldsUtils {
 
 	public static void setFieldFormat(TextField field, String sumRegex) {
 		Pattern pattern = Pattern.compile(sumRegex);
-		TextFormatter sumTotalDoubleFormatter = new TextFormatter(
+		var sumTotalDoubleFormatter = new TextFormatter(
 				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
 		field.setTextFormatter(sumTotalDoubleFormatter);
 	}

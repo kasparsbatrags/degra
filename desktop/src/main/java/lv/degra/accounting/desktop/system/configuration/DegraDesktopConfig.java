@@ -19,6 +19,9 @@ public class DegraDesktopConfig {
 	public static final String ADDRESS_DOWNLOAD_LINK = "ADDRESS_DATA_LINK";
 	public static final String FIELD_REQUIRED_MESSAGE = "Obligāti jāaizpilda";
 	public static final String AMOUNT_PRECISION_2 = "Pārāk daudz ciparu aiz komata!";
+	public static final String VALIDATION_TYPE_REQUIRED = "required";
+	public static final String VALIDATION_TYPE_CUSTOM = "custom";
+	public static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
 
 	private DegraDesktopConfig() {
 		throw new UnsupportedOperationException("DegraDesktopConfig class");

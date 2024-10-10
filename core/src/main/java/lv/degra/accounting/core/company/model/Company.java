@@ -1,23 +1,30 @@
 package lv.degra.accounting.core.company.model;
 
+import static org.apache.logging.log4j.util.Strings.EMPTY;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.address.model.Address;
 import lv.degra.accounting.core.company.type.model.CompanyType;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
-import static org.apache.logging.log4j.util.Strings.EMPTY;
 
 
 @Entity
@@ -57,11 +64,6 @@ public class Company implements Serializable {
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate terminatedDate;
-
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "address_id", nullable = false)
-//    private Address address;
-
 
     public String getNameNormalized() {
         return this.getNameInQuotes()

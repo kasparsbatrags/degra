@@ -1,17 +1,5 @@
 package lv.degra.accounting.core.company.register.service;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.company.register.model.CompanyRegister;
-import lv.degra.accounting.core.company.type.model.CompanyType;
-import lv.degra.accounting.core.company.type.model.CompanyTypeRepository;
-import lv.degra.accounting.core.system.configuration.DegraConfig;
-import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.core.system.files.FileService;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,9 +8,28 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import lv.degra.accounting.core.company.register.model.CompanyRegister;
+import lv.degra.accounting.core.company.type.model.CompanyType;
+import lv.degra.accounting.core.company.type.model.CompanyTypeRepository;
+import lv.degra.accounting.core.system.configuration.DegraConfig;
+import lv.degra.accounting.core.system.configuration.service.ConfigService;
+import lv.degra.accounting.core.system.files.FileService;
 
 @Service
 @Slf4j
@@ -31,7 +38,6 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
     private final FileService fileService;
     private final CsvParser csvParser;
     private final CompanyTypeRepository companyTypeRepository;
-    private final List<String> previousFilesChecksums = new ArrayList<>();
     private final ConfigService configService;
     private final JdbcTemplate jdbcTemplate;
 
@@ -142,9 +148,10 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         companyRegister.setSepaCode(csvLineInArray.get(1));
         companyRegister.setName(csvLineInArray.get(2).toUpperCase(Locale.ROOT));
         companyRegister.setNameBeforeQuotes(csvLineInArray.get(3).toUpperCase(Locale.ROOT));
-        companyRegister.setNameInQuotes(csvLineInArray.get(4).isEmpty() ?
-                (csvLineInArray.get(3).isEmpty() ? companyRegister.getName() : csvLineInArray.get(3).toUpperCase(Locale.ROOT))
-                : csvLineInArray.get(4).toUpperCase(Locale.ROOT));
+		String nameInQuotes = csvLineInArray.get(4).isEmpty() ?
+				(csvLineInArray.get(3).isEmpty() ? companyRegister.getName() : csvLineInArray.get(3).toUpperCase(Locale.ROOT))
+				: csvLineInArray.get(4).toUpperCase(Locale.ROOT);
+		companyRegister.setNameInQuotes(nameInQuotes);
         companyRegister.setNameAfterQuotes(csvLineInArray.get(5).toUpperCase(Locale.ROOT));
         companyRegister.setCompanyType(companyType);
         companyRegister.setRegisteredDate(csvLineInArray.get(11).isEmpty() ? null : LocalDate.parse(csvLineInArray.get(11)));

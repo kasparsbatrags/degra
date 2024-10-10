@@ -1,5 +1,12 @@
 package lv.degra.accounting.core.address.register.service;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -8,14 +15,12 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lv.degra.accounting.core.address.register.model.AddressRegisterRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.files.FileService;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.mockito.Mockito.*;
 
 class AddressRegisterServiceImplTest {
 
@@ -42,23 +47,6 @@ class AddressRegisterServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-
-//    @Test
-//    void testImportData_WhenNewDataAvailable() {
-//        // Arrange
-//        byte[] mockCsvFileBytes = "mock csv data".getBytes();
-//        when(configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK)).thenReturn("http://mock-url.com");
-//        when(fileService.downloadFileByUrl(anyString())).thenReturn(mockCsvFileBytes);
-//        doReturn(true).when(addressRegisterService).isArDataChanged(mockCsvFileBytes);
-
-        // Act
-//        addressRegisterService.importData();
-
-        // Assert
-//        verify(fileService).unzipFileInFolder(mockCsvFileBytes);
-//        verify(jdbcTemplate, times(3)).execute(anyString()); // For dropping indexes and truncating
-//        verify(fileService).deleteDirectory(any());
-//    }
 
     @Test
     void testImportData_WhenNoNewData() {
