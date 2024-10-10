@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.3</version>
+		<version>3.3.4</version>
 		<relativePath />
 	</parent>
 
@@ -24,7 +24,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<javafx.version>21</javafx.version>
-		<spring.version>3.3.3</spring.version>
+		<spring.version>3.3.4</spring.version>
 		<postgres.version>42.7.1</postgres.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}${file.separator}target${file.separator}jacoco-aggregate${file.separator}jacoco.xml
@@ -93,13 +93,19 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-tomcat</artifactId>
-				<version>3.3.3</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-cache</artifactId>
-				<version>3.3.3</version>
+				<version>${spring.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.17.0</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 	<profiles>

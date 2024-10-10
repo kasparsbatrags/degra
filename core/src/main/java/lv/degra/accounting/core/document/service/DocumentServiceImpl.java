@@ -15,7 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
-import lv.degra.accounting.core.system.exception.SaveDocumentException;
+import lv.degra.accounting.core.document.service.exception.SaveDocumentException;
+
 @Slf4j
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -55,7 +56,7 @@ public class DocumentServiceImpl implements DocumentService {
 				return modelMapper.map(savedDocument, DocumentDto.class);
 			}
 		} catch (DataIntegrityViolationException e) {
-			log.error("Error saving document: " + e.getMessage(), e);
+			log.error("Error saving document: {}, {}", e.getMessage(), e);
 			if (e.getCause() instanceof ConstraintViolationException) {
 				throw new SaveDocumentException("Constraint violation: " + e.getMessage());
 			}
@@ -68,7 +69,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.map(document -> modelMapper.map(document, DocumentDto.class)).toList();
 	}
 
-	public void deleteDocumentById(Integer documentId) {
+	public void deleteById(Integer documentId) {
 		documentRepository.deleteById(Long.valueOf(documentId));
 	}
 

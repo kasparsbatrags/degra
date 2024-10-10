@@ -26,6 +26,7 @@ import javafx.scene.input.KeyEvent;
 import lv.degra.accounting.core.document.bill.model.UnitType;
 import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.bill.service.UnitTypeService;
+import lv.degra.accounting.core.document.bill.service.exception.BillRowDeletionException;
 import lv.degra.accounting.core.document.dto.BillContentDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
@@ -110,12 +111,16 @@ public class BillController extends DocumentControllerComponent {
 	@Override
 	protected void deleteRecord() {
 		BillContentDto billContentDto = getRowFromTableView(billContentListView);
-		if (billContentDto == null) {
+		if (billContentDto == null || billContentDto.getId() == null) {
 			return;
 		}
-		billRowService.deleteBillRowById(billContentDto.getId());
-		billContentListView.getItems().removeAll(billContentListView.getSelectionModel().getSelectedItem());
-		actualizeDocumentInfo(mediator.getDocumentDto().getId());
+		try {
+			billRowService.deleteById(billContentDto.getId());
+			billContentListView.getItems().removeAll(billContentDto);
+			actualizeDocumentInfo(mediator.getDocumentDto().getId());
+		} catch (RuntimeException e) {
+			throw new BillRowDeletionException("Failed to delete row with ID: " + billContentDto.getId(), e);
+		}
 	}
 
 	@Override

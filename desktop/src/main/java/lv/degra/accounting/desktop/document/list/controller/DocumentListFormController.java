@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
+import lv.degra.accounting.core.document.service.exception.DocumentDeletionException;
 import lv.degra.accounting.desktop.document.controllerv.MainController;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
@@ -91,15 +92,18 @@ public class DocumentListFormController extends DegraController {
 
 	@Override
 	protected void deleteRecord() {
-		DocumentDto newDocumentDto = getRowFromTableView(documentListView);
-		if (newDocumentDto == null) {
+		DocumentDto deletedDocumentDto = getRowFromTableView(documentListView);
+		if (deletedDocumentDto == null || deletedDocumentDto.getId() == null) {
 			return;
 		}
-		billRowService.deleteBillRowByDocumentId(newDocumentDto.getId());
-		if (newDocumentDto.getId() != null) {
-			documentService.deleteDocumentById(newDocumentDto.getId());
+		try {
+			billRowService.deleteByDocumentId(deletedDocumentDto.getId());
+			documentService.deleteById(deletedDocumentDto.getId());
+			documentListView.getItems().remove(deletedDocumentDto);
+		} catch (RuntimeException e) {
+
+			throw new DocumentDeletionException("Failed to delete document with ID: " + deletedDocumentDto.getId(), e);
 		}
-		documentListView.getItems().removeAll(newDocumentDto);
 	}
 
 	private void openDocumentEditForm(DocumentDto documentDto) {

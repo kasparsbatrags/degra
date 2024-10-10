@@ -21,8 +21,13 @@ public class DistributionServiceImpl implements DistributionService {
         this.modelMapper = modelMapper;
     }
 
-	public List<AccountCodeDistributionDto> getDistributionByDocumentId(Integer documentId) {
+	public List<AccountCodeDistributionDto> getByDocumentId(Integer documentId) {
 		return accountCodeDistributionRepository.findByDocumentId(documentId).stream()
 		.map(distribution -> modelMapper.map(distribution, AccountCodeDistributionDto.class)).toList();
+	}
+
+	@Override
+	public void deleteById(Integer id) {
+		accountCodeDistributionRepository.deleteById(id);
 	}
 }

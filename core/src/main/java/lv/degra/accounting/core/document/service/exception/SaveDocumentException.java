@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.system.exception;
+package lv.degra.accounting.core.document.service.exception;
 
 public class SaveDocumentException extends RuntimeException {
 

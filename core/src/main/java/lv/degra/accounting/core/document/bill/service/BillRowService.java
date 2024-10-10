@@ -1,8 +1,8 @@
 package lv.degra.accounting.core.document.bill.service;
 
-import lv.degra.accounting.core.document.dto.BillContentDto;
-
 import java.util.List;
+
+import lv.degra.accounting.core.document.dto.BillContentDto;
 
 public interface BillRowService {
     List<BillContentDto> getByDocumentId(Integer documentId);
@@ -13,7 +13,7 @@ public interface BillRowService {
 
     BillContentDto getById(Integer billRowId);
 
-    void deleteBillRowById(Integer id);
+    void deleteById(Integer id);
 
-    void deleteBillRowByDocumentId(Integer documentId);
+    void deleteByDocumentId(Integer documentId);
 }

@@ -23,15 +23,16 @@ public class AccountCodeDistributionDto implements Serializable {
 
     private Integer id;
 
-    @TableViewInfo(displayName = "Konts debetā", columnOrder = 1)
+    @TableViewInfo(displayName = "Debeta konts", columnOrder = 1)
     private AccountCodeChart debitAccount;
 
 	@TableViewInfo(displayName = "Summa debetā", columnOrder = 2)
     private Double amountInDebit;
 
-    @TableViewInfo(displayName = "Konts kredītā", columnOrder = 3)
-    private Double amountInCredit;
-
-	@TableViewInfo(displayName = "Summa Kredītā", columnOrder = 4)
+	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 4)
 	private AccountCodeChart creditAccount;
+
+	@TableViewInfo(displayName = "Summa kredītā", columnOrder = 3)
+	private Double amountInCredit;
+
 }

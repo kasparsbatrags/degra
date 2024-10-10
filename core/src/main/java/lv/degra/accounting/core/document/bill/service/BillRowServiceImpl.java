@@ -45,11 +45,11 @@ public class BillRowServiceImpl implements BillRowService {
 		return modelMapper.map(billContentRepository.getReferenceById(billRowId.longValue()), BillContentDto.class);
 	}
 
-	public void deleteBillRowById(Integer id) {
+	public void deleteById(Integer id) {
 		billContentRepository.deleteById(Long.valueOf(id));
 	}
 
-	public void deleteBillRowByDocumentId(Integer documentId) {
+	public void deleteByDocumentId(Integer documentId) {
 		billContentRepository.deleteAll(billContentRepository.getByDocumentId(documentId));
 	}
 }

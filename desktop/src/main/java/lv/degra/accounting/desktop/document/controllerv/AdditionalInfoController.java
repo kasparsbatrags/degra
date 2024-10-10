@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
 import lv.degra.accounting.core.account.distribution.service.DistributionService;
+import lv.degra.accounting.core.account.distribution.service.exception.AccountDistributionDeletionException;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
@@ -93,6 +94,21 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		return validateControllerControls(additionalInfoValidationControls);
 	}
 
+	@Override
+	protected void deleteRecord() {
+		AccountCodeDistributionDto accountCodeDistributionDto = getRowFromTableView(distributionListView);
+		if (accountCodeDistributionDto == null || accountCodeDistributionDto.getId() == null) {
+			return;
+		}
+		try {
+			distributionService.deleteById(accountCodeDistributionDto.getId());
+			distributionListView.getItems().removeAll(accountCodeDistributionDto);
+		} catch (RuntimeException e) {
+			throw new AccountDistributionDeletionException("Failed to delete distribution with ID: " + accountCodeDistributionDto.getId(),
+					e);
+		}
+	}
+
 	public void onAddAccountingRowButton() {
 		documentDto = mediator.getDocumentDto();
 	}
@@ -114,7 +130,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		accountCodeDistributionDtoObservableList.clear();
 		if (mediator.getDocumentDto() != null) {
 			accountCodeDistributionDtoObservableList.addAll(
-					distributionService.getDistributionByDocumentId(mediator.getDocumentDto().getId()));
+					distributionService.getByDocumentId(mediator.getDocumentDto().getId()));
 			distributionListView.setData(accountCodeDistributionDtoObservableList);
 		}
 	}

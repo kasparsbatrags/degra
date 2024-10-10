@@ -92,7 +92,7 @@ public class DocumentMediator implements Mediator {
 				mainController.getDocumentObservableList().add(documentDto);
 			} else {
 				if (!documentDto.isBill()) {
-					billRowService.deleteBillRowByDocumentId(documentDto.getId());
+					billRowService.deleteByDocumentId(documentDto.getId());
 				}
 			}
 		} catch (Exception e) {
