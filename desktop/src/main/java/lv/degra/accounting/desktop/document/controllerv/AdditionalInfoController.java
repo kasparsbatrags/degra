@@ -45,14 +45,12 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	public AdditionalInfoController(DistributionService distributionService, Mediator mediator, ValidationService validationService) {
 		super(mediator, validationService);
-		System.out.println("AdditionalInfoController constructor");
 		this.distributionService = distributionService;
 		this.mediator = mediator;
 	}
 
 	@FXML
 	private void initialize() {
-		System.out.println("AdditionalInfoController initialize");
 		distributionListView.setType(AccountCodeDistributionDto.class);
 		distributionListView.setCreator(item -> {
 			addRecord();

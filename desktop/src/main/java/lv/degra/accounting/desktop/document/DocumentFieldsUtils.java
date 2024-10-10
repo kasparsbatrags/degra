@@ -1,7 +1,6 @@
 package lv.degra.accounting.desktop.document;
 
 import java.util.List;
-import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import javafx.collections.FXCollections;
@@ -24,8 +23,8 @@ public class DocumentFieldsUtils {
 
 	public static void setFieldFormat(TextField field, String sumRegex) {
 		Pattern pattern = Pattern.compile(sumRegex);
-		var sumTotalDoubleFormatter = new TextFormatter(
-				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
+		TextFormatter<String> sumTotalDoubleFormatter = new TextFormatter<>(
+				change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
 		field.setTextFormatter(sumTotalDoubleFormatter);
 	}
 

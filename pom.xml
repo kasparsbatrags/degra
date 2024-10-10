@@ -27,7 +27,7 @@
 		<spring.version>3.3.3</spring.version>
 		<postgres.version>42.7.1</postgres.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
-			${project.basedir}${file.separator}target${file.separator}jacoco-aggregate${file.separator}jacoco-resources${file.separator}jacoco.xml
+			${project.basedir}${file.separator}target${file.separator}jacoco-aggregate${file.separator}jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.projectKey>kaspars.batrags_degra_10f646f9-9480-4022-9a8d-8b47125f9b39</sonar.projectKey>
