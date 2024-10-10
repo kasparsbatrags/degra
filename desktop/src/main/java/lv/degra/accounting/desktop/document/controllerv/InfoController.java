@@ -33,7 +33,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import lombok.Getter;
-import lv.degra.accounting.core.account.distribution.service.DistributionService;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.bank.service.BankService;
 import lv.degra.accounting.core.currency.model.Currency;
@@ -67,7 +66,6 @@ public class InfoController extends DocumentControllerComponent {
 	private final CustomerAccountService customerAccountService;
 	private final BankService bankService;
 	private final ExchangeService exchangeService;
-	private final DistributionService distributionService;
 	private final ConfigService configService;
 	private final CurrencyService currencyService;
 	private final DocumentSubTypeService documentSubTypeService;
@@ -122,22 +120,18 @@ public class InfoController extends DocumentControllerComponent {
 	@FXML
 	public Pane paymentPane;
 	private CurrencyExchangeRate currencyExchangeRate;
-	private DocumentDto documentDto;
 
 	public InfoController(Mediator mediator, CustomerAccountService customerAccountService, BankService bankService,
-			ExchangeService exchangeService, DistributionService distributionService, ConfigService configService,
-			CurrencyService currencyService, DocumentSubTypeService documentSubTypeService,
-			DocumentTransactionTypeService documentTransactionTypeService, DocumentDirectionService documentDirectionService,
-			CustomerService customerService, ValidationService validationService) {
+			ExchangeService exchangeService, ConfigService configService, CurrencyService currencyService,
+			DocumentSubTypeService documentSubTypeService, DocumentTransactionTypeService documentTransactionTypeService,
+			DocumentDirectionService documentDirectionService, CustomerService customerService, ValidationService validationService) {
 		super(mediator, validationService);
-		this.distributionService = distributionService;
 		this.configService = configService;
 		this.currencyService = currencyService;
 		this.documentSubTypeService = documentSubTypeService;
 		this.documentTransactionTypeService = documentTransactionTypeService;
 		this.documentDirectionService = documentDirectionService;
 		this.customerService = customerService;
-		System.out.println("InfoController constructor");
 
 		this.customerAccountService = customerAccountService;
 		this.bankService = bankService;
@@ -190,7 +184,6 @@ public class InfoController extends DocumentControllerComponent {
 
 	@FXML
 	public void initialize() {
-		System.out.println("InfoController initialize");
 		infoValidationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
 		infoValidationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
 		setDefaultValues();
@@ -212,11 +205,6 @@ public class InfoController extends DocumentControllerComponent {
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
 	}
-
-	//	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
-	//		control.setValidationCondition(validationCondition, errorMessage);
-	//		infoValidationControls.add(control);
-	//	}
 
 	private void setExchangeRate(Currency currency) {
 		currencyExchangeRate = exchangeService.getActuallyExchangeRate(accountingDateDp.getValue(), currency);
@@ -286,7 +274,6 @@ public class InfoController extends DocumentControllerComponent {
 	}
 
 	public void setDocumentData(DocumentDto documentDto) {
-		this.documentDto = documentDto;
 		directionCombo.setValue(documentDto.getDocumentDirection());
 		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
 		seriesField.setText(documentDto.getDocumentSeries());

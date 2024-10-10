@@ -74,7 +74,6 @@ public class BillController extends DocumentControllerComponent {
 	public BillController(BillRowService billRowService, UnitTypeService unitTypeService, ConfigService configService, Mediator mediator,
 			ValidationService validationService) {
 		super(mediator, validationService);
-		System.out.println("BillController constructor");
 		this.billRowService = billRowService;
 		this.unitTypeService = unitTypeService;
 		this.configService = configService;
@@ -83,7 +82,6 @@ public class BillController extends DocumentControllerComponent {
 
 	@FXML
 	public void initialize() {
-		System.out.println("BillController initialize");
 	}
 
 	@FXML

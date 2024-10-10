@@ -43,7 +43,6 @@ public class MainController extends DocumentControllerComponent {
 	public MainController(Mediator mediator, ValidationService validationService) {
 		super(mediator, validationService);
 		this.validationService = validationService;
-		System.out.println("MainController initialize");
 	}
 
 	@FXML
