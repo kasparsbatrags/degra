@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
-import lv.degra.accounting.desktop.document.controllerv.DocumentControllerComponent;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.document.controller.DocumentControllerComponent;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
 @Slf4j
 @Service

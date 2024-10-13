@@ -7,27 +7,24 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.util.StringConverter;
-import lv.degra.accounting.core.customer.service.CustomerService;
-import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
+import lv.degra.accounting.core.system.DataFetchService;
 
 @Component
-public class SearchableComboBox<T> extends ComboBoxWithErrorLabel<T> {
+public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<T> {
 
 	private static final int MIN_SEARCH_CHAR_COUNT = 3;
 	private static final String SEARCH_PLACEHOLDER_TEXT = "Meklēt... (vismaz " + MIN_SEARCH_CHAR_COUNT + " simboli)";
 
-	private CustomerService customerService;
 	private boolean blockAutoLoadData = false;
+	private DataFetchService<T> dataFetchService;
 
-	public SearchableComboBox() {
+	public SearchableComboBoxWithErrorLabel() {
 		super();
 		setupSearchListener();
 	}
 
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
-		this.setConverter((StringConverter<T>) new CustomerConverter(customerService));
+	public void setDataFetchService(DataFetchService<T> customerService) {
+		this.dataFetchService = customerService;
 	}
 
 	private void setupSearchListener() {
@@ -83,11 +80,14 @@ public class SearchableComboBox<T> extends ComboBoxWithErrorLabel<T> {
 	}
 
 	private void loadData(String searchText) {
-		this.setItems(fetchDataFromService(searchText));
-		this.show();
+		if (dataFetchService != null) {
+			this.setItems(fetchDataFromService(searchText));
+			this.show();
+		}
 	}
 
 	private ObservableList<T> fetchDataFromService(String searchText) {
-		return (ObservableList<T>) FXCollections.observableArrayList(customerService.getTop30Suggestions(searchText));
+		return FXCollections.observableArrayList(dataFetchService.getSuggestions(searchText));
 	}
+
 }

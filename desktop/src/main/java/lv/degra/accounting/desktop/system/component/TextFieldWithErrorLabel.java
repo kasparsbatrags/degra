@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javafx.scene.control.TextField;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
 @Setter
 @Getter

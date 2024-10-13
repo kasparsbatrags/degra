@@ -1,9 +1,12 @@
 package lv.degra.accounting.core.account.chart.service;
 
-import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
-
 import java.util.List;
 
-public interface AccountCodeChartService {
-    List<AccountCodeChart> getAccountCodeChart();
+import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
+import lv.degra.accounting.core.system.DataFetchService;
+
+public interface AccountCodeChartService extends DataFetchService {
+	List<AccountCodeChart> getAccountCodeChart();
+
+	List<AccountCodeChart> getSuggestions(String searchText);
 }

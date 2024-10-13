@@ -3,7 +3,7 @@ package lv.degra.accounting.desktop.validation.service;
 import java.util.List;
 
 import lv.degra.accounting.core.validation.model.ValidationRule;
-import lv.degra.accounting.desktop.document.controllerv.DocumentControllerComponent;
+import lv.degra.accounting.desktop.document.controller.DocumentControllerComponent;
 
 public interface ValidationService {
 	List<ValidationRule> getValidationRulesByDocumentSybType(Integer documentSubtypeId);

@@ -1,11 +1,11 @@
-package lv.degra.accounting.desktop.system.component.lazycombo;
+package lv.degra.accounting.desktop.system.component.lazycombo.customer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javafx.util.StringConverter;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer.service.CustomerService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 
 @Component

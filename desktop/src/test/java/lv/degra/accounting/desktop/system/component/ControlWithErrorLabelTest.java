@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.testfx.api.FxToolkit;
 
 import javafx.embed.swing.JFXPanel;
+import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
 
 class ControlWithErrorLabelTest {
 

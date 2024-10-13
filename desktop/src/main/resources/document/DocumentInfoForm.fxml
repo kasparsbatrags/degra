@@ -4,13 +4,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
-<?import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel?>
 <?import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel?>
 <?import lv.degra.accounting.desktop.system.component.Label?>
-<?import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox?>
+<?import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel?>
+<?import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel?>
 <?import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel?>
 <AnchorPane prefHeight="606.0" prefWidth="1255.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="lv.degra.accounting.desktop.document.controllerv.InfoController">
+	fx:controller="lv.degra.accounting.desktop.document.controller.InfoController">
 	<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="606.0" prefWidth="1255.0" AnchorPane.bottomAnchor="0.0"
 		AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 		<children>
@@ -54,7 +54,7 @@
 			<Pane fx:id="publisherPane" layoutX="67.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.topAnchor="213.0">
 				<children>
 					<Label alignment="TOP_CENTER" layoutX="160.0" layoutY="14.0" text="Izdevējs" textAlignment="CENTER" />
-					<SearchableComboBox fx:id="publisherCombo" layoutX="24.0" layoutY="61.0" onAction="#publisherOnAction" prefHeight="26.0"
+					<SearchableComboBoxWithErrorLabel fx:id="publisherCombo" layoutX="24.0" layoutY="61.0" onAction="#publisherOnAction" prefHeight="26.0"
 						prefWidth="287.0" />
 					<ComboBoxWithErrorLabel fx:id="publisherBankCombo" layoutX="24.0" layoutY="105.0" onAction="#publisherBankOnAction"
 						prefHeight="25.0" prefWidth="287.0" />
@@ -86,7 +86,7 @@
 				<children>
 					<Label layoutX="160.0" layoutY="14.0" text="Saņēmējs" />
 
-					<SearchableComboBox fx:id="receiverCombo" layoutX="24.0" layoutY="61.0" onAction="#receiverOnAction" prefHeight="26.0"
+					<SearchableComboBoxWithErrorLabel fx:id="receiverCombo" layoutX="24.0" layoutY="61.0" onAction="#receiverOnAction" prefHeight="26.0"
 						prefWidth="287.0" />
 					<ComboBoxWithErrorLabel fx:id="receiverBankCombo" layoutX="24.0" layoutY="105.0" onAction="#receiverBankOnAction"
 						prefHeight="25.0" prefWidth="287.0" />

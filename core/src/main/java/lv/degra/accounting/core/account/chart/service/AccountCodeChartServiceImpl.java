@@ -21,4 +21,11 @@ public class AccountCodeChartServiceImpl implements AccountCodeChartService {
 	public List<AccountCodeChart> getAccountCodeChart() {
 		return accountChartRepository.findByIsAssetsAccountFalse();
 	}
+
+	@Override
+	public List<AccountCodeChart> getSuggestions(String searchText) {
+		return accountChartRepository.getSuggestions(searchText);
+	}
 }
+
+

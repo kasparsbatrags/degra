@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.component;
+package lv.degra.accounting.desktop.system.component.lazycombo;
 
 import java.util.function.Predicate;
 

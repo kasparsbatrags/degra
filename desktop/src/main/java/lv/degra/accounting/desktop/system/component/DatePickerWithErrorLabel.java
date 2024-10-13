@@ -10,6 +10,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
 public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 

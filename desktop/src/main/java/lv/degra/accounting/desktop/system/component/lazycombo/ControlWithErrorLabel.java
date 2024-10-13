@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.component;
+package lv.degra.accounting.desktop.system.component.lazycombo;
 
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.FIELD_REQUIRED_MESSAGE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -24,6 +24,7 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 	protected BooleanProperty required;
 	@Setter
 	protected Map<Predicate<T>, String> validationConditions = new HashMap<>();
+	@Setter
 	protected Control control;
 	private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
 		@Override

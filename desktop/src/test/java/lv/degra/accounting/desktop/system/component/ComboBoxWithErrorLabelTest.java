@@ -13,6 +13,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
 
 class ComboBoxWithErrorLabelTest extends ApplicationTest {
 
