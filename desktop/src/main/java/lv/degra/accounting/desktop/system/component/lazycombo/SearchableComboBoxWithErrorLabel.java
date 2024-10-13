@@ -59,7 +59,7 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 				selectedItem = this.getItems().stream().findFirst().orElse(null);
 			}
 			if (selectedItem != null && this.getItems().size() == 1) {
-				this.setValue(this.getItems().get(0));
+				this.setValue(this.getItems().getFirst());
 				this.hide();
 				this.fireEvent(new ActionEvent());
 			} else {

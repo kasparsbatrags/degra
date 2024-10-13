@@ -53,7 +53,7 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 			}
 		});
 
-		this.getChildren().add(0, datePicker);
+		this.getChildren().addFirst(datePicker);
 	}
 
 	public java.time.LocalDate getValue() {

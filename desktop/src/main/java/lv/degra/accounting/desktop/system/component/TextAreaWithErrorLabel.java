@@ -21,7 +21,7 @@ public class TextAreaWithErrorLabel extends ControlWithErrorLabel<String> {
 
 		textArea.textProperty().addListener((observable, oldValue, newValue) -> validate());
 		validate();
-		getChildren().add(0, textArea);
+		getChildren().addFirst(textArea);
 	}
 
 	public String getText() {

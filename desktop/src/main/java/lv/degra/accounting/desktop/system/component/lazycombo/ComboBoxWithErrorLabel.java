@@ -52,7 +52,7 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		clearButton.setMaxHeight(Double.MAX_VALUE);
 		clearButton.prefWidthProperty().bind(clearButton.heightProperty());
 
-		getChildren().add(0, comboBoxContainer);
+		getChildren().addFirst(comboBoxContainer);
 	}
 
 	public void setOnClearButtonAction(EventHandler<ActionEvent> handler) {
