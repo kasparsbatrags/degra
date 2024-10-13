@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.document.controllerv;
+package lv.degra.accounting.desktop.document.controller;
 
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
@@ -52,11 +52,12 @@ import lv.degra.accounting.core.document.service.DocumentTransactionTypeService;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.exchange.service.ExchangeService;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
+import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.customer.CustomerConverter;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -77,13 +78,13 @@ public class InfoController extends DocumentControllerComponent {
 	@FXML
 	public ComboBoxWithErrorLabel<DocumentTransactionType> documentTransactionTypeCombo;
 	@FXML
-	public SearchableComboBox<Customer> publisherCombo;
+	public SearchableComboBoxWithErrorLabel<Customer> publisherCombo;
 	@FXML
 	public ComboBoxWithErrorLabel<Bank> publisherBankCombo;
 	@FXML
 	public ComboBoxWithErrorLabel<CustomerAccount> publisherBankAccountCombo;
 	@FXML
-	public SearchableComboBox<Customer> receiverCombo;
+	public SearchableComboBoxWithErrorLabel<Customer> receiverCombo;
 	@FXML
 	public ComboBoxWithErrorLabel<Bank> receiverBankCombo;
 	@FXML
@@ -200,8 +201,10 @@ public class InfoController extends DocumentControllerComponent {
 		setFieldFormat(sumTotalField.getTextField(), SUM_FORMAT_REGEX);
 		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
 
-		publisherCombo.setCustomerService(customerService);
-		receiverCombo.setCustomerService(customerService);
+		publisherCombo.setDataFetchService(customerService);
+		publisherCombo.setConverter(new CustomerConverter(customerService));
+		receiverCombo.setDataFetchService(customerService);
+		receiverCombo.setConverter(new CustomerConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
 	}
@@ -216,7 +219,7 @@ public class InfoController extends DocumentControllerComponent {
 		return String.valueOf(total);
 	}
 
-	public void setCustomerAccountInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+	public void setCustomerAccountInfo(SearchableComboBoxWithErrorLabel<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
 			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
 		Bank selectedBank = bankCombo.getValue();
@@ -238,7 +241,7 @@ public class InfoController extends DocumentControllerComponent {
 		}
 	}
 
-	public void setBankInfo(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+	public void setBankInfo(SearchableComboBoxWithErrorLabel<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
 			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		Customer selectedCustomer = customerCombo.getValue();
 		if (selectedCustomer == null) {
@@ -304,7 +307,7 @@ public class InfoController extends DocumentControllerComponent {
 		}
 	}
 
-	public void fetchAndSetBankAccountDetails(SearchableComboBox<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
+	public void fetchAndSetBankAccountDetails(SearchableComboBoxWithErrorLabel<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
 			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		ObservableList<CustomerAccount> accountsList = FXCollections.observableList(
 				customerAccountService.getCustomerAccounts(customerCombo.getValue()));

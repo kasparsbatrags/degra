@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.document.controllerv;
+package lv.degra.accounting.desktop.document.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lv.degra.accounting.core.document.dto.DocumentDto;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 

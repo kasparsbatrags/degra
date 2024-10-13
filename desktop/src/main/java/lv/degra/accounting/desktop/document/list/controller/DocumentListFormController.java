@@ -20,7 +20,7 @@ import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
 import lv.degra.accounting.core.document.service.exception.DocumentDeletionException;
-import lv.degra.accounting.desktop.document.controllerv.MainController;
+import lv.degra.accounting.desktop.document.controller.MainController;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
 import lv.degra.accounting.desktop.system.utils.ApplicationFormBuilder;

@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.document.controllerv;
+package lv.degra.accounting.desktop.document.controller;
 
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.fillCombo;
 import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
@@ -30,8 +30,8 @@ import lv.degra.accounting.core.document.bill.service.exception.BillRowDeletionE
 import lv.degra.accounting.core.document.dto.BillContentDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -41,7 +41,6 @@ public class BillController extends DocumentControllerComponent {
 	private static final Double PERCENT_TOTALLY = 100.0;
 	private final ObservableList<BillContentDto> billContentObservableList = FXCollections.observableArrayList();
 	private final ConfigService configService;
-	private final Mediator mediator;
 	private final UnitTypeService unitTypeService;
 	private final BillRowService billRowService;
 	private final Map<String, ValidationFunction> billValidationFunctions = new HashMap<>();
@@ -78,7 +77,6 @@ public class BillController extends DocumentControllerComponent {
 		this.billRowService = billRowService;
 		this.unitTypeService = unitTypeService;
 		this.configService = configService;
-		this.mediator = mediator;
 	}
 
 	@FXML

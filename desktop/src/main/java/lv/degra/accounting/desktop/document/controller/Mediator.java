@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.document.controllerv;
+package lv.degra.accounting.desktop.document.controller;
 
 import lv.degra.accounting.core.document.dto.DocumentDto;
 

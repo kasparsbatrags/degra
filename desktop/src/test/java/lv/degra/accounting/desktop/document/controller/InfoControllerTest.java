@@ -64,7 +64,7 @@
 //import lv.degra.accounting.core.exchange.service.ExchangeService;
 //import lv.degra.accounting.core.system.configuration.service.ConfigService;
 //import lv.degra.accounting.desktop.data.CustomerTypeStaticData;
-//import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
+//import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
 //import lv.degra.accounting.desktop.validation.service.ValidationService;
 //
 //class InfoControllerTest extends ApplicationTest {

@@ -1,11 +1,11 @@
-package lv.degra.accounting.desktop.document.controllerv;
+package lv.degra.accounting.desktop.document.controller;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.scene.Node;
 import lv.degra.accounting.core.validation.model.ValidationRule;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 

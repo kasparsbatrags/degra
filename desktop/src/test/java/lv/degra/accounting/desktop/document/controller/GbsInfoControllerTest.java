@@ -33,7 +33,7 @@
 //import lv.degra.accounting.core.validation.model.ValidationRule;
 //import lv.degra.accounting.core.validation.model.ValidationRuleErrorMessage;
 //import lv.degra.accounting.core.validation.model.ValidationRuleObject;
-//import lv.degra.accounting.desktop.system.component.ComboBoxWithErrorLabel;
+//import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
 //import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel;
 //import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox;
 //import lv.degra.accounting.desktop.validation.service.ValidationService;

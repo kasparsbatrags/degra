@@ -56,7 +56,7 @@ public class DocumentServiceImpl implements DocumentService {
 				return modelMapper.map(savedDocument, DocumentDto.class);
 			}
 		} catch (DataIntegrityViolationException e) {
-			log.error("Error saving document: {}, {}", e.getMessage(), e);
+			log.error("Error saving document: {}, {}", e.getMessage(), e.toString());
 			if (e.getCause() instanceof ConstraintViolationException) {
 				throw new SaveDocumentException("Constraint violation: " + e.getMessage());
 			}
