@@ -16,10 +16,14 @@ import java.util.function.Function;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
@@ -29,20 +33,28 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
-import lv.degra.accounting.core.system.object.TableViewInfo;
+import lv.degra.accounting.core.system.DataFetchService;
+import lv.degra.accounting.core.system.component.TableViewInfo;
+import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 import lv.degra.accounting.desktop.system.alert.AlertAsk;
 import lv.degra.accounting.desktop.system.alert.AlertResponseType;
+import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.lazycombo.accountchart.AccountCodeChartStringConverter;
 import lv.degra.accounting.desktop.system.exception.DynamicTableBuildException;
-import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 
-public class DynamicTableView<T> extends TableView<T> {
+@Component
+public class DynamicTableView<T> extends TableView<T> implements ApplicationContextAware {
+	private static final int MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT = 2;
+	private static ApplicationContext applicationContext;
 	private Class<T> type;
 	private Creator<T> creator;
 	private Updater<T> updater;
 	private Deleter<T> deleter;
 
 	public DynamicTableView() {
+		this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 		this.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
 				T item = this.getSelectionModel().getSelectedItem();
@@ -55,6 +67,11 @@ public class DynamicTableView<T> extends TableView<T> {
 
 	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type) {
 		super();
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) {
+		applicationContext = context;
 	}
 
 	public void setType(Class<T> type) {
@@ -90,7 +107,7 @@ public class DynamicTableView<T> extends TableView<T> {
 
 		try {
 			getColumns().clear();
-			T firstObject = data.get(0);
+			T firstObject = data.getFirst();
 			Field[] fields = firstObject.getClass().getDeclaredFields();
 
 			List<Field> fieldList = Arrays.stream(fields).filter(field -> field.getAnnotation(TableViewInfo.class) != null)
@@ -100,7 +117,12 @@ public class DynamicTableView<T> extends TableView<T> {
 				TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
 				String columnDisplayName = (tableViewInfo != null) ? tableViewInfo.displayName() : field.getName();
 
-				TableColumn<T, ?> column = buildColumn(columnDisplayName, field);
+				TableColumn<T, ?> column;
+				if (tableViewInfo != null && tableViewInfo.useAsSearchComboBox()) {
+					column = buildSearchableComboBoxColumn(columnDisplayName, field);
+				} else {
+					column = buildColumn(columnDisplayName, field);
+				}
 				getColumns().add(column);
 			});
 			List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
@@ -135,7 +157,6 @@ public class DynamicTableView<T> extends TableView<T> {
 	}
 
 	private TableColumn<T, ?> buildColumn(String columnDisplayName, Field field) {
-
 		TableColumn<T, ?> column;
 		if (field.getType().equals(CurrencyExchangeRate.class)) {
 			column = createRelatedObjectsColumn(columnDisplayName, field, CurrencyExchangeRate::getRate);
@@ -143,6 +164,58 @@ public class DynamicTableView<T> extends TableView<T> {
 			column = createColumn(columnDisplayName, field);
 			column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
 		}
+		return column;
+	}
+
+	private TableColumn<T, ?> buildSearchableComboBoxColumn(String columnDisplayName, Field field) {
+		TableColumn<T, T> column = new TableColumn<>(columnDisplayName);
+		column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
+
+		column.setCellFactory(col -> {
+			SearchableComboBoxWithErrorLabel<T> comboBox = new SearchableComboBoxWithErrorLabel<>();
+
+			TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
+			if (tableViewInfo != null && tableViewInfo.searchServiceClass() != Void.class) {
+				Class<?> serviceClass = tableViewInfo.searchServiceClass();
+				try {
+					Object service = applicationContext.getBean(serviceClass);
+					if (service instanceof AccountCodeChartService) {
+						comboBox.setMinSearchCharCount(MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT);
+						comboBox.setDataFetchService((DataFetchService<T>) service);
+						comboBox.setConverter((StringConverter<T>) new AccountCodeChartStringConverter((AccountCodeChartService) service));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			TableCell<T, T> cell = new TableCell<>() {
+				@Override
+				protected void updateItem(T item, boolean empty) {
+					super.updateItem(item, empty);
+					if (empty) {
+						setGraphic(null);
+					} else {
+						comboBox.setValue(item);
+						setGraphic(comboBox);
+					}
+				}
+			};
+			cell.setAlignment(Pos.CENTER);
+
+			comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+				if (cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
+					try {
+						field.setAccessible(true);
+						field.set(cell.getTableRow().getItem(), newVal);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+
+			return cell;
+		});
 
 		return column;
 	}
@@ -165,6 +238,7 @@ public class DynamicTableView<T> extends TableView<T> {
 				return null;
 			}
 		});
+		column.setStyle("-fx-alignment: CENTER;");
 		return column;
 	}
 
@@ -206,35 +280,35 @@ public class DynamicTableView<T> extends TableView<T> {
 	private TableColumn<T, Void> createMenuButtonColumn(List<Pair<String, Consumer<T>>> actions) {
 		TableColumn<T, Void> btnCol = new TableColumn<>();
 		btnCol.setCellFactory(param -> {
-            return new TableCell<>() {
-                private final MenuButton menuButton = new MenuButton();
+			return new TableCell<>() {
+				private final MenuButton menuButton = new MenuButton();
 
-                {
-                    FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
-                    icon.setIconSize(20);
-                    menuButton.setGraphic(icon);
+				{
+					FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
+					icon.setIconSize(20);
+					menuButton.setGraphic(icon);
 
-                    actions.forEach(action -> {
-                        MenuItem menuItem = new MenuItem(action.getKey());
-                        menuItem.setOnAction(event -> {
-                            T item = getTableView().getItems().get(getIndex());
-                            action.getValue().accept(item);
-                        });
-                        menuButton.getItems().add(menuItem);
-                    });
-                }
+					actions.forEach(action -> {
+						MenuItem menuItem = new MenuItem(action.getKey());
+						menuItem.setOnAction(event -> {
+							T item = getTableView().getItems().get(getIndex());
+							action.getValue().accept(item);
+						});
+						menuButton.getItems().add(menuItem);
+					});
+				}
 
-                @Override
-                protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setGraphic(null);
-                    } else {
-                        setGraphic(menuButton);
-                    }
-                }
-            };
-        });
+				@Override
+				protected void updateItem(Void item, boolean empty) {
+					super.updateItem(item, empty);
+					if (empty) {
+						setGraphic(null);
+					} else {
+						setGraphic(menuButton);
+					}
+				}
+			};
+		});
 		return btnCol;
 	}
 }

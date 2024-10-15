@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +22,6 @@ import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.lazycombo.accountchart.AccountCodeChartStringConverter;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -34,6 +32,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	private final DistributionService distributionService;
 	private final ObservableList<AccountCodeDistributionDto> accountCodeDistributionDtoObservableList = FXCollections.observableArrayList();
+	private final AccountCodeChartService accountCodeChartService;
 	@FXML
 	@Getter
 	@Setter
@@ -42,14 +41,12 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	@Getter
 	@Setter
 	public TextAreaWithErrorLabel internalNotesField;
+	@Autowired
 	@FXML
-	public DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
-	@FXML
-	public SearchableComboBoxWithErrorLabel acccounts;
+	public DynamicTableView<AccountCodeDistributionDto> distributionListView;
 	private DocumentDto documentDto;
 	private Map<String, ValidationFunction> additionalInfoValidationFunctions = new HashMap<>();
 	private List<ControlWithErrorLabel<?>> additionalInfoValidationControls = new ArrayList<>();
-	private final AccountCodeChartService accountCodeChartService;
 
 	public AdditionalInfoController(DistributionService distributionService, Mediator mediator, ValidationService validationService,
 			AccountCodeChartService accountCodeChartService) {
@@ -85,9 +82,6 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 				//				mainController.saveButton.requestFocus();
 			}
 		});
-
-		acccounts.setDataFetchService(accountCodeChartService);
-		acccounts.setConverter(new AccountCodeChartStringConverter(accountCodeChartService));
 
 	}
 
@@ -141,8 +135,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	private void refreshDistributionTable() {
 		accountCodeDistributionDtoObservableList.clear();
 		if (mediator.getDocumentDto() != null) {
-			accountCodeDistributionDtoObservableList.addAll(
-					distributionService.getByDocumentId(mediator.getDocumentDto().getId()));
+			accountCodeDistributionDtoObservableList.addAll(distributionService.getByDocumentId(mediator.getDocumentDto().getId()));
 			distributionListView.setData(accountCodeDistributionDtoObservableList);
 		}
 	}
@@ -150,8 +143,5 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
 		control.setValidationCondition(validationCondition, errorMessage);
 		additionalInfoValidationControls.add(control);
-	}
-
-	public void documentSubTypeComboOnAction(ActionEvent actionEvent) {
 	}
 }

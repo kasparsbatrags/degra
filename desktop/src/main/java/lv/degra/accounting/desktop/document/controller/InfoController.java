@@ -57,7 +57,7 @@ import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel;
-import lv.degra.accounting.desktop.system.component.lazycombo.customer.CustomerConverter;
+import lv.degra.accounting.desktop.system.component.lazycombo.customer.CustomerStringConverter;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -202,9 +202,9 @@ public class InfoController extends DocumentControllerComponent {
 		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
 
 		publisherCombo.setDataFetchService(customerService);
-		publisherCombo.setConverter(new CustomerConverter(customerService));
+		publisherCombo.setConverter(new CustomerStringConverter(customerService));
 		receiverCombo.setDataFetchService(customerService);
-		receiverCombo.setConverter(new CustomerConverter(customerService));
+		receiverCombo.setConverter(new CustomerStringConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
 	}
@@ -307,8 +307,8 @@ public class InfoController extends DocumentControllerComponent {
 		}
 	}
 
-	public void fetchAndSetBankAccountDetails(SearchableComboBoxWithErrorLabel<Customer> customerCombo, ComboBoxWithErrorLabel<Bank> bankCombo,
-			ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
+	public void fetchAndSetBankAccountDetails(SearchableComboBoxWithErrorLabel<Customer> customerCombo,
+			ComboBoxWithErrorLabel<Bank> bankCombo, ComboBoxWithErrorLabel<CustomerAccount> accountCombo) {
 		ObservableList<CustomerAccount> accountsList = FXCollections.observableList(
 				customerAccountService.getCustomerAccounts(customerCombo.getValue()));
 		List<Integer> uniqueCustomerBankIdList = accountsList.stream().filter(getDistinctValues(CustomerAccount::getBank))

@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.system.object;
+package lv.degra.accounting.core.system.component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,4 +11,8 @@ public @interface TableViewInfo {
 	String displayName();
 
 	int columnOrder() default 0;
+
+	boolean useAsSearchComboBox() default false;
+
+	Class<?> searchServiceClass() default Void.class;
 }

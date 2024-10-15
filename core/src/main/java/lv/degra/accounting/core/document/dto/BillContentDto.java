@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.document.bill.model.UnitType;
-import lv.degra.accounting.core.system.object.TableViewInfo;
+import lv.degra.accounting.core.system.component.TableViewInfo;
 
 @Builder
 @NoArgsConstructor

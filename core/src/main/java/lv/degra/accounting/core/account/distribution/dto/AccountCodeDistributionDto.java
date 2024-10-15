@@ -8,8 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
+import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
 import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
-import lv.degra.accounting.core.system.object.TableViewInfo;
+import lv.degra.accounting.core.system.component.TableViewInfo;
 
 /**
  * DTO for {@link AccountCodeDistribution}
@@ -21,15 +22,17 @@ import lv.degra.accounting.core.system.object.TableViewInfo;
 @AllArgsConstructor
 public class AccountCodeDistributionDto implements Serializable {
 
-    private Integer id;
+	private Integer id;
 
-    @TableViewInfo(displayName = "Debeta konts", columnOrder = 1)
-    private AccountCodeChart debitAccount;
+	@TableViewInfo(displayName = "Debeta konts", columnOrder = 1, useAsSearchComboBox = true,
+			searchServiceClass = AccountCodeChartService.class)
+	private AccountCodeChart debitAccount;
 
 	@TableViewInfo(displayName = "Summa debetā", columnOrder = 2)
-    private Double amountInDebit;
+	private Double amountInDebit;
 
-	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 4)
+	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 4, useAsSearchComboBox = true,
+			searchServiceClass = AccountCodeChartService.class)
 	private AccountCodeChart creditAccount;
 
 	@TableViewInfo(displayName = "Summa kredītā", columnOrder = 3)

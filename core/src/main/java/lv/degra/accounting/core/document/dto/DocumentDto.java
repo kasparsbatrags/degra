@@ -23,7 +23,7 @@ import lv.degra.accounting.core.document.model.DocumentDirection;
 import lv.degra.accounting.core.document.model.DocumentSubType;
 import lv.degra.accounting.core.document.model.DocumentTransactionType;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
-import lv.degra.accounting.core.system.object.TableViewInfo;
+import lv.degra.accounting.core.system.component.TableViewInfo;
 
 /**
  * DTO for {@link Document}
@@ -82,7 +82,7 @@ public class DocumentDto implements Serializable {
 	CustomerAccount receiverCustomerBankAccount;
 
 	public boolean isBill() {
-		return this.documentSubType!=null && BILL_CODE.equals(this.documentSubType.getCode());
+		return this.documentSubType != null && BILL_CODE.equals(this.documentSubType.getCode());
 	}
 
 	@Override

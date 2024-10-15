@@ -7,14 +7,16 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import lombok.Getter;
+import lombok.Setter;
 import lv.degra.accounting.core.system.DataFetchService;
 
 @Component
 public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<T> {
 
-	private static final int MIN_SEARCH_CHAR_COUNT = 3;
-	private static final String SEARCH_PLACEHOLDER_TEXT = "Meklēt... (vismaz " + MIN_SEARCH_CHAR_COUNT + " simboli)";
-
+	@Setter
+	@Getter
+	private int minSearchCharCount = 3;
 	private boolean blockAutoLoadData = false;
 	private DataFetchService<T> dataFetchService;
 
@@ -29,12 +31,13 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 
 	private void setupSearchListener() {
 		this.setEditable(true);
-		this.setPromptText(SEARCH_PLACEHOLDER_TEXT);
+		String searchPlaceholderText = "Meklēt... (vismaz " + getMinSearchCharCount() + " simboli)";
+		this.setPromptText(searchPlaceholderText);
 
 		this.valueProperty().addListener((obs, oldVal, newVal) -> blockAutoLoadData = newVal != null);
 
 		this.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-			if (!blockAutoLoadData && newValue.length() >= MIN_SEARCH_CHAR_COUNT) {
+			if (!blockAutoLoadData && newValue.length() >= minSearchCharCount) {
 				loadData(newValue);
 			}
 			blockAutoLoadData = false;
