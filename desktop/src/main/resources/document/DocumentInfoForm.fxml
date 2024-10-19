@@ -16,82 +16,87 @@
 		<children>
 			<Pane fx:id="basicInfo" prefHeight="137.0" prefWidth="756.0" AnchorPane.leftAnchor="21.0" AnchorPane.topAnchor="20.0">
 				<children>
-					<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" layoutX="153.0" layoutY="15.0"
-						onAction="#documentSubTypeComboOnAction" prefHeight="42.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="594.0" layoutY="14.0" prefHeight="42.0" prefWidth="144.0" />
-					<DatePickerWithErrorLabel fx:id="accountingDateDp" layoutX="594.0" layoutY="59.0" prefHeight="25.0" prefWidth="133.0" />
-
-					<DatePickerWithErrorLabel fx:id="documentDateDp" layoutX="153.0" layoutY="59.0" prefHeight="25.0" prefWidth="133.0" />
-					<Label alignment="CENTER_RIGHT" layoutX="471.0" layoutY="60.0" prefHeight="17.0" prefWidth="105.0"
-						text="Dokumenta datums" />
-					<TextFieldWithErrorLabel fx:id="seriesField" layoutX="153.0" layoutY="103.0" prefHeight="25.0" prefWidth="75.0" />
-					<TextFieldWithErrorLabel fx:id="numberField" layoutX="311.0" layoutY="103.0" prefHeight="25.0" prefWidth="108.0" />
-					<Label alignment="CENTER_RIGHT" layoutX="469.0" layoutY="18.0" prefHeight="17.0" prefWidth="108.0"
-						text="Dokumenta virziens" />
-					<Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="31.0" layoutY="60.0" prefHeight="17.0" prefWidth="105.0"
-						text="Dokumenta datums" textAlignment="RIGHT" />
-
-					<Label alignment="CENTER_RIGHT" layoutX="30.0" layoutY="18.0" prefHeight="17.0" prefWidth="108.0" text="Dokumenta tips"
+					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="20.0" prefHeight="17.0" prefWidth="130.0" text="Dokumenta tips"
 						textAlignment="RIGHT" />
-					<Label fx:id="seriesLabel" alignment="CENTER_RIGHT" layoutX="100.0" layoutY="107.0" prefHeight="17.0" prefWidth="33.0"
-						text="Sērija" textAlignment="RIGHT" />
-					<Label layoutX="242.0" layoutY="107.0" prefHeight="17.0" prefWidth="51.0" text="Numurs" textAlignment="RIGHT" />
+					<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" layoutX="160.0" layoutY="15.0"
+						onAction="#documentSubTypeComboOnAction" prefHeight="42.0" prefWidth="287.0" />
 
+					<Label alignment="CENTER_RIGHT" layoutX="470.0" layoutY="20.0" prefHeight="17.0" prefWidth="150.0"
+						text="Dokumenta virziens" />
+					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="630.0" layoutY="15.0" prefHeight="42.0" prefWidth="180.0" />
+
+					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="75.0" prefHeight="17.0" prefWidth="130.0"
+						text="Dokumenta datums" textAlignment="RIGHT" />
+					<DatePickerWithErrorLabel fx:id="documentDateDp" layoutX="160.0" layoutY="70.0" prefHeight="25.0" prefWidth="150.0" />
+
+					<Label alignment="CENTER_RIGHT" layoutX="470.0" layoutY="75.0" prefHeight="17.0" prefWidth="150.0"
+						text="Uzskaites datums" />
+					<DatePickerWithErrorLabel fx:id="accountingDateDp" layoutX="630.0" layoutY="70.0" prefHeight="25.0" prefWidth="150.0" />
+
+					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="115.0" prefHeight="17.0" prefWidth="130.0" text="Sērija"
+						textAlignment="RIGHT" />
+					<TextFieldWithErrorLabel fx:id="seriesField" layoutX="160.0" layoutY="110.0" prefHeight="25.0" prefWidth="75.0" />
+
+					<Label layoutX="270.0" layoutY="115.0" prefHeight="17.0" prefWidth="51.0" text="Numurs" textAlignment="RIGHT" />
+					<TextFieldWithErrorLabel fx:id="numberField" layoutX="330.0" layoutY="110.0" prefHeight="25.0" prefWidth="108.0" />
 				</children>
 			</Pane>
+
 			<Pane fx:id="paymentPane" layoutX="782.0" prefHeight="137.0" prefWidth="448.0" AnchorPane.rightAnchor="25.0"
 				AnchorPane.topAnchor="20.0">
 				<children>
-					<Label contentDisplay="RIGHT" layoutX="186.0" layoutY="59.0" prefHeight="9.0" prefWidth="105.0" text="Apmaksas datums"
-						textAlignment="RIGHT" />
-					<DatePickerWithErrorLabel fx:id="paymentDateDp" layoutX="301.0" layoutY="56.0" prefHeight="25.0" prefWidth="133.0" />
-					<Label contentDisplay="RIGHT" layoutX="14.0" layoutY="107.0" prefHeight="17.0" prefWidth="114.0"
+					<Label contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" prefHeight="17.0" prefWidth="130.0"
+						text="Apmaksas datums" textAlignment="RIGHT" />
+					<DatePickerWithErrorLabel fx:id="paymentDateDp" layoutX="160.0" layoutY="15.0" prefHeight="25.0" prefWidth="133.0" />
+
+					<Label contentDisplay="RIGHT" layoutX="20.0" layoutY="75.0" prefHeight="17.0" prefWidth="130.0"
 						text="Darījuma veids (VID)" textAlignment="RIGHT" />
-					<ComboBoxWithErrorLabel fx:id="documentTransactionTypeCombo" layoutX="136.0" layoutY="103.0" prefHeight="42.0"
+					<ComboBoxWithErrorLabel fx:id="documentTransactionTypeCombo" layoutX="160.0" layoutY="70.0" prefHeight="42.0"
 						prefWidth="299.0" />
 				</children>
 			</Pane>
+
 			<Pane fx:id="publisherPane" layoutX="67.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.topAnchor="213.0">
 				<children>
-					<Label alignment="TOP_CENTER" layoutX="160.0" layoutY="14.0" text="Izdevējs" textAlignment="CENTER" />
-					<SearchableComboBoxWithErrorLabel fx:id="publisherCombo" layoutX="24.0" layoutY="61.0" onAction="#publisherOnAction" prefHeight="26.0"
-						prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="publisherBankCombo" layoutX="24.0" layoutY="105.0" onAction="#publisherBankOnAction"
+					<Label alignment="TOP_CENTER" layoutX="135.0" layoutY="14.0" text="Izdevējs" textAlignment="CENTER" />
+					<SearchableComboBoxWithErrorLabel fx:id="publisherCombo" layoutX="24.0" layoutY="45.0" onAction="#publisherOnAction"
+						prefHeight="26.0" prefWidth="287.0" />
+					<ComboBoxWithErrorLabel fx:id="publisherBankCombo" layoutX="24.0" layoutY="90.0" onAction="#publisherBankOnAction"
 						prefHeight="25.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="publisherBankAccountCombo" layoutX="24.0" layoutY="148.0" prefHeight="25.0"
+					<ComboBoxWithErrorLabel fx:id="publisherBankAccountCombo" layoutX="24.0" layoutY="135.0" prefHeight="25.0"
 						prefWidth="287.0" />
 				</children>
 			</Pane>
-			<Pane fx:id="amountInfo" layoutX="535.0" layoutY="213.0" prefHeight="173.0" prefWidth="247.0" AnchorPane.topAnchor="213.0">
-				<children>
 
-					<Label layoutX="51.0" layoutY="47.0" text="Valūta" />
-
-					<Label layoutX="17.0" layoutY="91.0" text="Valūtas kurss" />
-
-					<Label layoutX="12.0" layoutY="133.0" text="Summa valūtā" />
-					<TextFieldWithErrorLabel fx:id="sumTotalField" layoutX="97.0" prefHeight="42.0" prefWidth="144.0" />
-
-					<Label layoutX="45.0" layoutY="4.0" text="Summa" />
-					<TextFieldWithErrorLabel fx:id="exchangeRateField" layoutX="96.0" layoutY="86.0" onAction="#sumTotalOnAction"
-						prefHeight="42.0" prefWidth="105.0" />
-					<TextFieldWithErrorLabel fx:id="sumTotalInCurrencyField" layoutX="96.0" layoutY="129.0" prefHeight="42.0"
-						prefWidth="105.0" />
-					<ComboBoxWithErrorLabel fx:id="currencyCombo" layoutX="97.0" layoutY="43.0" onAction="#currencyOnAction"
-						prefHeight="42.0" prefWidth="105.0" />
-				</children>
-			</Pane>
 			<Pane fx:id="receiverPane" layoutX="879.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.rightAnchor="66.0"
 				AnchorPane.topAnchor="233.0">
 				<children>
-					<Label layoutX="160.0" layoutY="14.0" text="Saņēmējs" />
-
-					<SearchableComboBoxWithErrorLabel fx:id="receiverCombo" layoutX="24.0" layoutY="61.0" onAction="#receiverOnAction" prefHeight="26.0"
-						prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="receiverBankCombo" layoutX="24.0" layoutY="105.0" onAction="#receiverBankOnAction"
+					<Label layoutX="135.0" layoutY="14.0" text="Saņēmējs" />
+					<SearchableComboBoxWithErrorLabel fx:id="receiverCombo" layoutX="24.0" layoutY="45.0" onAction="#receiverOnAction"
+						prefHeight="26.0" prefWidth="287.0" />
+					<ComboBoxWithErrorLabel fx:id="receiverBankCombo" layoutX="24.0" layoutY="90.0" onAction="#receiverBankOnAction"
 						prefHeight="25.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="receiverBankAccountCombo" layoutX="25.0" layoutY="148.0" prefHeight="25.0"
+					<ComboBoxWithErrorLabel fx:id="receiverBankAccountCombo" layoutX="24.0" layoutY="135.0" prefHeight="25.0"
 						prefWidth="287.0" />
+				</children>
+			</Pane>
+
+			<Pane fx:id="amountInfo" layoutX="450.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.topAnchor="213.0">
+				<children>
+					<Label layoutX="0.0" layoutY="0.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Summa" />
+					<TextFieldWithErrorLabel fx:id="sumTotalField" layoutX="140.0" layoutY="0.0" prefHeight="25.0" prefWidth="144.0" />
+
+					<Label layoutX="0.0" layoutY="50.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Valūta" />
+					<ComboBoxWithErrorLabel fx:id="currencyCombo" layoutX="140.0" layoutY="45.0" onAction="#currencyOnAction"
+						prefHeight="42.0" prefWidth="105.0" />
+
+					<Label layoutX="0.0" layoutY="105.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Valūtas kurss" />
+					<TextFieldWithErrorLabel fx:id="exchangeRateField" layoutX="140.0" layoutY="100.0" onAction="#sumTotalOnAction"
+						prefHeight="42.0" prefWidth="105.0" />
+
+					<Label layoutX="0.0" layoutY="160.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Summa valūtā" />
+					<TextFieldWithErrorLabel fx:id="sumTotalInCurrencyField" layoutX="140.0" layoutY="155.0" prefHeight="42.0"
+						prefWidth="105.0" />
 				</children>
 			</Pane>
 
@@ -103,5 +108,4 @@
 				AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="6.0" />
 		</children>
 	</AnchorPane>
-
 </AnchorPane>
