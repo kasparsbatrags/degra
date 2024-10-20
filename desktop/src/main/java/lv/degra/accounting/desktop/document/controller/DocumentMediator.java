@@ -7,10 +7,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javafx.scene.control.Alert;
-import lv.degra.accounting.core.document.bill.service.BillRowService;
+import lombok.Getter;
+import lombok.Setter;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
 
+@Setter
+@Getter
 @Component
 public class DocumentMediator implements Mediator {
 
@@ -19,13 +22,14 @@ public class DocumentMediator implements Mediator {
 	private final BillController billController;
 	private final AdditionalInfoController additionalInfoController;
 	private final DocumentService documentService;
-	private final BillRowService billRowService;
+
+	private DocumentDto originalDocument;
+	private DocumentDto editableDocument;
 
 	public DocumentMediator(@Lazy MainController mainController, @Lazy InfoController infoController, @Lazy BillController billController,
-			@Lazy AdditionalInfoController additionalInfoController, DocumentService documentService, BillRowService billRowService) {
+			@Lazy AdditionalInfoController additionalInfoController, DocumentService documentService) {
 		this.additionalInfoController = additionalInfoController;
 		this.documentService = documentService;
-		this.billRowService = billRowService;
 		this.billController = billController;
 		this.infoController = infoController;
 		this.mainController = mainController;
@@ -37,13 +41,12 @@ public class DocumentMediator implements Mediator {
 	}
 
 	@Override
-	public DocumentDto getDocumentDto() {
-		return mainController.getDocumentDto();
+	public DocumentDto getEditableDocumentDto() {
+		return editableDocument;
 	}
 
-	@Override
 	public void setDocumentDto(DocumentDto documentDto) {
-		mainController.setDocumentDto(documentDto);
+		editableDocument = documentDto;
 	}
 
 	@Override
@@ -62,11 +65,11 @@ public class DocumentMediator implements Mediator {
 		infoController.sumTotalOnAction();
 	}
 
-	@Override
-	public void fillDocumentFormWithExistData(DocumentDto documentDto) {
-		infoController.setDocumentData(documentDto);
-		billController.setBillData(documentDto);
-		additionalInfoController.setAdditionalInfoData(documentDto);
+	public void setData() {
+		mainController.setData(this.editableDocument);
+		infoController.setData(this.editableDocument);
+		billController.setData(this.editableDocument);
+		additionalInfoController.setData(this.editableDocument);
 		infoController.refreshScreenControlsByDocumentSubType();
 	}
 
@@ -75,25 +78,26 @@ public class DocumentMediator implements Mediator {
 		return infoController.validate();
 	}
 
-	public DocumentDto collectDocumentData() {
-		DocumentDto documentDto = new DocumentDto();
-		documentDto = infoController.getDocumentData(documentDto);
-		documentDto = billController.getBillData(documentDto);
-		documentDto = additionalInfoController.getAdditionalInfoData(documentDto);
-		return documentDto;
+	public void startEditing(DocumentDto document) {
+		this.originalDocument = document;
+		this.editableDocument = new DocumentDto(document);
+	}
+
+	public void saveChanges() {
+		originalDocument.update(editableDocument);
+	}
+
+	public void discardChanges() {
+		editableDocument = new DocumentDto(originalDocument);
 	}
 
 	public boolean saveDocument() {
-		DocumentDto documentDto = collectDocumentData();
 		boolean result = true;
 		try {
-			saveDocumentMainInfo(documentDto);
-			if (isNewRecord(documentDto)) {
-				mainController.getDocumentObservableList().add(documentDto);
-			} else {
-				if (!documentDto.isBill()) {
-					billRowService.deleteByDocumentId(documentDto.getId());
-				}
+			saveChanges();
+			documentService.saveDocument(originalDocument);
+			if (isNewRecord(originalDocument)) {
+				mainController.getDocumentObservableList().add(originalDocument);
 			}
 		} catch (Exception e) {
 			mainController.switchToDocumentInfoTab();
@@ -109,10 +113,6 @@ public class DocumentMediator implements Mediator {
 
 	private boolean isNewRecord(DocumentDto documentDto) {
 		return null == documentDto.getId();
-	}
-
-	protected void saveDocumentMainInfo(DocumentDto documentDto) {
-		documentService.saveDocument(documentDto);
 	}
 
 }

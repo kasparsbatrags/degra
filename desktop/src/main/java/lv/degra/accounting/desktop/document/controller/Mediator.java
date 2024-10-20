@@ -6,7 +6,7 @@ public interface Mediator {
 
 	void updateDocumentTabs();
 
-	DocumentDto getDocumentDto();
+	DocumentDto getEditableDocumentDto();
 
 	void setDocumentDto(DocumentDto documentDto);
 
@@ -16,11 +16,9 @@ public interface Mediator {
 
 	void setDocumentInfoSumTotalFieldValue(Double documentTotalSum);
 
-	void fillDocumentFormWithExistData(DocumentDto documentDto);
+	void setData();
 
 	boolean validateDocument();
-
-	DocumentDto collectDocumentData();
 
 	boolean saveDocument();
 }

@@ -20,7 +20,7 @@
 							<children>
 								<DynamicTableView fx:id="distributionListView" layoutX="14.0" layoutY="6.0" prefHeight="241.0"
 									AnchorPane.bottomAnchor="0.0"
-									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0">
+									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0" onKeyPressed="#onKeyPressAction">
 									<placeholder>
 										<Label text="Dokuments nav kontēts!" />
 									</placeholder>

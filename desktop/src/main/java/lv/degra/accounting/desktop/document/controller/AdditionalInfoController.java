@@ -44,7 +44,6 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	@Autowired
 	@FXML
 	public DynamicTableView<AccountCodeDistributionDto> distributionListView;
-	private DocumentDto documentDto;
 	private Map<String, ValidationFunction> additionalInfoValidationFunctions = new HashMap<>();
 	private List<ControlWithErrorLabel<?>> additionalInfoValidationControls = new ArrayList<>();
 
@@ -85,6 +84,12 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	}
 
+	protected void addRecord() {
+		AccountCodeDistributionDto accountCodeDistributionDto = new AccountCodeDistributionDto();
+		distributionListView.getItems().add(accountCodeDistributionDto);
+		distributionListView.getSelectionModel().select(accountCodeDistributionDto);
+	}
+
 	@Override
 	public ControlWithErrorLabel<String> getSumTotalField() {
 		return null;
@@ -107,35 +112,37 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 			return;
 		}
 		try {
-			distributionService.deleteById(accountCodeDistributionDto.getId());
 			distributionListView.getItems().removeAll(accountCodeDistributionDto);
+			List<AccountCodeDistributionDto> distributionList = new ArrayList<>(mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
+			distributionList.remove(accountCodeDistributionDto);
+			mediator.getEditableDocumentDto().setAccountCodeDistributionDtoList(distributionList);
 		} catch (RuntimeException e) {
 			throw new AccountDistributionDeletionException("Failed to delete distribution with ID: " + accountCodeDistributionDto.getId(),
 					e);
 		}
 	}
 
-	public void onAddAccountingRowButton() {
-		documentDto = mediator.getDocumentDto();
-	}
-
-	public DocumentDto getAdditionalInfoData(DocumentDto documentDto) {
+	@Override
+	public void getData(DocumentDto documentDto) {
 		documentDto.setNotesForCustomer(notesForCustomerField.getText());
 		documentDto.setInternalNotes(internalNotesField.getText());
-		return documentDto;
+		documentDto.setAccountCodeDistributionDtoList(accountCodeDistributionDtoObservableList);
 	}
 
-	public void setAdditionalInfoData(DocumentDto documentDto) {
-		this.documentDto = documentDto;
+	@Override
+	public void setData(DocumentDto documentDto) {
 		notesForCustomerField.setText(documentDto.getNotesForCustomer());
 		internalNotesField.setText(documentDto.getInternalNotes());
 		refreshDistributionTable();
 	}
 
+	public void onAddAccountingRowButton() {
+	}
+
 	private void refreshDistributionTable() {
 		accountCodeDistributionDtoObservableList.clear();
-		if (mediator.getDocumentDto() != null) {
-			accountCodeDistributionDtoObservableList.addAll(distributionService.getByDocumentId(mediator.getDocumentDto().getId()));
+		if (mediator.getEditableDocumentDto() != null) {
+			accountCodeDistributionDtoObservableList.addAll(mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
 			distributionListView.setData(accountCodeDistributionDtoObservableList);
 		}
 	}

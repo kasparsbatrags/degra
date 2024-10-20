@@ -54,7 +54,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 	private Deleter<T> deleter;
 
 	public DynamicTableView() {
-		this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+		this.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 		this.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
 				T item = this.getSelectionModel().getSelectedItem();
@@ -214,7 +214,28 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				}
 			});
 
+			comboBox.setOnAction(event -> {
+				if (cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
+					try {
+						field.setAccessible(true);
+						field.set(cell.getTableRow().getItem(), comboBox.getValue());
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+
 			return cell;
+		});
+
+		column.setOnEditCommit(event -> {
+			T item = event.getRowValue();
+			try {
+				field.setAccessible(true);
+				field.set(item, event.getNewValue());
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		});
 
 		return column;

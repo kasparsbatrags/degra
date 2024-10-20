@@ -20,7 +20,7 @@
                     <left>
                         <AnchorPane prefHeight="800.0" prefWidth="139.0" BorderPane.alignment="CENTER">
                             <children>
-                                <Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">Dokumenti
+                                <Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList" prefHeight="40.0" prefWidth="138.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">Dokumenti
                                     <graphic>
                                         <FontIcon iconLiteral="mdi-file-document" iconSize="32" />
                                     </graphic>

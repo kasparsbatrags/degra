@@ -12,6 +12,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
+import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
@@ -48,13 +50,30 @@ public class DocumentServiceImpl implements DocumentService {
 			if (documentDto.getId() != null) {
 				return documentRepository.findById(Long.valueOf(documentDto.getId())).map(document -> {
 					modelMapper.map(documentDto, document);
+					List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
+					List<AccountCodeDistribution> currentDistributionList = document.getAccountCodeDistributions();
+
+					if (newDistributionList == null || newDistributionList.isEmpty()) {
+						currentDistributionList.clear();
+					} else {
+						currentDistributionList.clear();
+						currentDistributionList.addAll(modelMapper.map(newDistributionList, List.class));
+					}
 					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
+
 				}).orElseThrow(() -> new EntityNotFoundException("Document with ID " + documentDto.getId() + " not found in the system."));
 			} else {
 				Document document = modelMapper.map(documentDto, Document.class);
+
+				List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
+				if (newDistributionList == null || newDistributionList.isEmpty()) {
+					document.getAccountCodeDistributions().addAll(modelMapper.map(newDistributionList, List.class));
+				}
+
 				Document savedDocument = documentRepository.save(document);
 				return modelMapper.map(savedDocument, DocumentDto.class);
 			}
+
 		} catch (DataIntegrityViolationException e) {
 			log.error("Error saving document: {}, {}", e.getMessage(), e.toString());
 			if (e.getCause() instanceof ConstraintViolationException) {
@@ -65,8 +84,13 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public List<DocumentDto> getDocumentList() {
-		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream()
-				.map(document -> modelMapper.map(document, DocumentDto.class)).toList();
+		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().map(document -> {
+			DocumentDto documentDto = modelMapper.map(document, DocumentDto.class);
+			List<AccountCodeDistributionDto> accountCodeDistributionDtoList = document.getAccountCodeDistributions().stream()
+					.map(distribution -> modelMapper.map(distribution, AccountCodeDistributionDto.class)).toList();
+			documentDto.setAccountCodeDistributionDtoList(accountCodeDistributionDtoList);
+			return documentDto;
+		}).toList();
 	}
 
 	public void deleteById(Integer documentId) {

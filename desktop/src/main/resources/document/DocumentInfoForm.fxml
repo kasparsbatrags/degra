@@ -99,13 +99,10 @@
 						prefWidth="105.0" />
 				</children>
 			</Pane>
-
 			<StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="90.0"
 				AnchorPane.topAnchor="470.0">
 				<fx:include source="DocumentAdditionalInfoPane.fxml" HBox.hgrow="ALWAYS" />
 			</StackPane>
-			<Label fx:id="documentIdLabel" layoutX="1165.0" layoutY="6.0" prefHeight="17.0" prefWidth="87.0" textAlignment="RIGHT"
-				AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="6.0" />
 		</children>
 	</AnchorPane>
 </AnchorPane>

@@ -115,7 +115,7 @@ public class BillController extends DocumentControllerComponent {
 		try {
 			billRowService.deleteById(billContentDto.getId());
 			billContentListView.getItems().removeAll(billContentDto);
-			actualizeDocumentInfo(mediator.getDocumentDto().getId());
+			actualizeDocumentInfo(mediator.getEditableDocumentDto().getId());
 		} catch (RuntimeException e) {
 			throw new BillRowDeletionException("Failed to delete row with ID: " + billContentDto.getId(), e);
 		}
@@ -135,6 +135,18 @@ public class BillController extends DocumentControllerComponent {
 	public boolean validate() {
 		return validateControllerControls(billValidationControls);
 	}
+
+	@Override
+	public void getData(DocumentDto documentDto) {
+		//			documentDto.setBillAmount(billAmountField.getText());
+		//			documentDto.setDueDate(paymentDateDp.getValue());
+	}
+
+	@Override
+	public void setData(DocumentDto documentDto) {
+		this.documentDto = documentDto;
+	}
+
 
 	public void setBillContentOpenAction() {
 
@@ -278,7 +290,7 @@ public class BillController extends DocumentControllerComponent {
 		var editedBillContentDto = new BillContentDto();
 		try {
 			editedBillContentDto = new BillContentDto(newBillContentDto == null ? null : newBillContentDto.getId(),
-					mediator.getDocumentDto(), billRowServiceNameField.getText(), getDouble(billRowQuantityField.getText()),
+					mediator.getEditableDocumentDto(), billRowServiceNameField.getText(), getDouble(billRowQuantityField.getText()),
 					billRowUnitTypeCombo.getValue(), getDouble(billRowPricePerUnitField.getText()),
 					getDouble(billRowSumPerAllField.getText()), getDouble(billRowVatPercentField.getText()),
 					getDouble(billRowVatSumField.getText()), getDouble(billRowSumTotalField.getText()));
@@ -316,22 +328,10 @@ public class BillController extends DocumentControllerComponent {
 
 	protected void refreshBillContentTable() {
 		billContentObservableList.clear();
-		if (mediator.getDocumentDto() != null) {
-			billContentObservableList.addAll(billRowService.getByDocumentId(mediator.getDocumentDto().getId()));
+		if (mediator.getEditableDocumentDto() != null) {
+			billContentObservableList.addAll(billRowService.getByDocumentId(mediator.getEditableDocumentDto().getId()));
 			billContentListView.setData(billContentObservableList);
 		}
-	}
-
-	public DocumentDto getBillData(DocumentDto documentDto) {
-		if (documentDto.isBill()) {
-			//			documentDto.setBillAmount(billAmountField.getText());
-			//			documentDto.setDueDate(paymentDateDp.getValue());
-		}
-		return documentDto;
-	}
-
-	public void setBillData(DocumentDto documentDto) {
-		this.documentDto = documentDto;
 	}
 
 	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {

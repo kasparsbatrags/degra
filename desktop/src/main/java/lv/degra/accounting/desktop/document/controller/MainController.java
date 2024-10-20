@@ -1,5 +1,7 @@
 package lv.degra.accounting.desktop.document.controller;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lv.degra.accounting.core.document.dto.DocumentDto;
+import lv.degra.accounting.desktop.system.component.Label;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
@@ -35,14 +38,21 @@ public class MainController extends DocumentControllerComponent {
 	public Button printButton;
 
 	public Map<String, ValidationFunction> mainValidationFunctions = new HashMap<>();
+	@FXML
+	public Label documentIdLabel;
 	protected List<ControlWithErrorLabel<?>> mainValidationControls = new ArrayList<>();
-
-	private DocumentDto documentDto;
 	private ObservableList<DocumentDto> documentObservableList;
 
 	public MainController(Mediator mediator, ValidationService validationService) {
 		super(mediator, validationService);
 		this.validationService = validationService;
+	}
+
+	@FXML
+	public void onSaveDocumentButton() {
+		if (mediator.validateDocument() && mediator.saveDocument()) {
+			closeWindows();
+		}
 	}
 
 	@FXML
@@ -68,18 +78,22 @@ public class MainController extends DocumentControllerComponent {
 	public void billContentOpenAction(Event event) {
 	}
 
-	@FXML
-	public void onSaveDocumentButton() {
-		if (mediator.validateDocument() && mediator.saveDocument()) {
-			closeWindows();
-		}
+	@Override
+	public void getData(DocumentDto documentDto) {
+		documentDto.setId(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()));
 	}
+
+	@Override
+	public void setData(DocumentDto documentDto) {
+		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
+	}
+
 
 	public void onPrintDocumentButton(ActionEvent actionEvent) {
 	}
 
 	public void updateDocumentTabs() {
-		if (documentDto != null && documentDto.isBill()) {
+		if (mediator.getEditableDocumentDto() != null && mediator.getEditableDocumentDto().isBill()) {
 			showBillTab();
 		} else {
 			hideBillTab();
@@ -109,16 +123,10 @@ public class MainController extends DocumentControllerComponent {
 		closeButton.setDisable(setDisable);
 	}
 
-	public DocumentDto getDocumentDto() {
-		return documentDto;
-	}
-
 	public void setDocumentDto(DocumentDto documentDto) {
-		Integer documentSubtypeId = null;
-		this.documentDto = documentDto;
+		mediator.setDocumentDto(documentDto);
 		if (documentDto != null) {
-			documentSubtypeId = documentDto.getDocumentSubType().getId();
-			mediator.fillDocumentFormWithExistData(documentDto);
+			mediator.setData();
 		}
 		updateDocumentTabs();
 	}

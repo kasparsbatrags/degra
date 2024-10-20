@@ -2,6 +2,7 @@ package lv.degra.accounting.core.document.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
@@ -80,6 +82,8 @@ public class DocumentDto implements Serializable {
 	Bank receiverCustomerBank;
 	@NotNull
 	CustomerAccount receiverCustomerBankAccount;
+	List<AccountCodeDistributionDto> accountCodeDistributionDtoList;
+
 
 	public boolean isBill() {
 		return this.documentSubType != null && BILL_CODE.equals(this.documentSubType.getCode());
@@ -113,5 +117,61 @@ public class DocumentDto implements Serializable {
 				internalNotes, publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer,
 				receiverCustomerBank, receiverCustomerBankAccount);
 	}
+
+	public DocumentDto(DocumentDto other) {
+		if (other != null) {
+			this.id = other.id;
+			this.documentDirection = other.documentDirection;
+			this.documentNumber = other.documentNumber;
+			this.documentSeries = other.documentSeries;
+			this.documentSubType = other.documentSubType;
+			this.documentTransactionType = other.documentTransactionType;
+			this.accountingDate = other.accountingDate;
+			this.documentDate = other.documentDate;
+			this.paymentDate = other.paymentDate;
+			this.paymentTypeId = other.paymentTypeId;
+			this.sumTotal = other.sumTotal;
+			this.sumTotalInCurrency = other.sumTotalInCurrency;
+			this.currency = other.currency;
+			this.currencyExchangeRate = other.currencyExchangeRate;
+			this.notesForCustomer = other.notesForCustomer;
+			this.internalNotes = other.internalNotes;
+			this.publisherCustomer = other.publisherCustomer;
+			this.publisherCustomerBank = other.publisherCustomerBank;
+			this.publisherCustomerBankAccount = other.publisherCustomerBankAccount;
+			this.receiverCustomer = other.receiverCustomer;
+			this.receiverCustomerBank = other.receiverCustomerBank;
+			this.receiverCustomerBankAccount = other.receiverCustomerBankAccount;
+			this.accountCodeDistributionDtoList = other.accountCodeDistributionDtoList;
+		}
+	}
+
+	public void update(DocumentDto updated) {
+		if (updated != null) {
+			this.documentDirection = updated.documentDirection;
+			this.documentNumber = updated.documentNumber;
+			this.documentSeries = updated.documentSeries;
+			this.documentSubType = updated.documentSubType;
+			this.documentTransactionType = updated.documentTransactionType;
+			this.accountingDate = updated.accountingDate;
+			this.documentDate = updated.documentDate;
+			this.paymentDate = updated.paymentDate;
+			this.paymentTypeId = updated.paymentTypeId;
+			this.sumTotal = updated.sumTotal;
+			this.sumTotalInCurrency = updated.sumTotalInCurrency;
+			this.currency = updated.currency;
+			this.currencyExchangeRate = updated.currencyExchangeRate;
+			this.notesForCustomer = updated.notesForCustomer;
+			this.internalNotes = updated.internalNotes;
+			this.publisherCustomer = updated.publisherCustomer;
+			this.publisherCustomerBank = updated.publisherCustomerBank;
+			this.publisherCustomerBankAccount = updated.publisherCustomerBankAccount;
+			this.receiverCustomer = updated.receiverCustomer;
+			this.receiverCustomerBank = updated.receiverCustomerBank;
+			this.receiverCustomerBankAccount = updated.receiverCustomerBankAccount;
+			this.accountCodeDistributionDtoList = updated.accountCodeDistributionDtoList;
+		}
+	}
+
 
 }

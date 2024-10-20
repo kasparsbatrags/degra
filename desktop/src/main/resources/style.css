@@ -16,3 +16,19 @@
     -fx-border-color: gray gray gray gray; /* Top, Right, Bottom, Left */
     -fx-border-width: 1px;
 }
+
+.root {
+	-fx-font-size: 12pt;
+}
+
+.button {
+	-fx-font-size: 12pt;
+}
+
+.label {
+	-fx-font-size: 12pt;
+}
+
+.text-field {
+	-fx-font-size: 12pt;
+}

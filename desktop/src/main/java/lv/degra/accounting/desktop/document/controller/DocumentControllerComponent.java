@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.scene.Node;
+import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.system.utils.DegraController;
@@ -67,4 +68,6 @@ public abstract class DocumentControllerComponent extends DegraController {
 
 	public abstract boolean validate();
 
+	public abstract void getData(DocumentDto editableDocument);
+	public abstract void setData(DocumentDto editableDocument);
 }

@@ -139,11 +139,6 @@ public class InfoController extends DocumentControllerComponent {
 		this.exchangeService = exchangeService;
 	}
 
-	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
-		Set<Object> seen = ConcurrentHashMap.newKeySet();
-		return t -> seen.add(keyExtractor.apply(t));
-	}
-
 	@FXML
 	public void publisherOnAction() {
 		setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
@@ -207,6 +202,80 @@ public class InfoController extends DocumentControllerComponent {
 		receiverCombo.setConverter(new CustomerStringConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
+	}
+
+	@Override
+	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
+		control.setValidationCondition(validationCondition, errorMessage);
+		infoValidationControls.add(control);
+	}
+
+	@Override
+	public void clearValidationControls() {
+		infoValidationControls.clear();
+	}
+
+	@Override
+	public boolean validate() {
+		return validateControllerControls(infoValidationControls);
+	}
+
+	@Override
+	public void getData(DocumentDto documentDto) {
+		documentDto.setDocumentTransactionType(documentTransactionTypeCombo.getValue());
+		documentDto.setPublisherCustomer(publisherCombo.getValue());
+		documentDto.setPublisherCustomerBank(publisherBankCombo.getValue());
+		documentDto.setPublisherCustomerBankAccount(publisherBankAccountCombo.getValue());
+		documentDto.setReceiverCustomer(receiverCombo.getValue());
+		documentDto.setReceiverCustomerBank(receiverBankCombo.getValue());
+		documentDto.setReceiverCustomerBankAccount(receiverBankAccountCombo.getValue());
+		documentDto.setDocumentDirection(directionCombo.getValue());
+		documentDto.setCurrency(currencyCombo.getValue());
+		documentDto.setDocumentSeries(seriesField.getText());
+		documentDto.setDocumentNumber(numberField.getText());
+		documentDto.setSumTotal(getDouble(sumTotalField.getText()));
+		documentDto.setSumTotalInCurrency(getDouble(sumTotalInCurrencyField.getText()));
+		documentDto.setCurrencyExchangeRate(currencyExchangeRate);
+		documentDto.setAccountingDate(accountingDateDp.getValue());
+		documentDto.setDocumentDate(documentDateDp.getValue());
+		documentDto.setPaymentDate(paymentDateDp.getValue());
+		documentDto.setDocumentSubType(documentSubTypeCombo.getValue());
+	}
+
+	@Override
+	public void setData(DocumentDto documentDto) {
+		directionCombo.setValue(documentDto.getDocumentDirection());
+		seriesField.setText(documentDto.getDocumentSeries());
+		documentSubTypeCombo.setValue(documentDto.getDocumentSubType());
+		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
+		numberField.setText(!isBlank(documentDto.getDocumentNumber()) ? documentDto.getDocumentNumber() : EMPTY);
+		accountingDateDp.setValue(documentDto.getAccountingDate());
+		documentDateDp.setValue(documentDto.getDocumentDate());
+		paymentDateDp.setValue(documentDto.getPaymentDate());
+		sumTotalField.setText(documentDto.getSumTotal().toString());
+		sumTotalInCurrencyField.setText(documentDto.getSumTotalInCurrency().toString());
+		exchangeRateField.setText(documentDto.getCurrencyExchangeRate().getRate().toString());
+		currencyCombo.setValue(documentDto.getCurrency());
+		publisherCombo.setValue(documentDto.getPublisherCustomer());
+		publisherBankCombo.setValue(documentDto.getPublisherCustomerBank());
+		publisherBankAccountCombo.setValue(documentDto.getPublisherCustomerBankAccount());
+		receiverCombo.setValue(documentDto.getReceiverCustomer());
+		receiverBankCombo.setValue(documentDto.getReceiverCustomerBank());
+		receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
+		currencyExchangeRate = documentDto.getCurrencyExchangeRate();
+
+		if (publisherCombo.getValue() != null) {
+			fetchAndSetBankAccountDetails(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
+		}
+
+		if (receiverCombo.getValue() != null) {
+			fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
+		}
+	}
+
+	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
+		Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
 	}
 
 	private void setExchangeRate(Currency currency) {
@@ -273,37 +342,6 @@ public class InfoController extends DocumentControllerComponent {
 				accountCombo.setValue(null);
 				accountCombo.setItems(FXCollections.observableArrayList());
 			}
-		}
-	}
-
-	public void setDocumentData(DocumentDto documentDto) {
-		directionCombo.setValue(documentDto.getDocumentDirection());
-		documentIdLabel.setText(documentDto.getId() != null ? documentDto.getId().toString() : EMPTY);
-		seriesField.setText(documentDto.getDocumentSeries());
-		documentSubTypeCombo.setValue(documentDto.getDocumentSubType());
-		documentTransactionTypeCombo.setValue(documentDto.getDocumentTransactionType());
-		numberField.setText(!isBlank(documentDto.getDocumentNumber()) ? documentDto.getDocumentNumber() : EMPTY);
-		accountingDateDp.setValue(documentDto.getAccountingDate());
-		documentDateDp.setValue(documentDto.getDocumentDate());
-		paymentDateDp.setValue(documentDto.getPaymentDate());
-		sumTotalField.setText(documentDto.getSumTotal().toString());
-		sumTotalInCurrencyField.setText(documentDto.getSumTotalInCurrency().toString());
-		exchangeRateField.setText(documentDto.getCurrencyExchangeRate().getRate().toString());
-		currencyCombo.setValue(documentDto.getCurrency());
-		publisherCombo.setValue(documentDto.getPublisherCustomer());
-		publisherBankCombo.setValue(documentDto.getPublisherCustomerBank());
-		publisherBankAccountCombo.setValue(documentDto.getPublisherCustomerBankAccount());
-		receiverCombo.setValue(documentDto.getReceiverCustomer());
-		receiverBankCombo.setValue(documentDto.getReceiverCustomerBank());
-		receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
-		currencyExchangeRate = documentDto.getCurrencyExchangeRate();
-
-		if (publisherCombo.getValue() != null) {
-			fetchAndSetBankAccountDetails(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
-		}
-
-		if (receiverCombo.getValue() != null) {
-			fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 		}
 	}
 
@@ -374,44 +412,4 @@ public class InfoController extends DocumentControllerComponent {
 		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
 		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId);
 	}
-
-	@Override
-	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
-		control.setValidationCondition(validationCondition, errorMessage);
-		infoValidationControls.add(control);
-	}
-
-	@Override
-	public void clearValidationControls() {
-		infoValidationControls.clear();
-	}
-
-	@Override
-	public boolean validate() {
-		return validateControllerControls(infoValidationControls);
-	}
-
-	public DocumentDto getDocumentData(DocumentDto documentDto) {
-		documentDto.setId(documentIdLabel.getText().isEmpty() ? null : Integer.parseInt(documentIdLabel.getText()));
-		documentDto.setDocumentTransactionType(documentTransactionTypeCombo.getValue());
-		documentDto.setPublisherCustomer(publisherCombo.getValue());
-		documentDto.setPublisherCustomerBank(publisherBankCombo.getValue());
-		documentDto.setPublisherCustomerBankAccount(publisherBankAccountCombo.getValue());
-		documentDto.setReceiverCustomer(receiverCombo.getValue());
-		documentDto.setReceiverCustomerBank(receiverBankCombo.getValue());
-		documentDto.setReceiverCustomerBankAccount(receiverBankAccountCombo.getValue());
-		documentDto.setDocumentDirection(directionCombo.getValue());
-		documentDto.setCurrency(currencyCombo.getValue());
-		documentDto.setDocumentSeries(seriesField.getText());
-		documentDto.setDocumentNumber(numberField.getText());
-		documentDto.setSumTotal(getDouble(sumTotalField.getText()));
-		documentDto.setSumTotalInCurrency(getDouble(sumTotalInCurrencyField.getText()));
-		documentDto.setCurrencyExchangeRate(currencyExchangeRate);
-		documentDto.setAccountingDate(accountingDateDp.getValue());
-		documentDto.setDocumentDate(documentDateDp.getValue());
-		documentDto.setPaymentDate(paymentDateDp.getValue());
-		documentDto.setDocumentSubType(documentSubTypeCombo.getValue());
-		return documentDto;
-	}
-
 }

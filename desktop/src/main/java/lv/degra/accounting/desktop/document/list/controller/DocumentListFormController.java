@@ -20,6 +20,7 @@ import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
 import lv.degra.accounting.core.document.service.exception.DocumentDeletionException;
+import lv.degra.accounting.desktop.document.controller.DocumentMediator;
 import lv.degra.accounting.desktop.document.controller.MainController;
 import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
@@ -35,6 +36,7 @@ public class DocumentListFormController extends DegraController {
 	private final ApplicationContext context;
 	private final DocumentService documentService;
 	private final BillRowService billRowService;
+	private final DocumentMediator documentMediator;
 
 	@FXML
 	public Button newButton;
@@ -42,12 +44,13 @@ public class DocumentListFormController extends DegraController {
 	private DynamicTableView<DocumentDto> documentListView = new DynamicTableView<>();
 
 	public DocumentListFormController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context,
-			DocumentService documentService, BillRowService billRowService) {
+			DocumentService documentService, BillRowService billRowService, DocumentMediator documentMediator) {
 		super();
 		this.applicationFormBuilder = applicationFormBuilder;
 		this.context = context;
 		this.documentService = documentService;
 		this.billRowService = billRowService;
+		this.documentMediator = documentMediator;
 	}
 
 	@FXML
@@ -87,7 +90,8 @@ public class DocumentListFormController extends DegraController {
 		if (documentDto == null) {
 			return;
 		}
-		openDocumentEditForm(documentDto);
+		documentMediator.startEditing(documentDto);
+		openDocumentEditForm(documentMediator.getEditableDocument());
 	}
 
 	@Override
@@ -120,7 +124,6 @@ public class DocumentListFormController extends DegraController {
 				mainController.setDocumentObservableList(documentObservableList);
 				mainController.setDocumentDto(documentDto);
 			}
-			//			mediator.setDocumentDtoOld();
 			stage.setMaximized(true);
 			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();
