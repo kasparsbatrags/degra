@@ -22,7 +22,6 @@ import lv.degra.accounting.desktop.system.component.Label;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
-
 @Component
 public class MainController extends DocumentControllerComponent {
 
@@ -125,7 +124,7 @@ public class MainController extends DocumentControllerComponent {
 
 	public void setDocumentDto(DocumentDto documentDto) {
 		mediator.setDocumentDto(documentDto);
-		if (documentDto != null) {
+		if (documentDto.getId() != null) {
 			mediator.setData();
 		}
 		updateDocumentTabs();

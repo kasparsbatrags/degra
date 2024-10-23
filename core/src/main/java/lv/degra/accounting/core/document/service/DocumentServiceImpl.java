@@ -1,5 +1,6 @@
 package lv.degra.accounting.core.document.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
+import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionMapper;
 import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
@@ -28,11 +30,14 @@ public class DocumentServiceImpl implements DocumentService {
 	private final DocumentRepository documentRepository;
 
 	private final ModelMapper modelMapper;
+	private final AccountCodeDistributionMapper accountCodeDistributionMapper;
 
 	@Autowired
-	public DocumentServiceImpl(DocumentRepository documentRepository, ModelMapper modelMapper) {
+	public DocumentServiceImpl(DocumentRepository documentRepository, ModelMapper modelMapper,
+			AccountCodeDistributionMapper accountCodeDistributionMapper) {
 		this.documentRepository = documentRepository;
 		this.modelMapper = modelMapper;
+		this.accountCodeDistributionMapper = accountCodeDistributionMapper;
 	}
 
 	@Override
@@ -57,7 +62,13 @@ public class DocumentServiceImpl implements DocumentService {
 						currentDistributionList.clear();
 					} else {
 						currentDistributionList.clear();
-						currentDistributionList.addAll(modelMapper.map(newDistributionList, List.class));
+
+						newDistributionList.forEach(dto -> {
+							dto.setDocument(document);
+							AccountCodeDistribution entity = accountCodeDistributionMapper.toEntity(dto);
+							currentDistributionList.add(entity);
+						});
+						document.setAccountCodeDistributions(currentDistributionList);
 					}
 					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
 
@@ -66,12 +77,20 @@ public class DocumentServiceImpl implements DocumentService {
 				Document document = modelMapper.map(documentDto, Document.class);
 
 				List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
-				if (newDistributionList == null || newDistributionList.isEmpty()) {
-					document.getAccountCodeDistributions().addAll(modelMapper.map(newDistributionList, List.class));
-				}
+				if (newDistributionList != null && !newDistributionList.isEmpty()) {
+					newDistributionList.forEach(dto -> {
+						dto.setDocument(document);
+						AccountCodeDistribution entity = accountCodeDistributionMapper.toEntity(dto);
 
-				Document savedDocument = documentRepository.save(document);
-				return modelMapper.map(savedDocument, DocumentDto.class);
+						if (document != null && document.getAccountCodeDistributions() != null) {
+							document.getAccountCodeDistributions().add(entity);
+						} else if (document != null) {
+							document.setAccountCodeDistributions(new ArrayList<>());
+							document.getAccountCodeDistributions().add(entity);
+						}
+					});
+				}
+				return modelMapper.map(documentRepository.save(document), DocumentDto.class);
 			}
 
 		} catch (DataIntegrityViolationException e) {
@@ -81,6 +100,7 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
 		}
+
 	}
 
 	public List<DocumentDto> getDocumentList() {

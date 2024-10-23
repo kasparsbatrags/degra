@@ -9,9 +9,11 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
@@ -57,12 +59,15 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	@FXML
 	private void initialize() {
+		accountCodeDistributionDtoObservableList.clear();
+		distributionListView.setEditable(true);
 		distributionListView.setType(AccountCodeDistributionDto.class);
 		distributionListView.setCreator(item -> {
 			addRecord();
 			refreshDistributionTable();
 		});
 		distributionListView.setUpdater(item -> editRecord());
+		distributionListView.setSaver(item -> saveRecord());
 		distributionListView.setDeleter(item -> {
 			deleteRecord();
 			refreshDistributionTable();
@@ -84,9 +89,50 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	}
 
+	@Override
+	protected void saveRecord() {
+		AccountCodeDistributionDto selectedItem = distributionListView.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			List<AccountCodeDistributionDto> distributionList = mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList();
+			if (distributionList==null) {
+				distributionList = new ArrayList<>();
+			}
+			int index = distributionList.indexOf(selectedItem);
+			if (index >= 0) {
+				distributionList.set(index, selectedItem);
+			} else {
+				distributionList.add(selectedItem);
+			}
+			mediator.getEditableDocumentDto().setAccountCodeDistributionDtoList(distributionList);
+			refreshDistributionTable();
+		}
+	}
+
+	@Override
+	protected void editRecord() {
+		if (distributionListView.getItems().isEmpty()) {
+			addRecord();
+		}
+		Platform.runLater(() -> {
+			int rowIndex = distributionListView.getSelectionModel().getSelectedIndex();
+			if (rowIndex >= 0) {
+				TableColumn<AccountCodeDistributionDto, ?> firstEditableColumn = distributionListView.getColumns().stream()
+						.filter(TableColumn::isEditable)
+						.findFirst()
+						.orElse(null);
+
+				if (firstEditableColumn != null) {
+					distributionListView.edit(rowIndex, firstEditableColumn);
+				}
+			}
+		});
+
+	}
+
 	protected void addRecord() {
 		AccountCodeDistributionDto accountCodeDistributionDto = new AccountCodeDistributionDto();
-		distributionListView.getItems().add(accountCodeDistributionDto);
+		accountCodeDistributionDtoObservableList.add(accountCodeDistributionDto);
+		distributionListView.setData(accountCodeDistributionDtoObservableList);
 		distributionListView.getSelectionModel().select(accountCodeDistributionDto);
 	}
 
@@ -113,7 +159,8 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		}
 		try {
 			distributionListView.getItems().removeAll(accountCodeDistributionDto);
-			List<AccountCodeDistributionDto> distributionList = new ArrayList<>(mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
+			List<AccountCodeDistributionDto> distributionList = new ArrayList<>(
+					mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
 			distributionList.remove(accountCodeDistributionDto);
 			mediator.getEditableDocumentDto().setAccountCodeDistributionDtoList(distributionList);
 		} catch (RuntimeException e) {
@@ -137,6 +184,8 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	}
 
 	public void onAddAccountingRowButton() {
+		addRecord();
+		editRecord();
 	}
 
 	private void refreshDistributionTable() {

@@ -33,6 +33,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.system.DataFetchService;
@@ -44,50 +46,36 @@ import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBox
 import lv.degra.accounting.desktop.system.component.lazycombo.accountchart.AccountCodeChartStringConverter;
 import lv.degra.accounting.desktop.system.exception.DynamicTableBuildException;
 
+@Slf4j
 @Component
+@Setter
 public class DynamicTableView<T> extends TableView<T> implements ApplicationContextAware {
-	private static final int MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT = 2;
+	private static final int MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT = 1;
+	private static final double COLUMN_MIN_WIDTH = 150;
 	private static ApplicationContext applicationContext;
 	private Class<T> type;
 	private Creator<T> creator;
 	private Updater<T> updater;
 	private Deleter<T> deleter;
+	private Saver<T> saver;
 
 	public DynamicTableView() {
 		this.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 		this.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
 				T item = this.getSelectionModel().getSelectedItem();
-				if (item != null && updater != null) {
-					updater.update(item);
-				}
+				updater.update(item);
 			}
 		});
 	}
 
-	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type) {
+	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type, Updater<T> saver) {
 		super();
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) {
 		applicationContext = context;
-	}
-
-	public void setType(Class<T> type) {
-		this.type = type;
-	}
-
-	public void setCreator(Creator<T> creator) {
-		this.creator = creator;
-	}
-
-	public void setUpdater(Updater<T> updater) {
-		this.updater = updater;
-	}
-
-	public void setDeleter(Deleter<T> deleter) {
-		this.deleter = deleter;
 	}
 
 	public void setData(List<T> data) {
@@ -122,6 +110,27 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					column = buildSearchableComboBoxColumn(columnDisplayName, field);
 				} else {
 					column = buildColumn(columnDisplayName, field);
+				}
+
+				column.setOnEditCommit(event -> {
+					T item = event.getRowValue();
+					try {
+						field.setAccessible(true);
+						field.set(item, event.getNewValue());
+						if (item != null && updater != null) {
+							saver.save(item);
+						}
+					} catch (IllegalAccessException e) {
+						log.error(e.toString());
+					}
+				});
+
+				column.setEditable(tableViewInfo.editable());
+
+				if (tableViewInfo.columnWidth() != 0) {
+					column.setMinWidth(tableViewInfo.columnWidth());
+				} else {
+					column.setMaxWidth(COLUMN_MIN_WIDTH);
 				}
 				getColumns().add(column);
 			});
@@ -162,7 +171,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 			column = createRelatedObjectsColumn(columnDisplayName, field, CurrencyExchangeRate::getRate);
 		} else {
 			column = createColumn(columnDisplayName, field);
-			column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
 		}
 		return column;
 	}
@@ -173,7 +181,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 
 		column.setCellFactory(col -> {
 			SearchableComboBoxWithErrorLabel<T> comboBox = new SearchableComboBoxWithErrorLabel<>();
-
 			TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
 			if (tableViewInfo != null && tableViewInfo.searchServiceClass() != Void.class) {
 				Class<?> serviceClass = tableViewInfo.searchServiceClass();
@@ -185,7 +192,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 						comboBox.setConverter((StringConverter<T>) new AccountCodeChartStringConverter((AccountCodeChartService) service));
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.toString());
 				}
 			}
 
@@ -209,7 +216,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 						field.setAccessible(true);
 						field.set(cell.getTableRow().getItem(), newVal);
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						log.error(e.toString());
 					}
 				}
 			});
@@ -220,22 +227,12 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 						field.setAccessible(true);
 						field.set(cell.getTableRow().getItem(), comboBox.getValue());
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						log.error(e.toString());
 					}
 				}
 			});
 
 			return cell;
-		});
-
-		column.setOnEditCommit(event -> {
-			T item = event.getRowValue();
-			try {
-				field.setAccessible(true);
-				field.set(item, event.getNewValue());
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
 		});
 
 		return column;
@@ -255,7 +252,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					return new SimpleStringProperty("");
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.toString());
 				return null;
 			}
 		});
@@ -269,6 +266,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 			field.setAccessible(true);
 			return (ObservableValue<S>) new PropertyValueFactory<T, S>(field.getName());
 		});
+		column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
 		column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<>() {
 			@Override
 			public String toString(Object object) {
@@ -281,20 +279,12 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					Constructor<?> constructor = field.getType().getConstructor(String.class);
 					return (S) constructor.newInstance(string);
 				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-					e.printStackTrace();
+					log.error(e.toString());
 					return null;
 				}
 			}
 		}));
-		column.setOnEditCommit(event -> {
-			T item = event.getRowValue();
-			try {
-				field.setAccessible(true);
-				field.set(item, event.getNewValue());
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		});
+
 		return column;
 	}
 

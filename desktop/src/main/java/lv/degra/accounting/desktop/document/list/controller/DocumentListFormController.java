@@ -16,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.document.bill.service.BillRowService;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
@@ -26,7 +27,7 @@ import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
 import lv.degra.accounting.desktop.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.desktop.system.utils.DegraController;
-
+@Slf4j
 @Controller
 public class DocumentListFormController extends DegraController {
 
@@ -70,7 +71,7 @@ public class DocumentListFormController extends DegraController {
 	}
 
 	public void onNewButton() {
-		openDocumentEditForm(null);
+		addRecord();
 	}
 
 	private void refreshTable() {
@@ -81,7 +82,9 @@ public class DocumentListFormController extends DegraController {
 
 	@Override
 	protected void addRecord() {
-		openDocumentEditForm(null);
+		DocumentDto documentDto = new DocumentDto();
+		documentMediator.startEditing(documentDto);
+		openDocumentEditForm(documentDto);
 	}
 
 	@Override
@@ -116,7 +119,7 @@ public class DocumentListFormController extends DegraController {
 		try {
 			Parent root1 = fxmlLoader.load();
 			Stage stage = applicationFormBuilder.getApplicationFormatedStage(root1,
-					documentDto == null ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
+					isCreateNewDocument(documentDto) ? CRATE_FORM_TITLE : EDIT_FORM_TITLE);
 			MainController mainController = fxmlLoader.getController();
 			if (isCreateNewDocument(documentDto)) {
 				mainController.setDocumentObservableList(documentObservableList);
@@ -124,13 +127,15 @@ public class DocumentListFormController extends DegraController {
 				mainController.setDocumentObservableList(documentObservableList);
 				mainController.setDocumentDto(documentDto);
 			}
+
 			stage.setMaximized(true);
 			stage.initModality(APPLICATION_MODAL);
 			stage.showAndWait();
 			refreshTable();
 		} catch (RuntimeException ex) {
 			Throwable rootCause = ex.getCause();
-			Objects.requireNonNullElse(rootCause, ex).printStackTrace();
+			Objects.requireNonNullElse(rootCause, ex);
+			log.error(ex.toString(), rootCause);
 		} catch (Exception e) {
 			throw new DegraRuntimeException(e.getMessage(), e);
 		}

@@ -73,6 +73,14 @@ public class DocumentMediator implements Mediator {
 		infoController.refreshScreenControlsByDocumentSubType();
 	}
 
+	public void getData() {
+		mainController.getData(this.editableDocument);
+		infoController.getData(this.editableDocument);
+		billController.getData(this.editableDocument);
+		additionalInfoController.getData(this.editableDocument);
+	}
+
+
 	@Override
 	public boolean validateDocument() {
 		return infoController.validate();
@@ -84,6 +92,7 @@ public class DocumentMediator implements Mediator {
 	}
 
 	public void saveChanges() {
+		getData();
 		originalDocument.update(editableDocument);
 	}
 

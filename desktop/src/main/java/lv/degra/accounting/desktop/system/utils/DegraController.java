@@ -71,4 +71,10 @@ public class DegraController {
 	protected void deleteRecord() {
 		throw new CannotPerformException("notImplemented() cannot be performed because in controller deleteRecord() is not Override!");
 	}
+
+	protected void saveRecord() {
+		throw new CannotPerformException("notImplemented() cannot be performed because in controller saveRecord() is not Override!");
+	}
+
+
 }

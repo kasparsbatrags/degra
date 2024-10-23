@@ -57,6 +57,9 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 		errorLabel.setVisible(false);
 	}
 
+	public void hideErrorLabel() {
+		errorLabel.setVisible(false);
+	}
 	public String getErrorText() {
 		return errorLabel.getText();
 	}

@@ -11,6 +11,8 @@ public @interface TableViewInfo {
 	String displayName();
 
 	int columnOrder() default 0;
+	int columnWidth() default 0;
+	boolean editable() default false;
 
 	boolean useAsSearchComboBox() default false;
 

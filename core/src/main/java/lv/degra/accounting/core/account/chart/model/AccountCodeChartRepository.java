@@ -28,7 +28,7 @@ public interface AccountCodeChartRepository extends JpaRepository<AccountCodeCha
 			      WHERE child.parent_id = acc.id
 			  )
 			AND (
-			    LOWER(acc.code) LIKE lower(concat('%', :searchTerm, '%'))
+			    LOWER(acc.code) LIKE lower(concat(:searchTerm, '%'))
 				OR LOWER(acc.name) LIKE lower(concat('%', :searchTerm, '%'))
 			) ORDER BY acc.code ASC
 			""", nativeQuery = true)
