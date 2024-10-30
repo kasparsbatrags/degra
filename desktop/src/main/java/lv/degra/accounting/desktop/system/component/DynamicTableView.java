@@ -67,6 +67,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				updater.update(item);
 			}
 		});
+		//		initializeKeyboardListener();
 	}
 
 	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type, Updater<T> saver) {
@@ -125,7 +126,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					}
 				});
 
-				column.setEditable(tableViewInfo.editable());
+				column.setEditable(tableViewInfo != null && tableViewInfo.editable());
 
 				if (tableViewInfo.columnWidth() != 0) {
 					column.setMinWidth(tableViewInfo.columnWidth());
@@ -181,6 +182,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 
 		column.setCellFactory(col -> {
 			SearchableComboBoxWithErrorLabel<T> comboBox = new SearchableComboBoxWithErrorLabel<>();
+			comboBox.hideErrorLabel();
 			TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
 			if (tableViewInfo != null && tableViewInfo.searchServiceClass() != Void.class) {
 				Class<?> serviceClass = tableViewInfo.searchServiceClass();
@@ -256,7 +258,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				return null;
 			}
 		});
-		column.setStyle("-fx-alignment: CENTER;");
 		return column;
 	}
 

@@ -7,15 +7,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import lombok.Getter;
-import lombok.Setter;
 import lv.degra.accounting.core.system.DataFetchService;
 
 @Component
 public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<T> {
 
-	@Setter
-	@Getter
 	private int minSearchCharCount = 3;
 	private boolean blockAutoLoadData = false;
 	private DataFetchService<T> dataFetchService;
@@ -46,11 +42,21 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 		this.getEditor().addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
 	}
 
-	private void handleKeyPressed(KeyEvent event) {
+	public int getMinSearchCharCount() {
+		return minSearchCharCount;
+	}
+
+	public void setMinSearchCharCount(int minSearchCharCount) {
+		this.minSearchCharCount = minSearchCharCount;
+	}
+
+	public void handleKeyPressed(KeyEvent event) {
 		if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB) {
+			System.out.println("=================handleKeyPressed ENTER or TAB");
 			handleEnterOrTab();
 		} else if (event.getCode() == KeyCode.BACK_SPACE) {
 			handleBackspace();
+			System.out.println("=================handleKeyPressed consume");
 			event.consume();
 		}
 	}

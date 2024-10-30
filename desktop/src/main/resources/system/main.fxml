@@ -6,35 +6,48 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.desktop.system.controller.SystemController">
-    <left>
-        <VBox />
-    </left>
-    <center>
-        <BorderPane>
-            <center>
-                <BorderPane fx:id="mainBorderPane">
-                    <center>
-                        <StackPane />
-                    </center>
-                    <left>
-                        <AnchorPane prefHeight="800.0" prefWidth="139.0" BorderPane.alignment="CENTER">
-                            <children>
-                                <Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList" prefHeight="40.0" prefWidth="138.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">Dokumenti
-                                    <graphic>
-                                        <FontIcon iconLiteral="mdi-file-document" iconSize="32" />
-                                    </graphic>
-                                </Button>
-                                <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#openSettings" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">Iestatījumi
-                                    <graphic>
-                                        <FontIcon iconLiteral="mdi-settings" iconSize="32" />
-                                    </graphic>
-                                </Button>
-                            </children>
-                        </AnchorPane>
-                    </left>
-                </BorderPane>
-            </center>
-        </BorderPane>
-    </center>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="lv.degra.accounting.desktop.system.controller.SystemController">
+
+	<!-- Left VBox for sidebar or navigation if needed in the future -->
+	<left>
+		<VBox />
+	</left>
+
+	<!-- Center content with main pane and navigation buttons -->
+	<center>
+		<BorderPane fx:id="mainBorderPane">
+
+			<center>
+				<StackPane />
+			</center>
+
+			<left>
+				<VBox styleClass="section-box" spacing="20" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0"
+					AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0" >
+					<!-- Documents Button at the top -->
+					<Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList"
+						maxWidth="Infinity" VBox.vgrow="ALWAYS">
+						Dokumenti
+						<graphic>
+							<FontIcon iconLiteral="mdi-file-document" iconSize="32" />
+						</graphic>
+					</Button>
+
+					<!-- Spacer to separate the buttons -->
+
+
+					<!-- Settings Button at the bottom -->
+					<Button fx:id="settingsButton" mnemonicParsing="false" onAction="#openSettings"
+						maxWidth="Infinity" VBox.vgrow="ALWAYS" AnchorPane.bottomAnchor="20.0">
+						Iestatījumi
+						<graphic>
+							<FontIcon iconLiteral="mdi-settings" iconSize="32" />
+						</graphic>
+					</Button>
+				</VBox>
+			</left>
+		</BorderPane>
+	</center>
+
 </BorderPane>

@@ -64,7 +64,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		distributionListView.setType(AccountCodeDistributionDto.class);
 		distributionListView.setCreator(item -> {
 			addRecord();
-			refreshDistributionTable();
+			editRecord();
 		});
 		distributionListView.setUpdater(item -> editRecord());
 		distributionListView.setSaver(item -> saveRecord());
@@ -83,7 +83,6 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		internalNotesField.setOnKeyPressed(event -> {
 			if (event.getCode().equals(javafx.scene.input.KeyCode.TAB)) {
 				event.consume();
-				//				mainController.saveButton.requestFocus();
 			}
 		});
 
@@ -94,8 +93,10 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		AccountCodeDistributionDto selectedItem = distributionListView.getSelectionModel().getSelectedItem();
 		if (selectedItem != null) {
 			List<AccountCodeDistributionDto> distributionList = mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList();
-			if (distributionList==null) {
+			if (distributionList == null) {
 				distributionList = new ArrayList<>();
+			} else {
+				distributionList = new ArrayList<>(distributionList);
 			}
 			int index = distributionList.indexOf(selectedItem);
 			if (index >= 0) {
@@ -117,9 +118,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 			int rowIndex = distributionListView.getSelectionModel().getSelectedIndex();
 			if (rowIndex >= 0) {
 				TableColumn<AccountCodeDistributionDto, ?> firstEditableColumn = distributionListView.getColumns().stream()
-						.filter(TableColumn::isEditable)
-						.findFirst()
-						.orElse(null);
+						.filter(TableColumn::isEditable).findFirst().orElse(null);
 
 				if (firstEditableColumn != null) {
 					distributionListView.edit(rowIndex, firstEditableColumn);
@@ -190,7 +189,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	private void refreshDistributionTable() {
 		accountCodeDistributionDtoObservableList.clear();
-		if (mediator.getEditableDocumentDto() != null) {
+		if (mediator.getEditableDocumentDto() != null && mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList() != null) {
 			accountCodeDistributionDtoObservableList.addAll(mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
 			distributionListView.setData(accountCodeDistributionDtoObservableList);
 		}

@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 
@@ -59,7 +60,10 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 
 	public void hideErrorLabel() {
 		errorLabel.setVisible(false);
+		errorLabel.setManaged(false);
+		VBox.setVgrow(this, Priority.ALWAYS);
 	}
+
 	public String getErrorText() {
 		return errorLabel.getText();
 	}

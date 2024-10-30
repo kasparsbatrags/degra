@@ -34,11 +34,11 @@ public class AccountCodeDistributionDto implements Serializable {
 	@TableViewInfo(displayName = "Summa debetā", columnOrder = 2, columnWidth = 200, editable = true)
 	private Double amountInDebit;
 
+	@TableViewInfo(displayName = "Summa kredītā", columnOrder = 3, columnWidth = 200, editable = true)
+	private Double amountInCredit;
+
 	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 4, columnWidth = 400, useAsSearchComboBox = true,
 			searchServiceClass = AccountCodeChartService.class)
 	private AccountCodeChart creditAccount;
-
-	@TableViewInfo(displayName = "Summa kredītā", columnOrder = 3, columnWidth = 200, editable = true)
-	private Double amountInCredit;
 
 }

@@ -43,7 +43,7 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 			comboBox.setValue(null);
 			comboBox.getEditor().clear();
 		});
-
+		clearButton.setFocusTraversable(false);
 		validate();
 
 		HBox comboBoxContainer = new HBox();

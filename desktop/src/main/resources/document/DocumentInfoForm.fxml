@@ -1,108 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
 <?import lv.degra.accounting.desktop.system.component.DatePickerWithErrorLabel?>
-<?import lv.degra.accounting.desktop.system.component.Label?>
 <?import lv.degra.accounting.desktop.system.component.lazycombo.ComboBoxWithErrorLabel?>
 <?import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel?>
 <?import lv.degra.accounting.desktop.system.component.TextFieldWithErrorLabel?>
-<AnchorPane prefHeight="606.0" prefWidth="1255.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="lv.degra.accounting.desktop.document.controller.InfoController">
-	<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="606.0" prefWidth="1255.0" AnchorPane.bottomAnchor="0.0"
-		AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-		<children>
-			<Pane fx:id="basicInfo" prefHeight="137.0" prefWidth="756.0" AnchorPane.leftAnchor="21.0" AnchorPane.topAnchor="20.0">
-				<children>
-					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="20.0" prefHeight="17.0" prefWidth="130.0" text="Dokumenta tips"
-						textAlignment="RIGHT" />
-					<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" layoutX="160.0" layoutY="15.0"
-						onAction="#documentSubTypeComboOnAction" prefHeight="42.0" prefWidth="287.0" />
+	<VBox spacing="20" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0"
+		AnchorPane.topAnchor="20.0">
+		<HBox spacing="20" id="firstRow">
+			<VBox styleClass="section-box" HBox.hgrow="SOMETIMES">
+				<VBox>
+					<GridPane hgap="15" vgap="10">
+						<!-- Row 1 -->
+						<Label text="Dokumenta tips" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<ComboBoxWithErrorLabel fx:id="documentSubTypeCombo" onAction="#documentSubTypeComboOnAction"
+							GridPane.columnIndex="1"
+							minWidth="300" prefWidth="300" maxWidth="300" />
 
-					<Label alignment="CENTER_RIGHT" layoutX="470.0" layoutY="20.0" prefHeight="17.0" prefWidth="150.0"
-						text="Dokumenta virziens" />
-					<ComboBoxWithErrorLabel fx:id="directionCombo" layoutX="630.0" layoutY="15.0" prefHeight="42.0" prefWidth="180.0" />
+						<Label text="Virziens" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<ComboBoxWithErrorLabel fx:id="directionCombo" GridPane.rowIndex="0" GridPane.columnIndex="3" />
 
-					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="75.0" prefHeight="17.0" prefWidth="130.0"
-						text="Dokumenta datums" textAlignment="RIGHT" />
-					<DatePickerWithErrorLabel fx:id="documentDateDp" layoutX="160.0" layoutY="70.0" prefHeight="25.0" prefWidth="150.0" />
+						<!-- Row 2 -->
+						<Label text="Tranzakcijas tips (VID)" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${documentTransactionTypeCombo.visible}" />
+						<ComboBoxWithErrorLabel fx:id="documentTransactionTypeCombo" GridPane.columnIndex="1"
+							GridPane.rowIndex="1" GridPane.columnSpan="3" />
 
-					<Label alignment="CENTER_RIGHT" layoutX="470.0" layoutY="75.0" prefHeight="17.0" prefWidth="150.0"
-						text="Uzskaites datums" />
-					<DatePickerWithErrorLabel fx:id="accountingDateDp" layoutX="630.0" layoutY="70.0" prefHeight="25.0" prefWidth="150.0" />
+						<!-- Row 3 -->
+						<Label text="Sērija" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<TextFieldWithErrorLabel fx:id="seriesField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-					<Label alignment="CENTER_RIGHT" layoutX="20.0" layoutY="115.0" prefHeight="17.0" prefWidth="130.0" text="Sērija"
-						textAlignment="RIGHT" />
-					<TextFieldWithErrorLabel fx:id="seriesField" layoutX="160.0" layoutY="110.0" prefHeight="25.0" prefWidth="75.0" />
+						<Label text="Numurs" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<TextFieldWithErrorLabel fx:id="numberField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-					<Label layoutX="270.0" layoutY="115.0" prefHeight="17.0" prefWidth="51.0" text="Numurs" textAlignment="RIGHT" />
-					<TextFieldWithErrorLabel fx:id="numberField" layoutX="330.0" layoutY="110.0" prefHeight="25.0" prefWidth="108.0" />
-				</children>
-			</Pane>
+					</GridPane>
+				</VBox>
+			</VBox>
+			<VBox styleClass="section-box" HBox.hgrow="SOMETIMES">
+				<VBox>
+					<GridPane hgap="15" vgap="10">
+						<!-- Row 1 -->
+						<Label text="Dokumenta datums" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<DatePickerWithErrorLabel fx:id="documentDateDp" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+						<!-- Row 2 -->
+						<Label text="Grāmatošanas datums" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<DatePickerWithErrorLabel fx:id="accountingDateDp" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+						<!-- Row 2 -->
+						<Label text="Grāmatošanas datums" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<DatePickerWithErrorLabel prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+						<!-- Row 4 -->
+						<Label text="Apmaksas datums" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.valignment="TOP"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${paymentDateDp.visible}" />
+						<DatePickerWithErrorLabel fx:id="paymentDateDp" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+					</GridPane>
+				</VBox>
+			</VBox>
+			<!-- Amounts -->
+			<VBox styleClass="section-box" HBox.hgrow="SOMETIMES">
+				<VBox>
+					<GridPane hgap="15" vgap="10">
+						<Label text="Summa" GridPane.valignment="TOP" GridPane.columnIndex="0" GridPane.rowIndex="1"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<TextFieldWithErrorLabel fx:id="sumTotalField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-			<Pane fx:id="paymentPane" layoutX="782.0" prefHeight="137.0" prefWidth="448.0" AnchorPane.rightAnchor="25.0"
-				AnchorPane.topAnchor="20.0">
-				<children>
-					<Label contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" prefHeight="17.0" prefWidth="130.0"
-						text="Apmaksas datums" textAlignment="RIGHT" />
-					<DatePickerWithErrorLabel fx:id="paymentDateDp" layoutX="160.0" layoutY="15.0" prefHeight="25.0" prefWidth="133.0" />
+						<Label text="Valūtā summa" GridPane.valignment="TOP" GridPane.columnIndex="0" GridPane.rowIndex="2"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<TextFieldWithErrorLabel fx:id="sumTotalInCurrencyField" GridPane.columnIndex="1"
+							GridPane.rowIndex="2" />
 
-					<Label contentDisplay="RIGHT" layoutX="20.0" layoutY="75.0" prefHeight="17.0" prefWidth="130.0"
-						text="Darījuma veids (VID)" textAlignment="RIGHT" />
-					<ComboBoxWithErrorLabel fx:id="documentTransactionTypeCombo" layoutX="160.0" layoutY="70.0" prefHeight="42.0"
-						prefWidth="299.0" />
-				</children>
-			</Pane>
+						<Label text="Valūta" GridPane.valignment="TOP" GridPane.columnIndex="0" GridPane.rowIndex="3"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<ComboBoxWithErrorLabel fx:id="currencyCombo" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-			<Pane fx:id="publisherPane" layoutX="67.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.topAnchor="213.0">
-				<children>
-					<Label alignment="TOP_CENTER" layoutX="135.0" layoutY="14.0" text="Izdevējs" textAlignment="CENTER" />
-					<SearchableComboBoxWithErrorLabel fx:id="publisherCombo" layoutX="24.0" layoutY="45.0" onAction="#publisherOnAction"
-						prefHeight="26.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="publisherBankCombo" layoutX="24.0" layoutY="90.0" onAction="#publisherBankOnAction"
-						prefHeight="25.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="publisherBankAccountCombo" layoutX="24.0" layoutY="135.0" prefHeight="25.0"
-						prefWidth="287.0" />
-				</children>
-			</Pane>
+						<Label text="Kurss valūtai" GridPane.valignment="TOP" GridPane.columnIndex="0" GridPane.rowIndex="4"
+							GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+						<TextFieldWithErrorLabel fx:id="exchangeRateField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-			<Pane fx:id="receiverPane" layoutX="879.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.rightAnchor="66.0"
-				AnchorPane.topAnchor="233.0">
-				<children>
-					<Label layoutX="135.0" layoutY="14.0" text="Saņēmējs" />
-					<SearchableComboBoxWithErrorLabel fx:id="receiverCombo" layoutX="24.0" layoutY="45.0" onAction="#receiverOnAction"
-						prefHeight="26.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="receiverBankCombo" layoutX="24.0" layoutY="90.0" onAction="#receiverBankOnAction"
-						prefHeight="25.0" prefWidth="287.0" />
-					<ComboBoxWithErrorLabel fx:id="receiverBankAccountCombo" layoutX="24.0" layoutY="135.0" prefHeight="25.0"
-						prefWidth="287.0" />
-				</children>
-			</Pane>
+					</GridPane>
+				</VBox>
+			</VBox>
+		</HBox>
 
-			<Pane fx:id="amountInfo" layoutX="450.0" layoutY="233.0" prefHeight="194.0" prefWidth="335.0" AnchorPane.topAnchor="213.0">
-				<children>
-					<Label layoutX="0.0" layoutY="0.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Summa" />
-					<TextFieldWithErrorLabel fx:id="sumTotalField" layoutX="140.0" layoutY="0.0" prefHeight="25.0" prefWidth="144.0" />
+		<!-- Partner Information Section -->
+		<HBox spacing="20" id="secondRow">
+			<!-- Publisher Info -->
+			<VBox styleClass="section-box" HBox.hgrow="SOMETIMES">
+				<GridPane hgap="15">
+					<Label text="Izdevējs" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${publisherCombo.visible}" />
+					<SearchableComboBoxWithErrorLabel fx:id="publisherCombo" onAction="#publisherOnAction" prefWidth="500"
+						GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-					<Label layoutX="0.0" layoutY="50.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Valūta" />
-					<ComboBoxWithErrorLabel fx:id="currencyCombo" layoutX="140.0" layoutY="45.0" onAction="#currencyOnAction"
-						prefHeight="42.0" prefWidth="105.0" />
+					<Label text="Banka" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${publisherBankCombo.visible}" />
+					<ComboBoxWithErrorLabel fx:id="publisherBankCombo"
+						GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-					<Label layoutX="0.0" layoutY="105.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Valūtas kurss" />
-					<TextFieldWithErrorLabel fx:id="exchangeRateField" layoutX="140.0" layoutY="100.0" onAction="#sumTotalOnAction"
-						prefHeight="42.0" prefWidth="105.0" />
+					<Label text="Konts" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${publisherBankAccountCombo.visible}" />
+					<ComboBoxWithErrorLabel fx:id="publisherBankAccountCombo"
+						GridPane.columnIndex="2" GridPane.rowIndex="2" />
+				</GridPane>
+			</VBox>
 
-					<Label layoutX="0.0" layoutY="160.0" prefWidth="130.0" alignment="CENTER_RIGHT" text="Summa valūtā" />
-					<TextFieldWithErrorLabel fx:id="sumTotalInCurrencyField" layoutX="140.0" layoutY="155.0" prefHeight="42.0"
-						prefWidth="105.0" />
-				</children>
-			</Pane>
-			<StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="90.0"
-				AnchorPane.topAnchor="470.0">
-				<fx:include source="DocumentAdditionalInfoPane.fxml" HBox.hgrow="ALWAYS" />
-			</StackPane>
-		</children>
-	</AnchorPane>
+			<!-- Receiver Info -->
+			<VBox styleClass="section-box" HBox.hgrow="SOMETIMES">
+				<GridPane hgap="15">
+					<Label text="Saņēmējs" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${receiverCombo.visible}" />
+					<SearchableComboBoxWithErrorLabel fx:id="receiverCombo" prefWidth="500"
+						GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+					<Label text="Banka" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${receiverBankCombo.visible}" />
+					<ComboBoxWithErrorLabel fx:id="receiverBankCombo"
+						GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+					<Label text="Account" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"
+						GridPane.halignment="RIGHT" alignment="TOP_RIGHT" visible="${receiverBankAccountCombo.visible}" />
+					<ComboBoxWithErrorLabel fx:id="receiverBankAccountCombo"
+						GridPane.columnIndex="2" GridPane.rowIndex="2" />
+				</GridPane>
+			</VBox>
+		</HBox>
+
+		<!-- Additional Info Section -->
+		<HBox spacing="20" id="thirdRow" VBox.vgrow="ALWAYS">
+			<VBox styleClass="section-box" HBox.hgrow="ALWAYS">
+				<StackPane VBox.vgrow="ALWAYS">
+					<fx:include source="DocumentAdditionalInfoPane.fxml" />
+				</StackPane>
+			</VBox>
+		</HBox>
+	</VBox>
 </AnchorPane>

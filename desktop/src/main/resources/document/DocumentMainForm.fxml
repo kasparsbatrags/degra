@@ -13,7 +13,7 @@
 		<TabPane fx:id="documentTabPane" layoutX="2.0" prefHeight="661.0" prefWidth="1312.0" tabClosingPolicy="UNAVAILABLE"
 			AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
-				<Tab fx:id="documentInfoTab" text="Dokumenta pamatinformācija">
+				<Tab fx:id="documentInfoTab" text="Pamatinformācija">
 					<content>
 						<fx:include source="DocumentInfoForm.fxml" />
 					</content>
