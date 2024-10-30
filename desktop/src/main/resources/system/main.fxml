@@ -28,7 +28,7 @@
 					<!-- Documents Button at the top -->
 					<Button fx:id="documentsButton" mnemonicParsing="false" onAction="#openDocumentList"
 						maxWidth="Infinity" VBox.vgrow="ALWAYS">
-						Dokumenti
+						_Dokumenti
 						<graphic>
 							<FontIcon iconLiteral="mdi-file-document" iconSize="32" />
 						</graphic>

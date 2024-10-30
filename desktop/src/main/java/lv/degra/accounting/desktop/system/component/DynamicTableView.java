@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign.MaterialDesign;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -24,13 +22,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.MenuButton;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
 import lombok.Setter;
@@ -58,6 +58,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 	private Updater<T> updater;
 	private Deleter<T> deleter;
 	private Saver<T> saver;
+	private ContextMenu activeContextMenu;
 
 	public DynamicTableView() {
 		this.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
@@ -67,7 +68,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				updater.update(item);
 			}
 		});
-		//		initializeKeyboardListener();
+		this.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleRightClick);
 	}
 
 	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type, Updater<T> saver) {
@@ -155,8 +156,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					scrollTo(index);
 				}
 			}));
-			TableColumn<T, Void> actionsColumn = createMenuButtonColumn(actions);
-			getColumns().add(actionsColumn);
 
 		} catch (RuntimeException e) {
 			throw new DynamicTableBuildException(e.getMessage() + SPACE + e.getCause());
@@ -289,38 +288,44 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 		return column;
 	}
 
-	private TableColumn<T, Void> createMenuButtonColumn(List<Pair<String, Consumer<T>>> actions) {
-		TableColumn<T, Void> btnCol = new TableColumn<>();
-		btnCol.setCellFactory(param -> {
-			return new TableCell<>() {
-				private final MenuButton menuButton = new MenuButton();
-
-				{
-					FontIcon icon = new FontIcon(MaterialDesign.MDI_MENU);
-					icon.setIconSize(20);
-					menuButton.setGraphic(icon);
-
-					actions.forEach(action -> {
-						MenuItem menuItem = new MenuItem(action.getKey());
-						menuItem.setOnAction(event -> {
-							T item = getTableView().getItems().get(getIndex());
-							action.getValue().accept(item);
-						});
-						menuButton.getItems().add(menuItem);
-					});
+	private void handleRightClick(MouseEvent event) {
+		if (event.getButton() == MouseButton.SECONDARY) {
+			T selectedItem = getSelectionModel().getSelectedItem();
+			if (selectedItem != null) {
+				if (activeContextMenu != null) {
+					activeContextMenu.hide();
 				}
+				ContextMenu contextMenu = new ContextMenu();
+				activeContextMenu = contextMenu;
+				List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
 
-				@Override
-				protected void updateItem(Void item, boolean empty) {
-					super.updateItem(item, empty);
-					if (empty) {
-						setGraphic(null);
-					} else {
-						setGraphic(menuButton);
+				actions.add(new Pair<>("Jauns", item -> creator.create(item)));
+				actions.add(new Pair<>("Labot", item -> {
+					updater.update(item);
+					int index = getItems().indexOf(item);
+					getSelectionModel().select(index);
+					scrollTo(index);
+				}));
+				actions.add(new Pair<>("Dzēst", item -> {
+					if (AlertResponseType.NO.equals(new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer())) {
+						return;
 					}
-				}
-			};
-		});
-		return btnCol;
+					deleter.delete(item);
+					int index = getItems().indexOf(item);
+					if (index != -1) {
+						getSelectionModel().select(index);
+						scrollTo(index);
+					}
+				}));
+
+				actions.forEach(action -> {
+					MenuItem menuItem = new MenuItem(action.getKey());
+					menuItem.setOnAction(e -> action.getValue().accept(selectedItem));
+					contextMenu.getItems().add(menuItem);
+				});
+
+				contextMenu.show(this, event.getScreenX(), event.getScreenY());
+			}
+		}
 	}
 }

@@ -19,6 +19,13 @@ public class SystemController {
 	public BorderPane mainBorderPane;
 	@FXML
 	public Button documentsButton;
+	@FXML
+	public Button settingsButton;
+
+	@FXML
+	private void initialize() {
+		documentsButton.setMnemonicParsing(true);
+	}
 
 	public SystemController(ApplicationFormBuilder applicationFormBuilder, ApplicationContext context) {
 		this.applicationFormBuilder = applicationFormBuilder;
