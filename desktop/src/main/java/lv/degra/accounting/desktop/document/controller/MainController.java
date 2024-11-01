@@ -56,6 +56,7 @@ public class MainController extends DocumentControllerComponent {
 
 	@FXML
 	public void initialize() {
+		mainValidationControls.clear();
 		updateDocumentTabs();
 	}
 

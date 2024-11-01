@@ -139,6 +139,11 @@ public class InfoController extends DocumentControllerComponent {
 		this.exchangeService = exchangeService;
 	}
 
+	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
+		Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
+	}
+
 	@FXML
 	public void publisherOnAction() {
 		setBankInfo(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
@@ -180,6 +185,7 @@ public class InfoController extends DocumentControllerComponent {
 
 	@FXML
 	public void initialize() {
+		infoValidationControls.clear();
 		infoValidationFunctions.put(VALIDATION_TYPE_REQUIRED, this::applyRequiredValidation);
 		infoValidationFunctions.put(VALIDATION_TYPE_CUSTOM, this::applyCustomValidation);
 		setDefaultValues();
@@ -202,6 +208,16 @@ public class InfoController extends DocumentControllerComponent {
 		receiverCombo.setConverter(new CustomerStringConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 
+		//		Predicate<String> documentAmountValidationDoublePrecisionPredicate = value -> {
+		//			try {
+		//				BigDecimal amount = new BigDecimal(value);
+		//				return amount.compareTo(BigDecimal.ZERO) >= 0 && amount.scale() <= 2;
+		//			} catch (NumberFormatException e) {
+		//				return false;
+		//			}
+		//		};
+		//
+		//		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
 	}
 
 	@Override
@@ -271,11 +287,6 @@ public class InfoController extends DocumentControllerComponent {
 		if (receiverCombo.getValue() != null) {
 			fetchAndSetBankAccountDetails(receiverCombo, receiverBankCombo, receiverBankAccountCombo);
 		}
-	}
-
-	public static <T> Predicate<T> getDistinctValues(Function<? super T, ?> keyExtractor) {
-		Set<Object> seen = ConcurrentHashMap.newKeySet();
-		return t -> seen.add(keyExtractor.apply(t));
 	}
 
 	private void setExchangeRate(Currency currency) {

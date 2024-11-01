@@ -35,7 +35,7 @@
 			AnchorPane.rightAnchor="21.0">
 			<buttons>
 				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveDocumentButton" prefHeight="25.0" prefWidth="179.0"
-					text="Saglabāt dokumentu" />
+					text="Saglabāt" />
 				<Button fx:id="printButton" mnemonicParsing="false" onAction="#onPrintDocumentButton" text="Drukāt" />
 				<Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" text="Aizvērt" />
 			</buttons>

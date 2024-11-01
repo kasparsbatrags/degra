@@ -83,7 +83,7 @@ public class DocumentMediator implements Mediator {
 
 	@Override
 	public boolean validateDocument() {
-		return infoController.validate();
+		return infoController.validate() && additionalInfoController.validate();
 	}
 
 	public void startEditing(DocumentDto document) {

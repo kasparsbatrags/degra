@@ -59,6 +59,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	@FXML
 	private void initialize() {
+		additionalInfoValidationControls.clear();
 		accountCodeDistributionDtoObservableList.clear();
 		distributionListView.setEditable(true);
 		distributionListView.setType(AccountCodeDistributionDto.class);

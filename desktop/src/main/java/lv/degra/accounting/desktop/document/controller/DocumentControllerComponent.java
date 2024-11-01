@@ -69,5 +69,6 @@ public abstract class DocumentControllerComponent extends DegraController {
 	public abstract boolean validate();
 
 	public abstract void getData(DocumentDto editableDocument);
+
 	public abstract void setData(DocumentDto editableDocument);
 }
