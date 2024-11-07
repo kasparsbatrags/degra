@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public interface FileService {
 
-	byte[] downloadFileByUrl(String fileUrl, String orLocalOpenFilePath) ;
+	byte[] downloadFileByUrl(String fileUrl) ;
 
 	byte[] loadFileLocally(String localFilePath);
 

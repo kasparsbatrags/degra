@@ -17,15 +17,17 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.validation.model.ValidationRule;
 import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
-import lv.degra.accounting.desktop.document.controller.DocumentInfoController;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.document.controller.DocumentControllerComponent;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
+@Slf4j
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
-	private final Map<String, BiConsumer<DocumentInfoController, String>> validationActions = new HashMap<>();
+	private final Map<String, BiConsumer<? extends DocumentControllerComponent, String>> validationActions = new HashMap<>();
 	private final ValidationRulesRepository validationRulesRepository;
 
 	@Autowired
@@ -34,10 +36,10 @@ public class ValidationServiceImpl implements ValidationService {
 	}
 
 	public List<ValidationRule> getValidationRulesByDocumentSybType(Integer documentSubtypeId) {
-		return validationRulesRepository.getByDocumentSubTypeId(documentSubtypeId);
+		return validationRulesRepository.findByDocumentSubTypeId(documentSubtypeId);
 	}
 
-	public void applyValidationRulesByDocumentSubType(DocumentInfoController controller, int documentSubtypeId) {
+	public void applyValidationRulesByDocumentSubType(DocumentControllerComponent controller, int documentSubtypeId) {
 		controller.clearValidationControls();
 		List<ValidationRule> validationRules = getValidationRulesByDocumentSybType(documentSubtypeId);
 
@@ -61,29 +63,32 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 	}
 
-	public <T> T getFieldByName(DocumentInfoController controller, String fieldName) {
+	public <T, C> T getFieldByName(C controller, String fieldName) {
 		try {
-			Field field = DocumentInfoController.class.getDeclaredField(fieldName);
+			Field field = controller.getClass().getField(fieldName);
 			field.setAccessible(true);
 			return (T) field.get(controller);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException("Field not found: " + fieldName, e);
+		} catch (NoSuchFieldException e) {
+				return null;
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Cannot access field: " + fieldName, e);
 		}
 	}
 
-
-	private <T> void addValidationControl(DocumentInfoController controller, String fieldName, Predicate<T> predicate,
+	private <T> void addValidationControl(DocumentControllerComponent controller, String fieldName, Predicate<T> predicate,
 			String errorMessage) {
 		ControlWithErrorLabel<T> control = getFieldByName(controller, fieldName);
-		controller.addValidationControl(control, predicate, errorMessage);
+		if (control != null) {
+			controller.addValidationControl(control, predicate, errorMessage);
+		}
 	}
 
-
-	public void applyRequiredValidation(ValidationRule validationRule, DocumentInfoController controller) {
+	public void applyRequiredValidation(ValidationRule validationRule, DocumentControllerComponent controller) {
 		String validationObjectName = validationRule.getValidationObject().getName();
 		String errorMessage = validationRule.getValidationRulesErrorMessage().getShortMessage();
 
-		BiConsumer<DocumentInfoController, String> validationAction = validationActions.get(validationObjectName);
+		BiConsumer<DocumentControllerComponent, String> validationAction = (BiConsumer<DocumentControllerComponent, String>) validationActions.get(
+				validationObjectName);
 		if (validationAction != null) {
 			validationAction.accept(controller, errorMessage);
 		} else {
@@ -91,7 +96,7 @@ public class ValidationServiceImpl implements ValidationService {
 		}
 	}
 
-	public void applyCustomValidation(ValidationRule validationRule, DocumentInfoController controller) {
+	public void applyCustomValidation(ValidationRule validationRule, DocumentControllerComponent controller) {
 		String errorMessage = validationRule.getValidationRulesErrorMessage().getShortMessage();
 		if (validationRule.getValidationObject().getName().equals("sumTotalField")) {
 			Predicate<String> predicate = createCustomPredicate(validationRule.getCustomValidation());
@@ -116,7 +121,7 @@ public class ValidationServiceImpl implements ValidationService {
 				};
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e.getCause());
 		}
 		return value -> true;
 	}

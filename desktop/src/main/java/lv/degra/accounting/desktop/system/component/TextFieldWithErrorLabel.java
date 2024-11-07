@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javafx.scene.control.TextField;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
 @Setter
 @Getter
@@ -19,7 +20,7 @@ public class TextFieldWithErrorLabel extends ControlWithErrorLabel<String> {
 
 		textField.textProperty().addListener((observable, oldValue, newValue) -> validate());
 		validate();
-		getChildren().add(0, textField);
+		getChildren().addFirst(textField);
 	}
 
 	public String getText() {

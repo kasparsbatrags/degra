@@ -1,8 +1,8 @@
 package lv.degra.accounting.core.document.service;
 
-import lv.degra.accounting.core.document.dto.DocumentDto;
-
 import java.util.List;
+
+import lv.degra.accounting.core.document.dto.DocumentDto;
 
 
 public interface DocumentService {
@@ -13,5 +13,5 @@ public interface DocumentService {
 
     List<DocumentDto> getDocumentList();
 
-    void deleteDocumentById(Integer documentId);
+    void deleteById(Integer documentId);
 }

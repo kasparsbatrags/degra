@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: 1
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 15
+server:
+  port: 8084
+
+logging:
+  level:
+    ROOT: 'DEBUG'
+    org.springframework: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    com.zaxxer.hikari: DEBUG

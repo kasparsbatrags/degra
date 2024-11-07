@@ -23,13 +23,13 @@ public class BillRowServiceImpl implements BillRowService {
 	}
 
 	public List<BillContentDto> getByDocumentId(Integer documentId) {
-		List<BillContent> billContents = billContentRepository.findByDocumentId(documentId);
+		List<BillContent> billContents = billContentRepository.getByDocumentId(documentId);
 		return billContents.stream().map(billContent -> modelMapper.map(billContent, BillContentDto.class)).toList();
 	}
 
 	@Override
 	public Double getBillRowSumByDocumentId(Integer documentId) {
-		List<BillContent> billContents = billContentRepository.findByDocumentId(documentId);
+		List<BillContent> billContents = billContentRepository.getByDocumentId(documentId);
 		double totalSum = 0;
 		if (billContents != null) {
 			totalSum = billContents.stream().mapToDouble(BillContent::getSumTotal).sum();
@@ -42,14 +42,14 @@ public class BillRowServiceImpl implements BillRowService {
 	}
 
 	public BillContentDto getById(Integer billRowId) {
-		return modelMapper.map(billContentRepository.getById(billRowId), BillContentDto.class);
+		return modelMapper.map(billContentRepository.getReferenceById(billRowId.longValue()), BillContentDto.class);
 	}
 
-	public void deleteBillRowById(Integer id) {
+	public void deleteById(Integer id) {
 		billContentRepository.deleteById(Long.valueOf(id));
 	}
 
-	public void deleteBillRowByDocumentId(Integer documentId) {
-		billContentRepository.deleteAll(billContentRepository.findByDocumentId(documentId));
+	public void deleteByDocumentId(Integer documentId) {
+		billContentRepository.deleteAll(billContentRepository.getByDocumentId(documentId));
 	}
 }

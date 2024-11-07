@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,11 +22,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
-import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 
 @Getter
@@ -122,4 +124,6 @@ public class Document implements Serializable {
 	@JoinColumn(name = "receiver_customer_bank_account_id")
 	private CustomerAccount receiverCustomerBankAccount;
 
+	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<AccountCodeDistribution> accountCodeDistributions;
 }

@@ -6,6 +6,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
 @Setter
 @Getter
@@ -20,7 +21,7 @@ public class TextAreaWithErrorLabel extends ControlWithErrorLabel<String> {
 
 		textArea.textProperty().addListener((observable, oldValue, newValue) -> validate());
 		validate();
-		getChildren().add(0, textArea);
+		getChildren().addFirst(textArea);
 	}
 
 	public String getText() {

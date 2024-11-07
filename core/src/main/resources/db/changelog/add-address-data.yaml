@@ -50,9 +50,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Nogāzes iela 2B - 45, Ogre, Ogres nov., LV-5001
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
   - changeSet:
       id: AddEmakoAddress
@@ -105,9 +102,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Ķengaraga iela 1A, Rīga, LV-1063
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
   - changeSet:
       id: AddSwedbankAddress
@@ -160,9 +154,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Balasta dambis 15, Rīga, LV-1048
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
   - changeSet:
       id: AddSebbankAddress
@@ -215,9 +206,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Meistaru iela 1, Valdlauči, Ķekavas pag., Ķekavas nov., LV-1076
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
   - changeSet:
       id: AddCitadeleAddress
@@ -270,9 +258,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Republikas laukums 2A, Rīga, LV-1010
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
 
   - changeSet:
@@ -326,9 +311,6 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: "\"Ceļinieki\", Tārgales pag., Ventspils nov., LV-3621"
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
   - changeSet:
       id: AddLuminorAddress
@@ -381,8 +363,15 @@ databaseChangeLog:
               - column:
                   name: full_name
                   value: Skanstes iela 12, Rīga, LV-1013
-              - column:
-                  name: territorial_unit_code
-                  value: 4
 
 
+  - changeSet:
+      id: 1
+      author: AddMaxSequenceId
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: true
+            sql: |
+              SELECT setval('address_id_seq', (SELECT MAX(id) FROM Address));

@@ -1,53 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import lv.degra.accounting.desktop.system.component.DynamicTableView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView?>
 <?import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel?>
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="lv.degra.accounting.desktop.document.controller.DocumentInfoController">
-	<TabPane layoutX="8.0" layoutY="20.0" prefHeight="222.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="19.0"
-		AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+	fx:controller="lv.degra.accounting.desktop.document.controller.AdditionalInfoController">
+	<TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+		AnchorPane.topAnchor="0.0">
 		<tabs>
 			<Tab text="Kontējums">
-				<BorderPane>
-					<center>
-						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="193.0">
-							<children>
-								<DynamicTableView layoutX="14.0" layoutY="6.0" prefHeight="241.0" AnchorPane.bottomAnchor="0.0"
-									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0">
-									<placeholder>
-										<Label text="Dokuments nav kontēts!" />
-									</placeholder>
-								</DynamicTableView>
-							</children>
-						</AnchorPane>
-					</center>
-					<bottom>
+				<VBox>
+					<HBox id="firstTab" VBox.vgrow="ALWAYS">
+						<VBox HBox.hgrow="ALWAYS">
+							<padding>
+								<Insets top="0" right="0" bottom="10" left="0" />
+							</padding>
+							<DynamicTableView fx:id="distributionListView" AnchorPane.bottomAnchor="0.0"
+								AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0"
+								onKeyPressed="#onKeyPressAction">
+								<placeholder>
+									<Label text="Dokuments nav kontēts!" />
+								</placeholder>
+							</DynamicTableView>
+						</VBox>
+					</HBox>
+					<VBox spacing="20" alignment="CENTER_RIGHT">
 						<Button fx:id="newButton" mnemonicParsing="false" onAction="#onAddAccountingRowButton" text="Jauns"
 							BorderPane.alignment="TOP_RIGHT" />
-					</bottom>
-				</BorderPane>
+					</VBox>
+				</VBox>
 			</Tab>
 			<Tab text="Dokumenta piezīmes">
-				<content>
-					<AnchorPane minHeight="0.0" minWidth="0.0">
-						<children>
-							<Label layoutX="20.0" layoutY="6.0" text="Piezīmes dokumenta izdrukā" AnchorPane.leftAnchor="20.0"
-								AnchorPane.topAnchor="6.0" />
-							<Label layoutX="17.0" layoutY="92.0" text="Piezīmes iekšējās" AnchorPane.leftAnchor="17.0"
-								AnchorPane.topAnchor="92.0" />
-							<TextAreaWithErrorLabel fx:id="notesForCustomerField" layoutX="17.0" layoutY="25.0" prefHeight="67.0"
-								AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="25.0" />
-							<TextAreaWithErrorLabel fx:id="internalNotesField" layoutX="15.0" layoutY="109.0" prefHeight="67.0"
-								AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="109.0" />
-						</children>
-					</AnchorPane>
-				</content>
+				<VBox>
+					<HBox id="firstTab" VBox.vgrow="ALWAYS">
+						<VBox HBox.hgrow="ALWAYS">
+							<GridPane hgap="15" vgap="10" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+								<padding>
+									<Insets top="20" right="0" bottom="0" left="0" />
+								</padding>
+
+								<!-- Label for Notes in Customer Document -->
+								<Label text="Piezīmes dokumenta izdrukā" GridPane.columnIndex="0" GridPane.rowIndex="0"
+									GridPane.valignment="TOP" GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+
+								<!-- Full-width TextAreaWithErrorLabel for Customer Notes -->
+								<TextAreaWithErrorLabel fx:id="notesForCustomerField" GridPane.columnIndex="1" GridPane.rowIndex="0"
+									GridPane.hgrow="ALWAYS" maxWidth="Infinity" />
+
+								<!-- Label for Internal Notes -->
+								<Label text="Piezīmes iekšējās" GridPane.columnIndex="0" GridPane.rowIndex="1"
+									GridPane.valignment="TOP" GridPane.halignment="RIGHT" alignment="TOP_RIGHT" />
+
+								<!-- Full-width TextAreaWithErrorLabel for Internal Notes -->
+								<TextAreaWithErrorLabel fx:id="internalNotesField" GridPane.columnIndex="1" GridPane.rowIndex="1"
+									GridPane.hgrow="ALWAYS" maxWidth="Infinity" />
+							</GridPane>
+						</VBox>
+					</HBox>
+				</VBox>
 			</Tab>
 		</tabs>
 	</TabPane>

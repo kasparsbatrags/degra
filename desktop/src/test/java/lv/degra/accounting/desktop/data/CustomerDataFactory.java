@@ -1,15 +1,15 @@
 package lv.degra.accounting.desktop.data;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import lv.degra.accounting.core.address.model.Address;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer.model.CustomerType;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CustomerDataFactory {
 
@@ -62,10 +62,8 @@ public class CustomerDataFactory {
         address.setDateFrom(dateFrom);
         address.setUpdateDatePublic(updateDatePublic);
         address.setDateTo(dateTo);
-        address.setFullName(fullName);
+        address.setFullAddress(fullName);
         address.setTerritorialUnitCode(territorialUnitCode);
-        address.setCreatedAt(createdAt);
-        address.setLastModifiedAt(lastModifiedAt);
         return address;
     }
 

@@ -28,14 +28,14 @@ public class ExchangeServiceImpl implements ExchangeService {
 			currency = currencyService.getDefaultCurrency();
 		}
 
-		CurrencyExchangeRate exchangeRate = currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate,
+		CurrencyExchangeRate exchangeRate = currencyExchangeRateRepository.getByRateDateAndCurrency(exchangeRateDate,
 				currency.getId());
 		return exchangeRate != null ? exchangeRate : getDefaultCurrencyExchangeRate();
 	}
 
 	public CurrencyExchangeRate getDefaultCurrencyExchangeRate() {
 		LocalDate exchangeRateDate = LocalDate.now();
-		return currencyExchangeRateRepository.getCurrencyRateByDateAndCurrency(exchangeRateDate,
+		return currencyExchangeRateRepository.getByRateDateAndCurrency(exchangeRateDate,
 				currencyService.getDefaultCurrency().getId());
 	}
 

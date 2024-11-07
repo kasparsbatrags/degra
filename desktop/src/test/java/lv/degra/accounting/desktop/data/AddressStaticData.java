@@ -1,10 +1,10 @@
 package lv.degra.accounting.desktop.data;
 
-import lv.degra.accounting.core.address.model.Address;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import lv.degra.accounting.core.address.model.Address;
 
 public class AddressStaticData {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -32,10 +32,8 @@ public class AddressStaticData {
         address.setDateFrom(dateFrom);
         address.setDateTo(dateTo);
         address.setUpdateDatePublic(updateDatePublic);
-        address.setFullName(fullName);
+        address.setFullAddress(fullName);
         address.setTerritorialUnitCode(territorialUnitCode);
-        address.setCreatedAt(createdAt);
-        address.setLastModifiedAt(lastModifiedAt);
         return address;
     }
 }

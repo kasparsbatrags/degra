@@ -1,0 +1,108 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCompany
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: company
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Unikālais identifikātors"
+              - column:
+                  name: register_number
+                  type: varchar(11)
+                  constraints:
+                    nullable: false
+                  remarks: "Reģistrācijas rumurs"
+              - column:
+                  name: sepa_code
+                  type: varchar(18)
+                  constraints:
+                    nullable: false
+                  remarks: "SEPA reģistrācijas rumurs"
+              - column:
+                  name: name
+                  type: varchar(254)
+                  constraints:
+                    nullable: false
+                  remarks: "Uzņēmuma nosaukums"
+              - column:
+                  name: name_before_quotes
+                  type: varchar(254)
+                  constraints:
+                    nullable: true
+                  remarks: "Uzņēmuma nosaukuma daļa pirms pēdiņām"
+              - column:
+                  name: name_in_quotes
+                  type: varchar(254)
+                  constraints:
+                    nullable: true
+                  remarks: "Uzņēmuma nosaukuma daļa pēdiņās"
+              - column:
+                  name: name_after_quotes
+                  type: varchar(254)
+                  constraints:
+                    nullable: true
+                  remarks: "Uzņēmuma nosaukuma daļa pēc pēdiņām"
+              - column:
+                  name: without_quotes
+                  type: varchar(254)
+                  constraints:
+                    nullable: true
+                  remarks: "Uzņēmuma nosaukums bez pēdiņām"
+              - column:
+                  name: company_type_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                  remarks: "Uzņēmējdarbības tipa id"
+
+              - column:
+                  name: registered_date
+                  type: date
+                  constraints:
+                    nullable: true
+                  remarks: "Reģistrācijas datums"
+              - column:
+                  name: terminated_date
+                  type: date
+                  constraints:
+                    nullable: true
+                  remarks: "Darbības izbeigšanas datums"
+              - column:
+                  name: address_code
+                  type: integer
+                  constraints:
+                    nullable: true
+                  remarks: "Juridiskās adreses kods"
+            remarks: "Kompāniju saraksts"
+
+  - changeSet:
+      id: AddCompanyTypeToCompany
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: company_type_id
+            baseTableName: company
+            constraintName: fk_company_type_to_company
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: company_type
+
+  - changeSet:
+      id: AddCompanyAddressToAddress
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: address_code
+            baseTableName: company
+            constraintName: fk_company_address_code_to_address
+            onDelete: NO ACTION
+            referencedColumnNames: code
+            referencedTableName: address

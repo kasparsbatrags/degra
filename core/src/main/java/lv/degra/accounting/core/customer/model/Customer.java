@@ -55,7 +55,8 @@ public class Customer implements Serializable {
         Customer customer = (Customer) o;
         return Objects.equals(id, customer.id);
     }
-//
+
+    //
     @Override
     public int hashCode() {
         return Objects.hash(id);

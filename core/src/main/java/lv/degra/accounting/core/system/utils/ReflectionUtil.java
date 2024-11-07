@@ -5,11 +5,10 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReflectionUtil {
+import lombok.NoArgsConstructor;
 
-	public ReflectionUtil() {
-		throw new IllegalStateException("ReflectionUtil class");
-	}
+@NoArgsConstructor
+public class ReflectionUtil {
 
 	public static Map<String, Object> convertObjectToMap(Object obj) {
 		Map<String, Object> dataMap = new HashMap<>();
@@ -18,10 +17,8 @@ public class ReflectionUtil {
 
 		for (Field field : fields) {
 			try {
-				field.setAccessible(true);
 				Object value = field.get(obj);
 				if (value instanceof LocalDate localDate) {
-					localDate = (LocalDate) value;
 					java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
 					dataMap.put(field.getName(), sqlDate);
 				} else {
@@ -34,9 +31,5 @@ public class ReflectionUtil {
 		}
 
 		return dataMap;
-	}
-
-	private  static String convertToScreamingSnakeCase(String input) {
-		return input.replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase();
 	}
 }

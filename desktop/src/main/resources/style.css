@@ -1,18 +1,201 @@
-#https://www.materialpalette.com/blue-grey/amber
+/* Base colors from Material Design Blue-Grey/Amber palette */
+.root {
+	-fx-font-size: 12pt;
+	-fx-background-color: #ECEFF1; /* Blue Grey 50 */
+}
 
+/* Section styling */
+.section-box {
+	-fx-background-color: white;
+	-fx-border-color: #708090;  /* Keeping your existing blue-grey */
+	-fx-border-width: 1;
+	-fx-border-radius: 4;
+	-fx-background-radius: 4;
+	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);
+	-fx-padding: 15 15 -5 15;
+	-fx-spacing: 10;
+}
+
+.section-header {
+	-fx-font-size: 14pt;
+	-fx-font-weight: bold;
+	-fx-text-fill: #455A64;  /* Blue Grey 700 */
+	-fx-padding: 0 0 10 0;
+}
+
+/* Form controls */
+.label {
+	-fx-font-size: 12pt;
+	-fx-text-fill: #607D8B;  /* Blue Grey 500 */
+	-fx-translate-y: 5px;
+	-fx-text-alignment: right;
+}
+
+.text-field {
+	-fx-font-size: 12pt;
+	-fx-background-color: white;
+	-fx-border-color: #708090;
+	-fx-border-width: 1;
+	-fx-border-radius: 2;
+	/*-fx-padding: 5 8;*/
+}
+
+.text-field:focused {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
+.button {
+	-fx-font-size: 12pt;
+	-fx-background-color: #607D8B;  /* Blue Grey 500 */
+	-fx-text-fill: white;
+	-fx-padding: 8 15;
+	-fx-border-radius: 3;
+	-fx-background-radius: 3;
+}
+
+.button:hover {
+	-fx-background-color: #455A64;  /* Blue Grey 700 */
+}
+
+/* Enhanced date picker styling */
 .custom-date-picker {
-    -fx-border-color: #708090;
-    -fx-border-width: 1;
-    -fx-border-radius: 2;
+	-fx-border-color: #708090;
+	-fx-border-width: 1;
+	-fx-border-radius: 2;
+	-fx-background-color: white;
 }
 
+.custom-date-picker:focused {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
+.custom-date-picker .arrow-button {
+	-fx-background-color: #708090;
+	-fx-background-radius: 0;
+}
+
+.custom-date-picker .arrow-button:hover {
+	-fx-background-color: #607D8B;  /* Blue Grey 500 */
+}
+
+/* ComboBox styling */
+.combo-box {
+	-fx-font-size: 12pt;
+	-fx-background-color: white;
+	-fx-border-color: #708090;
+	-fx-border-width: 1;
+	-fx-border-radius: 2;
+}
+
+.menu-button {
+	-fx-font-size: 12pt;
+	-fx-background-color: #607D8B;  /* Blue Grey 500 */
+	-fx-text-fill: white;
+	-fx-padding: 2 0 4 0;
+	-fx-border-radius: 3;
+	-fx-background-radius: 3;
+}
+
+.menu-button:focused {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
+.tab-pane:focused>.tab-header-area>.headers-region>.tab:selected .focus-indicator {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
+
+.combo-box:focused {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
+.combo-box .arrow-button {
+	-fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+	-fx-background-color: #708090;
+}
+
+/* Required field styling - maintained from original */
 .required-field {
-    -fx-border-color: #FFC107;
-    -fx-border-width: 1;
-    -fx-border-radius: 2;
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 1;
+	-fx-border-radius: 2;
 }
 
+/* Shadow box styling - maintained from original */
 .border-as-shadow-box {
-    -fx-border-color: gray gray gray gray; /* Top, Right, Bottom, Left */
-    -fx-border-width: 1px;
+	-fx-border-color: gray gray gray gray;
+	-fx-border-width: 1px;
+	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);
+}
+
+/* Error state styling */
+.error-field {
+	-fx-border-color: #F44336;  /* Material Red */
+	-fx-border-width: 2;
+}
+
+/* Hover states for interactive elements */
+.text-field:hover, .combo-box:hover, .custom-date-picker:hover {
+	-fx-border-color: #90A4AE;  /* Blue Grey 300 */
+}
+
+/* Disabled state styling */
+.text-field:disabled, .combo-box:disabled, .custom-date-picker:disabled {
+	-fx-opacity: 0.6;
+}
+
+/* Grid styling for better organization */
+.grid {
+	-fx-hgap: 10;
+	-fx-vgap: 20;
+	-fx-padding: 10;
+}
+
+/* Add subtle transitions */
+.button, .text-field, .combo-box, .custom-date-picker {
+	-fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+	-fx-border-color: #FFC107;       /* Apmales krāsa, kad pele ir virs pogas */
+	/*-fx-border-width: 4px;           !* Apmales biezums *!*/
+}
+
+.button:focused {
+	-fx-border-color: #FFC107;       /* Apmales krāsa */
+	-fx-border-width: 2px;
+	/*-fx-border-radius: 5px;          !* Apaļas malas apmalei *!*/
+	-fx-background-insets: 0;        /* Novērš papildu fona iestatījumus, lai apmale būtu redzama */
+}
+
+
+/* Vispārējs TableView stils */
+.table-view {
+	-fx-table-cell-border-color: transparent;
+}
+
+/* Stilē katru otro rindu */
+.table-row-cell:odd {
+	-fx-background-color: #f2f2f2; /* Gaiša krāsa katrai otrajai rindai */
+}
+
+.table-row-cell:even {
+	-fx-background-color: #ffffff; /* Balta krāsa pārējām rindām */
+}
+
+/* Aktīvā rinda, kad TableView ir fokuss */
+.table-view:focused .table-row-cell:selected {
+	-fx-background-color: #FFC107; /* Spilgtāka fona krāsa, kad TableView ir fokusēts */
+}
+.text-field-table-cell {
+	-fx-alignment: center-left;
+	-fx-padding: 0 0 0 10px; /* Augša, labā puse, apakša, kreisā puse */
 }

@@ -22,7 +22,7 @@ public class Configuration {
 	@Column(name = "key",  length = 30, nullable = false)
 	private String key;
 
-	@Size(max = 30)
+	@Size(max = 200)
 	@Column(name = "value", length = 30, nullable = false)
 	private String value;
 }

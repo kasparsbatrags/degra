@@ -3,27 +3,19 @@ package lv.degra.accounting.desktop.system.utils;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DELETE_QUESTION_CONTEXT_TEXT;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DELETE_QUESTION_HEADER_TEXT;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import lombok.Getter;
 import lv.degra.accounting.desktop.system.alert.AlertAsk;
 import lv.degra.accounting.desktop.system.alert.AlertResponseType;
 import lv.degra.accounting.desktop.system.exception.CannotPerformException;
-import lv.degra.accounting.desktop.system.component.ControlWithErrorLabel;
 
 public class DegraController {
 
 	@FXML
 	public Button closeButton;
-	@Getter
-	protected List<ControlWithErrorLabel<?>> validationControls = new ArrayList<>();
 
 	@FXML
 	public void onCloseButton() {
@@ -36,14 +28,6 @@ public class DegraController {
 		if (key == KeyCode.ESCAPE) {
 			closeWindows();
 		}
-	}
-
-	public void clearValidationControls(){
-		validationControls.clear();
-	}
-	public <T> void addValidationControl(ControlWithErrorLabel<T> control, Predicate<T> validationCondition, String errorMessage) {
-		control.setValidationCondition(validationCondition, errorMessage);
-		validationControls.add(control);
 	}
 
 	public void closeWindows() {
@@ -87,4 +71,10 @@ public class DegraController {
 	protected void deleteRecord() {
 		throw new CannotPerformException("notImplemented() cannot be performed because in controller deleteRecord() is not Override!");
 	}
+
+	protected void saveRecord() {
+		throw new CannotPerformException("notImplemented() cannot be performed because in controller saveRecord() is not Override!");
+	}
+
+
 }

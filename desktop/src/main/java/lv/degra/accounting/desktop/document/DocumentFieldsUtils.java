@@ -1,7 +1,6 @@
 package lv.degra.accounting.desktop.document;
 
 import java.util.List;
-import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import javafx.collections.FXCollections;
@@ -14,14 +13,18 @@ public class DocumentFieldsUtils {
 
 	public static final String EXCEPTION_TEXT_INCORRECT_SUM = "Nekorekta summa!";
 
+	private DocumentFieldsUtils() {
+		throw new IllegalStateException("DocumentFieldsUtils class");
+	}
+
 	public static <T> void fillCombo(ComboBox<T> comboBox, List<T> list) {
 		comboBox.setItems(FXCollections.observableList(list));
 	}
 
 	public static void setFieldFormat(TextField field, String sumRegex) {
 		Pattern pattern = Pattern.compile(sumRegex);
-		TextFormatter sumTotalDoubleFormatter = new TextFormatter(
-				(UnaryOperator<TextFormatter.Change>) change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
+		TextFormatter<String> sumTotalDoubleFormatter = new TextFormatter<>(
+				change -> pattern.matcher(change.getControlNewText()).matches() ? change : null);
 		field.setTextFormatter(sumTotalDoubleFormatter);
 	}
 

@@ -31,19 +31,13 @@ databaseChangeLog:
                   type: double
                   constraints:
                     nullable: false
-                  remarks: "Debeta summa"
+                  remarks: "Summa"
               - column:
                   name: credit_account_id
                   type: int
                   constraints:
                     nullable: false
                   remarks: "Kredīta konta ID"
-              - column:
-                  name: amount_in_credit
-                  type: double
-                  constraints:
-                    nullable: false
-                  remarks: "Kredīta summa"
             remarks: "Grāmatojumu saraksts"
 
   - changeSet:

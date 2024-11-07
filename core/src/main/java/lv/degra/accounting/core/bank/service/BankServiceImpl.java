@@ -19,6 +19,6 @@ public class BankServiceImpl implements BankService {
 	}
 
 	public List<Bank> getCustomerBanksByBanksIdList(List<Integer> bankIdList) {
-		return bankRepository.findByBankIdList(bankIdList);
+		return bankRepository.findByIdIn(bankIdList);
 	}
 }

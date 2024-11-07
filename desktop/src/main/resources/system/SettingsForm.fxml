@@ -2,15 +2,25 @@
 
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.*?>
+<AnchorPane
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lv.degra.accounting.desktop.system.settings.classifiers.controller.ClassifiersController">
+    <children>
+        <StackPane AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                   AnchorPane.topAnchor="0.0">
+            <TabPane fx:id="documentTabPane" layoutX="-2.0" prefHeight="661.0" prefWidth="1312.0"
+                     tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="0.0"
+                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <tabs>
+                    <Tab fx:id="settingsTab" text="Iestatījumi">
+                    </Tab>
 
-<AnchorPane onKeyPressed="#onKeyPressEscapeAction" prefHeight="727.0" prefWidth="1312.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lv.degra.accounting.desktop.document.controller.DocumentMainController">
-	<children>
-		<TabPane fx:id="documentTabPane" layoutX="-2.0" prefHeight="661.0" prefWidth="1312.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-			<tabs>
-				<Tab fx:id="documentInfoTab" text="Iestatījumi">
-				</Tab>
-			</tabs>
-		</TabPane>
-	</children>
+                    <Tab fx:id="classificatorsTab" text="Kasifikatori">
+                        <fx:include source="Classifiers.fxml"></fx:include>
+                    </Tab>
+                </tabs>
+            </TabPane>
+        </StackPane>
+    </children>
 </AnchorPane>

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: AddDynamicValidationRullesObjects
+      id: AddDynamicValidationRulesObjects
       author: Kaspars Batrags
       changes:
         - createTable:
