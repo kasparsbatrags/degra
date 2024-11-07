@@ -15,6 +15,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
@@ -56,6 +57,11 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		clearButton.prefWidthProperty().bind(clearButton.heightProperty());
 
 		getChildren().addFirst(comboBoxContainer);
+		this.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
+
+	}
+
+	protected void handleKeyPress(KeyEvent event) {
 	}
 
 	public void setOnClearButtonAction(EventHandler<ActionEvent> handler) {

@@ -12,9 +12,7 @@ public class AccountCodeDistributionMapper {
 		dto.setId(entity.getId());
 		dto.setDocument(entity.getDocument());
 		dto.setDebitAccount(entity.getDebitAccount());
-		dto.setAmountInDebit(entity.getAmountInDebit());
 		dto.setCreditAccount(entity.getCreditAccount());
-		dto.setAmountInCredit(entity.getAmountInCredit());
 		return dto;
 	}
 
@@ -23,9 +21,8 @@ public class AccountCodeDistributionMapper {
 		entity.setId(dto.getId());
 		entity.setDocument(dto.getDocument());
 		entity.setDebitAccount(dto.getDebitAccount());
-		entity.setAmountInDebit(dto.getAmountInDebit());
 		entity.setCreditAccount(dto.getCreditAccount());
-		entity.setAmountInCredit(dto.getAmountInCredit());
+		entity.setAmount(dto.getAmount());
 		return entity;
 	}
 }

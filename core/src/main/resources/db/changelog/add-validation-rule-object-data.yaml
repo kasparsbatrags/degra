@@ -483,4 +483,4 @@ databaseChangeLog:
                   value: 'paymentPane'
               - column:
                   name: label
-                  value: 'Apsmaksa'
+                  value: 'Apmaksa'

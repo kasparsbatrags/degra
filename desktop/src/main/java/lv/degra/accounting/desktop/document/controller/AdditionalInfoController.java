@@ -21,9 +21,9 @@ import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistribution
 import lv.degra.accounting.core.account.distribution.service.DistributionService;
 import lv.degra.accounting.core.account.distribution.service.exception.AccountDistributionDeletionException;
 import lv.degra.accounting.core.document.dto.DocumentDto;
-import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -45,7 +45,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public TextAreaWithErrorLabel internalNotesField;
 	@Autowired
 	@FXML
-	public DynamicTableView<AccountCodeDistributionDto> distributionListView;
+	public DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
 	private Map<String, ValidationFunction> additionalInfoValidationFunctions = new HashMap<>();
 	private List<ControlWithErrorLabel<?>> additionalInfoValidationControls = new ArrayList<>();
 

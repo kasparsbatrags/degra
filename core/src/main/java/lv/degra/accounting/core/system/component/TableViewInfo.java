@@ -10,8 +10,12 @@ import java.lang.annotation.Target;
 public @interface TableViewInfo {
 	String displayName();
 
+	String styleClass() default "";
+
 	int columnOrder() default 0;
+
 	int columnWidth() default 0;
+
 	boolean editable() default false;
 
 	boolean useAsSearchComboBox() default false;

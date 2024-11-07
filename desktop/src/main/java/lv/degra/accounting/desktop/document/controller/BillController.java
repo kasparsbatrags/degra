@@ -30,8 +30,8 @@ import lv.degra.accounting.core.document.bill.service.exception.BillRowDeletionE
 import lv.degra.accounting.core.document.dto.BillContentDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.desktop.system.component.DynamicTableView;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView;
 import lv.degra.accounting.desktop.validation.ValidationFunction;
 import lv.degra.accounting.desktop.validation.service.ValidationService;
 
@@ -146,7 +146,6 @@ public class BillController extends DocumentControllerComponent {
 	public void setData(DocumentDto documentDto) {
 		this.documentDto = documentDto;
 	}
-
 
 	public void setBillContentOpenAction() {
 

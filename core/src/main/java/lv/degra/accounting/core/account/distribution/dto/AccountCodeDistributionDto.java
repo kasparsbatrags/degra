@@ -2,6 +2,7 @@ package lv.degra.accounting.core.account.distribution.dto;
 
 import java.io.Serializable;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,20 +26,21 @@ public class AccountCodeDistributionDto implements Serializable {
 
 	private Integer id;
 
-	@TableViewInfo(displayName = "Debeta konts", columnOrder = 1, columnWidth = 400, useAsSearchComboBox = true,
-			searchServiceClass = AccountCodeChartService.class)
-	private AccountCodeChart debitAccount;
-
+	@NotNull
 	private Document document;
 
-	@TableViewInfo(displayName = "Summa debetā", columnOrder = 2, columnWidth = 200, editable = true)
-	private Double amountInDebit;
+	@TableViewInfo(displayName = "Debeta konts", columnOrder = 1, columnWidth = 500, useAsSearchComboBox = true,
+			searchServiceClass = AccountCodeChartService.class, editable = true, styleClass = "")
+	@NotNull
+	private AccountCodeChart debitAccount;
 
-	@TableViewInfo(displayName = "Summa kredītā", columnOrder = 3, columnWidth = 200, editable = true)
-	private Double amountInCredit;
-
-	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 4, columnWidth = 400, useAsSearchComboBox = true,
-			searchServiceClass = AccountCodeChartService.class)
+	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 2, columnWidth = 500, useAsSearchComboBox = true,
+			searchServiceClass = AccountCodeChartService.class, editable = true)
+	@NotNull
 	private AccountCodeChart creditAccount;
+
+	@TableViewInfo(displayName = "Summa", columnOrder = 3, columnWidth = 200, editable = true, styleClass = "sum-column")
+	@NotNull
+	private Double amount;
 
 }

@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.system.component;
+package lv.degra.accounting.desktop.system.component.tableView;
 
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DELETE_QUESTION_CONTEXT_TEXT;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DELETE_QUESTION_HEADER_TEXT;
@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import jakarta.validation.constraints.NotNull;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -42,7 +43,11 @@ import lv.degra.accounting.core.system.component.TableViewInfo;
 import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 import lv.degra.accounting.desktop.system.alert.AlertAsk;
 import lv.degra.accounting.desktop.system.alert.AlertResponseType;
-import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.Creator;
+import lv.degra.accounting.desktop.system.component.Deleter;
+import lv.degra.accounting.desktop.system.component.Saver;
+import lv.degra.accounting.desktop.system.component.Updater;
+import lv.degra.accounting.desktop.system.component.lazycombo.SearchableComboBoxForGrid;
 import lv.degra.accounting.desktop.system.component.lazycombo.accountchart.AccountCodeChartStringConverter;
 import lv.degra.accounting.desktop.system.exception.DynamicTableBuildException;
 
@@ -59,8 +64,10 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 	private Deleter<T> deleter;
 	private Saver<T> saver;
 	private ContextMenu activeContextMenu;
+	private InlineEditManager<T> inlineEditManager;
 
 	public DynamicTableView() {
+		this.inlineEditManager = new InlineEditManager<>(this);
 		this.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 		this.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
@@ -69,10 +76,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 			}
 		});
 		this.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleRightClick);
-	}
-
-	public DynamicTableView(Deleter<T> deleter, Creator<T> creator, Updater<T> updater, Class<T> type, Updater<T> saver) {
-		super();
 	}
 
 	@Override
@@ -107,27 +110,16 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
 				String columnDisplayName = (tableViewInfo != null) ? tableViewInfo.displayName() : field.getName();
 
-				TableColumn<T, ?> column;
-				if (tableViewInfo != null && tableViewInfo.useAsSearchComboBox()) {
-					column = buildSearchableComboBoxColumn(columnDisplayName, field);
-				} else {
-					column = buildColumn(columnDisplayName, field);
-				}
+				TableColumn<T, ?> column = tableViewInfo != null && tableViewInfo.useAsSearchComboBox() ?
+						buildSearchableComboBoxColumn(columnDisplayName, field) :
+						buildColumn(columnDisplayName, field);
 
-				column.setOnEditCommit(event -> {
-					T item = event.getRowValue();
-					try {
-						field.setAccessible(true);
-						field.set(item, event.getNewValue());
-						if (item != null && updater != null) {
-							saver.save(item);
-						}
-					} catch (IllegalAccessException e) {
-						log.error(e.toString());
+				if (tableViewInfo != null && tableViewInfo.editable()) {
+					column.setEditable(true);
+					if (!tableViewInfo.useAsSearchComboBox()) {
+						inlineEditManager.setupEditableColumn(column, field, saver, updater);
 					}
-				});
-
-				column.setEditable(tableViewInfo != null && tableViewInfo.editable());
+				}
 
 				if (tableViewInfo.columnWidth() != 0) {
 					column.setMinWidth(tableViewInfo.columnWidth());
@@ -136,26 +128,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				}
 				getColumns().add(column);
 			});
-			List<Pair<String, Consumer<T>>> actions = new ArrayList<>();
-
-			actions.add(new Pair<>("Jauns", item -> creator.create(item)));
-			actions.add(new Pair<>("Labot", item -> {
-				updater.update(item);
-				int index = getItems().indexOf(item);
-				getSelectionModel().select(index);
-				scrollTo(index);
-			}));
-			actions.add(new Pair<>("Dzēst", item -> {
-				if (AlertResponseType.NO.equals(new AlertAsk(DELETE_QUESTION_HEADER_TEXT, DELETE_QUESTION_CONTEXT_TEXT).getAnswer())) {
-					return;
-				}
-				deleter.delete(item);
-				int index = getItems().indexOf(item);
-				if (index != -1) {
-					getSelectionModel().select(index);
-					scrollTo(index);
-				}
-			}));
 
 		} catch (RuntimeException e) {
 			throw new DynamicTableBuildException(e.getMessage() + SPACE + e.getCause());
@@ -180,21 +152,18 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 		column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
 
 		column.setCellFactory(col -> {
-			SearchableComboBoxWithErrorLabel<T> comboBox = new SearchableComboBoxWithErrorLabel<>();
+			SearchableComboBoxForGrid<T> comboBox = new SearchableComboBoxForGrid<>();
 			comboBox.hideErrorLabel();
-			TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
-			if (tableViewInfo != null && tableViewInfo.searchServiceClass() != Void.class) {
-				Class<?> serviceClass = tableViewInfo.searchServiceClass();
-				try {
-					Object service = applicationContext.getBean(serviceClass);
-					if (service instanceof AccountCodeChartService) {
-						comboBox.setMinSearchCharCount(MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT);
-						comboBox.setDataFetchService((DataFetchService<T>) service);
-						comboBox.setConverter((StringConverter<T>) new AccountCodeChartStringConverter((AccountCodeChartService) service));
-					}
-				} catch (Exception e) {
-					log.error(e.toString());
+			try {
+				Object dataFetchService = getDataService(field);
+				if (dataFetchService instanceof AccountCodeChartService) {
+					comboBox.setMinSearchCharCount(MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT);
+					comboBox.setDataFetchService((DataFetchService<T>) dataFetchService);
+					comboBox.setConverter(
+							(StringConverter<T>) new AccountCodeChartStringConverter((AccountCodeChartService) dataFetchService));
 				}
+			} catch (Exception e) {
+				log.error(e.toString());
 			}
 
 			TableCell<T, T> cell = new TableCell<>() {
@@ -210,6 +179,25 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				}
 			};
 			cell.setAlignment(Pos.CENTER);
+
+			if (field.getAnnotation(NotNull.class) != null) {
+				comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+					if (cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
+						try {
+							if (newVal != null) {
+								field.setAccessible(true);
+								field.set(cell.getTableRow().getItem(), newVal);
+								cell.setStyle("");
+							} else {
+								System.out.println("Vērtība ir obligāta un nevar būt tukša.");
+								cell.setStyle("-fx-background-color: red;");
+							}
+						} catch (IllegalAccessException e) {
+							log.error(e.toString());
+						}
+					}
+				});
+			}
 
 			comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 				if (cell.getTableRow() != null && cell.getTableRow().getItem() != null) {
@@ -237,6 +225,12 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 		});
 
 		return column;
+	}
+
+	private Object getDataService(Field field) {
+		TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
+		Class<?> serviceClass = tableViewInfo.searchServiceClass();
+		return applicationContext.getBean(serviceClass);
 	}
 
 	private <T, S, U> TableColumn<T, String> createRelatedObjectsColumn(String propertyName, Field field,
@@ -267,26 +261,36 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 			return (ObservableValue<S>) new PropertyValueFactory<T, S>(field.getName());
 		});
 		column.setCellValueFactory(new PropertyValueFactory<>(field.getName()));
-		column.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<>() {
-			@Override
-			public String toString(Object object) {
-				return object != null ? object.toString() : "";
-			}
-
-			@Override
-			public S fromString(String string) {
-				try {
-					Constructor<?> constructor = field.getType().getConstructor(String.class);
-					return (S) constructor.newInstance(string);
-				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-					log.error(e.toString());
-					return null;
+		column.setCellFactory(col -> {
+			TextFieldTableCell<T, S> cell = new TextFieldTableCell<>(new StringConverter<>() {
+				@Override
+				public String toString(Object object) {
+					return object != null ? object.toString() : "";
 				}
-			}
-		}));
+
+				@Override
+				public S fromString(String string) {
+					try {
+						Constructor<?> constructor = field.getType().getConstructor(String.class);
+						return (S) constructor.newInstance(string);
+					} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+						log.error(e.toString());
+						return null;
+					}
+				}
+			});
+			return cell;
+		});
+
 
 		return column;
 	}
+
+	private String getDefaultStyleClass(Field field) {
+		TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
+		return tableViewInfo.styleClass();
+	}
+
 
 	private void handleRightClick(MouseEvent event) {
 		if (event.getButton() == MouseButton.SECONDARY) {

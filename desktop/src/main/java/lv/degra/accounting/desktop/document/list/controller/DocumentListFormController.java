@@ -23,10 +23,11 @@ import lv.degra.accounting.core.document.service.DocumentService;
 import lv.degra.accounting.core.document.service.exception.DocumentDeletionException;
 import lv.degra.accounting.desktop.document.controller.DocumentMediator;
 import lv.degra.accounting.desktop.document.controller.MainController;
-import lv.degra.accounting.desktop.system.component.DynamicTableView;
+import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView;
 import lv.degra.accounting.desktop.system.exception.DegraRuntimeException;
 import lv.degra.accounting.desktop.system.utils.ApplicationFormBuilder;
 import lv.degra.accounting.desktop.system.utils.DegraController;
+
 @Slf4j
 @Controller
 public class DocumentListFormController extends DegraController {

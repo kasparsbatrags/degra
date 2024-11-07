@@ -9,8 +9,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import lv.degra.accounting.desktop.system.component.DynamicTableView?>
 <?import lv.degra.accounting.desktop.system.component.Label?>
+<?import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView?>
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="lv.degra.accounting.desktop.document.controller.BillController">
 	<AnchorPane onKeyPressed="#onKeyPressAction" prefHeight="575.0" prefWidth="1312.0" AnchorPane.bottomAnchor="0.0"

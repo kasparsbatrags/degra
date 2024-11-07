@@ -21,33 +21,29 @@ import lv.degra.accounting.core.document.model.Document;
 @Setter
 @Entity
 @Table(name = "account_code_distribution")
-public class AccountCodeDistribution  implements Serializable {
-    @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class AccountCodeDistribution implements Serializable {
+	@Id
+	@Column(name = "id", nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "document_id", nullable = false)
-    private Document document;
-
-    @NotNull
+	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "debit_account_id", nullable = false)
-    private AccountCodeChart debitAccount;
+	@JoinColumn(name = "document_id", nullable = false)
+	private Document document;
 
-    @NotNull
-    @Column(name = "amount_in_debit", nullable = false)
-    private Double amountInDebit;
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "debit_account_id", nullable = false)
+	private AccountCodeChart debitAccount;
 
-    @NotNull
+	@NotNull
+	@Column(name = "amount", nullable = false)
+	private Double amount;
+
+	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "credit_account_id", nullable = false)
 	private AccountCodeChart creditAccount;
-
-    @NotNull
-    @Column(name = "amount_in_credit", nullable = false)
-    private Double amountInCredit;
 
 }

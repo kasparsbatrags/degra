@@ -7,13 +7,18 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import lombok.Getter;
+import lombok.Setter;
 import lv.degra.accounting.core.system.DataFetchService;
 
 @Component
 public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<T> {
 
+	@Getter
+	@Setter
 	private int minSearchCharCount = 3;
 	private boolean blockAutoLoadData = false;
+	@Setter
 	private DataFetchService<T> dataFetchService;
 
 	public SearchableComboBoxWithErrorLabel() {
@@ -21,11 +26,7 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 		setupSearchListener();
 	}
 
-	public void setDataFetchService(DataFetchService<T> customerService) {
-		this.dataFetchService = customerService;
-	}
-
-	private void setupSearchListener() {
+	public void setupSearchListener() {
 		this.setEditable(true);
 		String searchPlaceholderText = "Meklēt... (vismaz " + getMinSearchCharCount() + " simboli)";
 		this.setPromptText(searchPlaceholderText);
@@ -42,22 +43,16 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 		this.getEditor().addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
 	}
 
-	public int getMinSearchCharCount() {
-		return minSearchCharCount;
-	}
-
-	public void setMinSearchCharCount(int minSearchCharCount) {
-		this.minSearchCharCount = minSearchCharCount;
-	}
-
-	public void handleKeyPressed(KeyEvent event) {
-		if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB) {
+	protected void handleKeyPressed(KeyEvent event) {
+		if (event.getCode() == KeyCode.ENTER || (event.getCode() == KeyCode.TAB && !event.isShiftDown())) {
 			System.out.println("=================handleKeyPressed ENTER or TAB");
 			handleEnterOrTab();
 		} else if (event.getCode() == KeyCode.BACK_SPACE) {
 			handleBackspace();
 			System.out.println("=================handleKeyPressed consume");
 			event.consume();
+		} else if (event.isShiftDown() && event.getCode() == KeyCode.TAB) {
+			System.out.println("=================event.isShiftDown() && event.getCode() == KeyCode.TAB");
 		}
 	}
 

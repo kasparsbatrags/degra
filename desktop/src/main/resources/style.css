@@ -103,6 +103,11 @@
 	-fx-border-width: 2;
 }
 
+.tab-pane:focused>.tab-header-area>.headers-region>.tab:selected .focus-indicator {
+	-fx-border-color: #FFC107;  /* Amber 500 */
+	-fx-border-width: 2;
+}
+
 
 .combo-box:focused {
 	-fx-border-color: #FFC107;  /* Amber 500 */
@@ -157,4 +162,40 @@
 /* Add subtle transitions */
 .button, .text-field, .combo-box, .custom-date-picker {
 	-fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+	-fx-border-color: #FFC107;       /* Apmales krāsa, kad pele ir virs pogas */
+	/*-fx-border-width: 4px;           !* Apmales biezums *!*/
+}
+
+.button:focused {
+	-fx-border-color: #FFC107;       /* Apmales krāsa */
+	-fx-border-width: 2px;
+	/*-fx-border-radius: 5px;          !* Apaļas malas apmalei *!*/
+	-fx-background-insets: 0;        /* Novērš papildu fona iestatījumus, lai apmale būtu redzama */
+}
+
+
+/* Vispārējs TableView stils */
+.table-view {
+	-fx-table-cell-border-color: transparent;
+}
+
+/* Stilē katru otro rindu */
+.table-row-cell:odd {
+	-fx-background-color: #f2f2f2; /* Gaiša krāsa katrai otrajai rindai */
+}
+
+.table-row-cell:even {
+	-fx-background-color: #ffffff; /* Balta krāsa pārējām rindām */
+}
+
+/* Aktīvā rinda, kad TableView ir fokuss */
+.table-view:focused .table-row-cell:selected {
+	-fx-background-color: #FFC107; /* Spilgtāka fona krāsa, kad TableView ir fokusēts */
+}
+.text-field-table-cell {
+	-fx-alignment: center-left;
+	-fx-padding: 0 0 0 10px; /* Augša, labā puse, apakša, kreisā puse */
 }
