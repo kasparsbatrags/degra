@@ -2,7 +2,6 @@ package lv.degra.accounting.core.account.chart.model;
 
 import java.io.Serializable;
 
-import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
 import jakarta.persistence.Column;
@@ -28,7 +27,6 @@ import lv.degra.accounting.core.currency.model.Currency;
 @Audited
 @Setter
 @Getter
-@AuditTable(value = "account_code_chart_audit")
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountCodeChart extends AuditInfo implements Serializable {
