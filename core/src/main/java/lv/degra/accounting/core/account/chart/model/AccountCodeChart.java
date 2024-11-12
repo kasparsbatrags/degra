@@ -17,13 +17,17 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.currency.model.Currency;
 
 @Entity
 @Table(name = "account_code_chart")
 @Audited
+@Setter
+@Getter
 @AuditTable(value = "account_code_chart_audit")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -61,70 +65,6 @@ public class AccountCodeChart extends AuditInfo implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "parent_id")
 	private AccountCodeChart parentAccount;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public @Size(max = 8) @NotNull String getCode() {
-		return code;
-	}
-
-	public void setCode(@Size(max = 8) @NotNull String code) {
-		this.code = code;
-	}
-
-	public @Size(max = 80) @NotNull String getName() {
-		return name;
-	}
-
-	public void setName(@Size(max = 80) @NotNull String name) {
-		this.name = name;
-	}
-
-	public boolean isAssetsAccount() {
-		return isAssetsAccount;
-	}
-
-	public void setAssetsAccount(boolean assetsAccount) {
-		isAssetsAccount = assetsAccount;
-	}
-
-	public boolean isUseForBilance() {
-		return useForBilance;
-	}
-
-	public void setUseForBilance(boolean useForBilance) {
-		this.useForBilance = useForBilance;
-	}
-
-	public @NotNull Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(@NotNull Currency currency) {
-		this.currency = currency;
-	}
-
-	public Double getAmountInAccount() {
-		return amountInAccount;
-	}
-
-	public void setAmountInAccount(Double amountInAccount) {
-		this.amountInAccount = amountInAccount;
-	}
-
-	public AccountCodeChart getParentAccount() {
-		return parentAccount;
-	}
-
-	public void setParentAccount(AccountCodeChart parentAccount) {
-		this.parentAccount = parentAccount;
-	}
 
 	@Override
 	public String toString() {
