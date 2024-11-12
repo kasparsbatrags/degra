@@ -13,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Grāmatojuma Id"
+                  remarks: "Unikālais identifikators"
               - column:
                   name: document_id
                   type: int
@@ -27,7 +27,7 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Debeta konta Id"
               - column:
-                  name: amount_in_debit
+                  name: amount
                   type: double
                   constraints:
                     nullable: false
@@ -38,6 +38,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   remarks: "Kredīta konta ID"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
             remarks: "Grāmatojumu saraksts"
 
   - changeSet:

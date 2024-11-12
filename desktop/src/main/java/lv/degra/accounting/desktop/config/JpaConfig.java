@@ -1,12 +1,12 @@
-package lv.degra.accounting.address.config;
+package lv.degra.accounting.desktop.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableJpaAuditing
 @EnableTransactionManagement
+@EnableJpaAuditing
 public class JpaConfig {
 
 }

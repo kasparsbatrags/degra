@@ -22,6 +22,7 @@ import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentDirection;
+import lv.degra.accounting.core.document.model.DocumentStatus;
 import lv.degra.accounting.core.document.model.DocumentSubType;
 import lv.degra.accounting.core.document.model.DocumentTransactionType;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
@@ -83,6 +84,8 @@ public class DocumentDto implements Serializable {
 	@NotNull
 	CustomerAccount receiverCustomerBankAccount;
 	List<AccountCodeDistributionDto> accountCodeDistributionDtoList;
+	@NotNull
+	DocumentStatus documentStatus;
 
 
 	public boolean isBill() {
@@ -107,7 +110,8 @@ public class DocumentDto implements Serializable {
 				publisherCustomerBank, that.publisherCustomerBank) && Objects.equals(publisherCustomerBankAccount,
 				that.publisherCustomerBankAccount) && Objects.equals(receiverCustomer, that.receiverCustomer) && Objects.equals(
 				receiverCustomerBank, that.receiverCustomerBank) && Objects.equals(receiverCustomerBankAccount,
-				that.receiverCustomerBankAccount);
+				that.receiverCustomerBankAccount) && Objects.equals(accountCodeDistributionDtoList, that.accountCodeDistributionDtoList) &&
+				Objects.equals(documentStatus, that.documentStatus);
 	}
 
 	@Override
@@ -143,6 +147,7 @@ public class DocumentDto implements Serializable {
 			this.receiverCustomerBank = other.receiverCustomerBank;
 			this.receiverCustomerBankAccount = other.receiverCustomerBankAccount;
 			this.accountCodeDistributionDtoList = other.accountCodeDistributionDtoList;
+			this.documentStatus = other.documentStatus;
 		}
 	}
 
@@ -170,6 +175,7 @@ public class DocumentDto implements Serializable {
 			this.receiverCustomerBank = updated.receiverCustomerBank;
 			this.receiverCustomerBankAccount = updated.receiverCustomerBankAccount;
 			this.accountCodeDistributionDtoList = updated.accountCodeDistributionDtoList;
+			this.documentStatus = updated.documentStatus;
 		}
 	}
 

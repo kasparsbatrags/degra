@@ -28,14 +28,16 @@ public class DocumentServiceImpl implements DocumentService {
 	private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";
 
 	private final DocumentRepository documentRepository;
+	private final DocumentStatusService documentStatusService;
 
 	private final ModelMapper modelMapper;
 	private final AccountCodeDistributionMapper accountCodeDistributionMapper;
 
 	@Autowired
-	public DocumentServiceImpl(DocumentRepository documentRepository, ModelMapper modelMapper,
+	public DocumentServiceImpl(DocumentRepository documentRepository, DocumentStatusService documentStatusService, ModelMapper modelMapper,
 			AccountCodeDistributionMapper accountCodeDistributionMapper) {
 		this.documentRepository = documentRepository;
+		this.documentStatusService = documentStatusService;
 		this.modelMapper = modelMapper;
 		this.accountCodeDistributionMapper = accountCodeDistributionMapper;
 	}
@@ -75,6 +77,7 @@ public class DocumentServiceImpl implements DocumentService {
 				}).orElseThrow(() -> new EntityNotFoundException("Document with ID " + documentDto.getId() + " not found in the system."));
 			} else {
 				Document document = modelMapper.map(documentDto, Document.class);
+				document.setDocumentStatus(documentStatusService.getNewDocumentStatus());
 
 				List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
 				if (newDistributionList != null && !newDistributionList.isEmpty()) {

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.validation.model.ValidationRule;
-import lv.degra.accounting.core.validation.model.ValidationRulesRepository;
+import lv.degra.accounting.core.validation.model.ValidationRuleRepository;
 import lv.degra.accounting.desktop.document.controller.DocumentControllerComponent;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
 
@@ -28,15 +28,15 @@ import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLa
 public class ValidationServiceImpl implements ValidationService {
 
 	private final Map<String, BiConsumer<? extends DocumentControllerComponent, String>> validationActions = new HashMap<>();
-	private final ValidationRulesRepository validationRulesRepository;
+	private final ValidationRuleRepository validationRuleRepository;
 
 	@Autowired
-	public ValidationServiceImpl(ValidationRulesRepository validationRulesRepository) {
-		this.validationRulesRepository = validationRulesRepository;
+	public ValidationServiceImpl(ValidationRuleRepository validationRuleRepository) {
+		this.validationRuleRepository = validationRuleRepository;
 	}
 
 	public List<ValidationRule> getValidationRulesByDocumentSybType(Integer documentSubtypeId) {
-		return validationRulesRepository.findByDocumentSubTypeId(documentSubtypeId);
+		return validationRuleRepository.findByDocumentSubTypeId(documentSubtypeId);
 	}
 
 	public void applyValidationRulesByDocumentSubType(DocumentControllerComponent controller, int documentSubtypeId) {

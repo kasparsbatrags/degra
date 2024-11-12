@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: AddAuditorProperty
+      id: AddDocumentStatus
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: auditor_property
+            tableName: document_status
             columns:
               - column:
                   name: id
@@ -15,15 +15,16 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Unikālais identifikators"
               - column:
-                  name: revision_id
-                  type: int
-                  autoIncrement: true
+                  name: code
+                  type: varchar(10)
                   constraints:
-                    primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta revīzijas identifikators"
-              - column:
-                  name: revision_timestamp
-                  type: bigint
-                  remarks: "Laika zīmogs"
+                  remarks: "Kods"
 
+              - column:
+                  name: name
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+                  remarks: "Nosaukums"
+            remarks: "Dokumentu statusu saraksts"

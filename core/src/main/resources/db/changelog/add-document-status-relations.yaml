@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: ConstraintForeignKeysDocumentStatusToDocument
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: document_status_id
+            baseTableName: document
+            constraintName: fk_document_status_id_to_document_status
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: document_status

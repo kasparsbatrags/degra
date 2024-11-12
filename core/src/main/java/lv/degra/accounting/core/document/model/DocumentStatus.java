@@ -1,31 +1,33 @@
-package lv.degra.accounting.core.company.type.model;
+package lv.degra.accounting.core.document.model;
 
 import java.io.Serializable;
-
-import org.hibernate.envers.Audited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.auditor.model.AuditInfo;
 
-@Entity
-@Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Audited
-public class CompanyType extends AuditInfo implements Serializable {
+@Setter
+@Entity
+@Table(name = "document_status")
+public class DocumentStatus implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Integer id;
+
+	@Size(max = 10)
+	@Column(name = "code", nullable = false)
 	private String code;
+
+	@Size(max = 30)
+	@Column(name = "name", nullable = false)
 	private String name;
 }
+

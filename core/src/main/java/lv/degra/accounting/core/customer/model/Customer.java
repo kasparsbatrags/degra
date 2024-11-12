@@ -1,20 +1,33 @@
 package lv.degra.accounting.core.customer.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.address.model.Address;
-
-import java.io.Serializable;
-import java.util.Objects;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "customer")
-public class Customer implements Serializable {
+@Audited
+public class Customer extends AuditInfo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -28,6 +41,7 @@ public class Customer implements Serializable {
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "customer_type_id", nullable = false)
+	@NotAudited
     private CustomerType customerType;
 
     @Size(max = 15)

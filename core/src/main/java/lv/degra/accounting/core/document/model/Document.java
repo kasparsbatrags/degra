@@ -1,11 +1,13 @@
 package lv.degra.accounting.core.document.model;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,6 +25,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
@@ -33,7 +36,8 @@ import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 @Setter
 @Entity
 @Table(name = "document")
-public class Document implements Serializable {
+@Audited
+public class Document extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
@@ -49,10 +53,12 @@ public class Document implements Serializable {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "document_sub_type_id", nullable = false)
+	@NotAudited
 	private DocumentSubType documentSubType;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "document_transaction_type_id")
+	@NotAudited
 	private DocumentTransactionType documentTransactionType;
 
 	@NotNull
@@ -78,6 +84,7 @@ public class Document implements Serializable {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "currency_id", nullable = false)
+	@NotAudited
 	private Currency currency;
 
 	@NotNull
@@ -90,12 +97,6 @@ public class Document implements Serializable {
 
 	@Column(name = "internal_notes", length = Integer.MAX_VALUE)
 	private String internalNotes;
-
-	@Column(name = "created_at")
-	private Instant createdAt;
-
-	@Column(name = "last_modified_at")
-	private Instant lastModifiedAt;
 
 	@OneToMany(mappedBy = "document", fetch = FetchType.EAGER)
 	private Set<AccountCodeDistribution> distributions = new LinkedHashSet<>();
@@ -123,6 +124,11 @@ public class Document implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "receiver_customer_bank_account_id")
 	private CustomerAccount receiverCustomerBankAccount;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "document_status_id")
+	@NotAudited
+	private DocumentStatus documentStatus;
 
 	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<AccountCodeDistribution> accountCodeDistributions;
