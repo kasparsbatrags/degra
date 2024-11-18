@@ -1,6 +1,6 @@
 package lv.degra.accounting.desktop;
 
-
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.STYLE;
 
 import java.io.InputStream;
 
@@ -19,9 +19,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import lv.degra.accounting.desktop.splash.SplashScreen;
 import lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig;
-
-import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.STYLE;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"lv.degra.accounting.core", "lv.degra.accounting.desktop"})
@@ -31,6 +30,7 @@ public class DesktopApplication extends Application {
 
 	private ConfigurableApplicationContext context;
 	private Parent rootNode;
+	private SplashScreen splashScreen;
 
 	public static void main(final String[] args) {
 		System.setProperty("java.awt.headless", "false");
@@ -39,6 +39,9 @@ public class DesktopApplication extends Application {
 
 	@Override
 	public void init() throws Exception {
+		splashScreen = new SplashScreen();
+		splashScreen.show();
+
 		context = SpringApplication.run(DesktopApplication.class);
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(DegraDesktopConfig.MAIN));
 		fxmlLoader.setControllerFactory(context::getBean);
@@ -47,6 +50,8 @@ public class DesktopApplication extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		splashScreen.close();
+
 		InputStream degraIconStream = DesktopApplication.class.getResourceAsStream(DegraDesktopConfig.APPLICATION_ICON_FILE);
 		Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 
