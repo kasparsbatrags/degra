@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import lv.degra.accounting.core.company.register.model.CompanyRegisterRepository;
 import lv.degra.accounting.core.company.type.model.CompanyType;
 import lv.degra.accounting.core.company.type.model.CompanyTypeRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
@@ -35,6 +36,8 @@ class CompanyRegisterServiceImplTest {
 	@Mock
 	private CompanyTypeRepository companyTypeRepository;
 	@Mock
+	private CompanyRegisterRepository companyRegisterRepository;
+	@Mock
 	private ConfigService configService;
 	@Mock
 	private JdbcTemplate jdbcTemplate;
@@ -44,8 +47,8 @@ class CompanyRegisterServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		companyRegisterService = new CompanyRegisterServiceImpl(
-				fileService, csvParser, companyTypeRepository, configService, jdbcTemplate);
+		companyRegisterService = new CompanyRegisterServiceImpl(fileService, csvParser, companyTypeRepository, configService, jdbcTemplate,
+				companyRegisterRepository);
 	}
 
 	@Test
@@ -95,8 +98,7 @@ class CompanyRegisterServiceImplTest {
 						"Dundagas nov., Kolkas pag., Kolka, Krastnieki", "3275", "103045133", "100015821", "0", "0885162", "" },
 				new String[] { "41202013815", "LV53ZZZ41202013815", "IK KRASTNIEKI A I", "IK", "KRASTNIEKI A I", "", "0", "K",
 						"Komercreģistrs", "IK", "Individuālais komersants", "1998-02-26", "2014-04-10", "L",
-						"Dundagas nov., Kolkas pag., Kolka, Krastnieki", "3275", "103045133", "100015821", "0", "0885162", "" }
-		);
+						"Dundagas nov., Kolkas pag., Kolka, Krastnieki", "3275", "103045133", "100015821", "0", "0885162", "" });
 
 		// Act
 		var result = companyRegisterService.getUniqueCompanyTypes(mockLineData);
@@ -109,10 +111,7 @@ class CompanyRegisterServiceImplTest {
 	@Test
 	void testSaveUniqueCompanyTypes() {
 		// Arrange
-		var uniqueTypes = Set.of(
-				Map.entry("SIA", "Sabiedrība ar ierobežotu atbildību"),
-				Map.entry("AS", "Akciju sabiedrība")
-		);
+		var uniqueTypes = Set.of(Map.entry("SIA", "Sabiedrība ar ierobežotu atbildību"), Map.entry("AS", "Akciju sabiedrība"));
 
 		when(companyTypeRepository.getByCode("SIA")).thenReturn(Optional.empty());
 		when(companyTypeRepository.getByCode("AS")).thenReturn(Optional.of(new CompanyType()));

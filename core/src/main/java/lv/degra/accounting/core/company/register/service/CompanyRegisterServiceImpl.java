@@ -12,7 +12,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Service;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.company.register.model.CompanyRegister;
+import lv.degra.accounting.core.company.register.model.CompanyRegisterRepository;
 import lv.degra.accounting.core.company.type.model.CompanyType;
 import lv.degra.accounting.core.company.type.model.CompanyTypeRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
@@ -40,14 +40,17 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
     private final CompanyTypeRepository companyTypeRepository;
     private final ConfigService configService;
     private final JdbcTemplate jdbcTemplate;
+	private final CompanyRegisterRepository companyRegisterRepository;
 
-    public CompanyRegisterServiceImpl(FileService fileService, CsvParser csvParser, CompanyTypeRepository companyTypeRepository, ConfigService configService, JdbcTemplate jdbcTemplate) {
+	public CompanyRegisterServiceImpl(FileService fileService, CsvParser csvParser, CompanyTypeRepository companyTypeRepository, ConfigService configService, JdbcTemplate jdbcTemplate,
+			CompanyRegisterRepository companyRegisterRepository) {
         this.fileService = fileService;
         this.csvParser = csvParser;
         this.companyTypeRepository = companyTypeRepository;
         this.configService = configService;
         this.jdbcTemplate = jdbcTemplate;
-    }
+		this.companyRegisterRepository = companyRegisterRepository;
+	}
 
     public void importData() {
         log.info("Company data import started");
@@ -64,8 +67,12 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         log.info("Company data import finished");
     }
 
+	@Override
+	public List<CompanyRegister> findByNameContainingIgnoreCase(String name) {
+		return companyRegisterRepository.findTopByNameContainingIgnoreCase(name);
+	}
 
-    public void importCompanyData(Reader file) {
+	public void importCompanyData(Reader file) {
 
         List<String[]> lineData = csvParser.getDataLines(file);
 
@@ -146,13 +153,13 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         CompanyRegister companyRegister = new CompanyRegister();
         companyRegister.setRegisterNumber(csvLineInArray.get(0));
         companyRegister.setSepaCode(csvLineInArray.get(1));
-        companyRegister.setName(csvLineInArray.get(2).toUpperCase(Locale.ROOT));
-        companyRegister.setNameBeforeQuotes(csvLineInArray.get(3).toUpperCase(Locale.ROOT));
+        companyRegister.setName(csvLineInArray.get(2));
+        companyRegister.setNameBeforeQuotes(csvLineInArray.get(3));
 		String nameInQuotes = csvLineInArray.get(4).isEmpty() ?
-				(csvLineInArray.get(3).isEmpty() ? companyRegister.getName() : csvLineInArray.get(3).toUpperCase(Locale.ROOT))
-				: csvLineInArray.get(4).toUpperCase(Locale.ROOT);
+				(csvLineInArray.get(3).isEmpty() ? companyRegister.getName() : csvLineInArray.get(3))
+				: csvLineInArray.get(4);
 		companyRegister.setNameInQuotes(nameInQuotes);
-        companyRegister.setNameAfterQuotes(csvLineInArray.get(5).toUpperCase(Locale.ROOT));
+        companyRegister.setNameAfterQuotes(csvLineInArray.get(5));
         companyRegister.setCompanyType(companyType);
         companyRegister.setRegisteredDate(csvLineInArray.get(11).isEmpty() ? null : LocalDate.parse(csvLineInArray.get(11)));
         companyRegister.setTerminatedDate(csvLineInArray.get(12).isEmpty() ? null : LocalDate.parse(csvLineInArray.get(12)));

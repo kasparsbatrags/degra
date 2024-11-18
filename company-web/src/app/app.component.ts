@@ -1,13 +1,30 @@
-import {Component} from '@angular/core'
-import {RouterOutlet} from '@angular/router'
+import {Component, OnInit} from '@angular/core'
+import {HeaderComponent} from './header/header.component'
+import {SearchHistoryComponent} from './search-history/search-history.component'
+import {SearchResultsComponent} from './search-results/search-results.component'
+import {SearchComponent} from './search/search.component'
+
+declare var M: any;
+
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  standalone: true,
+  imports: [
+    HeaderComponent,
+    SearchComponent,
+    SearchResultsComponent,
+    SearchHistoryComponent
+  ],
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'company-web';
+
+export class AppComponent implements OnInit {
+  ngOnInit() {
+    document.addEventListener('DOMContentLoaded', function() {
+      const elems = document.querySelectorAll('.sidenav');
+      const instances = M.Sidenav.init(elems);
+    });
+  }
 }
