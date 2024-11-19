@@ -52,6 +52,9 @@ public class DocumentDto implements Serializable {
 	DocumentTransactionType documentTransactionType;
 
 	@NotNull
+	@TableViewInfo(displayName = "Statuss", columnOrder = 10)
+	DocumentStatus documentStatus;
+	@NotNull
 	LocalDate accountingDate;
 	@TableViewInfo(displayName = "Datums", columnOrder = 1)
 	@DateTimeFormat(pattern = "dd.mm.yyyy")
@@ -66,7 +69,8 @@ public class DocumentDto implements Serializable {
 	@TableViewInfo(displayName = "Valūta", columnOrder = 7)
 	@NotNull
 	Currency currency;
-	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 8)
+
+	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 8, nestedPropertyMethod = "getRate")
 	@NotNull
 	CurrencyExchangeRate currencyExchangeRate;
 	String notesForCustomer;
@@ -84,8 +88,6 @@ public class DocumentDto implements Serializable {
 	@NotNull
 	CustomerAccount receiverCustomerBankAccount;
 	List<AccountCodeDistributionDto> accountCodeDistributionDtoList;
-	@NotNull
-	DocumentStatus documentStatus;
 
 
 	public boolean isBill() {

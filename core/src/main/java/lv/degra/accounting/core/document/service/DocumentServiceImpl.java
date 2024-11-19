@@ -54,48 +54,19 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 
 		try {
+			Document document;
 			if (documentDto.getId() != null) {
-				return documentRepository.findById(Long.valueOf(documentDto.getId())).map(document -> {
-					modelMapper.map(documentDto, document);
-					List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
-					List<AccountCodeDistribution> currentDistributionList = document.getAccountCodeDistributions();
-
-					if (newDistributionList == null || newDistributionList.isEmpty()) {
-						currentDistributionList.clear();
-					} else {
-						currentDistributionList.clear();
-
-						newDistributionList.forEach(dto -> {
-							dto.setDocument(document);
-							AccountCodeDistribution entity = accountCodeDistributionMapper.toEntity(dto);
-							currentDistributionList.add(entity);
-						});
-						document.setAccountCodeDistributions(currentDistributionList);
-					}
-					return modelMapper.map(documentRepository.save(document), DocumentDto.class);
-
-				}).orElseThrow(() -> new EntityNotFoundException("Document with ID " + documentDto.getId() + " not found in the system."));
+				document = documentRepository.findById(Long.valueOf(documentDto.getId()))
+						.orElseThrow(() -> new EntityNotFoundException("Document with ID " + documentDto.getId() + " not found in the system."));
+				modelMapper.map(documentDto, document);
 			} else {
-				Document document = modelMapper.map(documentDto, Document.class);
+				document = modelMapper.map(documentDto, Document.class);
 				document.setDocumentStatus(documentStatusService.getNewDocumentStatus());
-
-				List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
-				if (newDistributionList != null && !newDistributionList.isEmpty()) {
-					newDistributionList.forEach(dto -> {
-						dto.setDocument(document);
-						AccountCodeDistribution entity = accountCodeDistributionMapper.toEntity(dto);
-
-						if (document != null && document.getAccountCodeDistributions() != null) {
-							document.getAccountCodeDistributions().add(entity);
-						} else if (document != null) {
-							document.setAccountCodeDistributions(new ArrayList<>());
-							document.getAccountCodeDistributions().add(entity);
-						}
-					});
-				}
-				return modelMapper.map(documentRepository.save(document), DocumentDto.class);
 			}
 
+			updateAccountCodeDistributions(documentDto, document);
+
+			return modelMapper.map(documentRepository.save(document), DocumentDto.class);
 		} catch (DataIntegrityViolationException e) {
 			log.error("Error saving document: {}, {}", e.getMessage(), e.toString());
 			if (e.getCause() instanceof ConstraintViolationException) {
@@ -103,7 +74,30 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 			throw new SaveDocumentException(SAVE_EXCEPTION_MESSAGE + e.getMessage());
 		}
+	}
 
+	private void updateAccountCodeDistributions(DocumentDto documentDto, Document document) {
+		List<AccountCodeDistributionDto> newDistributionList = documentDto.getAccountCodeDistributionDtoList();
+		List<AccountCodeDistribution> currentDistributionList = document.getAccountCodeDistributions();
+
+		if (newDistributionList == null || newDistributionList.isEmpty()) {
+			if (currentDistributionList != null) {
+				currentDistributionList.clear();
+			}
+		} else {
+			if (currentDistributionList == null) {
+				currentDistributionList = new ArrayList<>();
+				document.setAccountCodeDistributions(currentDistributionList);
+			} else {
+				currentDistributionList.clear();
+			}
+
+			for (AccountCodeDistributionDto dto : newDistributionList) {
+				dto.setDocument(document);
+				AccountCodeDistribution entity = accountCodeDistributionMapper.toEntity(dto);
+				currentDistributionList.add(entity);
+			}
+		}
 	}
 
 	public List<DocumentDto> getDocumentList() {

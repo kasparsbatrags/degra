@@ -20,7 +20,7 @@ public class DegraDesktopConfig {
 	public static final String VALIDATION_TYPE_REQUIRED = "required";
 	public static final String VALIDATION_TYPE_CUSTOM = "custom";
 	public static final String DEFAULT_DOUBLE_FIELDS_TEXT = "0";
-	public static final String SPLASH_SCREEN_LOADING_TEXT = "Lādēju";
+	public static final String SPLASH_SCREEN_LOADING_TEXT = "Startēju";
 
 	private DegraDesktopConfig() {
 		throw new UnsupportedOperationException("DegraDesktopConfig class");

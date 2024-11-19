@@ -7,12 +7,12 @@ import static org.apache.commons.lang3.StringUtils.SPACE;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -37,7 +37,6 @@ import javafx.util.StringConverter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
-import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 import lv.degra.accounting.core.system.DataFetchService;
 import lv.degra.accounting.core.system.component.TableViewInfo;
 import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
@@ -107,22 +106,23 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 					.sorted(Comparator.comparingInt(field -> field.getAnnotation(TableViewInfo.class).columnOrder())).toList();
 
 			fieldList.forEach(field -> {
-				TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
-				String columnDisplayName = (tableViewInfo != null) ? tableViewInfo.displayName() : field.getName();
+				TableViewInfo tableViewInfoAnotation = field.getAnnotation(TableViewInfo.class);
+				String columnDisplayName = (tableViewInfoAnotation != null) ? tableViewInfoAnotation.displayName() : field.getName();
+				String methodName = getNestedPropertyMethodName(tableViewInfoAnotation);
 
-				TableColumn<T, ?> column = tableViewInfo != null && tableViewInfo.useAsSearchComboBox() ?
+				TableColumn<T, ?> column = tableViewInfoAnotation != null && tableViewInfoAnotation.useAsSearchComboBox() ?
 						buildSearchableComboBoxColumn(columnDisplayName, field) :
-						buildColumn(columnDisplayName, field);
+						buildColumn(columnDisplayName, field, methodName);
 
-				if (tableViewInfo != null && tableViewInfo.editable()) {
+				if (tableViewInfoAnotation != null && tableViewInfoAnotation.editable()) {
 					column.setEditable(true);
-					if (!tableViewInfo.useAsSearchComboBox()) {
+					if (!tableViewInfoAnotation.useAsSearchComboBox()) {
 						inlineEditManager.setupEditableColumn(column, field, saver, updater);
 					}
 				}
 
-				if (tableViewInfo.columnWidth() != 0) {
-					column.setMinWidth(tableViewInfo.columnWidth());
+				if (tableViewInfoAnotation.columnWidth() != 0) {
+					column.setMinWidth(tableViewInfoAnotation.columnWidth());
 				} else {
 					column.setMaxWidth(COLUMN_MIN_WIDTH);
 				}
@@ -137,10 +137,14 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 		}
 	}
 
-	private TableColumn<T, ?> buildColumn(String columnDisplayName, Field field) {
+	private String getNestedPropertyMethodName(TableViewInfo annotation) {
+		return annotation !=null && annotation.nestedPropertyMethod().isEmpty() ? "toString" : annotation.nestedPropertyMethod();
+	}
+
+	private <T, U, S> TableColumn<T, ?> buildColumn(String columnDisplayName, Field field, String getMethodName) {
 		TableColumn<T, ?> column;
-		if (field.getType().equals(CurrencyExchangeRate.class)) {
-			column = createRelatedObjectsColumn(columnDisplayName, field, CurrencyExchangeRate::getRate);
+		if (isFieldFromPackage(field)) {
+			column = createRelatedObjectsColumn(columnDisplayName, field, getMethodName);
 		} else {
 			column = createColumn(columnDisplayName, field);
 		}
@@ -233,22 +237,22 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 		return applicationContext.getBean(serviceClass);
 	}
 
-	private <T, S, U> TableColumn<T, String> createRelatedObjectsColumn(String propertyName, Field field,
-			Function<U, S> nestedPropertyGetter) {
+	private <T> TableColumn<T, String> createRelatedObjectsColumn(String propertyName, Field field, String methodName) {
 		TableColumn<T, String> column = new TableColumn<>(propertyName);
 		column.setCellValueFactory(param -> {
 			try {
 				field.setAccessible(true);
 				Object value = field.get(param.getValue());
 				if (value != null) {
-					S nestedProperty = nestedPropertyGetter.apply((U) value);
-					return new SimpleStringProperty(nestedProperty.toString());
+					Method method = value.getClass().getMethod(methodName);
+					Object nestedProperty = method.invoke(value);
+					return new SimpleStringProperty(nestedProperty != null ? nestedProperty.toString() : "");
 				} else {
 					return new SimpleStringProperty("");
 				}
 			} catch (Exception e) {
 				log.error(e.toString());
-				return null;
+				return new SimpleStringProperty("");
 			}
 		});
 		return column;
@@ -284,11 +288,6 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 
 
 		return column;
-	}
-
-	private String getDefaultStyleClass(Field field) {
-		TableViewInfo tableViewInfo = field.getAnnotation(TableViewInfo.class);
-		return tableViewInfo.styleClass();
 	}
 
 
@@ -331,5 +330,11 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				contextMenu.show(this, event.getScreenX(), event.getScreenY());
 			}
 		}
+	}
+
+	private boolean isFieldFromPackage(Field field) {
+		Class<?> fieldType = field.getType();
+		String fieldPackageName = fieldType.getPackageName();
+		return fieldPackageName.startsWith("lv.degra.accounting");
 	}
 }

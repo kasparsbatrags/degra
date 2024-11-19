@@ -24,6 +24,7 @@ import javafx.util.Duration;
 import lv.degra.accounting.desktop.DesktopApplication;
 import lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig;
 
+
 public class SplashScreen {
 
 	private Stage splashStage;
@@ -51,8 +52,8 @@ public class SplashScreen {
 				loadingText.setFill(javafx.scene.paint.Color.WHITE);
 				VBox textContainer = new VBox(loadingText);
 				textContainer.setAlignment(Pos.BOTTOM_LEFT);
-				textContainer.setTranslateY(-10);
-				textContainer.setTranslateX(500);
+				textContainer.setTranslateY(-20);
+				textContainer.setTranslateX(510);
 				root.getChildren().add(textContainer);
 
 				Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.5), event -> {
@@ -67,7 +68,6 @@ public class SplashScreen {
 				timeline.play();
 
 			} catch (Exception e) {
-				e.printStackTrace();
 				root.getChildren().add(new javafx.scene.control.Label(SPLASH_SCREEN_LOADING_TEXT));
 			}
 

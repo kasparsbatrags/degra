@@ -81,7 +81,5 @@ databaseChangeLog:
           file: db/changelog/add-company-type.yaml
     - include:
           file: db/changelog/add-company.yaml
-#    - include:
-#          file: db/changelog/add-auditor-property.yaml
     - include:
           file: db/changelog/add-address-register.yaml

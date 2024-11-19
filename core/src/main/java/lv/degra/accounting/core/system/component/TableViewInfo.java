@@ -21,4 +21,6 @@ public @interface TableViewInfo {
 	boolean useAsSearchComboBox() default false;
 
 	Class<?> searchServiceClass() default Void.class;
+
+	String nestedPropertyMethod() default "";
 }
