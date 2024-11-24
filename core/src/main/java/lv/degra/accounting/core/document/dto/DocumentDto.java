@@ -15,13 +15,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
+import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer_account.model.CustomerAccount;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentDirection;
+import lv.degra.accounting.core.document.model.DocumentStatus;
 import lv.degra.accounting.core.document.model.DocumentSubType;
 import lv.degra.accounting.core.document.model.DocumentTransactionType;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
@@ -51,6 +52,9 @@ public class DocumentDto implements Serializable {
 	DocumentTransactionType documentTransactionType;
 
 	@NotNull
+	@TableViewInfo(displayName = "Statuss", columnOrder = 10)
+	DocumentStatus documentStatus;
+	@NotNull
 	LocalDate accountingDate;
 	@TableViewInfo(displayName = "Datums", columnOrder = 1)
 	@DateTimeFormat(pattern = "dd.mm.yyyy")
@@ -65,9 +69,10 @@ public class DocumentDto implements Serializable {
 	@TableViewInfo(displayName = "Valūta", columnOrder = 7)
 	@NotNull
 	Currency currency;
-	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 8)
+
+	@TableViewInfo(displayName = "Valūtas kurss", columnOrder = 8, nestedPropertyMethod = "getRate")
 	@NotNull
-	CurrencyExchangeRate currencyExchangeRate;
+	CurrencyExchangeRate exchangeRate;
 	String notesForCustomer;
 	String internalNotes;
 	@NotNull
@@ -82,7 +87,7 @@ public class DocumentDto implements Serializable {
 	Bank receiverCustomerBank;
 	@NotNull
 	CustomerAccount receiverCustomerBankAccount;
-	List<AccountCodeDistributionDto> accountCodeDistributionDtoList;
+	List<AccountPostedDto> accountPostedList;
 
 
 	public boolean isBill() {
@@ -101,19 +106,20 @@ public class DocumentDto implements Serializable {
 				&& documentTransactionType == that.documentTransactionType && Objects.equals(accountingDate, that.accountingDate)
 				&& Objects.equals(documentDate, that.documentDate) && Objects.equals(paymentDate, that.paymentDate) && Objects.equals(
 				paymentTypeId, that.paymentTypeId) && Objects.equals(sumTotal, that.sumTotal) && Objects.equals(sumTotalInCurrency,
-				that.sumTotalInCurrency) && Objects.equals(currency, that.currency) && Objects.equals(currencyExchangeRate,
-				that.currencyExchangeRate) && StringUtils.equals(notesForCustomer, that.notesForCustomer) && StringUtils.equals(
+				that.sumTotalInCurrency) && Objects.equals(currency, that.currency) && Objects.equals(exchangeRate,
+				that.exchangeRate) && StringUtils.equals(notesForCustomer, that.notesForCustomer) && StringUtils.equals(
 				internalNotes, that.internalNotes) && Objects.equals(publisherCustomer, that.publisherCustomer) && Objects.equals(
 				publisherCustomerBank, that.publisherCustomerBank) && Objects.equals(publisherCustomerBankAccount,
 				that.publisherCustomerBankAccount) && Objects.equals(receiverCustomer, that.receiverCustomer) && Objects.equals(
 				receiverCustomerBank, that.receiverCustomerBank) && Objects.equals(receiverCustomerBankAccount,
-				that.receiverCustomerBankAccount);
+				that.receiverCustomerBankAccount) && Objects.equals(accountPostedList, that.accountPostedList) &&
+				Objects.equals(documentStatus, that.documentStatus);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, documentDirection, documentNumber, documentSeries, documentSubType, documentTransactionType, accountingDate,
-				documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, currencyExchangeRate, notesForCustomer,
+				documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, exchangeRate, notesForCustomer,
 				internalNotes, publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer,
 				receiverCustomerBank, receiverCustomerBankAccount);
 	}
@@ -133,7 +139,7 @@ public class DocumentDto implements Serializable {
 			this.sumTotal = other.sumTotal;
 			this.sumTotalInCurrency = other.sumTotalInCurrency;
 			this.currency = other.currency;
-			this.currencyExchangeRate = other.currencyExchangeRate;
+			this.exchangeRate = other.exchangeRate;
 			this.notesForCustomer = other.notesForCustomer;
 			this.internalNotes = other.internalNotes;
 			this.publisherCustomer = other.publisherCustomer;
@@ -142,7 +148,8 @@ public class DocumentDto implements Serializable {
 			this.receiverCustomer = other.receiverCustomer;
 			this.receiverCustomerBank = other.receiverCustomerBank;
 			this.receiverCustomerBankAccount = other.receiverCustomerBankAccount;
-			this.accountCodeDistributionDtoList = other.accountCodeDistributionDtoList;
+			this.accountPostedList = other.accountPostedList;
+			this.documentStatus = other.documentStatus;
 		}
 	}
 
@@ -160,7 +167,7 @@ public class DocumentDto implements Serializable {
 			this.sumTotal = updated.sumTotal;
 			this.sumTotalInCurrency = updated.sumTotalInCurrency;
 			this.currency = updated.currency;
-			this.currencyExchangeRate = updated.currencyExchangeRate;
+			this.exchangeRate = updated.exchangeRate;
 			this.notesForCustomer = updated.notesForCustomer;
 			this.internalNotes = updated.internalNotes;
 			this.publisherCustomer = updated.publisherCustomer;
@@ -169,7 +176,8 @@ public class DocumentDto implements Serializable {
 			this.receiverCustomer = updated.receiverCustomer;
 			this.receiverCustomerBank = updated.receiverCustomerBank;
 			this.receiverCustomerBankAccount = updated.receiverCustomerBankAccount;
-			this.accountCodeDistributionDtoList = updated.accountCodeDistributionDtoList;
+			this.accountPostedList = updated.accountPostedList;
+			this.documentStatus = updated.documentStatus;
 		}
 	}
 

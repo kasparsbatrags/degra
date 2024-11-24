@@ -4,6 +4,7 @@ import static javafx.stage.Modality.APPLICATION_MODAL;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.CRATE_FORM_TITLE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.EDIT_FORM_TITLE;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.context.ApplicationContext;
@@ -77,8 +78,11 @@ public class DocumentListFormController extends DegraController {
 
 	private void refreshTable() {
 		documentObservableList.clear();
-		documentObservableList.addAll(documentService.getDocumentList());
-		documentListView.setData(documentObservableList);
+		List<DocumentDto> documentDtoList = documentService.getDocumentList();
+		if (!documentDtoList.isEmpty()) {
+			documentObservableList.addAll(documentDtoList);
+			documentListView.setData(documentObservableList);
+		}
 	}
 
 	@Override

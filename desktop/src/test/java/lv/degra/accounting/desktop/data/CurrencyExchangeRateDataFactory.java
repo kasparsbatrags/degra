@@ -1,10 +1,10 @@
 package lv.degra.accounting.desktop.data;
 
-import lv.degra.accounting.core.currency.model.Currency;
-import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
-
 import java.time.Instant;
 import java.time.LocalDate;
+
+import lv.degra.accounting.core.currency.model.Currency;
+import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 
 public class CurrencyExchangeRateDataFactory {
 
@@ -14,8 +14,6 @@ public class CurrencyExchangeRateDataFactory {
         exchangeRate.setCurrency(currency);
         exchangeRate.setRateDate(rateDate);
         exchangeRate.setRate(rate);
-        exchangeRate.setCreatedAt(createdAt);
-        exchangeRate.setLastModifiedAt(lastModifiedAt);
         return exchangeRate;
     }
 

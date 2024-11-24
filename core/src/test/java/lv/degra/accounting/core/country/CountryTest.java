@@ -4,7 +4,6 @@ import static jakarta.validation.Validation.buildDefaultValidatorFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -46,14 +45,6 @@ class CountryTest {
 		LocalDate date = LocalDate.of(2023, 9, 25);
 		country.setAlpha3Code(date);
 		assertEquals(date, country.getAlpha3Code());
-
-		Instant createdAt = Instant.now();
-		country.setCreatedAt(createdAt);
-		assertEquals(createdAt, country.getCreatedAt());
-
-		Instant lastModifiedAt = Instant.now();
-		country.setLastModifiedAt(lastModifiedAt);
-		assertEquals(lastModifiedAt, country.getLastModifiedAt());
 	}
 
 	@Test

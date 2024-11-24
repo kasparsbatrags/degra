@@ -13,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Unikālais identifikātors"
+                  remarks: "Unikālais identifikators"
               - column:
                   name: revision_id
                   type: int
@@ -21,7 +21,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta revīzijas identifikātors"
+                  remarks: "Ieraksta revīzijas identifikators"
               - column:
                   name: revision_timestamp
                   type: bigint

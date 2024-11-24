@@ -13,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Unikālais identifikātors"
+                  remarks: "Unikālais identifikators"
               - column:
                   name: register_number
                   type: varchar(11)

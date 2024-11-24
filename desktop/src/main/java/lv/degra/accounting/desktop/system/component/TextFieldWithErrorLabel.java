@@ -40,7 +40,12 @@ public class TextFieldWithErrorLabel extends ControlWithErrorLabel<String> {
 	public void setValidationCondition(Predicate<String> validationCondition, String errorMessage) {
 		validationConditions.put(validationCondition, errorMessage);
 		markAsRequired(validationCondition != null, textField);
-
 	}
+
+	@Override
+	public void removeValidationCondition(String errorMessage) {
+		validationConditions.entrySet().removeIf(entry->entry.getValue().equals(errorMessage));
+	}
+
 
 }

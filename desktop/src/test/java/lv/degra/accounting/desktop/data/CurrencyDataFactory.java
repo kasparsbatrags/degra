@@ -1,8 +1,8 @@
 package lv.degra.accounting.desktop.data;
 
-import lv.degra.accounting.core.currency.model.Currency;
-
 import java.time.Instant;
+
+import lv.degra.accounting.core.currency.model.Currency;
 
 public class CurrencyDataFactory {
 
@@ -12,8 +12,6 @@ public class CurrencyDataFactory {
         currency.setCurrencyCode(currencyCode);
         currency.setCurrencyName(currencyName);
         currency.setSubunitName(subunitName);
-        currency.setCreatedAt(createdAt);
-        currency.setLastModifiedAt(lastModifiedAt);
         return currency;
     }
 

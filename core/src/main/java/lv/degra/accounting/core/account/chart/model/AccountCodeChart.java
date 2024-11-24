@@ -2,6 +2,8 @@ package lv.degra.accounting.core.account.chart.model;
 
 import java.io.Serializable;
 
+import org.hibernate.envers.Audited;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,15 +19,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.currency.model.Currency;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "account_code_chart")
+@Audited
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountCodeChart implements Serializable {
+public class AccountCodeChart extends AuditInfo implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

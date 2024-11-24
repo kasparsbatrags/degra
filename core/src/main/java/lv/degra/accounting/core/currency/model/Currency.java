@@ -1,17 +1,25 @@
 package lv.degra.accounting.core.currency.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
+
+import org.hibernate.envers.Audited;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
-import java.time.Instant;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "currency")
-public class Currency implements Serializable {
+@Audited
+public class Currency extends AuditInfo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -25,13 +33,6 @@ public class Currency implements Serializable {
 
     @Column(name = "subunit_name", length = 100)
     private String subunitName;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @Column(name = "last_modified_at")
-    private Instant lastModifiedAt;
-
 
     @Override
     public String toString() {

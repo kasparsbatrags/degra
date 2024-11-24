@@ -43,7 +43,7 @@ databaseChangeLog:
                   remarks: "Pazīme, ka objekts pēc noklusējuma ir neaktīvs, taču informāciju attēlo"
               - column:
                   name: custom_validation
-                  type: varchar(100)
+                  type: varchar(200)
                   remarks: "Paplašināti konfigurējami nosacījumi"
               - column:
                   name: error_message_id

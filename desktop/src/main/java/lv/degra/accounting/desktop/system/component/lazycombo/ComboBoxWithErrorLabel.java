@@ -138,4 +138,9 @@ public class ComboBoxWithErrorLabel<T> extends ControlWithErrorLabel<T> {
 		markAsRequired(validationCondition != null, comboBox);
 	}
 
+	@Override
+	public void removeValidationCondition(String errorMessage) {
+		validationConditions.entrySet().removeIf(entry->entry.getValue().equals(errorMessage));
+	}
+
 }

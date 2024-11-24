@@ -13,29 +13,47 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: "Unikālais identifikators"
               - column:
                   constraints:
                     nullable: false
                   name: code
                   type: VARCHAR(8)
+                  remarks: "Konta kods"
               - column:
                   name: name
                   type: VARCHAR(80)
+                  remarks: "Konta nosaukums"
               - column:
                   name: is_assets_account
                   type: BOOLEAN
+                  remarks: "Aktīva pazīme"
               - column:
                   name: use_for_bilance
                   type: BOOLEAN
+                  remarks: "Izmantot bilances aprēķinā"
               - column:
                   name: currency_id
                   type: INTEGER
+                  remarks: "Valūtas identifikators"
               - column:
                   name: amount_in_account
                   type: numeric(17, 5)
+                  remarks: "Summa kontā"
               - column:
                   name: parent_id
                   type: INTEGER
+                  remarks: "Vecākā ieraksta ID"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Kontu plāns"
+
   - changeSet:
       id: AddUnicalCounstrainForAccountPlanAccount
       author: Kaspars Batrags
@@ -76,7 +94,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: debit_account_id
-            baseTableName: account_code_distribution
+            baseTableName: account_posted
             constraintName: fk_debit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id
@@ -88,7 +106,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: credit_account_id
-            baseTableName: account_code_distribution
+            baseTableName: account_posted
             constraintName: fk_credit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id

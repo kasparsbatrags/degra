@@ -13,28 +13,34 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: "Unikālais identifikators"
               - column:
                   name: currency_id
                   type: int
                   constraints:
                     nullable: false
+                  remarks: "Valūtas identifikators"
               - column:
                   name: rate_date
                   type: date
                   constraints:
                     nullable: false
+                  remarks: "Datums, kad aktuāls kurss"
               - column:
                   name: rate
                   type: double
                   constraints:
                     nullable: false
+                  remarks: "Valūtas kurss"
               - column:
-                  name: created_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-                  defaultValueComputed: NOW()
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
               - column:
-                  name: last_modified_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Bankas"
 
   - changeSet:
       id: ConstraintForeignKeysExchangeRateToCurrency

@@ -2,7 +2,7 @@ databaseChangeLog:
     - include:
           file: db/changelog/add-document.yaml
     - include:
-        file: db/changelog/add-account-code-distribution.yaml
+        file: db/changelog/add-account-post.yaml
     - include:
           file: db/changelog/add-country.yaml
     - include:
@@ -82,8 +82,4 @@ databaseChangeLog:
     - include:
           file: db/changelog/add-company.yaml
     - include:
-          file: db/changelog/add-auditor-property.yaml
-    - include:
           file: db/changelog/add-address-register.yaml
-
-

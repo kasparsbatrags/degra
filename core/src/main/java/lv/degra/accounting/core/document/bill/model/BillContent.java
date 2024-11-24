@@ -1,6 +1,6 @@
 package lv.degra.accounting.core.document.bill.model;
 
-import java.time.Instant;
+import java.io.Serializable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,13 +15,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.document.model.Document;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "document_bill_content")
-public class BillContent {
+public class BillContent extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
@@ -58,11 +59,5 @@ public class BillContent {
 
 	@Column(name = "sum_total")
 	private Double sumTotal;
-
-	@Column(name = "created_at")
-	private Instant createdAt;
-
-	@Column(name = "last_modified_at")
-	private Instant lastModifiedAt;
 
 }

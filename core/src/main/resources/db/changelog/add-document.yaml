@@ -103,40 +103,43 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: true
+                  remarks: "Dokumenta izdevēja bankas identifikators"
               - column:
                   name: publisher_customer_bank_account_id
                   type: int
                   constraints:
                     nullable: true
+                  remarks: "Dokumenta izdevēja bankas konta identifikators"
               - column:
                   name: secondary_publisher_customer_id
                   type: int
                   constraints:
                     nullable: true
                   remarks: "Dokumenta sekundārā izdevēja klienta identifikators"
-
               - column:
                   name: receiver_customer_id
                   type: int
                   constraints:
                     nullable: true
+                  remarks: "Dokumenta saņēmēja identifikators"
               - column:
                   name: receiver_customer_bank_id
                   type: int
                   constraints:
                     nullable: true
+                  remarks: "Dokumenta saņēmēja bankas identifikators"
               - column:
                   name: receiver_customer_bank_account_id
                   type: int
                   constraints:
                     nullable: true
+                  remarks: "Dokumenta saņēmēja bankas konta identifikators"
               - column:
                   name: secondary_receiver_customer_id
                   type: int
                   constraints:
                     nullable: true
                   remarks: "Dokumenta sekundārā saņēmēja klienta identifikators"
-
               - column:
                   name: notes_for_customer
                   type: text
@@ -150,12 +153,17 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Iekšējās piezīmes"
               - column:
-                  name: created_at
-                  type: timestamp
-                  defaultValueComputed: NOW()
-                  remarks: "Dokumenta izviedošanas laika zīmogs"
+                  name: document_status_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Dokumenta statusa identifikators"
               - column:
-                  name: last_modified_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-                  remarks: "Dokumenta pēdējāslabošanas laika zīmogs"
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
             remarks: "Dokumentu saraksts"
