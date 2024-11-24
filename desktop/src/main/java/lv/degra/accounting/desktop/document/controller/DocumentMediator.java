@@ -83,7 +83,7 @@ public class DocumentMediator implements Mediator {
 
 	@Override
 	public boolean idDocumentValid() {
-
+		storeDataFromControlsToDto();
 		boolean postingListIsValid = additionalInfoController.validateAccountPostsList();
 		if (!postingListIsValid) {
 			BigDecimal postingAmountTotal = additionalInfoController.getPostingListView().getColumnSum("amount");
@@ -107,7 +107,7 @@ public class DocumentMediator implements Mediator {
 		additionalInfoController.setControllerObjectsValidationRulesByDocumentSubtype(infoController.getDocumentSubTypeId());
 	}
 
-	public void getDataFromControlsToDto() {
+	public void storeDataFromControlsToDto() {
 		mainController.getData(this.editableDocument);
 		infoController.getData(this.editableDocument);
 		billController.getData(this.editableDocument);
@@ -119,19 +119,14 @@ public class DocumentMediator implements Mediator {
 		this.editableDocument = new DocumentDto(document);
 	}
 
-	public void setChangesToDto() {
-		getDataFromControlsToDto();
+	public void stopEditing() {
 		originalDocument.update(editableDocument);
-	}
-
-	public void discardChanges() {
-		editableDocument = new DocumentDto(originalDocument);
 	}
 
 	public boolean saveDocument() {
 		boolean result = true;
 		try {
-			setChangesToDto();
+			stopEditing();
 			documentService.saveDocument(originalDocument);
 			if (isNewRecord(originalDocument)) {
 				mainController.getDocumentObservableList().add(originalDocument);

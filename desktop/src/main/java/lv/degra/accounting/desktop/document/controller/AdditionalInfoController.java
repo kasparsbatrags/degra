@@ -170,6 +170,8 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public void getData(DocumentDto documentDto) {
 		documentDto.setNotesForCustomer(notesForCustomerField.getText());
 		documentDto.setInternalNotes(internalNotesField.getText());
+		accountPostedDtoObservableList.stream()
+				.forEach(accountPostedDto -> accountPostedDto.setDocumentDto(documentDto));
 		documentDto.setAccountPostedList(accountPostedDtoObservableList);
 	}
 
