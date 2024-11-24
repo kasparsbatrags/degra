@@ -29,4 +29,6 @@ public interface Mediator {
 
 	DynamicTableView<AccountPostedDto> getAccountPostedListView();
 
+	void storeDataFromControlsToDto();
+
 }
