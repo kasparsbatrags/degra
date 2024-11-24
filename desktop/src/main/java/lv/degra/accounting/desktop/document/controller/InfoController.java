@@ -168,9 +168,8 @@ public class InfoController extends DocumentControllerComponent {
 	@FXML
 	public void documentSubTypeComboOnAction() {
 		mediator.updateDocumentTabs();
-		setDocumentInfoValidationRules();
 		refreshScreenControlsByDocumentSubType();
-
+		setControllerObjectsValidationRulesByDocumentSubtype(getDocumentSubTypeId());
 	}
 
 	@FXML
@@ -207,17 +206,6 @@ public class InfoController extends DocumentControllerComponent {
 		receiverCombo.setDataFetchService(customerService);
 		receiverCombo.setConverter(new CustomerStringConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
-
-		//		Predicate<String> documentAmountValidationDoublePrecisionPredicate = value -> {
-		//			try {
-		//				BigDecimal amount = new BigDecimal(value);
-		//				return amount.compareTo(BigDecimal.ZERO) >= 0 && amount.scale() <= 2;
-		//			} catch (NumberFormatException e) {
-		//				return false;
-		//			}
-		//		};
-		//
-		//		addValidationControl(sumTotalField, documentAmountValidationDoublePrecisionPredicate, AMOUNT_PRECISION_2);
 	}
 
 	@Override
@@ -251,7 +239,7 @@ public class InfoController extends DocumentControllerComponent {
 		documentDto.setDocumentNumber(numberField.getText());
 		documentDto.setSumTotal(getDouble(sumTotalField.getText()));
 		documentDto.setSumTotalInCurrency(getDouble(sumTotalInCurrencyField.getText()));
-		documentDto.setCurrencyExchangeRate(currencyExchangeRate);
+		documentDto.setExchangeRate(currencyExchangeRate);
 		documentDto.setAccountingDate(accountingDateDp.getValue());
 		documentDto.setDocumentDate(documentDateDp.getValue());
 		documentDto.setPaymentDate(paymentDateDp.getValue());
@@ -270,7 +258,7 @@ public class InfoController extends DocumentControllerComponent {
 		paymentDateDp.setValue(documentDto.getPaymentDate());
 		sumTotalField.setText(documentDto.getSumTotal().toString());
 		sumTotalInCurrencyField.setText(documentDto.getSumTotalInCurrency().toString());
-		exchangeRateField.setText(documentDto.getCurrencyExchangeRate().getRate().toString());
+		exchangeRateField.setText(documentDto.getExchangeRate().getRate().toString());
 		currencyCombo.setValue(documentDto.getCurrency());
 		publisherCombo.setValue(documentDto.getPublisherCustomer());
 		publisherBankCombo.setValue(documentDto.getPublisherCustomerBank());
@@ -278,7 +266,7 @@ public class InfoController extends DocumentControllerComponent {
 		receiverCombo.setValue(documentDto.getReceiverCustomer());
 		receiverBankCombo.setValue(documentDto.getReceiverCustomerBank());
 		receiverBankAccountCombo.setValue(documentDto.getReceiverCustomerBankAccount());
-		currencyExchangeRate = documentDto.getCurrencyExchangeRate();
+		currencyExchangeRate = documentDto.getExchangeRate();
 
 		if (publisherCombo.getValue() != null) {
 			fetchAndSetBankAccountDetails(publisherCombo, publisherBankCombo, publisherBankAccountCombo);
@@ -373,6 +361,11 @@ public class InfoController extends DocumentControllerComponent {
 	}
 
 	public void refreshScreenControlsByDocumentSubType() {
+		refreshScreenControls(getDocumentSubTypeId());
+
+	}
+
+	protected Integer getDocumentSubTypeId() {
 		Optional<DocumentSubType> optionalDocumentSubType = Optional.ofNullable(documentSubTypeCombo.getValue());
 
 		optionalDocumentSubType.map(DocumentSubType::getDocumentType).map(DocumentType::getCode)
@@ -382,9 +375,7 @@ public class InfoController extends DocumentControllerComponent {
 		optionalDocumentSubType.map(DocumentSubType::getDirection)
 				.ifPresentOrElse(directionCombo::setValue, () -> directionCombo.setValue(null));
 
-		Integer documentSubtypeId = optionalDocumentSubType.map(DocumentSubType::getId).orElse(null);
-
-		refreshScreenControls(documentSubtypeId);
+		return optionalDocumentSubType.map(DocumentSubType::getId).orElse(null);
 
 	}
 
@@ -416,11 +407,12 @@ public class InfoController extends DocumentControllerComponent {
 
 	}
 
-	protected void setDocumentInfoValidationRules() {
-		if (documentSubTypeCombo == null || documentSubTypeCombo.getValue() == null) {
-			return;
-		}
-		int documentSubTypeId = documentSubTypeCombo.getValue().getId();
+	protected void setControllerObjectsValidationRulesByDocumentSubtype(int documentSubTypeId) {
 		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId);
+	}
+
+	public <T> void removeValidationControlByMessage(ControlWithErrorLabel<T> control, String errorMessage) {
+		control.removeValidationCondition(errorMessage);
+		infoValidationControls.remove(control);
 	}
 }

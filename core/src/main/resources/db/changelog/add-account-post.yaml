@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: AccountCodeDistribution
+      id: AccountPosted
       author: Kaspars Batrags
       changes:
         - createTable:
-            tableName: account_code_distribution
+            tableName: account_posted
             columns:
               - column:
                   name: id
@@ -49,13 +49,13 @@ databaseChangeLog:
             remarks: "Grāmatojumu saraksts"
 
   - changeSet:
-      id: ConstraintForeignKeysAccountCodeDistributionToDocument
+      id: ConstraintForeignKeysAccountPostedToDocument
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: document_id
-            baseTableName: account_code_distribution
-            constraintName: fk_account_code_distribution_to_document
+            baseTableName: account_posted
+            constraintName: fk_account_posted_to_document
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: document

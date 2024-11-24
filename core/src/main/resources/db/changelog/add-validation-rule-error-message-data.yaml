@@ -42,3 +42,26 @@ databaseChangeLog:
               - column:
                   name: full_message
                   value: Jāprecizē skaitlis  - ar noteikto skaitu ciparu aiz komata - citādi netiks turpināts
+
+  - changeSet:
+      id: AddValidationRulleErrorMessagePostingError
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_error_message WHERE short_message = 'Kļūdains kontējums!'
+      changes:
+        - insert:
+            tableName: validation_rule_error_message
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: short_message
+                  value: Kļūdains kontējums!
+              - column:
+                  name: full_message
+                  value: Kontētā summa nesakrīt ar dokumenta summu!
+

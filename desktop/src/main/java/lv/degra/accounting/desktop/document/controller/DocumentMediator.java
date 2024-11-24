@@ -2,6 +2,9 @@ package lv.degra.accounting.desktop.document.controller;
 
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.APPLICATION_TITLE;
 import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.DEFAULT_ERROR_MESSAGE;
+import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.POSTING_WRONG_SUM_ERROR_TEXT;
+
+import java.math.BigDecimal;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -9,8 +12,11 @@ import org.springframework.stereotype.Component;
 import javafx.scene.control.Alert;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.service.DocumentService;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView;
 
 @Setter
 @Getter
@@ -65,25 +71,47 @@ public class DocumentMediator implements Mediator {
 		infoController.sumTotalOnAction();
 	}
 
+	@Override
+	public ControlWithErrorLabel<String> getSumTotalField() {
+		return infoController.getSumTotalField();
+	}
+
+	@Override
+	public DynamicTableView<AccountPostedDto> getAccountPostedListView() {
+		return additionalInfoController.getPostingListView();
+	}
+
+	@Override
+	public boolean idDocumentValid() {
+
+		boolean postingListIsValid = additionalInfoController.validateAccountPostsList();
+		if (!postingListIsValid) {
+			BigDecimal postingAmountTotal = additionalInfoController.getPostingListView().getColumnSum("amount");
+			infoController.addValidationControl(infoController.getSumTotalField(),
+					value -> new BigDecimal(value).compareTo(postingAmountTotal) == 0, POSTING_WRONG_SUM_ERROR_TEXT);
+		} else {
+			infoController.removeValidationControlByMessage(infoController.getSumTotalField(), POSTING_WRONG_SUM_ERROR_TEXT);
+		}
+		return infoController.validate() && additionalInfoController.validate() && postingListIsValid;
+	}
+
 	public void setData() {
 		mainController.setData(this.editableDocument);
 		infoController.setData(this.editableDocument);
 		billController.setData(this.editableDocument);
 		additionalInfoController.setData(this.editableDocument);
+
 		infoController.refreshScreenControlsByDocumentSubType();
+
+		infoController.setControllerObjectsValidationRulesByDocumentSubtype(infoController.getDocumentSubTypeId());
+		additionalInfoController.setControllerObjectsValidationRulesByDocumentSubtype(infoController.getDocumentSubTypeId());
 	}
 
-	public void getData() {
+	public void getDataFromControlsToDto() {
 		mainController.getData(this.editableDocument);
 		infoController.getData(this.editableDocument);
 		billController.getData(this.editableDocument);
 		additionalInfoController.getData(this.editableDocument);
-	}
-
-
-	@Override
-	public boolean validateDocument() {
-		return infoController.validate() && additionalInfoController.validate();
 	}
 
 	public void startEditing(DocumentDto document) {
@@ -91,8 +119,8 @@ public class DocumentMediator implements Mediator {
 		this.editableDocument = new DocumentDto(document);
 	}
 
-	public void saveChanges() {
-		getData();
+	public void setChangesToDto() {
+		getDataFromControlsToDto();
 		originalDocument.update(editableDocument);
 	}
 
@@ -103,7 +131,7 @@ public class DocumentMediator implements Mediator {
 	public boolean saveDocument() {
 		boolean result = true;
 		try {
-			saveChanges();
+			setChangesToDto();
 			documentService.saveDocument(originalDocument);
 			if (isNewRecord(originalDocument)) {
 				mainController.getDocumentObservableList().add(originalDocument);
@@ -123,5 +151,10 @@ public class DocumentMediator implements Mediator {
 	private boolean isNewRecord(DocumentDto documentDto) {
 		return null == documentDto.getId();
 	}
+
+//	public Integer getSelectedDocumentSubType() {
+//		DocumentSubType documentSubType = infoController.documentSubTypeCombo.getValue();
+//		return documentSubType != null ? documentSubType.getId() : null;
+//	}
 
 }

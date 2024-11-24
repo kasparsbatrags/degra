@@ -24,7 +24,7 @@
 							<padding>
 								<Insets top="0" right="0" bottom="10" left="0" />
 							</padding>
-							<DynamicTableView fx:id="distributionListView" AnchorPane.bottomAnchor="0.0"
+							<DynamicTableView fx:id="postingListView" AnchorPane.bottomAnchor="0.0"
 								AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="6.0"
 								onKeyPressed="#onKeyPressAction">
 								<placeholder>

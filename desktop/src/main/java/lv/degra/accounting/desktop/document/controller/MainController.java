@@ -49,7 +49,7 @@ public class MainController extends DocumentControllerComponent {
 
 	@FXML
 	public void onSaveDocumentButton() {
-		if (mediator.validateDocument() && mediator.saveDocument()) {
+		if (mediator.idDocumentValid() && mediator.saveDocument()) {
 			closeWindows();
 		}
 	}
@@ -58,11 +58,6 @@ public class MainController extends DocumentControllerComponent {
 	public void initialize() {
 		mainValidationControls.clear();
 		updateDocumentTabs();
-	}
-
-	@Override
-	public ControlWithErrorLabel<String> getSumTotalField() {
-		return null;
 	}
 
 	@Override

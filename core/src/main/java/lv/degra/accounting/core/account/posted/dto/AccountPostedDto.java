@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.account.distribution.dto;
+package lv.degra.accounting.core.account.posted.dto;
 
 import java.io.Serializable;
 
@@ -10,24 +10,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
-import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
-import lv.degra.accounting.core.document.model.Document;
+import lv.degra.accounting.core.account.posted.model.AccountPosted;
+import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.system.component.TableViewInfo;
 
 /**
- * DTO for {@link AccountCodeDistribution}
+ * DTO for {@link AccountPosted}
  */
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountCodeDistributionDto implements Serializable {
+public class AccountPostedDto implements Serializable {
 
 	private Integer id;
 
+	//To do - trasform to DTO
 	@NotNull
-	private Document document;
+	private DocumentDto documentDto;
 
 	@TableViewInfo(displayName = "Debeta konts", columnOrder = 1, columnWidth = 500, useAsSearchComboBox = true,
 			searchServiceClass = AccountCodeChartService.class, editable = true, styleClass = "")

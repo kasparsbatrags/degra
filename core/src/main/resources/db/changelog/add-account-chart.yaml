@@ -94,7 +94,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: debit_account_id
-            baseTableName: account_code_distribution
+            baseTableName: account_posted
             constraintName: fk_debit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id
@@ -106,7 +106,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: credit_account_id
-            baseTableName: account_code_distribution
+            baseTableName: account_posted
             constraintName: fk_credit_account_id_to_account_code_chart
             onDelete: NO ACTION
             referencedColumnNames: id

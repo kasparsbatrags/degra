@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.account.distribution.model;
+package lv.degra.accounting.core.account.posted.model;
 
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ import lv.degra.accounting.core.document.model.Document;
 @Setter
 @Getter
 @Audited
-public class AccountCodeDistribution extends AuditInfo implements Serializable {
+public class AccountPosted extends AuditInfo implements Serializable {
 	@Id
 	@Column(name = "id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

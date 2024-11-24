@@ -70,7 +70,6 @@ public class Customer extends AuditInfo implements Serializable {
         return Objects.equals(id, customer.id);
     }
 
-    //
     @Override
     public int hashCode() {
         return Objects.hash(id);

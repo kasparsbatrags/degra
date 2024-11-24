@@ -484,3 +484,26 @@ databaseChangeLog:
               - column:
                   name: label
                   value: 'Apmaksa'
+
+  - changeSet:
+      id: AddValidationRullesObjectTableViewPostTotalSum
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule_object WHERE name = 'postingListView'
+      changes:
+        - insert:
+            tableName: validation_rule_object
+            columns:
+              - column:
+                  name: id
+                  value: 23
+              - column:
+                  name: name
+                  value: 'postingListView'
+              - column:
+                  name: label
+                  value: 'Kontējums'
+

@@ -70,4 +70,9 @@ public class DatePickerWithErrorLabel extends ControlWithErrorLabel<LocalDate> {
 		markAsRequired(validationCondition != null, datePicker);
 	}
 
+	@Override
+	public void removeValidationCondition(String errorMessage) {
+		validationConditions.entrySet().removeIf(entry->entry.getValue().equals(errorMessage));
+	}
+
 }

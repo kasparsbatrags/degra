@@ -137,4 +137,5 @@ public abstract class ControlWithErrorLabel<T> extends VBox {
 
 	public abstract void setValidationCondition(Predicate<T> validationCondition, String errorMessage);
 
+	public abstract void removeValidationCondition(String errorMessage);
 }

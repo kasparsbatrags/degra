@@ -122,11 +122,6 @@ public class BillController extends DocumentControllerComponent {
 	}
 
 	@Override
-	public ControlWithErrorLabel<String> getSumTotalField() {
-		return null;
-	}
-
-	@Override
 	public void clearValidationControls() {
 		billValidationControls.clear();
 	}

@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddValidationRulesDataForPostingListView
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM validation_rule WHERE object_id = 23 AND error_message_id = 1 AND document_sub_type_id = 1
+      changes:
+        - insert:
+            tableName: validation_rule
+            columns:
+              - column:
+                  name: id
+                  value: 23
+              - column:
+                  name: object_id
+                  value: 23
+              - column:
+                  name: is_show_in_form
+                  value: true
+              - column:
+                  name: custom_validation
+                  value: '{"type":"tableViewPostTotalSum","columnName":"amount","compareObject":{"relatedObjectName":"documentDto","fieldName":"sumTotal"}}'
+              - column:
+                  name: error_message_id
+                  value: 3
+              - column:
+                  name: document_sub_type_id
+                  value: 1
