@@ -1,6 +1,5 @@
 package lv.degra.accounting.core.document.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -13,9 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
 import lv.degra.accounting.core.account.posted.dto.AccountPostedMapper;
-import lv.degra.accounting.core.account.posted.model.AccountPosted;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
@@ -63,12 +60,7 @@ public class DocumentServiceImpl implements DocumentService {
 				document = modelMapper.map(documentDto, Document.class);
 				document.setDocumentStatus(documentStatusService.getNewDocumentStatus());
 			}
-//			if (!document.getAccountPostedList().isEmpty()) {
-//				updateAccountPosted(documentDto, document);
-//			}
-			Document newDocument = documentRepository.save(document);
-			DocumentDto newDocumentDto = modelMapper.map(newDocument, DocumentDto.class);
-			return newDocumentDto;
+			return  modelMapper.map(documentRepository.save(document), DocumentDto.class);
 
 		} catch (DataIntegrityViolationException e) {
 			log.error("Error saving document: {}, {}", e.getMessage(), e.toString());
@@ -79,34 +71,9 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 	}
 
-	private void updateAccountPosted(DocumentDto documentDto, Document document) {
-		List<AccountPostedDto> newAccpountPostsList = documentDto.getAccountPostedList();
-		List<AccountPosted> currentAccountPostedList = document.getAccountPostedList();
-
-		if (newAccpountPostsList == null || newAccpountPostsList.isEmpty()) {
-			if (currentAccountPostedList != null) {
-				currentAccountPostedList.clear();
-			}
-		} else {
-			if (currentAccountPostedList == null) {
-				currentAccountPostedList = new ArrayList<>();
-				document.setAccountPostedList(currentAccountPostedList);
-			} else {
-				currentAccountPostedList.clear();
-			}
-
-			for (AccountPostedDto dto : newAccpountPostsList) {
-				dto.setDocumentDto(modelMapper.map(document, DocumentDto.class));
-				AccountPosted entity = accountPostedMapper.toEntity(dto);
-				currentAccountPostedList.add(entity);
-			}
-		}
-	}
-
 	public List<DocumentDto> getDocumentList() {
 		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().map(document -> {
-			DocumentDto documentDto = modelMapper.map(document, DocumentDto.class);
-			return documentDto;
+			return modelMapper.map(document, DocumentDto.class);
 		}).toList();
 	}
 
