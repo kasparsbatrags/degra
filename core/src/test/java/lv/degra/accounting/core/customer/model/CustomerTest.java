@@ -27,8 +27,9 @@ public class CustomerTest {
 
 	@BeforeEach
 	public void setUp() {
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			validator = factory.getValidator();
+		}
 		customer = getCustomer1();
 		customerType = new CustomerType();
 		address = new Address();

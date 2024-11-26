@@ -25,8 +25,9 @@ public class CurrencyTest {
 
 	@BeforeEach
 	public void setUp() {
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			validator = factory.getValidator();
+		}
 		currency = new Currency();
 	}
 
