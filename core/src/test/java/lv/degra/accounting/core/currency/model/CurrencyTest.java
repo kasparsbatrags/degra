@@ -1,22 +1,32 @@
 package lv.degra.accounting.core.currency.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 
 public class CurrencyTest {
 
 	private Currency currency;
+	private Validator validator;
 
 	@BeforeEach
 	public void setUp() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
 		currency = new Currency();
 	}
 
@@ -59,13 +69,17 @@ public class CurrencyTest {
 
 	@Test
 	public void testSetCurrencyCode_LengthValidation() {
+		// Valid currency code
 		String validCurrencyCode = "USD";
 		currency.setCurrencyCode(validCurrencyCode);
-		assertEquals(validCurrencyCode, currency.getCurrencyCode());
+		Set<ConstraintViolation<Currency>> violations = validator.validate(currency);
+		assertTrue(violations.isEmpty(), "Valid currency code should pass validation");
 
-		String invalidCurrencyCode = "USDA";
+		// Invalid currency code
+		String invalidCurrencyCode = "USDA"; // Pārsniedz garumu 3
 		currency.setCurrencyCode(invalidCurrencyCode);
-		assertNotEquals(invalidCurrencyCode, currency.getCurrencyCode(), "Currency code should be limited to 3 characters");
+		violations = validator.validate(currency);
+		assertFalse(violations.isEmpty(), "Currency code should be limited to 3 characters");
 	}
 
 	@Test

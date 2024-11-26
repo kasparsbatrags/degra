@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
@@ -25,7 +26,8 @@ public class Currency extends AuditInfo implements Serializable {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "currency_code", length = 3)
+    @Size(min = 3, max = 3)
+	@Column(name = "currency_code", length = 3)
     private String currencyCode;
 
     @Column(name = "currency_name", length = 100)
