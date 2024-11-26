@@ -1,8 +1,9 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.exchange;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
+import lv.degra.accounting.core.currency.CurrencyDataFactory;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 

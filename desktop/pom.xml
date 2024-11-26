@@ -111,18 +111,18 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.1</version>
-				<configuration>
-					<includes>
-						<include>**/*Test.java</include>
-					</includes>
-					<testSourceDirectory>src/test/java</testSourceDirectory>
-					<useSystemClassLoader>false</useSystemClassLoader>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-surefire-plugin</artifactId>-->
+<!--				<version>3.5.1</version>-->
+<!--				<configuration>-->
+<!--					<includes>-->
+<!--						<include>**/*Test.java</include>-->
+<!--					</includes>-->
+<!--					<testSourceDirectory>src/test/java</testSourceDirectory>-->
+<!--					<useSystemClassLoader>false</useSystemClassLoader>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 </project>

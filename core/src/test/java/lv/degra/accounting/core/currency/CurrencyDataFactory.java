@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.currency;
 
 import java.time.Instant;
 
@@ -26,4 +26,9 @@ public class CurrencyDataFactory {
     public static Currency getGbpCurrency() {
         return createCurrency(3, "GBP", "British Pound", "Penny", Instant.now(), Instant.now());
     }
+
+	public static Currency getUsdCurrency() {
+		return createCurrency(4, "USD", "United States Dollar", "Cent", Instant.now(), Instant.now());
+	}
+
 }
