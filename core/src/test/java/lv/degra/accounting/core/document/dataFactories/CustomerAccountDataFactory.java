@@ -1,8 +1,7 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.document.dataFactories;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.customer.model.Customer;

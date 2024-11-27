@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.document.dataFactories;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,5 @@ public class DocumentDirectionDataFactory {
 		documentDirections.add(createDocumentDirection(INBOUND_ID, INBOUND_NAME));
 		return documentDirections;
 	}
-
-
 
 }

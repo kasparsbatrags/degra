@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.document.dataFactories;
 
 import java.util.Arrays;
 import java.util.List;

@@ -3,6 +3,7 @@ package lv.degra.accounting.core.document.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -19,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,9 +76,11 @@ public class Document extends AuditInfo implements Serializable {
 	@Column(name = "payment_type_id")
 	private Integer paymentTypeId;
 
+	@PositiveOrZero(message = "Summai jābūt pozitīvai vai 0")
 	@Column(name = "sum_total", nullable = false)
 	private Double sumTotal;
 
+	@PositiveOrZero(message = "Summai valūtā jābūt pozitīvai vai 0")
 	@Column(name = "sum_total_in_currency", nullable = false)
 	private Double sumTotalInCurrency;
 
@@ -128,4 +132,33 @@ public class Document extends AuditInfo implements Serializable {
 
 	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<AccountPosted> accountPostedList;
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Document document = (Document) o;
+		return Objects.equals(id, document.id) && Objects.equals(documentNumber, document.documentNumber)
+				&& Objects.equals(documentSeries, document.documentSeries) && Objects.equals(documentSubType,
+				document.documentSubType) && Objects.equals(documentTransactionType, document.documentTransactionType)
+				&& Objects.equals(accountingDate, document.accountingDate) && Objects.equals(documentDate,
+				document.documentDate) && Objects.equals(paymentDate, document.paymentDate) && Objects.equals(paymentTypeId,
+				document.paymentTypeId) && Objects.equals(sumTotal, document.sumTotal) && Objects.equals(sumTotalInCurrency,
+				document.sumTotalInCurrency) && Objects.equals(currency, document.currency) && Objects.equals(exchangeRate,
+				document.exchangeRate) && Objects.equals(notesForCustomer, document.notesForCustomer) && Objects.equals(
+				internalNotes, document.internalNotes) && Objects.equals(publisherCustomer, document.publisherCustomer)
+				&& Objects.equals(publisherCustomerBank, document.publisherCustomerBank) && Objects.equals(
+				publisherCustomerBankAccount, document.publisherCustomerBankAccount) && Objects.equals(receiverCustomer,
+				document.receiverCustomer) && Objects.equals(receiverCustomerBank, document.receiverCustomerBank)
+				&& Objects.equals(receiverCustomerBankAccount, document.receiverCustomerBankAccount) && Objects.equals(
+				documentStatus, document.documentStatus) && Objects.equals(accountPostedList, document.accountPostedList);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, documentNumber, documentSeries, documentSubType, documentTransactionType, accountingDate, documentDate,
+				paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, exchangeRate, notesForCustomer, internalNotes,
+				publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer, receiverCustomerBank,
+				receiverCustomerBankAccount, documentStatus, accountPostedList);
+	}
 }

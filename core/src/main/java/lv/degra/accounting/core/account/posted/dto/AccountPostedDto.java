@@ -3,6 +3,7 @@ package lv.degra.accounting.core.account.posted.dto;
 import java.io.Serializable;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,6 @@ public class AccountPostedDto implements Serializable {
 
 	private Integer id;
 
-	//To do - trasform to DTO
 	@NotNull
 	private DocumentDto documentDto;
 
@@ -42,6 +42,7 @@ public class AccountPostedDto implements Serializable {
 
 	@TableViewInfo(displayName = "Summa", columnOrder = 3, columnWidth = 200, editable = true, styleClass = "sum-column")
 	@NotNull
+	@PositiveOrZero(message = "Summai jābūt pozitīvai vai 0")
 	private Double amount;
 
 }

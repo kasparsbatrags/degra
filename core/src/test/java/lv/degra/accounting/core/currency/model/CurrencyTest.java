@@ -40,13 +40,13 @@ public class CurrencyTest {
 		String subunitName = "Cent";
 
 		currency.setId(id);
-		currency.setCurrencyCode(currencyCode);
+		currency.setCode(currencyCode);
 		currency.setCurrencyName(currencyName);
 		currency.setSubunitName(subunitName);
 
 		// Verify getters
 		assertEquals(id, currency.getId());
-		assertEquals(currencyCode, currency.getCurrencyCode());
+		assertEquals(currencyCode, currency.getCode());
 		assertEquals(currencyName, currency.getCurrencyName());
 		assertEquals(subunitName, currency.getSubunitName());
 	}
@@ -55,7 +55,7 @@ public class CurrencyTest {
 	public void testNoArgsConstructor() {
 		assertNotNull(currency);
 		assertNull(currency.getId());
-		assertNull(currency.getCurrencyCode());
+		assertNull(currency.getCode());
 		assertNull(currency.getCurrencyName());
 		assertNull(currency.getSubunitName());
 	}
@@ -63,7 +63,7 @@ public class CurrencyTest {
 	@Test
 	public void testToString() {
 		String currencyCode = "EUR";
-		currency.setCurrencyCode(currencyCode);
+		currency.setCode(currencyCode);
 
 		assertEquals(currencyCode, currency.toString());
 	}
@@ -72,13 +72,13 @@ public class CurrencyTest {
 	public void testSetCurrencyCode_LengthValidation() {
 		// Valid currency code
 		String validCurrencyCode = "USD";
-		currency.setCurrencyCode(validCurrencyCode);
+		currency.setCode(validCurrencyCode);
 		Set<ConstraintViolation<Currency>> violations = validator.validate(currency);
 		assertTrue(violations.isEmpty(), "Valid currency code should pass validation");
 
 		// Invalid currency code
 		String invalidCurrencyCode = "USDA"; // Pārsniedz garumu 3
-		currency.setCurrencyCode(invalidCurrencyCode);
+		currency.setCode(invalidCurrencyCode);
 		violations = validator.validate(currency);
 		assertFalse(violations.isEmpty(), "Currency code should be limited to 3 characters");
 	}

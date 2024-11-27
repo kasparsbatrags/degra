@@ -9,7 +9,7 @@ public class CurrencyDataFactory {
     public static Currency createCurrency(Integer id, String currencyCode, String currencyName, String subunitName, Instant createdAt, Instant lastModifiedAt) {
         Currency currency = new Currency();
         currency.setId(id);
-        currency.setCurrencyCode(currencyCode);
+        currency.setCode(currencyCode);
         currency.setCurrencyName(currencyName);
         currency.setSubunitName(subunitName);
         return currency;

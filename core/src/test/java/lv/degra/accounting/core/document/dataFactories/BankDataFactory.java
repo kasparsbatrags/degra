@@ -1,12 +1,11 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.document.dataFactories;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import lv.degra.accounting.core.bank.model.Bank;
 
-
-public class BankModelDataFactory {
+public class BankDataFactory {
 
     public static final String SWED_BANK_BIC = "HABALV22";
     public static final Bank ACUSTOMER_SWED_BANK = new Bank(1, CustomersData.getCustomer1(), SWED_BANK_BIC);

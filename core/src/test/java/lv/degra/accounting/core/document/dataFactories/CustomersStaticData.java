@@ -1,4 +1,4 @@
-package lv.degra.accounting.desktop.data;
+package lv.degra.accounting.core.document.dataFactories;
 
 public class CustomersStaticData {
     public static final int CUSTOMER1_ID = 1;

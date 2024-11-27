@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.customer_account.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 
@@ -49,4 +50,17 @@ public class CustomerAccount extends AuditInfo implements Serializable {
 		return account;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		CustomerAccount that = (CustomerAccount) o;
+		return Objects.equals(id, that.id) && Objects.equals(bank, that.bank) && Objects.equals(customer, that.customer) && Objects.equals(
+				account, that.account);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, bank, customer, account);
+	}
 }

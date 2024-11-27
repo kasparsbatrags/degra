@@ -2,6 +2,7 @@ package lv.degra.accounting.core.exchange.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 
@@ -44,4 +45,17 @@ public class CurrencyExchangeRate extends AuditInfo implements Serializable {
 	@Column(name = "rate", nullable = false)
 	private Double rate;
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		CurrencyExchangeRate that = (CurrencyExchangeRate) o;
+		return Objects.equals(id, that.id) && Objects.equals(currency, that.currency) && Objects.equals(rateDate,
+				that.rateDate) && Objects.equals(rate, that.rate);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, currency, rateDate, rate);
+	}
 }

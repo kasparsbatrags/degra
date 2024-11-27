@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.currency.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 
@@ -21,24 +22,37 @@ import lv.degra.accounting.core.auditor.model.AuditInfo;
 @Table(name = "currency")
 @Audited
 public class Currency extends AuditInfo implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false)
+	private Integer id;
 
-    @Size(min = 3, max = 3)
+	@Size(min = 3, max = 3)
 	@Column(name = "currency_code", length = 3)
-    private String currencyCode;
+	private String code;
 
-    @Column(name = "currency_name", length = 100)
-    private String currencyName;
+	@Column(name = "currency_name", length = 100)
+	private String currencyName;
 
-    @Column(name = "subunit_name", length = 100)
-    private String subunitName;
+	@Column(name = "subunit_name", length = 100)
+	private String subunitName;
 
-    @Override
-    public String toString() {
-        return getCurrencyCode();
-    }
+	@Override
+	public String toString() {
+		return getCode();
+	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Currency currency = (Currency) o;
+		return Objects.equals(id, currency.id) && Objects.equals(code, currency.code) && Objects.equals(currencyName, currency.currencyName)
+				&& Objects.equals(subunitName, currency.subunitName);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, code, currencyName, subunitName);
+	}
 }

@@ -1,8 +1,8 @@
 //package lv.degra.accounting.desktop.document.controller;
 //
-//import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
-//import static lv.degra.accounting.desktop.data.BankDataFactory.SWED_BANK_BIC;
-//import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
+//import static lv.degra.accounting.core.document.dataFactories.BankDataFactory.ACUSTOMER_SWED_BANK;
+//import static lv.degra.accounting.core.document.dataFactories.BankDataFactory.SWED_BANK_BIC;
+//import static lv.degra.accounting.core.document.dataFactories.CustomersData.getCustomer1;
 //import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.getDouble;
 //import static lv.degra.accounting.desktop.document.DocumentFieldsUtils.setFieldFormat;
 //import static lv.degra.accounting.desktop.system.configuration.DegraDesktopConfig.SUM_FORMAT_REGEX;

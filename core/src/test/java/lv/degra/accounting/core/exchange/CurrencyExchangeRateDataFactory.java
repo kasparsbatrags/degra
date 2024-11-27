@@ -18,7 +18,7 @@ public class CurrencyExchangeRateDataFactory {
         return exchangeRate;
     }
 
-    public static CurrencyExchangeRate getDefaultCurrencyExchangeRate() {
+    public static CurrencyExchangeRate getDefaultExchangeRate() {
         return createCurrencyExchangeRate(1, CurrencyDataFactory.getDefaultCurrency(), LocalDate.now(), 1.0, Instant.now(), Instant.now());
     }
 
