@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import lv.degra.accounting.core.currency.model.Currency;
 
-public class AccountCodeChartDtoTest {
+class AccountCodeChartDtoTest {
 
 	private AccountCodeChartDto accountCodeChartDto;
 
@@ -23,7 +23,7 @@ public class AccountCodeChartDtoTest {
 	}
 
 	@Test
-	public void testGettersAndSetters() {
+	void testGettersAndSetters() {
 		// Set values
 		Integer id = 1;
 		String code = "ACC-001";
@@ -52,7 +52,7 @@ public class AccountCodeChartDtoTest {
 	}
 
 	@Test
-	public void testConstructorAllArgs() {
+	void testConstructorAllArgs() {
 		Currency currency = getEurCurrency();
 		AccountCodeChartDto parentAccount = new AccountCodeChartDto(3, "ACC-003", "Main Account", false, true, currency, null);
 		AccountCodeChartDto dto = new AccountCodeChartDto(4, "ACC-004", "Child Account", true, false, currency, parentAccount);
@@ -68,7 +68,7 @@ public class AccountCodeChartDtoTest {
 	}
 
 	@Test
-	public void testNoArgsConstructor() {
+	void testNoArgsConstructor() {
 		assertNotNull(accountCodeChartDto);
 		assertNull(accountCodeChartDto.getId());
 		assertNull(accountCodeChartDto.getCode());
@@ -80,7 +80,7 @@ public class AccountCodeChartDtoTest {
 	}
 
 	@Test
-	public void testParentAccountRelationship() {
+	void testParentAccountRelationship() {
 		AccountCodeChartDto parentAccount = new AccountCodeChartDto(5, "ACC-005", "Parent Account", false, true, null, null);
 		accountCodeChartDto.setParentAccount(parentAccount);
 

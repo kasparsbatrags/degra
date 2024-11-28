@@ -18,7 +18,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 
-public class CurrencyTest {
+class CurrencyTest {
 
 	private Currency currency;
 	private Validator validator;
@@ -32,7 +32,7 @@ public class CurrencyTest {
 	}
 
 	@Test
-	public void testGettersAndSetters() {
+	void testGettersAndSetters() {
 		// Set values
 		Integer id = 1;
 		String currencyCode = "USD";
@@ -52,7 +52,7 @@ public class CurrencyTest {
 	}
 
 	@Test
-	public void testNoArgsConstructor() {
+	void testNoArgsConstructor() {
 		assertNotNull(currency);
 		assertNull(currency.getId());
 		assertNull(currency.getCode());
@@ -61,7 +61,7 @@ public class CurrencyTest {
 	}
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		String currencyCode = "EUR";
 		currency.setCode(currencyCode);
 
@@ -69,7 +69,7 @@ public class CurrencyTest {
 	}
 
 	@Test
-	public void testSetCurrencyCode_LengthValidation() {
+	void testSetCurrencyCode_LengthValidation() {
 		// Valid currency code
 		String validCurrencyCode = "USD";
 		currency.setCode(validCurrencyCode);
@@ -84,7 +84,7 @@ public class CurrencyTest {
 	}
 
 	@Test
-	public void testInheritance_AuditInfo() {
+	void testInheritance_AuditInfo() {
 		assertInstanceOf(AuditInfo.class, currency);
 	}
 }

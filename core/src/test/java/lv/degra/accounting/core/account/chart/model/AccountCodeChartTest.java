@@ -19,14 +19,14 @@ import jakarta.validation.ValidatorFactory;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.currency.model.Currency;
 
-public class AccountCodeChartTest {
+class AccountCodeChartTest {
 
 	private AccountCodeChart accountCodeChart;
 	private Currency currency;
 	private Validator validator;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
 			validator = factory.getValidator();
 		}
@@ -36,7 +36,7 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testGettersAndSetters() {
+	void testGettersAndSetters() {
 		// Set values
 		Integer id = 1;
 		String code = "ACC-001";
@@ -67,7 +67,7 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testNoArgsConstructor() {
+	void testNoArgsConstructor() {
 		assertNotNull(accountCodeChart);
 		assertNull(accountCodeChart.getId());
 		assertNull(accountCodeChart.getCode());
@@ -80,7 +80,7 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		String code = "EUR-001";
 		accountCodeChart.setCode(code);
 
@@ -88,7 +88,7 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testCode_LengthValidation() {
+	void testCode_LengthValidation() {
 		String validCode = "ACC001";
 		accountCodeChart.setCode(validCode);
 		assertEquals(validCode, accountCodeChart.getCode());
@@ -100,7 +100,7 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testName_LengthValidation() {
+	void testName_LengthValidation() {
 		String validName = "Valid Account Name";
 		accountCodeChart.setName(validName);
 		assertEquals(validName, accountCodeChart.getName());
@@ -112,14 +112,14 @@ public class AccountCodeChartTest {
 	}
 
 	@Test
-	public void testCurrencyNotNull() {
+	void testCurrencyNotNull() {
 		accountCodeChart.setCurrency(null);
 		Set<ConstraintViolation<AccountCodeChart>> violations = validator.validate(accountCodeChart);
 		assertFalse(violations.isEmpty(), "Currency should not be null");
 	}
 
 	@Test
-	public void testInheritance_AuditInfo() {
+	void testInheritance_AuditInfo() {
 		assertInstanceOf(AuditInfo.class, accountCodeChart);
 	}
 }

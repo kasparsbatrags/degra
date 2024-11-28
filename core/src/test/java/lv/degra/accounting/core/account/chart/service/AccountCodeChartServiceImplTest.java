@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChartRepository;
 
-public class AccountCodeChartServiceImplTest {
+class AccountCodeChartServiceImplTest {
 
 	@Mock
 	private AccountCodeChartRepository accountCodeChartRepository;
@@ -26,12 +26,12 @@ public class AccountCodeChartServiceImplTest {
 	private AccountCodeChartServiceImpl accountCodeChartService;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		MockitoAnnotations.openMocks(this);
 	}
 
 	@Test
-	public void testGetAccountCodeChart() {
+	void testGetAccountCodeChart() {
 		// Arrange
 		AccountCodeChart account1 = new AccountCodeChart();
 		account1.setId(1);
@@ -60,7 +60,7 @@ public class AccountCodeChartServiceImplTest {
 	}
 
 	@Test
-	public void testGetSuggestions() {
+	void testGetSuggestions() {
 		// Arrange
 		String searchText = "Cash";
 		AccountCodeChart account1 = new AccountCodeChart();

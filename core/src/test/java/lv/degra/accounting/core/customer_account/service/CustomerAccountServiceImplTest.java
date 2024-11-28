@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,8 +53,7 @@ class CustomerAccountServiceImplTest {
 	@Test
 	void testGetCustomerAccounts_ReturnsCustomerAccounts() {
 		// Arrange
-		when(customerAccountRepository.getByCustomerId(mockCustomer.getId()))
-				.thenReturn(Collections.singletonList(mockAccount));
+		when(customerAccountRepository.getByCustomerId(mockCustomer.getId())).thenReturn(Collections.singletonList(mockAccount));
 
 		// Act
 		List<CustomerAccount> accounts = customerAccountService.getCustomerAccounts(mockCustomer);
@@ -63,7 +61,7 @@ class CustomerAccountServiceImplTest {
 		// Assert
 		assertNotNull(accounts, "Accounts list should not be null");
 		assertEquals(1, accounts.size(), "Accounts list should contain one account");
-		assertEquals(mockAccount, accounts.get(0), "Returned account should match mock account");
+		assertEquals(mockAccount, accounts.getFirst(), "Returned account should match mock account");
 		verify(customerAccountRepository, times(1)).getByCustomerId(mockCustomer.getId());
 	}
 
@@ -84,8 +82,8 @@ class CustomerAccountServiceImplTest {
 	@Test
 	void testGetCustomerBankAccounts_ReturnsCustomerBankAccounts() {
 		// Arrange
-		when(customerAccountRepository.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId()))
-				.thenReturn(Collections.singletonList(mockAccount));
+		when(customerAccountRepository.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId())).thenReturn(
+				Collections.singletonList(mockAccount));
 
 		// Act
 		List<CustomerAccount> accounts = customerAccountService.getCustomerBankAccounts(mockCustomer, mockBank);
@@ -93,16 +91,15 @@ class CustomerAccountServiceImplTest {
 		// Assert
 		assertNotNull(accounts, "Accounts list should not be null");
 		assertEquals(1, accounts.size(), "Accounts list should contain one account");
-		assertEquals(mockAccount, accounts.get(0), "Returned account should match mock account");
-		verify(customerAccountRepository, times(1))
-				.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId());
+		assertEquals(mockAccount, accounts.getFirst(), "Returned account should match mock account");
+		verify(customerAccountRepository, times(1)).findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId());
 	}
 
 	@Test
 	void testGetCustomerBankAccounts_NoAccountsFound() {
 		// Arrange
-		when(customerAccountRepository.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId()))
-				.thenReturn(Collections.emptyList());
+		when(customerAccountRepository.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId())).thenReturn(
+				Collections.emptyList());
 
 		// Act
 		List<CustomerAccount> accounts = customerAccountService.getCustomerBankAccounts(mockCustomer, mockBank);
@@ -110,7 +107,6 @@ class CustomerAccountServiceImplTest {
 		// Assert
 		assertNotNull(accounts, "Accounts list should not be null");
 		assertTrue(accounts.isEmpty(), "Accounts list should be empty");
-		verify(customerAccountRepository, times(1))
-				.findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId());
+		verify(customerAccountRepository, times(1)).findByCustomerIdAndBankId(mockCustomer.getId(), mockBank.getId());
 	}
 }
