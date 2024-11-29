@@ -35,7 +35,6 @@
 		<sonar.projectName>degra</sonar.projectName>
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.scm.provider>git</sonar.scm.provider>
-		<sonar.tests>src/test/java</sonar.tests>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -171,11 +170,24 @@
 				<version>0.8.12</version>
 				<executions>
 					<execution>
-						<id>report-aggregate</id>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report-site-aggregate</id>
+						<phase>verify</phase>
 						<goals>
 							<goal>report-aggregate</goal>
 						</goals>
-						<phase>verify</phase>
 						<configuration>
 							<dataFileIncludes>${project.build.directory}${file.separator}jacoco-merged.exec</dataFileIncludes>
 							<outputDirectory>${project.build.directory}${file.separator}jacoco-aggregate</outputDirectory>
@@ -183,7 +195,7 @@
 					</execution>
 					<execution>
 						<id>merge</id>
-						<phase>verify</phase> <!-- Izmanto verify, nevis test -->
+						<phase>verify</phase>
 						<goals>
 							<goal>merge</goal>
 						</goals>
@@ -218,12 +230,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>check</id>
+						<id>default-check</id>
 						<goals>
 							<goal>check</goal>
 						</goals>
@@ -255,11 +262,14 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-surefire-plugin</artifactId>-->
+<!--				<version>3.5.2</version>-->
+<!--				<configuration>-->
+<!--					<argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=${project.build.directory}/jacoco.exec</argLine>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 </project>

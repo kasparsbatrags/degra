@@ -25,6 +25,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-core</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -48,9 +54,10 @@
 				<version>0.8.12</version>
 				<executions>
 					<execution>
-						<id>prepare-agent</id>
+						<id>jacoco-site-aggregate</id>
+						<phase>verify</phase>
 						<goals>
-							<goal>prepare-agent</goal>
+							<goal>report-aggregate</goal>
 						</goals>
 					</execution>
 				</executions>

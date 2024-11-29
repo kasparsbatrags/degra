@@ -117,9 +117,10 @@
 				<version>0.8.12</version>
 				<executions>
 					<execution>
-						<id>prepare-agent</id>
+						<id>jacoco-site-aggregate</id>
+						<phase>verify</phase>
 						<goals>
-							<goal>prepare-agent</goal>
+							<goal>report-aggregate</goal>
 						</goals>
 					</execution>
 				</executions>
