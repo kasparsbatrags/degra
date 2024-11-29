@@ -4,11 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.Reader;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,8 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import lv.degra.accounting.core.company.register.model.CompanyRegister;
 import lv.degra.accounting.core.company.register.model.CompanyRegisterRepository;
 import lv.degra.accounting.core.company.type.model.CompanyType;
 import lv.degra.accounting.core.company.type.model.CompanyTypeRepository;
@@ -66,26 +75,6 @@ class CompanyRegisterServiceImplTest {
 		// Add more verifications as needed
 	}
 
-	//    @Test
-	//    void testImportCompanyData() {
-	//
-	//        String csvContent = "40003000001,LV40003000001,COMPANY NAME,,,,,SIA,SIA,01.01.2000,";
-	//        Reader reader = new StringReader(csvContent);
-	//        List<String[]> mockLineData = Arrays.asList(new String[][]{csvContent.split(",")});
-	//
-	//
-	//        when(csvParser.getDataLines(any(Reader.class))).thenReturn(mockLineData);
-	//        when(companyTypeRepository.findAll()).thenReturn(Arrays.asList(new CompanyType(1, "SIA", "Sabiedrība ar ierobežotu atbildību")));
-	//
-	//        // Act
-	//        companyRegisterService.importCompanyData(reader);
-	//
-	//        // Assert
-	//        verify(companyTypeRepository).findAll();
-	//        verify(jdbcTemplate).execute("TRUNCATE TABLE company_register");
-	//        verify(jdbcTemplate).batchUpdate(anyString(), any(org.springframework.jdbc.core.BatchPreparedStatementSetter.class));
-	//    }
-
 	@Test
 	void testGetUniqueCompanyTypes() {
 		// Arrange
@@ -124,5 +113,188 @@ class CompanyRegisterServiceImplTest {
 		verify(companyTypeRepository, times(2)).getByCode(anyString());
 	}
 
-	// Add more tests for other methods as needed
+	@Test
+	public void testImportData_FileDownloadedAndProcessed() {
+		// Mocking dependencies
+		byte[] csvData = "register_number;sepa_code;name\n12345;SEP001;Company A".getBytes();
+		when(configService.get(DegraConfig.COMPANY_DOWNLOAD_LINK)).thenReturn("http://example.com/file.csv");
+		when(fileService.downloadFileByUrl(anyString())).thenReturn(csvData);
+
+		// Call method
+		companyRegisterService.importData();
+
+		// Verify interactions
+		verify(fileService).downloadFileByUrl(anyString());
+		verify(csvParser).getDataLines(any(Reader.class));
+	}
+
+	@Test
+	public void testImportData_FileNotDownloaded() {
+		// Mocking dependencies
+		when(configService.get(DegraConfig.COMPANY_DOWNLOAD_LINK)).thenReturn("http://example.com/file.csv");
+		when(fileService.downloadFileByUrl(anyString())).thenReturn(null);
+
+		// Call method
+		companyRegisterService.importData();
+
+		// Verify that CSV parser is never called
+		verify(csvParser, never()).getDataLines(any(Reader.class));
+	}
+
+	@Test
+	public void testBatchInsertCompanyRegister() {
+		// Prepare data
+		CompanyType companyType = new CompanyType();
+		companyType.setId(1);
+		companyType.setCode("LLC");
+		companyType.setName("Limited Liability Company");
+
+		CompanyRegister companyRegister = new CompanyRegister();
+		companyRegister.setRegisterNumber("12345");
+		companyRegister.setSepaCode("SEP001");
+		companyRegister.setName("Company A");
+		companyRegister.setCompanyType(companyType);
+		companyRegister.setRegisteredDate(LocalDate.now());
+		companyRegister.setTerminatedDate(null);
+
+		List<CompanyRegister> companyRegisterList = List.of(companyRegister);
+
+		// Call method
+		companyRegisterService.batchInsertCompanyRegister(companyRegisterList);
+
+		// Verify interactions
+		verify(jdbcTemplate).batchUpdate(anyString(), any(BatchPreparedStatementSetter.class));
+	}
+
+	@Test
+	public void testTruncateCompanyRegisterTable() {
+		// Call method
+		companyRegisterService.truncateCompanyRegisterTable();
+
+		// Verify interaction
+		verify(jdbcTemplate).execute("TRUNCATE TABLE company_register");
+	}
+
+	@Test
+	public void testGetBatchSize() {
+		// Prepare data
+		List<CompanyRegister> companyRegisterList = List.of(
+				new CompanyRegister(), new CompanyRegister(), new CompanyRegister()
+		);
+
+		// Create a BatchPreparedStatementSetter instance
+		BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				// Implementation not required for this test
+			}
+
+			@Override
+			public int getBatchSize() {
+				return companyRegisterList.size();
+			}
+		};
+
+		// Verify batch size
+		assertEquals(3, batchPreparedStatementSetter.getBatchSize(), "Expected batch size to be 3");
+	}
+
+	@Test
+	public void testGetCompanyData() {
+		// Prepare data
+		List<String> csvLineInArray = List.of("12345", "SEP001", "Company A", "Company A Before Quotes", "Company A In Quotes", "Company A After Quotes", "", "", "", "LLC", "Limited Liability Company", "2023-01-01", "2023-12-31");
+		CompanyType companyType = new CompanyType();
+		companyType.setId(1);
+		companyType.setCode("LLC");
+		companyType.setName("Limited Liability Company");
+
+		// Call method
+		CompanyRegister companyRegister = companyRegisterService.getCompanyData(csvLineInArray, companyType);
+
+		// Verify result
+		assertEquals("12345", companyRegister.getRegisterNumber());
+		assertEquals("SEP001", companyRegister.getSepaCode());
+		assertEquals("Company A In Quotes, LLC", companyRegister.getName());
+		assertEquals("Company A Before Quotes", companyRegister.getNameBeforeQuotes());
+		assertEquals("Company A In Quotes", companyRegister.getNameInQuotes());
+		assertEquals("Company A After Quotes", companyRegister.getNameAfterQuotes());
+		assertEquals(companyType, companyRegister.getCompanyType());
+		assertEquals(LocalDate.parse("2023-01-01"), companyRegister.getRegisteredDate());
+		assertEquals(LocalDate.parse("2023-12-31"), companyRegister.getTerminatedDate());
+	}
+
+	@Test
+	void testGetCompaniesLists() {
+		// Prepare data
+		List<String[]> lineData = List.of(
+				new String[]{"12345", "SEP001", "Company A", "", "", "", "", "", "", "LLC", "Limited Liability Company", "2023-01-01", ""},
+				new String[]{"67890", "SEP002", "Company B", "", "", "", "", "", "", "PLC", "Public Limited Company", "2023-02-01", ""}
+		);
+
+		Map<String, CompanyType> companyTypeMap = new HashMap<>();
+		CompanyType llcType = new CompanyType();
+		llcType.setId(1);
+		llcType.setCode("LLC");
+		llcType.setName("Limited Liability Company");
+		companyTypeMap.put("LLC", llcType);
+
+		CompanyType plcType = new CompanyType();
+		plcType.setId(2);
+		plcType.setCode("PLC");
+		plcType.setName("Public Limited Company");
+		companyTypeMap.put("PLC", plcType);
+
+		// Call method
+		List<CompanyRegister> companyRegisterList = companyRegisterService.getCompaniesLists(lineData, companyTypeMap);
+
+		// Verify result
+		assertEquals(2, companyRegisterList.size());
+		assertEquals("12345", companyRegisterList.get(0).getRegisterNumber());
+		assertEquals("67890", companyRegisterList.get(1).getRegisterNumber());
+		assertEquals(llcType, companyRegisterList.get(0).getCompanyType());
+		assertEquals(plcType, companyRegisterList.get(1).getCompanyType());
+	}
+
+	@Test
+	void testSetValues() throws SQLException {
+		// Prepare data
+		CompanyRegister companyRegister = new CompanyRegister();
+		companyRegister.setRegisterNumber("12345");
+		companyRegister.setSepaCode("SEP001");
+		companyRegister.setName("Company A");
+		companyRegister.setRegisteredDate(LocalDate.parse("2023-01-01"));
+		companyRegister.setTerminatedDate(LocalDate.parse("2023-12-31"));
+		List<CompanyRegister> companyRegisterList = List.of(companyRegister);
+
+		// Mock PreparedStatement
+		PreparedStatement preparedStatement = mock(PreparedStatement.class);
+
+		// Create a BatchPreparedStatementSetter instance
+		BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				CompanyRegister company = companyRegisterList.get(i);
+				ps.setString(1, company.getRegisterNumber());
+				ps.setString(2, company.getSepaCode());
+				ps.setString(3, company.getName());
+				ps.setDate(4, java.sql.Date.valueOf(company.getRegisteredDate()));
+				ps.setDate(5, java.sql.Date.valueOf(company.getTerminatedDate()));
+			}
+
+			@Override
+			public int getBatchSize() {
+				return companyRegisterList.size();
+			}
+		};
+
+		// Call setValues
+		batchPreparedStatementSetter.setValues(preparedStatement, 0);
+
+		// Verify that PreparedStatement methods were called with correct values
+		verify(preparedStatement).setString(1, "12345");
+		verify(preparedStatement).setString(2, "SEP001");
+		verify(preparedStatement).setString(3, "Company A");
+		verify(preparedStatement).setDate(4, java.sql.Date.valueOf("2023-01-01"));
+		verify(preparedStatement).setDate(5, java.sql.Date.valueOf("2023-12-31"));
+	}
 }

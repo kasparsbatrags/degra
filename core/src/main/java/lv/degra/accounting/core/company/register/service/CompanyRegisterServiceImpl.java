@@ -85,7 +85,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         batchInsertCompanyRegister(getCompaniesLists(lineData, companyTypeMap));
     }
 
-    private List<CompanyRegister> getCompaniesLists(List<String[]> lineData, Map<String, CompanyType> companyTypeMap) {
+    protected List<CompanyRegister> getCompaniesLists(List<String[]> lineData, Map<String, CompanyType> companyTypeMap) {
         List<CompanyRegister> companyRegisterList = new ArrayList<>();
         lineData.forEach(line -> {
             CompanyType companyType = companyTypeMap.getOrDefault(line[9], null);
@@ -149,7 +149,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
                 .collect(Collectors.toSet());
     }
 
-    private CompanyRegister getCompanyData(List<String> csvLineInArray, CompanyType companyType) {
+    protected CompanyRegister getCompanyData(List<String> csvLineInArray, CompanyType companyType) {
         CompanyRegister companyRegister = new CompanyRegister();
         companyRegister.setRegisterNumber(csvLineInArray.get(0));
         companyRegister.setSepaCode(csvLineInArray.get(1));
