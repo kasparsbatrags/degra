@@ -27,19 +27,19 @@ class BankTest {
 
 	@BeforeEach
 	void setUp() {
-		// Izveidojam klientu un bankas objektu pirms katra testa
+
 		customer = CustomersData.getCustomer1();
 		bank = ACUSTOMER_SWED_BANK;
 	}
 
 	@Test
 	void testGettersAndSetters() {
-		// Pārbaudām vai getteri un setteri darbojas pareizi
+
 		assertEquals(1, bank.getId());
 		assertEquals(SWED_BANK_BIC, bank.getBic());
 		assertEquals(customer, bank.getCustomer());
 
-		// Testējam setter metodi
+
 		Customer newCustomer = new Customer();
 		newCustomer.setId(2);
 		newCustomer.setName("New Customer");
@@ -55,6 +55,8 @@ class BankTest {
 		assertEquals(bank.hashCode(), sameBank.hashCode());
 
 		Bank differentBank = BCUSTOMER_SEB_BANK;
+		assertNotEquals(bank, null);
+		assertNotEquals(bank, new Object());
 		assertNotEquals(bank, differentBank);
 		assertNotEquals(bank.hashCode(), differentBank.hashCode());
 	}
@@ -66,19 +68,19 @@ class BankTest {
 
 	@Test
 	void testValidationConstraints() {
-		// Izveidojam validācijas instanci
+
 		Validator validator;
 		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
 			validator = factory.getValidator();
 		}
 
-		// Validējam BIC, kas ir derīgs
-		bank.setBic("12345678901"); // Derīgs BIC (garums <= 11)
+
+		bank.setBic("12345678901");
 		Set<ConstraintViolation<Bank>> violations = validator.validate(bank);
 		assertTrue(violations.isEmpty());
 
-		// Pārbaudām BIC garuma ierobežojumu
-		bank.setBic("123456789012"); // BIC garums pārsniedz 11
+
+		bank.setBic("123456789012");
 		violations = validator.validate(bank);
 		assertFalse(violations.isEmpty());
 	}

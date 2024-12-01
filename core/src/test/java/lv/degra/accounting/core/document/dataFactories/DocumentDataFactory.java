@@ -9,6 +9,7 @@ import static lv.degra.accounting.core.document.dataFactories.CustomersData.getC
 import static lv.degra.accounting.core.document.dataFactories.CustomersData.getCustomer2;
 import static lv.degra.accounting.core.document.dataFactories.DocumentStatusDataFactory.createNewStatus;
 import static lv.degra.accounting.core.document.dataFactories.DocumentSubTypeDataFactory.getInboundBillDocumentSubType;
+import static lv.degra.accounting.core.document.dataFactories.DocumentTransactionTypeDataFactory.createValidTransactionType;
 import static lv.degra.accounting.core.exchange.CurrencyExchangeRateDataFactory.getDefaultExchangeRate;
 
 import java.time.LocalDate;
@@ -40,6 +41,9 @@ public class DocumentDataFactory {
 		document.setReceiverCustomerBankAccount(CUSTOMER2_BANK2_ACCOUNT1);
 		document.setDocumentStatus(createNewStatus());
 		document.setAccountPostedList(Collections.emptyList());
+		document.setInternalNotes("INTERNAL NOTES");
+		document.setNotesForCustomer("CUSTOMER NOTES");
+		document.setDocumentTransactionType(createValidTransactionType());
 
 		return document;
 	}

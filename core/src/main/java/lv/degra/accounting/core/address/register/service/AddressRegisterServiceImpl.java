@@ -35,8 +35,8 @@ import lv.degra.accounting.core.address.register.model.AddressRegister;
 import lv.degra.accounting.core.address.register.model.AddressRegisterRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.FileService;
+import lv.degra.accounting.core.system.files.exception.ExtractZipFileException;
 
 
 @Service
@@ -79,8 +79,12 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
         }
 
         if (isArDataChanged(csvFileBytes)) {
-            processAndImportData(csvFileBytes);
-        } else {
+			try {
+				processAndImportData(csvFileBytes);
+			} catch (ExtractZipFileException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
             log.info("Address CSV file not changed");
         }
 
@@ -92,20 +96,19 @@ public class AddressRegisterServiceImpl implements AddressRegisterService {
         log.info("Address CSV file unable to download");
     }
 
-    private void processAndImportData(byte[] csvFileBytes) {
-        try {
-            fileService.unzipFileInFolder(csvFileBytes);
-        } catch (Exception e) {
-            log.error("Error unzipping file", e);
-            throw new ExtractZipFileException(e.getMessage() + e.getCause());
-        }
+	private void processAndImportData(byte[] csvFileBytes) throws ExtractZipFileException {
+		try {
+			fileService.unzipFileInFolder(csvFileBytes);
+		} catch (Exception e) {
+			log.error("Error unzipping file", e);
+			throw new ExtractZipFileException(e.getMessage() + e.getCause());
+		}
 
-        truncateAddressRegisterTable();
-        importArData();
-        createIndexes();
-        fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
-    }
-
+		truncateAddressRegisterTable();
+		importArData();
+		createIndexes();
+		fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
+	}
     public void truncateAddressRegisterTable() {
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_full_address_idx");
         jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_code_idx");

@@ -1,14 +1,13 @@
 package lv.degra.accounting.company;
 
-import lv.degra.accounting.core.address.register.exception.DownloadAddressDataException;
-import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
-import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"lv.degra.accounting.core", "lv.degra.accounting.company"})
@@ -28,11 +27,7 @@ public class CompanyApplication {
 
     @Scheduled(cron = "${application.company-download-cron}")
     private void scheduleTaskUsingCronExpression() {
-        try {
-            companyRegisterService.importData();
-        } catch (ExtractZipFileException e) {
-            throw new DownloadAddressDataException(e.getMessage() + e.getCause());
-        }
-    }
+		companyRegisterService.importData();
+	}
 
 }

@@ -1,7 +1,7 @@
 package lv.degra.accounting.core.account.posted;
 
-import static lv.degra.accounting.core.account.chart.AccountCodeChartDataFactory.createCreditAccount;
-import static lv.degra.accounting.core.account.chart.AccountCodeChartDataFactory.createDebitAccount;
+import static lv.degra.accounting.core.account.chart.dto.AccountCodeChartDtoDataFactory.createAccountCodeChartDtoCreditAccount;
+import static lv.degra.accounting.core.account.chart.dto.AccountCodeChartDtoDataFactory.createAccountCodeChartDtoDebitAccount;
 import static lv.degra.accounting.core.document.dto.DocumentDtoDataFactory.createValidDocumentDto;
 
 import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
@@ -12,8 +12,8 @@ public class AccountPostedDtoDataFactory {
 		AccountPostedDto dto = new AccountPostedDto();
 		dto.setId(1);
 		dto.setDocumentDto(createValidDocumentDto());
-		dto.setDebitAccount(createDebitAccount());
-		dto.setCreditAccount(createCreditAccount());
+		dto.setDebitAccount(createAccountCodeChartDtoDebitAccount());
+		dto.setCreditAccount(createAccountCodeChartDtoCreditAccount());
 		dto.setAmount(1000.00);
 		return dto;
 	}

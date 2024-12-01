@@ -3,6 +3,8 @@ package lv.degra.accounting.core.account.posted.dto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import lv.degra.accounting.core.account.chart.dto.AccountCodeChartDto;
+import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
 import lv.degra.accounting.core.account.posted.model.AccountPosted;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
@@ -20,8 +22,8 @@ public class AccountPostedMapper {
 		AccountPostedDto dto = new AccountPostedDto();
 		dto.setId(entity.getId());
 		dto.setDocumentDto(modelMapper.map(entity.getDocument(), DocumentDto.class));
-		dto.setDebitAccount(entity.getDebitAccount());
-		dto.setCreditAccount(entity.getCreditAccount());
+		dto.setDebitAccount(modelMapper.map(entity.getDebitAccount(), AccountCodeChartDto.class));
+		dto.setCreditAccount(modelMapper.map(entity.getCreditAccount(), AccountCodeChartDto.class));
 		return dto;
 	}
 
@@ -29,8 +31,8 @@ public class AccountPostedMapper {
 		AccountPosted entity = new AccountPosted();
 		entity.setId(dto.getId());
 		entity.setDocument(modelMapper.map(dto.getDocumentDto(), Document.class));
-		entity.setDebitAccount(dto.getDebitAccount());
-		entity.setCreditAccount(dto.getCreditAccount());
+		entity.setDebitAccount(modelMapper.map(dto.getDebitAccount(), AccountCodeChart.class));
+		entity.setCreditAccount(modelMapper.map(dto.getCreditAccount(), AccountCodeChart.class));
 		entity.setAmount(dto.getAmount());
 		return entity;
 	}

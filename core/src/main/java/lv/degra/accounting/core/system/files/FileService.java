@@ -2,13 +2,15 @@ package lv.degra.accounting.core.system.files;
 
 import java.nio.file.Path;
 
+import lv.degra.accounting.core.system.files.exception.ExtractZipFileException;
+
 public interface FileService {
 
-	byte[] downloadFileByUrl(String fileUrl) ;
+	byte[] downloadFileByUrl(String fileUrl);
 
 	byte[] loadFileLocally(String localFilePath);
 
-	String unzipFileInFolder(byte[] csvFileBytes);
+	String unzipFileInFolder(byte[] csvFileBytes) throws ExtractZipFileException;
 
 	Path getTempDirectoryPath();
 

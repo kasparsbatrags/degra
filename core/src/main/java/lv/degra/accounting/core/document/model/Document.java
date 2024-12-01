@@ -66,7 +66,6 @@ public class Document extends AuditInfo implements Serializable {
 	private LocalDate accountingDate;
 
 	@NotNull
-	@NotNull
 	@Column(name = "document_date", nullable = false)
 	private LocalDate documentDate;
 

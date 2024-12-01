@@ -1,8 +1,6 @@
-package lv.degra.accounting.core.account.chart;
+package lv.degra.accounting.core.account.chart.model;
 
 import static lv.degra.accounting.core.currency.CurrencyDataFactory.getDefaultCurrency;
-
-import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
 
 public class AccountCodeChartDataFactory {
 

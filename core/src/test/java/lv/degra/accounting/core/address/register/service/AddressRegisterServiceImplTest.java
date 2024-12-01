@@ -21,6 +21,7 @@ import lv.degra.accounting.core.address.register.model.AddressRegisterRepository
 import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.files.FileService;
+import lv.degra.accounting.core.system.files.exception.ExtractZipFileException;
 
 class AddressRegisterServiceImplTest {
 
@@ -49,7 +50,7 @@ class AddressRegisterServiceImplTest {
     }
 
     @Test
-    void testImportData_WhenNoNewData() {
+    void testImportData_WhenNoNewData() throws ExtractZipFileException {
         // Arrange
         byte[] mockCsvFileBytes = "mock csv data".getBytes();
         when(configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK)).thenReturn("http://mock-url.com");
@@ -66,7 +67,7 @@ class AddressRegisterServiceImplTest {
     }
 
     @Test
-    void testImportData_WhenDownloadFails() {
+    void testImportData_WhenDownloadFails() throws ExtractZipFileException {
         // Arrange
         when(configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK)).thenReturn("http://mock-url.com");
         when(fileService.downloadFileByUrl(anyString())).thenReturn(null);

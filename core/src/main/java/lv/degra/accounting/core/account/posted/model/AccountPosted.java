@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.account.posted.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 
@@ -50,4 +51,18 @@ public class AccountPosted extends AuditInfo implements Serializable {
 	@JoinColumn(name = "credit_account_id", nullable = false)
 	private AccountCodeChart creditAccount;
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		AccountPosted that = (AccountPosted) o;
+		return Objects.equals(id, that.id) && Objects.equals(document, that.document) && Objects.equals(
+				debitAccount, that.debitAccount) && Objects.equals(amount, that.amount) && Objects.equals(creditAccount,
+				that.creditAccount);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, document, debitAccount, amount, creditAccount);
+	}
 }

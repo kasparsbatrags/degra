@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
+import lv.degra.accounting.core.account.chart.dto.AccountCodeChartDto;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
 import lv.degra.accounting.core.account.posted.model.AccountPosted;
 import lv.degra.accounting.core.document.dto.DocumentDto;
@@ -33,12 +33,12 @@ public class AccountPostedDto implements Serializable {
 	@TableViewInfo(displayName = "Debeta konts", columnOrder = 1, columnWidth = 500, useAsSearchComboBox = true,
 			searchServiceClass = AccountCodeChartService.class, editable = true, styleClass = "")
 	@NotNull
-	private AccountCodeChart debitAccount;
+	private AccountCodeChartDto debitAccount;
 
 	@TableViewInfo(displayName = "Kredīta konts", columnOrder = 2, columnWidth = 500, useAsSearchComboBox = true,
 			searchServiceClass = AccountCodeChartService.class, editable = true)
 	@NotNull
-	private AccountCodeChart creditAccount;
+	private AccountCodeChartDto creditAccount;
 
 	@TableViewInfo(displayName = "Summa", columnOrder = 3, columnWidth = 200, editable = true, styleClass = "sum-column")
 	@NotNull

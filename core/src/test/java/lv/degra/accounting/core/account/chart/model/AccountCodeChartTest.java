@@ -1,9 +1,11 @@
 package lv.degra.accounting.core.account.chart.model;
 
+import static lv.degra.accounting.core.currency.CurrencyDataFactory.getDefaultCurrency;
 import static lv.degra.accounting.core.currency.CurrencyDataFactory.getUsdCurrency;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -122,4 +124,74 @@ class AccountCodeChartTest {
 	void testInheritance_AuditInfo() {
 		assertInstanceOf(AuditInfo.class, accountCodeChart);
 	}
+
+	@Test
+	void testEqualsSameObject() {
+		AccountCodeChart account = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		assertEquals(account, account, "An object should be equal to itself");
+	}
+
+	@Test
+	void testEqualsWithNull() {
+		AccountCodeChart account = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		assertNotEquals(null, account, "An object should not be equal to null");
+	}
+
+	@Test
+	void testEqualsWithDifferentClass() {
+		AccountCodeChart account = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		String differentClassObject = "Some String";
+		assertNotEquals(account, differentClassObject, "An object should not be equal to an instance of a different class");
+	}
+
+	@Test
+	void testEqualsWithEqualObjects() {
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		AccountCodeChart account2 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		assertEquals(account1, account2, "Objects with identical values should be equal");
+	}
+
+	@Test
+	void testEqualsWithDifferentId() {
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		AccountCodeChart account2 = new AccountCodeChart(2, "CODE1", "Account 1", true, true, null, 100.0, null);
+		assertNotEquals(account1, account2, "Objects with different IDs should not be equal");
+	}
+
+	@Test
+	void testEqualsWithDifferentCode() {
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		AccountCodeChart account2 = new AccountCodeChart(1, "CODE2", "Account 1", true, true, null, 100.0, null);
+		assertNotEquals(account1, account2, "Objects with different codes should not be equal");
+	}
+
+	@Test
+	void testEqualsWithDifferentName() {
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, null);
+		AccountCodeChart account2 = new AccountCodeChart(1, "CODE1", "Account 2", true, true, null, 100.0, null);
+		assertNotEquals(account1, account2, "Objects with different names should not be equal");
+	}
+
+	@Test
+	void testEqualsWithDifferentCurrency() {
+		Currency currency1 = getUsdCurrency();
+		Currency currency2 = getDefaultCurrency();
+
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, currency1, 100.0, null);
+		AccountCodeChart account2 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, currency2, 100.0, null);
+
+		assertNotEquals(account1, account2, "Objects with different currencies should not be equal");
+	}
+
+	@Test
+	void testEqualsWithDifferentParentAccount() {
+		AccountCodeChart parent1 = new AccountCodeChart(2, "PARENT1", "Parent 1", false, false, null, 0.0, null);
+		AccountCodeChart parent2 = new AccountCodeChart(3, "PARENT2", "Parent 2", false, false, null, 0.0, null);
+
+		AccountCodeChart account1 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, parent1);
+		AccountCodeChart account2 = new AccountCodeChart(1, "CODE1", "Account 1", true, true, null, 100.0, parent2);
+
+		assertNotEquals(account1, account2, "Objects with different parent accounts should not be equal");
+	}
+
 }
