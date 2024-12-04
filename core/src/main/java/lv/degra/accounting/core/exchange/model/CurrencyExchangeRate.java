@@ -46,6 +46,16 @@ public class CurrencyExchangeRate extends AuditInfo implements Serializable {
 	private Double rate;
 
 	@Override
+	public String toString() {
+		return "CurrencyExchangeRate{" +
+				"id=" + id +
+				", currency=" + currency +
+				", rateDate=" + rateDate +
+				", rate=" + rate +
+				'}';
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass())
 			return false;

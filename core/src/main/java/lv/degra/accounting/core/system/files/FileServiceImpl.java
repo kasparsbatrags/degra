@@ -12,14 +12,15 @@ import java.util.Date;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.system.files.exception.DeleteFileException;
@@ -36,7 +37,6 @@ public class FileServiceImpl implements FileService {
 	private static final String ZIP_EXTENSION = ".zip";
 	private static final String TEMP_DIRECTORY_PREFIX = "extracted_zip";
 	private final ZipFileFactory zipFileFactory;
-	private final RestTemplateBuilder restTemplateBuilder;
 
 	@Value("${application.file-download-connect-timeout-sec:300}")
 	private int fileDownloadConnectTimeoutSec;
@@ -44,9 +44,8 @@ public class FileServiceImpl implements FileService {
 	@Value("${application.file-download-read-timeout-sec:300}")
 	private int fileDownloadReadTimeoutSec;
 
-	public FileServiceImpl(ZipFileFactory zipFileFactory, RestTemplateBuilder restTemplateBuilder) {
+	public FileServiceImpl(ZipFileFactory zipFileFactory) {
 		this.zipFileFactory = zipFileFactory;
-		this.restTemplateBuilder = restTemplateBuilder;
 	}
 
 	@Override
@@ -55,9 +54,13 @@ public class FileServiceImpl implements FileService {
 			HttpHeaders headers = createHttpHeaders();
 			HttpEntity<String> entity = new HttpEntity<>(headers);
 
-			ResponseEntity<byte[]> response = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(fileDownloadConnectTimeoutSec))
-					.setReadTimeout(Duration.ofSeconds(fileDownloadReadTimeoutSec)).build()
-					.exchange(fileUrl, HttpMethod.GET, entity, byte[].class);
+			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+			requestFactory.setConnectTimeout((int) Duration.ofSeconds(fileDownloadConnectTimeoutSec).toMillis());
+			requestFactory.setReadTimeout((int) Duration.ofSeconds(fileDownloadReadTimeoutSec).toMillis());
+
+			RestTemplate restTemplate = new RestTemplate(requestFactory);
+
+			ResponseEntity<byte[]> response = restTemplate.exchange(fileUrl, HttpMethod.GET, entity, byte[].class);
 
 			return response.getBody() != null ? response.getBody() : new byte[] {};
 		} catch (Exception e) {

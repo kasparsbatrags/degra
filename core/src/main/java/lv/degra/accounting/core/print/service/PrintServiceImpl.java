@@ -45,11 +45,15 @@ public class PrintServiceImpl implements PrintService {
 
 			Map<String, Object> parameters = new HashMap<>();
 			return buildReport(parameters, reportContent);
+		} catch (IllegalArgumentException e) {
+			log.error("Report not found: {}", reportName, e);
+			throw e;
 		} catch (Exception e) {
 			log.error("Failed to generate report: {}", reportName, e);
 			throw new IllegalArgumentException("Failed to generate report", e);
 		}
 	}
+
 
 	public JasperPrint buildReport(Map<String, Object> parameters, InputStream reportStream) {
 		try (Connection connection = dataSource.getConnection()) {

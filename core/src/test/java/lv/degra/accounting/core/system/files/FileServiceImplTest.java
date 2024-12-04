@@ -22,10 +22,8 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +40,6 @@ import net.lingala.zip4j.exception.ZipException;
 
 class FileServiceImplTest {
 
-	@Mock
-	private RestTemplateBuilder restTemplateBuilder;
-
 	@InjectMocks
 	private FileServiceImpl fileService;
 
@@ -55,12 +50,9 @@ class FileServiceImplTest {
 
 	@Test
 	void testDownloadFileByUrl_Success() {
-		String fileUrl = "http://example.com/file.zip";
-		byte[] fileContent = {1, 2, 3};
+		String fileUrl = "https://example.com/file.zip";
+		byte[] fileContent = { 1, 2, 3 };
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
-		when(restTemplateBuilder.setConnectTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.setReadTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.build()).thenReturn(restTemplateMock);
 		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class))).thenReturn(
 				ResponseEntity.ok(fileContent));
 		byte[] result = fileService.downloadFileByUrl(fileUrl);
@@ -69,15 +61,14 @@ class FileServiceImplTest {
 
 	@Test
 	void testDownloadFileByUrl_Failure() {
-		String fileUrl = "http://example.com/file.zip";
-		when(restTemplateBuilder.build()).thenThrow(new RuntimeException("Connection error"));
+		String fileUrl = "https://example.com/file.zip";
 		assertThrows(DownloadFileException.class, () -> fileService.downloadFileByUrl(fileUrl));
 	}
 
 	@Test
 	void testLoadFileLocally_FileExists() throws IOException {
 		Path path = Files.createTempFile("testFile", ".txt");
-		byte[] content = {1, 2, 3};
+		byte[] content = { 1, 2, 3 };
 		Files.write(path, content);
 		byte[] result = fileService.loadFileLocally(path.toString());
 		assertArrayEquals(content, result, "Loaded file content should match expected");
@@ -87,7 +78,7 @@ class FileServiceImplTest {
 	@Test
 	void testLoadFileLocally_FileDoesNotExist() {
 		byte[] result = fileService.loadFileLocally("nonexistent.txt");
-		assertArrayEquals(new byte[]{}, result, "Should return empty byte array for nonexistent file");
+		assertArrayEquals(new byte[] {}, result, "Should return empty byte array for nonexistent file");
 	}
 
 	@Test
@@ -95,7 +86,7 @@ class FileServiceImplTest {
 		ZipFile zipFileMock = mock(ZipFile.class);
 		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
 		when(zipFileFactoryMock.createZipFile(anyString())).thenReturn(zipFileMock);
-		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateBuilder);
+		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock);
 		byte[] zipContent = {};
 		Path tempPath = Files.createTempDirectory("testUnzip");
 		doNothing().when(zipFileMock).extractAll(anyString());
@@ -107,16 +98,16 @@ class FileServiceImplTest {
 	@Test
 	void testSaveFileInFolder_Success() throws IOException {
 		Path path = Files.createTempFile("testSave", ".txt");
-		byte[] content = {1, 2, 3};
+		byte[] content = { 1, 2, 3 };
 		fileService.saveFileInFolder(content, path);
 		assertArrayEquals(Files.readAllBytes(path), content, "Saved file content should match expected");
 		Files.delete(path);
 	}
 
 	@Test
-	void testSaveFileInFolder_Failure() throws IOException {
+	void testSaveFileInFolder_Failure()  {
 		Path invalidPath = Paths.get("/invalid/testSave.txt");
-		byte[] content = {1, 2, 3};
+		byte[] content = { 1, 2, 3 };
 		try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
 			mockedFiles.when(() -> Files.write(invalidPath, content)).thenThrow(new IOException("Cannot write to file"));
 			assertThrows(SaveFileException.class, () -> fileService.saveFileInFolder(content, invalidPath));
@@ -133,7 +124,7 @@ class FileServiceImplTest {
 	}
 
 	@Test
-	void testCleanUpFile_Failure() throws IOException {
+	void testCleanUpFile_Failure() {
 		Path invalidPath = Paths.get("nonexistent-path");
 		try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
 			mockedFiles.when(() -> Files.deleteIfExists(invalidPath)).thenThrow(new IOException("File not found"));
@@ -156,7 +147,7 @@ class FileServiceImplTest {
 		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
 		when(zipFileFactoryMock.createZipFile(anyString())).thenReturn(zipFileMock);
 		doThrow(new ZipException("Zip extraction error")).when(zipFileMock).extractAll(anyString());
-		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateBuilder);
+		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock);
 		assertThrows(ExtractZipFileException.class, () -> fileService.unzipFileInFolder(zipContent));
 	}
 
@@ -167,57 +158,63 @@ class FileServiceImplTest {
 		try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
 			mockedFiles.when(() -> Files.notExists(path)).thenReturn(false);
 			mockedFiles.when(() -> Files.readAllBytes(path)).thenThrow(new IOException("Simulated IOException"));
-			FileServiceImpl fileService = new FileServiceImpl(null, null);
+			FileServiceImpl fileService = new FileServiceImpl(null);
 			byte[] result = fileService.loadFileLocally(localFilePath);
-			assertArrayEquals(new byte[]{}, result, "Should return an empty byte array on IOException");
+			assertArrayEquals(new byte[] {}, result, "Should return an empty byte array on IOException");
 			mockedFiles.verify(() -> Files.readAllBytes(path), times(1));
 		}
 	}
 
 	@Test
-	void testDeleteDirectory_IOException() throws IOException {
+	void testDeleteDirectory_IOException() {
 		Path path = Path.of("invalid/path/to/directory");
 		try (var mockedFileSystemUtils = mockStatic(FileSystemUtils.class)) {
-			mockedFileSystemUtils.when(() -> FileSystemUtils.deleteRecursively(path))
-					.thenThrow(new IOException("Simulated IOException"));
-			FileServiceImpl fileService = new FileServiceImpl(null, null);
+			mockedFileSystemUtils.when(() -> FileSystemUtils.deleteRecursively(path)).thenThrow(new IOException("Simulated IOException"));
+			FileServiceImpl fileService = new FileServiceImpl(null);
 			assertThrows(DeleteFolderException.class, () -> fileService.deleteDirectory(path));
 			mockedFileSystemUtils.verify(() -> FileSystemUtils.deleteRecursively(path), times(1));
 		}
 	}
 
-
 	@Test
 	void testDownloadFileByUrl_ResponseBodyNotNull() {
-		String fileUrl = "http://example.com/file.zip";
-		byte[] fileContent = {1, 2, 3};
+		// Arrange
+		String fileUrl = "https://example.com/file.zip";
+		byte[] fileContent = { 1, 2, 3 };
+
+		// Mock RestTemplate
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
+		FileServiceImpl fileServiceWithMockedRestTemplate = new FileServiceImpl();
+		fileServiceWithMockedRestTemplate.setRestTemplate(restTemplateMock); // Add setter or pass mock during construction
 
-		when(restTemplateBuilder.setConnectTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.setReadTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.build()).thenReturn(restTemplateMock);
-		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class)))
-				.thenReturn(ResponseEntity.ok(fileContent));
+		// Mock the RestTemplate response
+		ResponseEntity<byte[]> mockResponse = ResponseEntity.ok(fileContent);
+		when(restTemplateMock.exchange(
+				eq(fileUrl),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(byte[].class))
+		).thenReturn(mockResponse);
 
-		byte[] result = fileService.downloadFileByUrl(fileUrl);
+		// Act
+		byte[] result = fileServiceWithMockedRestTemplate.downloadFileByUrl(fileUrl);
 
+		// Assert
 		assertArrayEquals(fileContent, result, "Should return the response body when it is not null");
 	}
 
+
 	@Test
 	void testDownloadFileByUrl_ResponseBodyNull() {
-		String fileUrl = "http://example.com/file.zip";
+		String fileUrl = "https://example.com/file.zip";
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
 
-		when(restTemplateBuilder.setConnectTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.setReadTimeout(any())).thenReturn(restTemplateBuilder);
-		when(restTemplateBuilder.build()).thenReturn(restTemplateMock);
-		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class)))
-				.thenReturn(ResponseEntity.ok(null));
+		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class))).thenReturn(
+				ResponseEntity.ok(null));
 
 		byte[] result = fileService.downloadFileByUrl(fileUrl);
 
-		assertArrayEquals(new byte[]{}, result, "Should return an empty byte array when response body is null");
+		assertArrayEquals(new byte[] {}, result, "Should return an empty byte array when response body is null");
 	}
 
 }

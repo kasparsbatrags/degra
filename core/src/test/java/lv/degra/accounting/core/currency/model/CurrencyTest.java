@@ -41,13 +41,13 @@ class CurrencyTest {
 
 		currency.setId(id);
 		currency.setCode(currencyCode);
-		currency.setCurrencyName(currencyName);
+		currency.setName(currencyName);
 		currency.setSubunitName(subunitName);
 
 		// Verify getters
 		assertEquals(id, currency.getId());
 		assertEquals(currencyCode, currency.getCode());
-		assertEquals(currencyName, currency.getCurrencyName());
+		assertEquals(currencyName, currency.getName());
 		assertEquals(subunitName, currency.getSubunitName());
 	}
 
@@ -56,7 +56,7 @@ class CurrencyTest {
 		assertNotNull(currency);
 		assertNull(currency.getId());
 		assertNull(currency.getCode());
-		assertNull(currency.getCurrencyName());
+		assertNull(currency.getName());
 		assertNull(currency.getSubunitName());
 	}
 

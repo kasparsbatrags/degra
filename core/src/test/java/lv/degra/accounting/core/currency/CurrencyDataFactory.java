@@ -10,7 +10,7 @@ public class CurrencyDataFactory {
         Currency currency = new Currency();
         currency.setId(id);
         currency.setCode(currencyCode);
-        currency.setCurrencyName(currencyName);
+        currency.setName(currencyName);
         currency.setSubunitName(subunitName);
         return currency;
     }

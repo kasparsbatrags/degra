@@ -28,11 +28,11 @@ public class Currency extends AuditInfo implements Serializable {
 	private Integer id;
 
 	@Size(min = 3, max = 3)
-	@Column(name = "currency_code", length = 3)
+	@Column(name = "code", length = 3)
 	private String code;
 
-	@Column(name = "currency_name", length = 100)
-	private String currencyName;
+	@Column(name = "name", length = 100)
+	private String name;
 
 	@Column(name = "subunit_name", length = 100)
 	private String subunitName;
@@ -47,12 +47,12 @@ public class Currency extends AuditInfo implements Serializable {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		Currency currency = (Currency) o;
-		return Objects.equals(id, currency.id) && Objects.equals(code, currency.code) && Objects.equals(currencyName, currency.currencyName)
+		return Objects.equals(id, currency.id) && Objects.equals(code, currency.code) && Objects.equals(name, currency.name)
 				&& Objects.equals(subunitName, currency.subunitName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, code, currencyName, subunitName);
+		return Objects.hash(id, code, name, subunitName);
 	}
 }

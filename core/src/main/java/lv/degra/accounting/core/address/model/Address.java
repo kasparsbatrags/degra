@@ -2,6 +2,7 @@ package lv.degra.accounting.core.address.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.envers.Audited;
@@ -64,4 +65,24 @@ public class Address extends AuditInfo implements Serializable {
         this.dateFrom = dateFrom;
     }
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Address address = (Address) o;
+		return Objects.equals(id, address.id) && Objects.equals(code, address.code) && Objects.equals(type,
+				address.type) && Objects.equals(status, address.status) && Objects.equals(parentCode, address.parentCode)
+				&& Objects.equals(parentType, address.parentType) && Objects.equals(name, address.name)
+				&& Objects.equals(sortByValue, address.sortByValue) && Objects.equals(zip, address.zip)
+				&& Objects.equals(dateFrom, address.dateFrom) && Objects.equals(updateDatePublic, address.updateDatePublic)
+				&& Objects.equals(dateTo, address.dateTo) && Objects.equals(fullAddress, address.fullAddress)
+				&& Objects.equals(territorialUnitCode, address.territorialUnitCode) && Objects.equals(customers,
+				address.customers);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, code, type, status, parentCode, parentType, name, sortByValue, zip, dateFrom, updateDatePublic, dateTo,
+				fullAddress, territorialUnitCode, customers);
+	}
 }
