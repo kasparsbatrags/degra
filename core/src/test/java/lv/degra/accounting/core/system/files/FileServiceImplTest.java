@@ -85,8 +85,9 @@ class FileServiceImplTest {
 	void testUnzipFileInFolder_Success() throws IOException {
 		ZipFile zipFileMock = mock(ZipFile.class);
 		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+		RestTemplate restTemplateMock = mock(RestTemplate.class);
 		when(zipFileFactoryMock.createZipFile(anyString())).thenReturn(zipFileMock);
-		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock);
+		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
 		byte[] zipContent = {};
 		Path tempPath = Files.createTempDirectory("testUnzip");
 		doNothing().when(zipFileMock).extractAll(anyString());
@@ -145,9 +146,10 @@ class FileServiceImplTest {
 		byte[] zipContent = {};
 		ZipFile zipFileMock = mock(ZipFile.class);
 		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+		RestTemplate restTemplateMock = mock(RestTemplate.class);
 		when(zipFileFactoryMock.createZipFile(anyString())).thenReturn(zipFileMock);
 		doThrow(new ZipException("Zip extraction error")).when(zipFileMock).extractAll(anyString());
-		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock);
+		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 		assertThrows(ExtractZipFileException.class, () -> fileService.unzipFileInFolder(zipContent));
 	}
 
@@ -158,7 +160,9 @@ class FileServiceImplTest {
 		try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
 			mockedFiles.when(() -> Files.notExists(path)).thenReturn(false);
 			mockedFiles.when(() -> Files.readAllBytes(path)).thenThrow(new IOException("Simulated IOException"));
-			FileServiceImpl fileService = new FileServiceImpl(null);
+			RestTemplate restTemplateMock = mock(RestTemplate.class);
+			ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
 			byte[] result = fileService.loadFileLocally(localFilePath);
 			assertArrayEquals(new byte[] {}, result, "Should return an empty byte array on IOException");
 			mockedFiles.verify(() -> Files.readAllBytes(path), times(1));
@@ -170,7 +174,9 @@ class FileServiceImplTest {
 		Path path = Path.of("invalid/path/to/directory");
 		try (var mockedFileSystemUtils = mockStatic(FileSystemUtils.class)) {
 			mockedFileSystemUtils.when(() -> FileSystemUtils.deleteRecursively(path)).thenThrow(new IOException("Simulated IOException"));
-			FileServiceImpl fileService = new FileServiceImpl(null);
+			ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+			RestTemplate restTemplateMock = mock(RestTemplate.class);
+			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
 			assertThrows(DeleteFolderException.class, () -> fileService.deleteDirectory(path));
 			mockedFileSystemUtils.verify(() -> FileSystemUtils.deleteRecursively(path), times(1));
 		}
@@ -184,8 +190,8 @@ class FileServiceImplTest {
 
 		// Mock RestTemplate
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
-		FileServiceImpl fileServiceWithMockedRestTemplate = new FileServiceImpl();
-		fileServiceWithMockedRestTemplate.setRestTemplate(restTemplateMock); // Add setter or pass mock during construction
+		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+		FileServiceImpl fileServiceWithMockedRestTemplate = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 
 		// Mock the RestTemplate response
 		ResponseEntity<byte[]> mockResponse = ResponseEntity.ok(fileContent);

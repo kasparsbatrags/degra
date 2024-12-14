@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 
@@ -17,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.client.RestTemplate;
@@ -37,6 +35,7 @@ public class FileServiceImpl implements FileService {
 	private static final String ZIP_EXTENSION = ".zip";
 	private static final String TEMP_DIRECTORY_PREFIX = "extracted_zip";
 	private final ZipFileFactory zipFileFactory;
+	private final RestTemplate restTemplate;
 
 	@Value("${application.file-download-connect-timeout-sec:300}")
 	private int fileDownloadConnectTimeoutSec;
@@ -44,8 +43,11 @@ public class FileServiceImpl implements FileService {
 	@Value("${application.file-download-read-timeout-sec:300}")
 	private int fileDownloadReadTimeoutSec;
 
-	public FileServiceImpl(ZipFileFactory zipFileFactory) {
+
+
+	public FileServiceImpl(ZipFileFactory zipFileFactory, RestTemplate restTemplate) {
 		this.zipFileFactory = zipFileFactory;
+		this.restTemplate = restTemplate;
 	}
 
 	@Override
@@ -53,12 +55,6 @@ public class FileServiceImpl implements FileService {
 		try {
 			HttpHeaders headers = createHttpHeaders();
 			HttpEntity<String> entity = new HttpEntity<>(headers);
-
-			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-			requestFactory.setConnectTimeout((int) Duration.ofSeconds(fileDownloadConnectTimeoutSec).toMillis());
-			requestFactory.setReadTimeout((int) Duration.ofSeconds(fileDownloadReadTimeoutSec).toMillis());
-
-			RestTemplate restTemplate = new RestTemplate(requestFactory);
 
 			ResponseEntity<byte[]> response = restTemplate.exchange(fileUrl, HttpMethod.GET, entity, byte[].class);
 
