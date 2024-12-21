@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  datasource:
+    initialize: false
+  jpa:
+    enabled: false
   security:
     oauth2:
       resourceserver:
@@ -13,7 +17,7 @@ keycloak:
   realm: freight-tracking-app-realm
   resource: backend-service
   credentials:
-    secret: <client-secret>
+    secret: 3Fv47oFkRuqYh2iZDubDJbapzGgdBbGr
 
 logging:
   level:
