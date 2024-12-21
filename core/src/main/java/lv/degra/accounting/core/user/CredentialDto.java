@@ -12,4 +12,6 @@ public class CredentialDto {
 
 	@NotBlank(message = "Credential value is required")
 	private String value;
+
+	private boolean temporary;
 }

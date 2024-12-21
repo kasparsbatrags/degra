@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.user;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,8 +26,7 @@ public class UserRegistrationDto {
 	@NotBlank(message = "Last name is required")
 	private String lastName;
 
-	@NotBlank(message = "Organization registration number is required")
-	private String organizationRegistrationNumber;
+	private Map<String, String> attributes;
 
 	@NotNull(message = "Enabled status is required")
 	private Boolean enabled;
