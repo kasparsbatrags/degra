@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import lv.degra.accounting.core.user.UserRegistrationDto;
+import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 
 @FeignClient(
 		name = "keycloak",

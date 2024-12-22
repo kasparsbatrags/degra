@@ -14,6 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,15 +50,35 @@ class FileServiceImplTest {
 	}
 
 	@Test
-	void testDownloadFileByUrl_Success() {
+	void testDownloadFileByUrl_Success() throws IOException {
+		// Arrange
 		String fileUrl = "https://example.com/file.zip";
-		byte[] fileContent = { 1, 2, 3 };
+
+		// Load file content from the resources folder
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("aw_csv.zip").getFile());
+		byte[] fileContent = Files.readAllBytes(file.toPath());
+
+		// Mock RestTemplate
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
-		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class))).thenReturn(
-				ResponseEntity.ok(fileContent));
-		byte[] result = fileService.downloadFileByUrl(fileUrl);
-		assertArrayEquals(fileContent, result, "Downloaded file content should match expected");
+		when(restTemplateMock.exchange(
+				eq(fileUrl),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(byte[].class))
+		).thenReturn(ResponseEntity.ok(fileContent));
+
+		// Mock fileService with RestTemplate
+		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
+		FileServiceImpl fileServiceWithMockedRestTemplate = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
+
+		// Act
+		byte[] result = fileServiceWithMockedRestTemplate.downloadFileByUrl(fileUrl);
+
+		// Assert
+		assertArrayEquals(fileContent, result, "Downloaded file content should match the content of aw_csv.zip");
 	}
+
 
 	@Test
 	void testDownloadFileByUrl_Failure() {
@@ -87,7 +108,7 @@ class FileServiceImplTest {
 		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
 		when(zipFileFactoryMock.createZipFile(anyString())).thenReturn(zipFileMock);
-		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
+		FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 		byte[] zipContent = {};
 		Path tempPath = Files.createTempDirectory("testUnzip");
 		doNothing().when(zipFileMock).extractAll(anyString());
@@ -106,7 +127,7 @@ class FileServiceImplTest {
 	}
 
 	@Test
-	void testSaveFileInFolder_Failure()  {
+	void testSaveFileInFolder_Failure() {
 		Path invalidPath = Paths.get("/invalid/testSave.txt");
 		byte[] content = { 1, 2, 3 };
 		try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
@@ -162,7 +183,7 @@ class FileServiceImplTest {
 			mockedFiles.when(() -> Files.readAllBytes(path)).thenThrow(new IOException("Simulated IOException"));
 			RestTemplate restTemplateMock = mock(RestTemplate.class);
 			ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
-			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
+			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 			byte[] result = fileService.loadFileLocally(localFilePath);
 			assertArrayEquals(new byte[] {}, result, "Should return an empty byte array on IOException");
 			mockedFiles.verify(() -> Files.readAllBytes(path), times(1));
@@ -176,17 +197,21 @@ class FileServiceImplTest {
 			mockedFileSystemUtils.when(() -> FileSystemUtils.deleteRecursively(path)).thenThrow(new IOException("Simulated IOException"));
 			ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class);
 			RestTemplate restTemplateMock = mock(RestTemplate.class);
-			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock,restTemplateMock);
+			FileServiceImpl fileService = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 			assertThrows(DeleteFolderException.class, () -> fileService.deleteDirectory(path));
 			mockedFileSystemUtils.verify(() -> FileSystemUtils.deleteRecursively(path), times(1));
 		}
 	}
 
 	@Test
-	void testDownloadFileByUrl_ResponseBodyNotNull() {
+	void testDownloadFileByUrl_ResponseBodyNotNull() throws IOException {
 		// Arrange
 		String fileUrl = "https://example.com/file.zip";
-		byte[] fileContent = { 1, 2, 3 };
+
+		// Load the file content from the resources folder
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("aw_csv.zip").getFile());
+		byte[] fileContent = Files.readAllBytes(file.toPath());
 
 		// Mock RestTemplate
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
@@ -195,32 +220,39 @@ class FileServiceImplTest {
 
 		// Mock the RestTemplate response
 		ResponseEntity<byte[]> mockResponse = ResponseEntity.ok(fileContent);
-		when(restTemplateMock.exchange(
-				eq(fileUrl),
-				eq(HttpMethod.GET),
-				any(HttpEntity.class),
-				eq(byte[].class))
-		).thenReturn(mockResponse);
+		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class))).thenReturn(mockResponse);
 
 		// Act
 		byte[] result = fileServiceWithMockedRestTemplate.downloadFileByUrl(fileUrl);
 
 		// Assert
-		assertArrayEquals(fileContent, result, "Should return the response body when it is not null");
+		assertArrayEquals(fileContent, result, "Should return the response body matching the file content from resources");
 	}
-
 
 	@Test
 	void testDownloadFileByUrl_ResponseBodyNull() {
+		// Arrange
 		String fileUrl = "https://example.com/file.zip";
+
+		// Mock RestTemplate
 		RestTemplate restTemplateMock = mock(RestTemplate.class);
+		when(restTemplateMock.exchange(
+				eq(fileUrl),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(byte[].class))
+		).thenReturn(ResponseEntity.ok(null));
 
-		when(restTemplateMock.exchange(eq(fileUrl), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class))).thenReturn(
-				ResponseEntity.ok(null));
+		// Create FileServiceImpl instance with mocked RestTemplate
+		ZipFileFactory zipFileFactoryMock = mock(ZipFileFactory.class); // Replace with actual dependency if required
+		FileServiceImpl fileServiceWithMockedRestTemplate = new FileServiceImpl(zipFileFactoryMock, restTemplateMock);
 
-		byte[] result = fileService.downloadFileByUrl(fileUrl);
+		// Act
+		byte[] result = fileServiceWithMockedRestTemplate.downloadFileByUrl(fileUrl);
 
+		// Assert
 		assertArrayEquals(new byte[] {}, result, "Should return an empty byte array when response body is null");
 	}
+
 
 }
