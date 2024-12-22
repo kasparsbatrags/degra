@@ -4,26 +4,29 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import lv.degra.accounting.core.user.dto.UserInfoDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.service.KeycloakUserService;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserRegistrationController {
+public class UserController {
 
 	private final KeycloakUserService keycloakUserService;
 
 	@Autowired
-	public UserRegistrationController(KeycloakUserService keycloakUserService) {
+	public UserController(KeycloakUserService keycloakUserService) {
 		this.keycloakUserService = keycloakUserService;
 	}
 
@@ -37,12 +40,13 @@ public class UserRegistrationController {
 		}
 	}
 
-	@GetMapping("/info")
-	public ResponseEntity<String> geInfo() {
+	@GetMapping("/api/users/me")
+	public ResponseEntity<UserInfoDto> getCurrentUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
 		try {
-			return ResponseEntity.ok("Ok!");
+			UserInfoDto userInfo = keycloakUserService.getCurrentUser(authorizationHeader);
+			return ResponseEntity.ok(userInfo);
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Failed info!" + e.getMessage());
+			return ResponseEntity.status(401).build();
 		}
 	}
 

@@ -9,10 +9,13 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.user.client.KeycloakAdminClient;
 import lv.degra.accounting.core.user.client.KeycloakProperties;
 import lv.degra.accounting.core.user.dto.CredentialDto;
+import lv.degra.accounting.core.user.dto.UserInfoDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserValidationException;
@@ -51,6 +54,22 @@ public class KeycloakUserService {
 			handleUserCreationException(e, userRegistrationDto.getUsername());
 		}
 	}
+
+	public UserInfoDto getCurrentUser(String authorizationHeader) {
+		try {
+			if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
+				throw new UserValidationException("Authorization header is missing or invalid");
+			}
+
+			Map<String, Object> userInfo = keycloakAdminClient.getUserInfo(authorizationHeader);
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.convertValue(userInfo, UserInfoDto.class);
+		} catch (Exception e) {
+			log.error("Failed to fetch user info from Keycloak", e);
+			throw new KeycloakIntegrationException("Failed to fetch user info: " + e.getMessage(), "KEYCLOAK_USERINFO_ERROR");
+		}
+	}
+
 
 	private void executeUserCreation(UserRegistrationDto userRegistrationDto, String accessToken) {
 		String bearerToken = BEARER_PREFIX + accessToken;
