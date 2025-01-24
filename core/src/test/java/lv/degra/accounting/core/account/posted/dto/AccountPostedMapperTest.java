@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 
 import lv.degra.accounting.core.account.chart.dto.AccountCodeChartDto;
 import lv.degra.accounting.core.account.chart.model.AccountCodeChart;
+import lv.degra.accounting.core.account.maper.AccountPostedMapper;
 import lv.degra.accounting.core.account.posted.model.AccountPosted;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;

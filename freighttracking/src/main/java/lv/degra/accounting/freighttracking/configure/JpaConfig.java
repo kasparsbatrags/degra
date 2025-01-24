@@ -7,6 +7,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaAuditing
-public class JpaConfig {
-
-}
+public class JpaConfig {}

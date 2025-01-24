@@ -35,4 +35,8 @@ public class CustomerServiceImpl implements CustomerService, DataFetchService<Cu
 		return getFirst30Suggestions(searchTerm);
 	}
 
+	public Customer getByRegistrationNumber(String registrationNumber) {
+		return customerRepository.getByRegistrationNumber(registrationNumber);
+	}
+
 }

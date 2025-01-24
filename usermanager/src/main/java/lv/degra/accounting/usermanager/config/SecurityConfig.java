@@ -33,7 +33,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authz -> {
 					logger.info("Configuring authorization rules");
 					authz
-							.requestMatchers("/api/users/register").permitAll()
+							.requestMatchers("/api/user/**").permitAll()
 							.requestMatchers("/api/public/**").permitAll()
 							.anyRequest().authenticated();
 				})

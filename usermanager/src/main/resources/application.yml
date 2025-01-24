@@ -1,11 +1,8 @@
-server:
-  port: 8080
-
 spring:
-  datasource:
-    initialize: false
-  jpa:
-    enabled: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  config:
+    import: classpath:application-shared.yaml
   security:
     oauth2:
       resourceserver:
@@ -24,7 +21,3 @@ keycloak:
   use-resource-role-mappings: true
   bearer-only: true
   public-client: false
-
-logging:
-  level:
-    org.springframework.beans.factory: DEBUG

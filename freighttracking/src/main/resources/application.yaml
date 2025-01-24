@@ -1,29 +1,9 @@
-server:
-  application:
-    name: freight-tracking
-  port: 8080
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-freigttracking-master.yaml
-  config:
-    import: classpath:application-shared.yaml
-
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://route.degra.lv/realms/freight-tracking-app-realm
+  config:
+    import: optional:file:../shared-resources/application-shared.yaml
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
-keycloak:
-  realm: freight-tracking-app-realm
-  auth-server-url: https://route.degra.lv
-  resource: freight-tracking-client
-  credentials:
-    secret: DVJDvdE1DmzHYzRQWFlF6jQcdGKVdCeE
-  principal-attribute: preferred_username
-
-# Logging
 logging:
   level:
     org.springframework.security: DEBUG
-    org.keycloak: DEBUG

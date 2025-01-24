@@ -83,3 +83,14 @@ databaseChangeLog:
           file: db/changelog/add-company.yaml
     - include:
           file: db/changelog/add-address-register.yaml
+    - include:
+        file: db/changelog/add-user.yaml
+    - include:
+        file: db/changelog/add-user-email-address.yaml
+    - include:
+        file: db/changelog/add-truck.yaml
+    - include:
+        file: db/changelog/add-truck-route.yaml
+
+
+

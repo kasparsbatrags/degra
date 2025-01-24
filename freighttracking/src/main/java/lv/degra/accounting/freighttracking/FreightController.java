@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FreightController {
 
 	@GetMapping("/user")
-	@PreAuthorize("hasAuthority('USER')")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public String getFreightData() {
 		return "Protected Freight Data";
 	}
