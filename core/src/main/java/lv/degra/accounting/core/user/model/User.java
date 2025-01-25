@@ -2,8 +2,6 @@ package lv.degra.accounting.core.user.model;
 
 import java.io.Serializable;
 
-import org.hibernate.envers.Audited;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +17,6 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "\"user\"")
-@Audited
 public class User implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +25,7 @@ public class User implements Serializable {
 
 	@Size(max = 255)
 	@NotNull
-	@Column(name = "user_id", nullable = false, length = 255)
+	@Column(name = "user_id", nullable = false)
 	private String userId;
 
 	@NotNull
