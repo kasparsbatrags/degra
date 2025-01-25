@@ -1,5 +1,0 @@
-spring:
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-desktop-master.yaml
-  config:
-    import: classpath:application-shared.yaml

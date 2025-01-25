@@ -12,12 +12,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "\"user\"")
-public class User implements Serializable {
+public class User extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)

@@ -1,8 +1,4 @@
 spring:
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-  config:
-    import: classpath:application-shared.yaml
   security:
     oauth2:
       resourceserver:

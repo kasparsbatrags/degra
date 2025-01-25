@@ -1,6 +1,4 @@
 spring:
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-address-master.yaml
 
 springdoc:
   swagger-ui:
