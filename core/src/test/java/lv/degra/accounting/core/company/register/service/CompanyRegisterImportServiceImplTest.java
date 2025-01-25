@@ -36,7 +36,7 @@ import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
 import lv.degra.accounting.core.system.files.FileService;
 
-class CompanyRegisterServiceImplTest {
+class CompanyRegisterImportServiceImplTest {
 
 	@Mock
 	private FileService fileService;
@@ -51,12 +51,12 @@ class CompanyRegisterServiceImplTest {
 	@Mock
 	private JdbcTemplate jdbcTemplate;
 
-	private CompanyRegisterServiceImpl companyRegisterService;
+	private CompanyRegisterImportServiceImpl companyRegisterService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		companyRegisterService = new CompanyRegisterServiceImpl(fileService, csvParser, companyTypeRepository, configService, jdbcTemplate,
+		companyRegisterService = new CompanyRegisterImportServiceImpl(fileService, csvParser, companyTypeRepository, configService, jdbcTemplate,
 				companyRegisterRepository);
 	}
 

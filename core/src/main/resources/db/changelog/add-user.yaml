@@ -16,23 +16,17 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Ieraksta ID"
               - column:
-                  name: given_name
-                  type: varchar(50)
-                  constraints:
-                    nullable: true
-                  remarks: "Vārds"
-              - column:
-                  name: family_name
-                  type: varchar(50)
-                  constraints:
-                    nullable: true
-                  remarks: "Uzvārds"
-              - column:
-                  name: customer_id
-                  type: INT
+                  name: user_id
+                  type: varchar(255)
                   constraints:
                     nullable: false
-                  remarks: "Klienta, kuru pārstāv lietotājs identifikators"
+                  remarks: "Lietotāja identifikators Keycloak"
+              - column:
+                  name: token
+                  type: text()
+                  constraints:
+                    nullable: true
+                  remarks: "Keycloak refresh token"
               - column:
                   name: created_date_time
                   type: timestamp
@@ -43,15 +37,3 @@ databaseChangeLog:
                   remarks: "Ieraksta pēdējās labošanas laika zīmogs"
 
             remarks: "Lietotāju saraksts"
-
-  - changeSet:
-      id: ConstraintForeignKeysUserToCustomer
-      author: Kaspars Batrags
-      changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: customer_id
-            baseTableName: user
-            constraintName: fk_user_to_customer
-            onDelete: NO ACTION
-            referencedColumnNames: id
-            referencedTableName: customer

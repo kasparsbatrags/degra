@@ -83,10 +83,8 @@ public class AuthService {
 
 	public String refreshTokenIfExpired(String refreshToken) {
 		try {
-			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
-					"application/x-www-form-urlencoded",
-					createRefreshRequest(refreshToken)
-			);
+			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken("application/x-www-form-urlencoded",
+					createRefreshRequest(refreshToken));
 			return (String) tokenResponse.get("access_token");
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to refresh token: " + e.getMessage(), e);
@@ -96,11 +94,10 @@ public class AuthService {
 	private MultiValueMap<String, String> createRefreshRequest(String refreshToken) {
 		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
 		request.add("grant_type", "refresh_token");
-		request.add("client_id",  keycloakProperties.getClientId());
+		request.add("client_id", keycloakProperties.getClientId());
 		request.add("client_secret", keycloakProperties.getClientSecret());
 		request.add("refresh_token", refreshToken);
 		return request;
 	}
-
 
 }

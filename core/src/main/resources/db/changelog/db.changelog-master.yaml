@@ -86,8 +86,6 @@ databaseChangeLog:
     - include:
         file: db/changelog/add-user.yaml
     - include:
-        file: db/changelog/add-user-email-address.yaml
-    - include:
         file: db/changelog/add-truck.yaml
     - include:
         file: db/changelog/add-truck-route.yaml

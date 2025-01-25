@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
+import lv.degra.accounting.core.company.register.service.CompanyRegisterImportService;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"lv.degra.accounting.core", "lv.degra.accounting.company"})
@@ -15,10 +15,10 @@ import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 @EntityScan(basePackages = {"lv.degra.accounting.core"})
 public class CompanyApplication {
 
-    private final CompanyRegisterService companyRegisterService;
+    private final CompanyRegisterImportService companyRegisterImportService;
 
-    public CompanyApplication(CompanyRegisterService companyRegisterService) {
-        this.companyRegisterService = companyRegisterService;
+    public CompanyApplication(CompanyRegisterImportService companyRegisterImportService) {
+        this.companyRegisterImportService = companyRegisterImportService;
     }
 
     public static void main(String[] args) {
@@ -27,7 +27,7 @@ public class CompanyApplication {
 
     @Scheduled(cron = "${application.company-download-cron}")
     private void scheduleTaskUsingCronExpression() {
-		companyRegisterService.importData();
+		companyRegisterImportService.importData();
 	}
 
 }

@@ -3,12 +3,15 @@ package lv.degra.accounting.usermanager.service;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -16,8 +19,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.customer.exception.CustomerNotFoundException;
+import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.customer.service.CustomerService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserDto;
@@ -33,7 +37,7 @@ import lv.degra.accounting.usermanager.client.KeycloakProperties;
 
 @Slf4j
 @Service
-public class KeycloakUserService {
+public class AuthUserService {
 	private static final String ORG_NUMBER_REGEX = "^[0-9]{6,12}$";
 	private static final String BEARER_PREFIX = "Bearer ";
 
@@ -46,9 +50,11 @@ public class KeycloakUserService {
 	private final CustomerService customerService;
 	private final UserService userService;
 	private final UserMapper userMapper;
+	private final CompanyRegisterService companyRegisterService;
 
-	public KeycloakUserService(Keycloak keycloak, AuthService authService, KeycloakAdminClient keycloakAdminClient,
-			KeycloakProperties keycloakProperties, CustomerService customerService, UserService userService, UserMapper userMapper) {
+	public AuthUserService(Keycloak keycloak, AuthService authService, KeycloakAdminClient keycloakAdminClient,
+			KeycloakProperties keycloakProperties, CustomerService customerService, UserService userService, UserMapper userMapper,
+			CompanyRegisterService companyRegisterService) {
 		this.keycloak = keycloak;
 		this.authService = authService;
 		this.keycloakAdminClient = keycloakAdminClient;
@@ -56,30 +62,37 @@ public class KeycloakUserService {
 		this.customerService = customerService;
 		this.userService = userService;
 		this.userMapper = userMapper;
+		this.companyRegisterService = companyRegisterService;
 		this.passwordValidator = new PasswordValidator();
 	}
 
-	@Retryable(value = { KeycloakIntegrationException.class }, maxAttempts = 3, backoff = @Backoff(delay = 1000))
 	public void createUser(UserRegistrationDto userRegistrationDto) {
+		validateUserRegistration(userRegistrationDto);
+
+		UsersResource usersResource = getUsersResource();
+
+		UserRepresentation userRepresentation = new UserRepresentation();
+		userRepresentation.setUsername(userRegistrationDto.getUsername());
+		userRepresentation.setEmail(userRegistrationDto.getEmail());
+		userRepresentation.setFirstName(userRegistrationDto.getFirstName());
+		userRepresentation.setLastName(userRegistrationDto.getLastName());
+		userRepresentation.setEnabled(true);
+		Map<String, List<String>> attributes = new HashMap<>();
+		String organizationRegistrationNumber = userRegistrationDto.getAttributes().get("organizationRegistrationNumber");
+		attributes.put("organizationRegistrationNumber", List.of(organizationRegistrationNumber));
+		userRepresentation.setAttributes(attributes);
+
+		Response response = usersResource.create(userRepresentation);
 		try {
-			validateUserRegistration(userRegistrationDto);
-
-			String accessToken = authService.getAccessToken();
-
-			executeUserCreation(userRegistrationDto, accessToken);
-			userService.saveUser(userService.buildUser(userRegistrationDto));
-
-			log.info("Successfully created user: {}", userRegistrationDto.getUsername());
-		} catch (CustomerNotFoundException e) {
-			deleteUserByEmailAndOrganization(userRegistrationDto.getEmail(),
-					userRegistrationDto.getAttributes().get("organizationRegistrationNumber"));
-			log.error("Customer not found: {}", e.getMessage());
-			throw e;
-		} catch (KeycloakIntegrationException e) {
-			log.error("Keycloak error: {}", e.getMessage());
-			throw e;
-		} catch (UserUniqueException e) {
-			handleUserCreationException(e, userRegistrationDto.getUsername());
+			if (response.getStatus() == 201) {
+				log.info("User created successfully: {}", userRegistrationDto.getUsername());
+			} else {
+				String errorMessage = response.readEntity(String.class);
+				log.error("Failed to create user. Status: {} Error: {}", response.getStatus(), errorMessage);
+				throw new KeycloakIntegrationException("Failed to create user: " + errorMessage, "USER_CREATION_ERROR");
+			}
+		} finally {
+			response.close();
 		}
 	}
 
@@ -120,6 +133,21 @@ public class KeycloakUserService {
 			log.error("Failed to delete user with email: {} and organization: {}", email, organizationRegistrationNumber, e);
 			throw new KeycloakIntegrationException("Failed to delete user: " + e.getMessage(), "INTERNAL_ERROR");
 		}
+	}
+
+	public void createGroup(String groupName) {
+		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
+
+		GroupRepresentation groupRepresentation = new GroupRepresentation();
+		groupRepresentation.setName(groupName);
+
+		Response response = groupsResource.add(groupRepresentation);
+		if (response.getStatus() == 201) {
+			System.out.println("Group created successfully: " + groupName);
+		} else {
+			System.out.println("Failed to create group: " + response.readEntity(String.class));
+		}
+		response.close();
 	}
 
 	public UserDto getCurrentUser(String authHeader) {
@@ -165,11 +193,6 @@ public class KeycloakUserService {
 		return Collections.emptyMap();
 	}
 
-	private void executeUserCreation(UserRegistrationDto userRegistrationDto, String accessToken) {
-		String bearerToken = BEARER_PREFIX + accessToken;
-		keycloakAdminClient.createUser(bearerToken, userRegistrationDto);
-	}
-
 	private void validateUserRegistration(UserRegistrationDto dto) {
 		dto.getCredentials().forEach(this::validateCredentials);
 		validateOrganizationNumber(dto.getAttributes());
@@ -206,6 +229,10 @@ public class KeycloakUserService {
 
 		if (!orgNumber.matches(ORG_NUMBER_REGEX)) {
 			throw new UserValidationException("Invalid organization registration number format");
+		}
+
+		if (!companyRegisterService.existsByRegistrationNumber(orgNumber)) {
+			throw new UserValidationException("Company with registration number " + orgNumber + " does not exist");
 		}
 	}
 

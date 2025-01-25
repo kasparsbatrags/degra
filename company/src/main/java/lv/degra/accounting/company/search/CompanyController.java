@@ -22,8 +22,8 @@ public class CompanyController {
 
 	private final CompanyRegisterService companyRegisterService;
 
-	public CompanyController(CompanyRegisterService companyRegisterService) {
-		this.companyRegisterService = companyRegisterService;
+	public CompanyController(CompanyRegisterService companyRegisterImportService) {
+		this.companyRegisterService = companyRegisterImportService;
 	}
 
 	@GetMapping(SUGGESTIONS)

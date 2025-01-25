@@ -7,6 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import lv.degra.accounting.core.company.register.service.CompanyRegisterImportServiceImpl;
+
 @SpringBootApplication
 @ComponentScan(basePackages = {
 		"lv.degra.accounting.core",
@@ -15,7 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
 				classes = { lv.degra.accounting.core.system.files.FileServiceImpl.class,
 						lv.degra.accounting.core.address.register.service.AddressRegisterServiceImpl.class,
-						lv.degra.accounting.core.company.register.service.CompanyRegisterServiceImpl.class}))
+						CompanyRegisterImportServiceImpl.class}))
 @EnableJpaRepositories(basePackages = {"lv.degra.accounting.core"})
 @EntityScan(basePackages = {"lv.degra.accounting.core"})
 public class FreightTrackingApplication {

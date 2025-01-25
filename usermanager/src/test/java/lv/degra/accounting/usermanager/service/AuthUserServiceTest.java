@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.customer.service.CustomerService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
@@ -41,20 +42,20 @@ import lv.degra.accounting.core.user.validator.PasswordValidator;
 import lv.degra.accounting.usermanager.client.KeycloakAdminClient;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
 
-class KeycloakUserServiceTest {
+class AuthUserServiceTest {
 
 	private final ObjectMapper objectMapper = mock(ObjectMapper.class);
-	private final Logger log = LoggerFactory.getLogger(KeycloakUserServiceTest.class);
+	private final Logger log = LoggerFactory.getLogger(AuthUserServiceTest.class);
 	private Keycloak keycloakMock;
 	private AuthService authServiceMock;
 	private KeycloakAdminClient adminClientMock;
 	private KeycloakProperties propertiesMock;
 	private UsersResource usersResourceMock;
-	private KeycloakUserService keycloakUserService;
+	private AuthUserService authUserService;
 	private CustomerService customerServicesMock;
 	private UserService userServiceMock;
 	private UserMapper userMapperMock;
-
+	private CompanyRegisterService companyRegisterService;
 
 	@BeforeEach
 	void setUp() {
@@ -66,6 +67,7 @@ class KeycloakUserServiceTest {
 		customerServicesMock = mock(CustomerService.class);
 		userServiceMock = mock(UserService.class);
 		userMapperMock = mock(UserMapper.class);
+		companyRegisterService = mock(CompanyRegisterService.class);
 
 		var realmResourceMock = mock(org.keycloak.admin.client.resource.RealmResource.class);
 		when(keycloakMock.realm(anyString())).thenReturn(realmResourceMock);
@@ -73,12 +75,13 @@ class KeycloakUserServiceTest {
 
 		when(propertiesMock.getRealm()).thenReturn("test-realm");
 
-		keycloakUserService = new KeycloakUserService(keycloakMock, authServiceMock, adminClientMock, propertiesMock,customerServicesMock,userServiceMock,userMapperMock);
+		authUserService = new AuthUserService(keycloakMock, authServiceMock, adminClientMock, propertiesMock, customerServicesMock,
+				userServiceMock, userMapperMock, companyRegisterService);
 	}
 
 	@Test
 	void testConstructor() {
-		assertNotNull(keycloakUserService, "UserService instance should be created successfully");
+		assertNotNull(authUserService, "UserService instance should be created successfully");
 	}
 
 	@Test
@@ -91,12 +94,11 @@ class KeycloakUserServiceTest {
 		when(usersResourceMock.search(anyString())).thenReturn(List.of());
 
 		// Act
-		assertDoesNotThrow(() -> keycloakUserService.createUser(userDto), "createUser should succeed without exceptions");
+		assertDoesNotThrow(() -> authUserService.createUser(userDto), "createUser should succeed without exceptions");
 
 		// Assert
 		verify(adminClientMock).createUser(eq("Bearer test-token"), eq(userDto));
 	}
-
 
 	@Test
 	void testCreateUser_UserAlreadyExists() {
@@ -112,10 +114,10 @@ class KeycloakUserServiceTest {
 		when(usersResourceMock.search(userDto.getUsername())).thenReturn(List.of(existingUser));
 
 		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class, () -> keycloakUserService.createUser(userDto));
+		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
+				() -> authUserService.createUser(userDto));
 		assertEquals("Failed to create user: Username already exists", exception.getMessage());
 	}
-
 
 	@Test
 	void testCreateUser_InvalidOrganizationNumber() {
@@ -124,10 +126,9 @@ class KeycloakUserServiceTest {
 
 		when(usersResourceMock.search(anyString())).thenReturn(List.of());
 
-		UserValidationException exception = assertThrows(UserValidationException.class, () -> keycloakUserService.createUser(userDto));
+		UserValidationException exception = assertThrows(UserValidationException.class, () -> authUserService.createUser(userDto));
 		assertEquals("Invalid organization registration number format", exception.getMessage());
 	}
-
 
 	@Test
 	void testValidateCredentials_InvalidPassword() {
@@ -151,7 +152,7 @@ class KeycloakUserServiceTest {
 
 		// Act & Assert
 		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
-				() -> keycloakUserService.handleUserCreationException(integrationException, "test-user"));
+				() -> authUserService.handleUserCreationException(integrationException, "test-user"));
 
 		assertEquals("Integration failed", exception.getMessage());
 		assertEquals("AUTH_ERROR", exception.getErrorCode());
@@ -180,11 +181,10 @@ class KeycloakUserServiceTest {
 		String payload = "{\"sub\":\"12345\",\"email\":\"test@example.com\"}";
 		String token = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
 
-		when(objectMapper.readValue(payload, Map.class))
-				.thenReturn(Map.of("sub", "12345", "email", "test@example.com"));
+		when(objectMapper.readValue(payload, Map.class)).thenReturn(Map.of("sub", "12345", "email", "test@example.com"));
 
 		// Act
-		Map<String, Object> claims = keycloakUserService.extractClaims(token);
+		Map<String, Object> claims = authUserService.extractClaims(token);
 
 		// Assert
 		assertNotNull(claims);
@@ -198,8 +198,8 @@ class KeycloakUserServiceTest {
 		String invalidToken = "invalidToken";
 
 		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class, () ->
-				keycloakUserService.extractClaims(invalidToken));
+		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
+				() -> authUserService.extractClaims(invalidToken));
 		assertEquals("Failed to decode JWT token: Invalid JWT token format", exception.getMessage());
 	}
 
@@ -209,8 +209,8 @@ class KeycloakUserServiceTest {
 		String invalidBase64Payload = "header.invalidPayload.signature";
 
 		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class, () ->
-				keycloakUserService.extractClaims(invalidBase64Payload));
+		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
+				() -> authUserService.extractClaims(invalidBase64Payload));
 		assertTrue(exception.getMessage().contains("Failed to decode JWT token"));
 	}
 
@@ -220,14 +220,11 @@ class KeycloakUserServiceTest {
 		String payload = "{\"sub\":\"12345\",\"email\":\"test@example.com\"";
 		String token = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
 
-		doThrow(new RuntimeException("JSON error"))
-				.when(objectMapper)
-				.readValue(any(String.class), eq(Map.class));
+		doThrow(new RuntimeException("JSON error")).when(objectMapper).readValue(any(String.class), eq(Map.class));
 
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class, () ->
-				keycloakUserService.extractClaims(token));
+		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
+				() -> authUserService.extractClaims(token));
 		assertTrue(exception.getMessage().contains("Failed to decode JWT token"));
 	}
-
 
 }

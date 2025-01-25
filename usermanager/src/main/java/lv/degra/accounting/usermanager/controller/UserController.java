@@ -18,30 +18,40 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
+import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
+import lv.degra.accounting.core.user.exception.UserUniqueException;
+import lv.degra.accounting.core.user.exception.UserValidationException;
 import lv.degra.accounting.usermanager.service.AuthService;
-import lv.degra.accounting.usermanager.service.KeycloakUserService;
+import lv.degra.accounting.usermanager.service.AuthUserService;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
-	private final KeycloakUserService keycloakUserService;
+	private final AuthUserService authUserService;
 	private final AuthService authService;
 
 	@Autowired
-	public UserController(KeycloakUserService keycloakUserService, AuthService authService) {
-		this.keycloakUserService = keycloakUserService;
+	public UserController(AuthUserService authUserService, AuthService authService) {
+		this.authUserService = authUserService;
 		this.authService = authService;
 	}
 
 	@PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, String>> createUser(@Valid @RequestBody UserRegistrationDto userRegistrationDto) {
 		try {
-			keycloakUserService.createUser(userRegistrationDto);
-
-			return ResponseEntity.ok(Collections.singletonMap("message", "User created successfully!"));
+			authUserService.createUser(userRegistrationDto);
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(Collections.singletonMap("message", "User created successfully!"));
+		} catch (UserValidationException | UserUniqueException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Collections.singletonMap("error", e.getMessage()));
+		} catch (KeycloakIntegrationException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Failed to create user: " + e.getMessage()));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "An unexpected error occurred"));
 		}
 	}
 
@@ -54,7 +64,7 @@ public class UserController {
 			}
 
 			String token = authorizationHeader.substring(7);
-			UserDto userInfo = keycloakUserService.getCurrentUser(token);
+			UserDto userInfo = authUserService.getCurrentUser(token);
 
 			if (userInfo == null) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

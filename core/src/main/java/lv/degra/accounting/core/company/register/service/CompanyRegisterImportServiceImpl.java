@@ -33,7 +33,7 @@ import lv.degra.accounting.core.system.files.FileService;
 
 @Service
 @Slf4j
-public class CompanyRegisterServiceImpl implements CompanyRegisterService {
+public class CompanyRegisterImportServiceImpl implements CompanyRegisterImportService {
 
     private final FileService fileService;
     private final CsvParser csvParser;
@@ -42,7 +42,7 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
     private final JdbcTemplate jdbcTemplate;
 	private final CompanyRegisterRepository companyRegisterRepository;
 
-	public CompanyRegisterServiceImpl(FileService fileService, CsvParser csvParser, CompanyTypeRepository companyTypeRepository, ConfigService configService, JdbcTemplate jdbcTemplate,
+	public CompanyRegisterImportServiceImpl(FileService fileService, CsvParser csvParser, CompanyTypeRepository companyTypeRepository, ConfigService configService, JdbcTemplate jdbcTemplate,
 			CompanyRegisterRepository companyRegisterRepository) {
         this.fileService = fileService;
         this.csvParser = csvParser;
@@ -66,11 +66,6 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
         }
         log.info("Company data import finished");
     }
-
-	@Override
-	public List<CompanyRegister> findByNameContainingIgnoreCase(String name) {
-		return companyRegisterRepository.findTopByNameContainingIgnoreCase(name);
-	}
 
 	public void importCompanyData(Reader file) {
 

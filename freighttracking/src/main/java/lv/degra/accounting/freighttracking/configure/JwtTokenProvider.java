@@ -1,5 +1,7 @@
 package lv.degra.accounting.freighttracking.configure;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lv.degra.accounting.usermanager.service.AuthService;
 
@@ -46,4 +50,19 @@ public class JwtTokenProvider {
 			throw new RuntimeException("Failed to decode refreshed token: " + ex.getMessage(), ex);
 		}
 	}
+
+	public Map<String, Object> parseToken(String token) {
+		String[] chunks = token.split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		try {
+			return objectMapper.readValue(payload, Map.class);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Invalid JWT token", e);
+		}
+	}
+
 }
