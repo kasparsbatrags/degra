@@ -22,10 +22,10 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Lietotāja identifikators Keycloak"
               - column:
-                  name: token
-                  type: text()
+                  name: refresh_token
+                  type: text
                   constraints:
-                    nullable: true
+                    nullable: false
                   remarks: "Keycloak refresh token"
               - column:
                   name: created_date_time

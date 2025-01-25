@@ -29,6 +29,6 @@ public class User implements Serializable {
 	private String userId;
 
 	@NotNull
-	@Column(name = "token", nullable = false)
+	@Column(name = "refresh_token", nullable = false)
 	private String refreshToken;
 }

@@ -12,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
+import lv.degra.accounting.core.user.exception.UserSaveException;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
@@ -47,6 +48,7 @@ public class AuthService {
 			throw new KeycloakIntegrationException("Authentication error", "AUTH_ERROR");
 		}
 	}
+
 
 	public Map<String, Object> login(String email, String password) {
 		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
@@ -115,7 +117,7 @@ public class AuthService {
 		}
 		try {
 			String payload = new String(java.util.Base64.getDecoder().decode(parts[1]));
-			// Using simple string manipulation since we only need the sub claim
+
 			int subStart = payload.indexOf("\"sub\":\"") + 7;
 			int subEnd = payload.indexOf("\"", subStart);
 			return payload.substring(subStart, subEnd);
@@ -125,9 +127,15 @@ public class AuthService {
 	}
 
 	private void saveOrUpdateUser(String userId, String refreshToken) {
-		User user = userRepository.findByUserId(userId).orElse(new User());
-		user.setUserId(userId);
-		user.setRefreshToken(refreshToken);
-		userRepository.save(user);
+		try {
+			User user = userRepository.findByUserId(userId)
+					.orElse(new User());
+			user.setUserId(userId);
+			user.setRefreshToken(refreshToken);
+			userRepository.save(user);
+		} catch (Exception e) {
+			log.error("Neizdevās saglabāt lietotāja informāciju: {}", e.getMessage());
+			throw new UserSaveException("Neizdevās saglabāt lietotāja informāciju", "USER_SAVE_ERROR");
+		}
 	}
 }
