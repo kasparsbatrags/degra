@@ -13,8 +13,6 @@ import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,26 +40,16 @@ public class AuthUserService {
 	private static final String BEARER_PREFIX = "Bearer ";
 
 	private final Keycloak keycloak;
-	private final AuthService authService;
-	private final KeycloakAdminClient keycloakAdminClient;
 	private final KeycloakProperties keycloakProperties;
 	private final PasswordValidator passwordValidator;
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final CustomerService customerService;
-	private final UserService userService;
-	private final UserMapper userMapper;
 	private final CompanyRegisterService companyRegisterService;
 
 	public AuthUserService(Keycloak keycloak, AuthService authService, KeycloakAdminClient keycloakAdminClient,
 			KeycloakProperties keycloakProperties, CustomerService customerService, UserService userService, UserMapper userMapper,
 			CompanyRegisterService companyRegisterService) {
 		this.keycloak = keycloak;
-		this.authService = authService;
-		this.keycloakAdminClient = keycloakAdminClient;
 		this.keycloakProperties = keycloakProperties;
-		this.customerService = customerService;
-		this.userService = userService;
-		this.userMapper = userMapper;
 		this.companyRegisterService = companyRegisterService;
 		this.passwordValidator = new PasswordValidator();
 	}
@@ -70,6 +58,7 @@ public class AuthUserService {
 		validateUserRegistration(userRegistrationDto);
 
 		UsersResource usersResource = getUsersResource();
+		String organizationRegistrationNumber = userRegistrationDto.getAttributes().get("organizationRegistrationNumber");
 
 		UserRepresentation userRepresentation = new UserRepresentation();
 		userRepresentation.setUsername(userRegistrationDto.getUsername());
@@ -77,77 +66,91 @@ public class AuthUserService {
 		userRepresentation.setFirstName(userRegistrationDto.getFirstName());
 		userRepresentation.setLastName(userRegistrationDto.getLastName());
 		userRepresentation.setEnabled(true);
+		
+		// Set credentials from CredentialDto
+		List<CredentialDto> credentials = userRegistrationDto.getCredentials();
+		if (!credentials.isEmpty()) {
+			userRepresentation.setCredentials(credentials.stream()
+				.map(credentialDto -> {
+					org.keycloak.representations.idm.CredentialRepresentation credential = 
+						new org.keycloak.representations.idm.CredentialRepresentation();
+					credential.setType(org.keycloak.representations.idm.CredentialRepresentation.PASSWORD);
+					credential.setValue(credentialDto.getValue());
+					credential.setTemporary(false);
+					return credential;
+				})
+				.toList());
+		}
+
 		Map<String, List<String>> attributes = new HashMap<>();
-		String organizationRegistrationNumber = userRegistrationDto.getAttributes().get("organizationRegistrationNumber");
 		attributes.put("organizationRegistrationNumber", List.of(organizationRegistrationNumber));
 		userRepresentation.setAttributes(attributes);
 
+		// Create user
 		Response response = usersResource.create(userRepresentation);
+		String userId = null;
 		try {
 			if (response.getStatus() == 201) {
+				// Extract the user ID from the response
+				String location = response.getHeaderString("Location");
+				userId = location.substring(location.lastIndexOf("/") + 1);
 				log.info("User created successfully: {}", userRegistrationDto.getUsername());
+
+				// Handle group assignment
+				String groupId = getOrCreateGroup(organizationRegistrationNumber);
+				addUserToGroup(userId, groupId, organizationRegistrationNumber);
 			} else {
 				String errorMessage = response.readEntity(String.class);
 				log.error("Failed to create user. Status: {} Error: {}", response.getStatus(), errorMessage);
 				throw new KeycloakIntegrationException("Failed to create user: " + errorMessage, "USER_CREATION_ERROR");
+			}
+		} catch (Exception e) {
+			log.error("Error during user creation or group assignment: {}", e.getMessage());
+			if (userId != null) {
+				// Cleanup: try to delete the user if group operations failed
+				usersResource.get(userId).remove();
+			}
+			throw new KeycloakIntegrationException("Failed to complete user registration: " + e.getMessage(), "USER_REGISTRATION_ERROR");
+		} finally {
+			response.close();
+		}
+	}
+
+	private Optional<GroupRepresentation> findGroupByName(String groupName) {
+		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
+		return groupsResource.groups().stream().filter(group -> group.getName().equals(groupName)).findFirst();
+	}
+
+	private String createGroup(String groupName) {
+		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
+		GroupRepresentation groupRepresentation = new GroupRepresentation();
+		groupRepresentation.setName(groupName);
+
+		Response response = groupsResource.add(groupRepresentation);
+		try {
+			if (response.getStatus() == 201) {
+				String location = response.getHeaderString("Location");
+				String groupId = location.substring(location.lastIndexOf("/") + 1);
+				log.info("Group created successfully: {}", groupName);
+				return groupId;
+			} else {
+				String errorMessage = response.readEntity(String.class);
+				log.error("Failed to create group. Status: {} Error: {}", response.getStatus(), errorMessage);
+				throw new KeycloakIntegrationException("Failed to create group: " + errorMessage, "GROUP_CREATION_ERROR");
 			}
 		} finally {
 			response.close();
 		}
 	}
 
-	@Retryable(value = { KeycloakIntegrationException.class }, maxAttempts = 3, backoff = @Backoff(delay = 1000))
-	public void deleteUserByEmailAndOrganization(String email, String organizationRegistrationNumber) {
-		try {
-			UsersResource usersResource = getUsersResource();
-
-			List<UserRepresentation> users = usersResource.search(null, null, null, email, null, null);
-			if (users.isEmpty()) {
-				throw new UserValidationException("No user found with email: " + email);
-			}
-
-			List<UserRepresentation> matchingUsers = users.stream().filter(user -> {
-				Map<String, List<String>> attributes = user.getAttributes();
-				return attributes != null && attributes.containsKey("organizationRegistrationNumber") && attributes.get(
-						"organizationRegistrationNumber").contains(organizationRegistrationNumber);
-			}).toList();
-
-			if (matchingUsers.isEmpty()) {
-				throw new UserValidationException(
-						"No user found with email: " + email + " and organization: " + organizationRegistrationNumber);
-			}
-
-			if (matchingUsers.size() > 1) {
-				throw new UserValidationException(
-						"Multiple users found with email: " + email + " and organization: " + organizationRegistrationNumber);
-			}
-
-			String userId = matchingUsers.get(0).getId();
-			usersResource.delete(userId);
-			log.info("Successfully deleted user with email: {} and organization: {}", email, organizationRegistrationNumber);
-
-		} catch (UserValidationException e) {
-			log.error("Validation error: {}", e.getMessage());
-			throw e;
-		} catch (Exception e) {
-			log.error("Failed to delete user with email: {} and organization: {}", email, organizationRegistrationNumber, e);
-			throw new KeycloakIntegrationException("Failed to delete user: " + e.getMessage(), "INTERNAL_ERROR");
-		}
+	private String getOrCreateGroup(String groupName) {
+		return findGroupByName(groupName).map(GroupRepresentation::getId).orElseGet(() -> createGroup(groupName));
 	}
 
-	public void createGroup(String groupName) {
-		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
-
-		GroupRepresentation groupRepresentation = new GroupRepresentation();
-		groupRepresentation.setName(groupName);
-
-		Response response = groupsResource.add(groupRepresentation);
-		if (response.getStatus() == 201) {
-			System.out.println("Group created successfully: " + groupName);
-		} else {
-			System.out.println("Failed to create group: " + response.readEntity(String.class));
-		}
-		response.close();
+	private void addUserToGroup(String userId, String groupId, String groupName) {
+		UsersResource usersResource = getUsersResource();
+		usersResource.get(userId).joinGroup(groupId);
+		log.info("User added to group: {}", groupName);
 	}
 
 	public UserDto getCurrentUser(String authHeader) {
@@ -249,5 +252,4 @@ public class AuthUserService {
 
 		throw new KeycloakIntegrationException("Failed to create user: " + e.getMessage(), "INTERNAL_ERROR");
 	}
-
 }
