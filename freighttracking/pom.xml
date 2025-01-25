@@ -18,6 +18,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>lv.degra</groupId>
+			<artifactId>shared-resources</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>lv.degra</groupId>
 			<artifactId>core</artifactId>
 			<version>1.0</version>
 		</dependency>
@@ -84,27 +89,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-shared-resources</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/../shared-resources</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 </project>

@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>lv.degra</groupId>
+            <artifactId>shared-resources</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>lv.degra</groupId>
             <artifactId>core</artifactId>
             <version>1.0</version>
         </dependency>
@@ -42,12 +47,6 @@
     </dependencies>
 	<build>
 		<resources>
-			<resource>
-				<directory>${project.basedir}/shared-resources</directory>
-				<includes>
-					<include>**/*.yaml</include>
-				</includes>
-			</resource>
 			<resource>
 				<directory>${basedir}/src/main/resources</directory>
 				<includes>

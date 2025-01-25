@@ -21,6 +21,7 @@
 		<module>company</module>
 		<module>address</module>
 		<module>freighttracking</module>
+		<module>shared-resources</module>
 	</modules>
 
 	<properties>

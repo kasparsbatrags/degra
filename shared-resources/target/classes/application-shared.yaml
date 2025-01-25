@@ -1,0 +1,12 @@
+spring:
+  config:
+    activate:
+      on-profile: shared
+  jpa:
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  liquibase:
+    dbType:
+      text=TEXT:

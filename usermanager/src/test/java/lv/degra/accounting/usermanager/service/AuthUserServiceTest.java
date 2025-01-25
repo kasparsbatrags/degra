@@ -11,7 +11,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +30,13 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.ws.rs.core.Response;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.customer.service.CustomerService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
+import lv.degra.accounting.core.user.exception.UserUniqueException;
 import lv.degra.accounting.core.user.exception.UserValidationException;
 import lv.degra.accounting.core.user.maper.UserMapper;
 import lv.degra.accounting.core.user.service.UserService;
@@ -88,24 +90,40 @@ class AuthUserServiceTest {
 	void testCreateUser_Success() {
 		// Arrange
 		UserRegistrationDto userDto = createValidUserDto();
-		when(authServiceMock.getAccessToken()).thenReturn("test-token");
-
-		// Mock UsersResource
+		when(companyRegisterService.existsByRegistrationNumber(anyString())).thenReturn(true);
 		when(usersResourceMock.search(anyString())).thenReturn(List.of());
 
-		// Act
-		assertDoesNotThrow(() -> authUserService.createUser(userDto), "createUser should succeed without exceptions");
+		// Mock response for user creation
+		Response responseMock = mock(Response.class);
+		when(responseMock.getStatus()).thenReturn(201);
+		when(responseMock.getHeaderString("Location")).thenReturn("/auth/admin/realms/test-realm/users/123");
+		when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
 
-		// Assert
-		verify(adminClientMock).createUser(eq("Bearer test-token"), eq(userDto));
+		// Mock group operations
+		var groupsResourceMock = mock(org.keycloak.admin.client.resource.GroupsResource.class);
+		when(keycloakMock.realm("test-realm").groups()).thenReturn(groupsResourceMock);
+		when(groupsResourceMock.groups()).thenReturn(List.of());
+
+		Response groupResponseMock = mock(Response.class);
+		when(groupResponseMock.getStatus()).thenReturn(201);
+		when(groupResponseMock.getHeaderString("Location")).thenReturn("/groups/456");
+		when(groupsResourceMock.add(any(GroupRepresentation.class))).thenReturn(groupResponseMock);
+
+		// Mock user resource for group assignment
+		var userResourceMock = mock(org.keycloak.admin.client.resource.UserResource.class);
+		when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
+
+		// Act & Assert
+		assertDoesNotThrow(() -> authUserService.createUser(userDto));
 	}
 
 	@Test
 	void testCreateUser_UserAlreadyExists() {
 		// Arrange
 		UserRegistrationDto userDto = createValidUserDto();
+		when(companyRegisterService.existsByRegistrationNumber(anyString())).thenReturn(true);
 
-		// Mock UsersResource un Keycloak atgriežamās vērtības
+		// Mock UsersResource to return existing user
 		when(keycloakMock.realm("test-realm").users()).thenReturn(usersResourceMock);
 
 		UserRepresentation existingUser = new UserRepresentation();
@@ -114,9 +132,9 @@ class AuthUserServiceTest {
 		when(usersResourceMock.search(userDto.getUsername())).thenReturn(List.of(existingUser));
 
 		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
+		UserUniqueException exception = assertThrows(UserUniqueException.class,
 				() -> authUserService.createUser(userDto));
-		assertEquals("Failed to create user: Username already exists", exception.getMessage());
+		assertEquals("Username already exists", exception.getMessage());
 	}
 
 	@Test

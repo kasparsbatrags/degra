@@ -19,6 +19,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>lv.degra</groupId>
+			<artifactId>shared-resources</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>lv.degra</groupId>
 			<artifactId>core</artifactId>
 			<version>1.0</version>
 		</dependency>
@@ -163,7 +168,7 @@
 							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.basedir}/../shared-resources</directory>
+									<directory>${project.build.directory}/dependency/shared-resources</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>
