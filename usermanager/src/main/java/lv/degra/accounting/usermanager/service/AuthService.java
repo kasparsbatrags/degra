@@ -12,6 +12,8 @@ import org.springframework.util.MultiValueMap;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
+import lv.degra.accounting.core.user.model.User;
+import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
 import lv.degra.accounting.usermanager.client.KeycloakTokenClient;
 
@@ -21,11 +23,13 @@ public class AuthService {
 
 	private final KeycloakTokenClient keycloakTokenClient;
 	private final KeycloakProperties keycloakProperties;
+	private final UserRepository userRepository;
 
 	@Autowired
-	public AuthService(KeycloakTokenClient keycloakTokenClient, KeycloakProperties keycloakProperties) {
+	public AuthService(KeycloakTokenClient keycloakTokenClient, KeycloakProperties keycloakProperties, UserRepository userRepository) {
 		this.keycloakTokenClient = keycloakTokenClient;
 		this.keycloakProperties = keycloakProperties;
+		this.userRepository = userRepository;
 	}
 
 	@Cacheable("keycloakTokens")
@@ -56,9 +60,13 @@ public class AuthService {
 
 		try {
 			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(MediaType.APPLICATION_JSON_VALUE, request);
+			String sub = extractSub(tokenResponse.get("access_token").toString());
+			String refreshToken = tokenResponse.get("refresh_token").toString();
+
+			saveOrUpdateUser(sub, refreshToken);
+
 			response.put("access_token", tokenResponse.get("access_token"));
 			response.put("expires_in", tokenResponse.get("expires_in"));
-			response.put("refresh_token", tokenResponse.get("refresh_token")); // Ja nepieciešams
 			response.put("token_type", tokenResponse.get("token_type"));
 			return response;
 		} catch (Exception e) {
@@ -100,4 +108,26 @@ public class AuthService {
 		return request;
 	}
 
+	private String extractSub(String accessToken) {
+		String[] parts = accessToken.split("\\.");
+		if (parts.length != 3) {
+			throw new KeycloakIntegrationException("Invalid token format", "TOKEN_ERROR");
+		}
+		try {
+			String payload = new String(java.util.Base64.getDecoder().decode(parts[1]));
+			// Using simple string manipulation since we only need the sub claim
+			int subStart = payload.indexOf("\"sub\":\"") + 7;
+			int subEnd = payload.indexOf("\"", subStart);
+			return payload.substring(subStart, subEnd);
+		} catch (Exception e) {
+			throw new KeycloakIntegrationException("Failed to extract sub from token", "TOKEN_ERROR");
+		}
+	}
+
+	private void saveOrUpdateUser(String userId, String refreshToken) {
+		User user = userRepository.findByUserId(userId).orElse(new User());
+		user.setUserId(userId);
+		user.setRefreshToken(refreshToken);
+		userRepository.save(user);
+	}
 }

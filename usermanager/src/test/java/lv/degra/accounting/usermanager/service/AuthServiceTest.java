@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
+import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
 import lv.degra.accounting.usermanager.client.KeycloakTokenClient;
 
@@ -27,16 +28,18 @@ class AuthServiceTest {
 	private KeycloakTokenClient tokenClientMock;
 	private KeycloakProperties keycloakPropertiesMock;
 	private AuthService authService;
+	private UserRepository userRepositoryMock;
 
 	@BeforeEach
 	void setUp() {
 		tokenClientMock = mock(KeycloakTokenClient.class);
 		keycloakPropertiesMock = mock(KeycloakProperties.class);
+		userRepositoryMock = mock(UserRepository.class);
 
 		when(keycloakPropertiesMock.getClientId()).thenReturn("test-client");
 		when(keycloakPropertiesMock.getClientSecret()).thenReturn("test-secret");
 
-		authService = new AuthService(tokenClientMock, keycloakPropertiesMock);
+		authService = new AuthService(tokenClientMock, keycloakPropertiesMock, userRepositoryMock);
 	}
 
 	@Test
