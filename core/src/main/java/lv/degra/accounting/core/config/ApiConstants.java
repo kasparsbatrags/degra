@@ -12,4 +12,7 @@ public class ApiConstants {
 
 	public static final String USER_ENDPOINT = BASE_API_URL + "/users";
 
+
+	public static final String USER_ROLE_NAME = "USER";
+
 }

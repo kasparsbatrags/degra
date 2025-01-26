@@ -2,6 +2,7 @@ package lv.degra.accounting.freighttracking.config.security;
 
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
 import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 
 import java.util.Collection;
 import java.util.List;
@@ -42,10 +43,8 @@ public class FreightTrackingSecurityConfig {
                 csrf.disable();
             })
             .authorizeHttpRequests(authz -> 
-                authz.requestMatchers(FREIGHT_TRACKING + TRUCK_ROUTES + "/**")
-                    .hasAuthority("ROLE_USER")
-                    .anyRequest()
-                    .authenticated()
+                authz.requestMatchers(FREIGHT_TRACKING + TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
+                    .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> {
                 log.info("Configuring OAuth2 Resource Server");
@@ -86,7 +85,6 @@ public class FreightTrackingSecurityConfig {
             }
 
             return roles.stream()
-                .map(role -> "ROLE_" + role)
                 .map(SimpleGrantedAuthority::new)
                 .map(GrantedAuthority.class::cast)
                 .toList();

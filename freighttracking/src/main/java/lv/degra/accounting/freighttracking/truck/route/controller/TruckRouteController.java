@@ -1,6 +1,5 @@
 package lv.degra.accounting.freighttracking.truck.route.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.BASE_API_URL;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
 import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
 
@@ -10,7 +9,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +20,7 @@ import lv.degra.accounting.core.truck.route.service.TruckRouteService;
 import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
 
 @RestController
-@RequestMapping(BASE_API_URL + FREIGHT_TRACKING)
-@PreAuthorize("hasAuthority('USER')")
+@RequestMapping(FREIGHT_TRACKING)
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;
