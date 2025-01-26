@@ -1,5 +1,7 @@
 package lv.degra.accounting.freighttracking.truck.route.controller;
 
+import static lv.degra.accounting.core.config.ApiConstants.BASE_API_URL;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
 import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
 
 import java.util.List;
@@ -20,8 +22,8 @@ import lv.degra.accounting.core.truck.route.service.TruckRouteService;
 import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
 
 @RestController
-@RequestMapping(TRUCK_ROUTES)
-@PreAuthorize("hasAuthority('ROLE_USER')")
+@RequestMapping(BASE_API_URL + FREIGHT_TRACKING)
+@PreAuthorize("hasAuthority('USER')")
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;
@@ -33,11 +35,9 @@ public class TruckRouteController {
 		this.jwtTokenProvider = jwtTokenProvider;
 	}
 
-	@GetMapping()
-	public ResponseEntity<List<TruckRoute>> getLastTruckRoutes(
-			@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "5") int size) {
+	@GetMapping(TRUCK_ROUTES)
+	public ResponseEntity<List<TruckRoute>> getLastTruckRoutes(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
 		String token = authHeader.substring(7);
 		Map<String, Object> claims = jwtTokenProvider.parseToken(token);
