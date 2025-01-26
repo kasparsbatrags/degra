@@ -1,4 +1,4 @@
-package lv.degra.accounting.freighttracking.configure;
+package lv.degra.accounting.freighttracking.config;
 
 import java.io.IOException;
 import java.util.Base64;

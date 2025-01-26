@@ -1,4 +1,4 @@
-package lv.degra.accounting.company.config;
+package lv.degra.accounting.core.config;
 
 import org.hibernate.envers.configuration.EnversSettings;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;

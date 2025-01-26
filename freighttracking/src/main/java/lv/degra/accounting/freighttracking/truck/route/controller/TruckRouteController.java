@@ -1,6 +1,6 @@
 package lv.degra.accounting.freighttracking.truck.route.controller;
 
-import static lv.degra.accounting.freighttracking.configure.ApiConstants.TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lv.degra.accounting.core.truck.route.model.TruckRoute;
 import lv.degra.accounting.core.truck.route.service.TruckRouteService;
-import lv.degra.accounting.freighttracking.configure.JwtTokenProvider;
+import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
 
 @RestController
 @RequestMapping(TRUCK_ROUTES)

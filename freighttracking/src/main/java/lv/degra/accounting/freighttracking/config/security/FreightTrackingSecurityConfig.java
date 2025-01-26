@@ -1,6 +1,7 @@
-package lv.degra.accounting.freighttracking.configure.security;
+package lv.degra.accounting.freighttracking.config.security;
 
-import static lv.degra.accounting.freighttracking.configure.ApiConstants.TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
+import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,45 +22,28 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Slf4j
-public class SecurityConfig {
-
+public class FreightTrackingSecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		log.info("Configuring SecurityFilterChain");
-
-		http
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+	public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher(FREIGHT_TRACKING + "/**").cors(cors -> cors.configurationSource(freightTrackingCorsConfigurationSource()))
 				.csrf(csrf -> {
 					log.info("Disabling CSRF");
 					csrf.disable();
-				})
-				.authorizeHttpRequests(authz -> {
-					log.info("Configuring authorization rules");
-					authz
-							.requestMatchers("/api/freight/**").permitAll()
-							.requestMatchers("/api/freight/public/**").permitAll()
-							.requestMatchers("/api/freight/user/**").hasRole("MOBILE_USER")
-							.requestMatchers(TRUCK_ROUTES+"/**").hasRole("MOBILE_USER")
-							.anyRequest().authenticated();
-				})
+				}).authorizeHttpRequests(
+						authz -> authz.requestMatchers(FREIGHT_TRACKING + TRUCK_ROUTES + "/**").hasRole("USER").anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> {
 					log.info("Configuring OAuth2 Resource Server");
 					oauth2.jwt(jwt -> {
-						// Temporarily disable JWT validation for debugging
 						log.info("JWT validation temporarily disabled for debugging");
 					});
-				})
-				.sessionManagement(session -> {
-					log.info("Setting session management to STATELESS");
-					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-				});
+				}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
 	}
 
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
+	public CorsConfigurationSource freightTrackingCorsConfigurationSource() {
 		log.info("Configuring CORS");
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.addAllowedOrigin("*");  // Not recommended for production
@@ -70,7 +54,6 @@ public class SecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
-
 
 	@Bean
 	public JwtDecoder jwtDecoder() {

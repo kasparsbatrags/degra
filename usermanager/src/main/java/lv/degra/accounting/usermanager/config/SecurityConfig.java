@@ -1,7 +1,10 @@
 package lv.degra.accounting.usermanager.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static lv.degra.accounting.core.config.ApiConstants.LOGIN_URL;
+import static lv.degra.accounting.core.config.ApiConstants.PUBLIC_URL;
+import static lv.degra.accounting.core.config.ApiConstants.REGISTER_URL;
+import static lv.degra.accounting.core.config.ApiConstants.USER_ENDPOINT;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,48 +16,40 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@Slf4j
 public class SecurityConfig {
-
-	private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		logger.info("Configuring SecurityFilterChain");
-
-		http
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> {
-					logger.info("Disabling CSRF");
+		http.securityMatcher(USER_ENDPOINT + "/**")
+				.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> {
+					log.info("Disabling CSRF");
 					csrf.disable();
-				})
-				.authorizeHttpRequests(authz -> {
-					logger.info("Configuring authorization rules");
-					authz
-							.requestMatchers("/api/user/**").permitAll()
-							.requestMatchers("/api/public/**").permitAll()
-							.anyRequest().authenticated();
-				})
+				}).authorizeHttpRequests(
+						authz -> authz
+								.requestMatchers(USER_ENDPOINT + LOGIN_URL).permitAll()
+								.requestMatchers(USER_ENDPOINT + REGISTER_URL).permitAll()
+								.requestMatchers(USER_ENDPOINT + PUBLIC_URL + "**").permitAll().anyRequest().authenticated()
+				)
 				.oauth2ResourceServer(oauth2 -> {
-					logger.info("Configuring OAuth2 Resource Server");
+					log.info("Configuring OAuth2 Resource Server");
 					oauth2.jwt(jwt -> {
 						// Temporarily disable JWT validation for debugging
-						logger.info("JWT validation temporarily disabled for debugging");
+						log.info("JWT validation temporarily disabled for debugging");
 					});
-				})
-				.sessionManagement(session -> {
-					logger.info("Setting session management to STATELESS");
-					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-				});
+				}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
 	}
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		logger.info("Configuring CORS");
+		log.info("Configuring CORS");
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.addAllowedOrigin("*");  // Not recommended for production
 		configuration.addAllowedMethod("*");

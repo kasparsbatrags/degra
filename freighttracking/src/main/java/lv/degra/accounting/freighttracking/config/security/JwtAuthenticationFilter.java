@@ -1,4 +1,4 @@
-package lv.degra.accounting.freighttracking.configure.security;
+package lv.degra.accounting.freighttracking.config.security;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +14,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lv.degra.accounting.freighttracking.configure.JwtTokenProvider;
+import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
 
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
