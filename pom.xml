@@ -212,7 +212,6 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
 				<executions>
 					<execution>
 						<id>jacoco-initialize</id>
@@ -295,6 +294,11 @@
 						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<excludes>
+						<exclude>de/jensd/fx/glyphs/fontawesome/**</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

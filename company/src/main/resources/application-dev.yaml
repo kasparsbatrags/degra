@@ -7,9 +7,6 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
-server:
-  port: 8084
-
 logging:
   level:
     ROOT: INFO
