@@ -26,9 +26,9 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 
-	public List<TruckRoute> getLastTruckRoutesByUserId(Integer userId, int page, int size) {
+	public List<TruckRoute> getLastTruckRoutesByUserId(String userId, int page, int size) {
 
-		User user = userService.getUserById(userId)
+		User user = userService.getByUserId(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());

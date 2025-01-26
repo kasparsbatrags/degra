@@ -42,7 +42,7 @@ public class TruckRouteController {
 		String token = authHeader.substring(7);
 		Map<String, Object> claims = jwtTokenProvider.parseToken(token);
 
-		Integer userId = (Integer) claims.get("sub");
+		String userId = (String) claims.get("sub");
 		List<TruckRoute> truckRoutes = truckRouteService.getLastTruckRoutesByUserId(userId, page, size);
 
 		return ResponseEntity.ok(truckRoutes);
