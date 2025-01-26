@@ -91,13 +91,33 @@ public class AuthService {
 		}
 	}
 
-	public String refreshTokenIfExpired(String refreshToken) {
+	public Map<String, Object> refreshTokenIfExpired(String bearerToken) {
 		try {
-			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken("application/x-www-form-urlencoded",
-					createRefreshRequest(refreshToken));
-			return (String) tokenResponse.get("access_token");
+
+			String userId = extractSub(bearerToken.replace("Bearer ", ""));
+			
+			User user = userRepository.findByUserId(userId)
+					.orElseThrow(() -> new KeycloakIntegrationException("User not found", "USER_NOT_FOUND"));
+
+			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
+					MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+					createRefreshRequest(user.getRefreshToken())
+			);
+
+			if (tokenResponse.containsKey("refresh_token")) {
+				user.setRefreshToken((String) tokenResponse.get("refresh_token"));
+				userRepository.save(user);
+			}
+
+			Map<String, Object> response = new HashMap<>();
+			response.put("access_token", tokenResponse.get("access_token"));
+			response.put("expires_in", tokenResponse.get("expires_in"));
+			response.put("token_type", tokenResponse.get("token_type"));
+			return response;
+
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to refresh token: " + e.getMessage(), e);
+			log.error("Failed to refresh token: {}", e.getMessage());
+			throw new KeycloakIntegrationException("Token refresh failed", "REFRESH_ERROR");
 		}
 	}
 

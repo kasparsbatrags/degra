@@ -40,8 +40,9 @@ public class JwtTokenProvider {
 	}
 
 	private Map<String, Object> handleExpiredToken(String refreshToken) {
-		String newToken = authService.refreshTokenIfExpired(refreshToken);
+		Map<String, Object> tokenResponse = authService.refreshTokenIfExpired(refreshToken);
 		try {
+			String newToken = (String) tokenResponse.get("access_token");
 			Jwt refreshedJwt = jwtDecoder.decode(newToken);
 			return refreshedJwt.getClaims();
 		} catch (JwtException ex) {

@@ -1,17 +1,17 @@
 package lv.degra.accounting.core.config;
 
-
 public class ApiConstants {
 	public static final String BASE_API_URL = "/api";
-	public static final String LOGIN_URL = "/login";
-	public static final String REGISTER_URL = "/register";
+	public static final String ENDPOINT_LOGIN = "/login";
+	public static final String ENDPOINT_LOGOUT = "/logout";
+	public static final String ENDPOINT_REFRESH = "/refresh";
+	public static final String ENDPOINT_PUBLIC = "/public";
+	public static final String ENDPOINT_REGISTER = "/register";
+	public static final String ENDPOINT_TRUCK_ROUTES = "/truck-routes";
 
-	public static final String PUBLIC_URL = "/public";
-	public static final String FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";
-	public static final String TRUCK_ROUTES = "/truck-routes";
 
-	public static final String USER_ENDPOINT = BASE_API_URL + "/users";
-
+	public static final String PATH_FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";
+	public static final String PATH_USER = BASE_API_URL + "/user";
 
 	public static final String USER_ROLE_NAME = "USER";
 

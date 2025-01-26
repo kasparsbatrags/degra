@@ -1,9 +1,9 @@
 package lv.degra.accounting.usermanager.config;
 
-import static lv.degra.accounting.core.config.ApiConstants.LOGIN_URL;
-import static lv.degra.accounting.core.config.ApiConstants.PUBLIC_URL;
-import static lv.degra.accounting.core.config.ApiConstants.REGISTER_URL;
-import static lv.degra.accounting.core.config.ApiConstants.USER_ENDPOINT;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGIN;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_PUBLIC;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
+import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,15 +26,15 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.securityMatcher(USER_ENDPOINT + "/**")
+		http.securityMatcher(PATH_USER + "/**")
 				.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> {
 					log.info("Disabling CSRF");
 					csrf.disable();
 				}).authorizeHttpRequests(
 						authz -> authz
-								.requestMatchers(USER_ENDPOINT + LOGIN_URL).permitAll()
-								.requestMatchers(USER_ENDPOINT + REGISTER_URL).permitAll()
-								.requestMatchers(USER_ENDPOINT + PUBLIC_URL + "**").permitAll().anyRequest().authenticated()
+								.requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
+								.requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll()
+								.requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**").permitAll().anyRequest().authenticated()
 				)
 				.oauth2ResourceServer(oauth2 -> {
 					log.info("Configuring OAuth2 Resource Server");

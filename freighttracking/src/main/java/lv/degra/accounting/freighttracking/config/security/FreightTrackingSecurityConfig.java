@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.config.security;
 
-import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
-import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
 import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 
 import java.util.Collection;
@@ -36,14 +36,14 @@ public class FreightTrackingSecurityConfig {
 
     @Bean
     public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(FREIGHT_TRACKING + "/**")
+        http.securityMatcher(PATH_FREIGHT_TRACKING + "/**")
             .cors(cors -> cors.configurationSource(freightTrackingCorsConfigurationSource()))
             .csrf(csrf -> {
                 log.info("Disabling CSRF");
                 csrf.disable();
             })
             .authorizeHttpRequests(authz -> 
-                authz.requestMatchers(FREIGHT_TRACKING + TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
+                authz.requestMatchers(PATH_FREIGHT_TRACKING + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
                     .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> {

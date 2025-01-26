@@ -1,5 +1,11 @@
 package lv.degra.accounting.usermanager.controller;
 
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGIN;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGOUT;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REFRESH;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
+import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -25,7 +31,7 @@ import lv.degra.accounting.usermanager.service.AuthService;
 import lv.degra.accounting.usermanager.service.AuthUserService;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping(PATH_USER)
 public class UserController {
 
 	private final AuthUserService authUserService;
@@ -37,7 +43,7 @@ public class UserController {
 		this.authService = authService;
 	}
 
-	@PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = ENDPOINT_REGISTER, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, String>> createUser(@Valid @RequestBody UserRegistrationDto userRegistrationDto) {
 		try {
 			authUserService.createUser(userRegistrationDto);
@@ -77,7 +83,7 @@ public class UserController {
 		}
 	}
 
-	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = ENDPOINT_LOGIN, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
 		try {
 			String email = credentials.get("email");
@@ -91,7 +97,7 @@ public class UserController {
 		}
 	}
 
-	@PostMapping("/logout")
+	@PostMapping(ENDPOINT_LOGOUT)
 	public ResponseEntity<String> logout(@RequestBody Map<String, String> tokens) {
 		try {
 			String refreshToken = tokens.get("refreshToken");
@@ -102,4 +108,23 @@ public class UserController {
 		}
 	}
 
+	@PostMapping(ENDPOINT_REFRESH)
+	public ResponseEntity<?> refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
+		try {
+			if (!bearerToken.startsWith("Bearer ")) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+						.body(Collections.singletonMap("error", "Invalid token format"));
+			}
+
+			Map<String, Object> tokens = authService.refreshTokenIfExpired(bearerToken);
+			return ResponseEntity.ok(tokens);
+
+		} catch (KeycloakIntegrationException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(Collections.singletonMap("error", e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonMap("error", "Token refresh failed"));
+		}
+	}
 }

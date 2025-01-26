@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.truck.route.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING;
-import static lv.degra.accounting.core.config.ApiConstants.TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import lv.degra.accounting.core.truck.route.service.TruckRouteService;
 import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
 
 @RestController
-@RequestMapping(FREIGHT_TRACKING)
+@RequestMapping(PATH_FREIGHT_TRACKING)
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;
@@ -32,7 +32,7 @@ public class TruckRouteController {
 		this.jwtTokenProvider = jwtTokenProvider;
 	}
 
-	@GetMapping(TRUCK_ROUTES)
+	@GetMapping(ENDPOINT_TRUCK_ROUTES)
 	public ResponseEntity<List<TruckRoute>> getLastTruckRoutes(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
