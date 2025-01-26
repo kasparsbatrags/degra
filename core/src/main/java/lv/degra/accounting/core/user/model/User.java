@@ -30,6 +30,6 @@ public class User extends AuditInfo implements Serializable {
 	private String userId;
 
 	@NotNull
-	@Column(name = "refresh_token", nullable = false)
+	@Column(name = "refresh_token", columnDefinition = "TEXT", nullable = false)
 	private String refreshToken;
 }
