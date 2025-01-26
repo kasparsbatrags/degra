@@ -9,7 +9,6 @@ keycloak:
   auth-server-url: https://route.degra.lv
   realm: freight-tracking-app-realm
   resource: freight-tracking-client
-  client-id: freight-tracking-client
   credentials:
     secret: 3Fv47oFkRuqYh2iZDubDJbapzGgdBbGr
   connection-timeout: 5000

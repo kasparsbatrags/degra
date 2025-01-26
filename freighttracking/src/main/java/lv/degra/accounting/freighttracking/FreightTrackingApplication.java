@@ -13,7 +13,7 @@ import lv.degra.accounting.core.company.register.service.CompanyRegisterImportSe
 @ComponentScan(basePackages = {
 		"lv.degra.accounting.core",
 		"lv.degra.accounting.freighttracking",
-		"lv.degra.accounting.usermanager.service" },
+		"lv.degra.accounting.usermanager" },
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
 				classes = { lv.degra.accounting.core.system.files.FileServiceImpl.class,
 						lv.degra.accounting.core.address.register.service.AddressRegisterServiceImpl.class,

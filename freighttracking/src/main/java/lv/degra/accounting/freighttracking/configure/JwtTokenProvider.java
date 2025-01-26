@@ -5,7 +5,6 @@ import java.util.Base64;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lv.degra.accounting.usermanager.service.AuthService;
 
 @Service
-@ComponentScan(basePackages = "lv.degra.accounting.usermanager.service")
 public class JwtTokenProvider {
 
 	private final JwtDecoder jwtDecoder;
