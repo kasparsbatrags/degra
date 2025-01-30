@@ -10,6 +10,10 @@ spring:
 server:
   port: 8080
 
+app:
+  security:
+    allowed-origins: "×"
+
 logging:
   level:
     ROOT: INFO

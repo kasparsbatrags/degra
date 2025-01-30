@@ -3,18 +3,15 @@ package lv.degra.accounting.usermanager.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +23,6 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.ws.rs.core.Response;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
@@ -43,12 +37,13 @@ import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
 import lv.degra.accounting.usermanager.client.KeycloakAdminClient;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
+import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 class AuthUserServiceTest {
 
-	private final ObjectMapper objectMapper = mock(ObjectMapper.class);
 	private final Logger log = LoggerFactory.getLogger(AuthUserServiceTest.class);
 	private Keycloak keycloakMock;
+	private JwtTokenProvider jwtTokenProviderMock;
 	private AuthService authServiceMock;
 	private KeycloakAdminClient adminClientMock;
 	private KeycloakProperties propertiesMock;
@@ -70,6 +65,7 @@ class AuthUserServiceTest {
 		userServiceMock = mock(UserService.class);
 		userMapperMock = mock(UserMapper.class);
 		companyRegisterService = mock(CompanyRegisterService.class);
+		jwtTokenProviderMock = mock(JwtTokenProvider.class);
 
 		var realmResourceMock = mock(org.keycloak.admin.client.resource.RealmResource.class);
 		when(keycloakMock.realm(anyString())).thenReturn(realmResourceMock);
@@ -78,7 +74,7 @@ class AuthUserServiceTest {
 		when(propertiesMock.getRealm()).thenReturn("test-realm");
 
 		authUserService = new AuthUserService(keycloakMock, authServiceMock, adminClientMock, propertiesMock, customerServicesMock,
-				userServiceMock, userMapperMock, companyRegisterService);
+				userServiceMock, userMapperMock, companyRegisterService, jwtTokenProviderMock);
 	}
 
 	@Test
@@ -194,55 +190,45 @@ class AuthUserServiceTest {
 	}
 
 	@Test
-	void testExtractClaims_ValidToken() throws IOException {
+	void testGetCurrentUser_Success() {
 		// Arrange
-		String payload = "{\"sub\":\"12345\",\"email\":\"test@example.com\"}";
-		String token = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
+		String authHeader = "Bearer valid.token";
+		Map<String, Object> claims = Map.of(
+			"sub", "12345",
+			"email", "test@example.com",
+			"name", "Test User",
+			"given_name", "Test",
+			"family_name", "User",
+			"attributes", Map.of("organizationRegistrationNumber", List.of("123456"))
+		);
 
-		when(objectMapper.readValue(payload, Map.class)).thenReturn(Map.of("sub", "12345", "email", "test@example.com"));
+		when(jwtTokenProviderMock.parseToken("valid.token")).thenReturn(claims);
 
 		// Act
-		Map<String, Object> claims = authUserService.extractClaims(token);
+		var userDto = authUserService.getCurrentUser(authHeader);
 
 		// Assert
-		assertNotNull(claims);
-		assertEquals("12345", claims.get("sub"));
-		assertEquals("test@example.com", claims.get("email"));
+		assertNotNull(userDto);
+		assertEquals("12345", userDto.getId());
+		assertEquals("test@example.com", userDto.getEmail());
+		assertEquals("Test User", userDto.getPreferred_username());
+		assertEquals("Test", userDto.getGiven_name());
+		assertEquals("User", userDto.getFamily_name());
+		assertEquals("123456", userDto.getAttributes().get("organizationRegistrationNumber"));
 	}
 
 	@Test
-	void testExtractClaims_InvalidTokenFormat() {
+	void testGetCurrentUser_TokenParsingError() {
 		// Arrange
-		String invalidToken = "invalidToken";
+		String authHeader = "Bearer invalid.token";
+		when(jwtTokenProviderMock.parseToken("invalid.token"))
+			.thenThrow(new IllegalArgumentException("Invalid token"));
 
-		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
-				() -> authUserService.extractClaims(invalidToken));
-		assertEquals("Failed to decode JWT token: Invalid JWT token format", exception.getMessage());
-	}
+		// Act
+		var userDto = authUserService.getCurrentUser(authHeader);
 
-	@Test
-	void testExtractClaims_InvalidBase64Encoding() {
-		// Arrange
-		String invalidBase64Payload = "header.invalidPayload.signature";
-
-		// Act & Assert
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
-				() -> authUserService.extractClaims(invalidBase64Payload));
-		assertTrue(exception.getMessage().contains("Failed to decode JWT token"));
-	}
-
-	@Test
-	void testExtractClaims_JsonProcessingException() throws JsonProcessingException {
-
-		String payload = "{\"sub\":\"12345\",\"email\":\"test@example.com\"";
-		String token = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
-
-		doThrow(new RuntimeException("JSON error")).when(objectMapper).readValue(any(String.class), eq(Map.class));
-
-		KeycloakIntegrationException exception = assertThrows(KeycloakIntegrationException.class,
-				() -> authUserService.extractClaims(token));
-		assertTrue(exception.getMessage().contains("Failed to decode JWT token"));
+		// Assert
+		assertNull(userDto);
 	}
 
 }

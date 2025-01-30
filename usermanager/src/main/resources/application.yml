@@ -4,6 +4,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
+          jwk-set-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/certs
 
 keycloak:
   auth-server-url: https://route.degra.lv
@@ -16,3 +17,7 @@ keycloak:
   use-resource-role-mappings: true
   bearer-only: true
   public-client: false
+
+#app:
+#  security:
+#    allowed-origins: "×"

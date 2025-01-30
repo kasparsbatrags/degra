@@ -1,7 +1,5 @@
 package lv.degra.accounting.usermanager.service;
 
-import java.io.IOException;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +12,6 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +28,7 @@ import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
 import lv.degra.accounting.usermanager.client.KeycloakAdminClient;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
+import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 @Slf4j
 @Service
@@ -42,16 +39,17 @@ public class AuthUserService {
 	private final Keycloak keycloak;
 	private final KeycloakProperties keycloakProperties;
 	private final PasswordValidator passwordValidator;
-	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CompanyRegisterService companyRegisterService;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	public AuthUserService(Keycloak keycloak, AuthService authService, KeycloakAdminClient keycloakAdminClient,
 			KeycloakProperties keycloakProperties, CustomerService customerService, UserService userService, UserMapper userMapper,
-			CompanyRegisterService companyRegisterService) {
+			CompanyRegisterService companyRegisterService, JwtTokenProvider jwtTokenProvider) {
 		this.keycloak = keycloak;
 		this.keycloakProperties = keycloakProperties;
 		this.companyRegisterService = companyRegisterService;
 		this.passwordValidator = new PasswordValidator();
+		this.jwtTokenProvider = jwtTokenProvider;
 	}
 
 	public void createUser(UserRegistrationDto userRegistrationDto) {
@@ -66,20 +64,17 @@ public class AuthUserService {
 		userRepresentation.setFirstName(userRegistrationDto.getFirstName());
 		userRepresentation.setLastName(userRegistrationDto.getLastName());
 		userRepresentation.setEnabled(true);
-		
+
 		// Set credentials from CredentialDto
 		List<CredentialDto> credentials = userRegistrationDto.getCredentials();
 		if (!credentials.isEmpty()) {
-			userRepresentation.setCredentials(credentials.stream()
-				.map(credentialDto -> {
-					org.keycloak.representations.idm.CredentialRepresentation credential = 
-						new org.keycloak.representations.idm.CredentialRepresentation();
-					credential.setType(org.keycloak.representations.idm.CredentialRepresentation.PASSWORD);
-					credential.setValue(credentialDto.getValue());
-					credential.setTemporary(false);
-					return credential;
-				})
-				.toList());
+			userRepresentation.setCredentials(credentials.stream().map(credentialDto -> {
+				org.keycloak.representations.idm.CredentialRepresentation credential = new org.keycloak.representations.idm.CredentialRepresentation();
+				credential.setType(org.keycloak.representations.idm.CredentialRepresentation.PASSWORD);
+				credential.setValue(credentialDto.getValue());
+				credential.setTemporary(false);
+				return credential;
+			}).toList());
 		}
 
 		Map<String, List<String>> attributes = new HashMap<>();
@@ -166,29 +161,19 @@ public class AuthUserService {
 		}
 	}
 
-	protected Map<String, Object> extractClaims(String token) throws IOException {
-		try {
-			String[] chunks = token.split("\\.");
-			if (chunks.length < 2) {
-				throw new IllegalArgumentException("Invalid JWT token format");
-			}
-
-			Base64.Decoder decoder = Base64.getUrlDecoder();
-			String payload = new String(decoder.decode(chunks[1]));
-			return objectMapper.readValue(payload, Map.class);
-		} catch (Exception e) {
-			log.error("Error decoding JWT token", e);
-			throw new KeycloakIntegrationException("Failed to decode JWT token: " + e.getMessage(), "INVALID_TOKEN");
-		}
+	protected Map<String, Object> extractClaims(String token) {
+		return jwtTokenProvider.parseToken(token);
 	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, String> extractOrganizationInfo(Map<String, Object> claims) {
 		try {
-			Map<String, Object> attributes = (Map<String, Object>) claims.get("attributes");
+			@SuppressWarnings("unchecked")
+			Map<String, List<String>> attributes = (Map<String, List<String>>) claims.get("attributes");
 			if (attributes != null && attributes.containsKey("organizationRegistrationNumber")) {
-				List<String> orgNumbers = (List<String>) attributes.get("organizationRegistrationNumber");
-				return Collections.singletonMap("organizationRegistrationNumber", orgNumbers.getFirst());
+				List<String> orgNumbers = attributes.get("organizationRegistrationNumber");
+				if (!orgNumbers.isEmpty()) {
+					return Collections.singletonMap("organizationRegistrationNumber", orgNumbers.get(0));
+				}
 			}
 		} catch (Exception e) {
 			log.warn("Error extracting organization info from claims", e);

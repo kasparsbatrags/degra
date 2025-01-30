@@ -5,13 +5,20 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_PUBLIC;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,39 +31,59 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityConfig {
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.securityMatcher(PATH_USER + "/**")
-				.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> {
-					log.info("Disabling CSRF");
-					csrf.disable();
-				}).authorizeHttpRequests(
-						authz -> authz
-								.requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
-								.requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll()
-								.requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**").permitAll().anyRequest().authenticated()
-				)
-				.oauth2ResourceServer(oauth2 -> {
-					log.info("Configuring OAuth2 Resource Server");
-					oauth2.jwt(jwt -> {
-						// Temporarily disable JWT validation for debugging
-						log.info("JWT validation temporarily disabled for debugging");
-					});
-				}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    @Value("${app.security.allowed-origins}")
+    private List<String> allowedOrigins;
 
-		return http.build();
-	}
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkSetUri;
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		log.info("Configuring CORS");
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedOrigin("*");  // Not recommended for production
-		configuration.addAllowedMethod("*");
-		configuration.addAllowedHeader("*");
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(PATH_USER + "/**")
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable()) // Enable in production
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .referrerPolicy(referrer -> referrer
+                    .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .contentSecurityPolicy(csp -> csp
+                    .policyDirectives("default-src 'self'; frame-ancestors 'none'; permissions-policy: camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=(self)"))
+            )
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
+                .requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll()
+                .requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+            )
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        log.info("Configuring JWT Decoder with JWK Set URI: {}", jwkSetUri);
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    }
 }
