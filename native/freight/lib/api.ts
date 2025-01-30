@@ -1,24 +1,7 @@
-import axios from 'axios'
 import {Buffer} from 'buffer'
+import axiosInstance from '../config/axios'
+import {API_ENDPOINTS} from '../config/environment'
 import {clearSession, loadSession} from '../utils/sessionUtils'
-
-const SERVER_BASE_URL = "http://10.0.2.2:8080";
-
-interface ApiEndpoints {
-  REGISTRATION: string;
-  LOGIN: string;
-  LOGOUT: string;
-  GET_ME_INFO: string;
-  FREIGHT_BASE: string;
-}
-
-const API: ApiEndpoints = {
-  REGISTRATION: `${SERVER_BASE_URL}/api/user/register`,
-  LOGIN: `${SERVER_BASE_URL}/api/user/login`,
-  LOGOUT: `${SERVER_BASE_URL}/api/user/logout`,
-  GET_ME_INFO: `${SERVER_BASE_URL}/api/user/me`,
-  FREIGHT_BASE: `${SERVER_BASE_URL}/api/freight`,
-};
 
 interface UserRegistrationData {
   username: string;
@@ -83,11 +66,7 @@ export const createUser = async (data: UserRegistrationData) => {
       ],
     };
 
-    const response = await axios.post(API.REGISTRATION, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, payload);
 
     if (response.status !== 201) {
       throw new Error("Kļūda savienojumā ar serveri!");
@@ -102,13 +81,13 @@ export const createUser = async (data: UserRegistrationData) => {
 
 export const signIn = async (email: string, password: string) => {
   try {
-    const response = await axios.post<UserLoginResponse>(API.LOGIN, {
-      email,
-      password,
-    });
+    const response = await axiosInstance.post<UserLoginResponse>(
+      API_ENDPOINTS.AUTH.LOGIN,
+      { email, password }
+    );
     const session = response.data;
     const userInfo = decodeJwt(session.access_token);
-    
+
     if (!userInfo) {
       throw new Error("Neizdevās nolasīt lietotāja informāciju no tokena.");
     }
@@ -144,16 +123,12 @@ export const getCurrentUser = async (): Promise<UserInfo | null> => {
       return null;
     }
 
-    const response = await axios.get(API.GET_ME_INFO, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axiosInstance.get(API_ENDPOINTS.AUTH.GET_ME);
 
     if (response.status === 200) {
       return response.data;
     }
-    
+
     console.error("Neizdevās iegūt lietotāja informāciju");
     return null;
   } catch (error: any) {
@@ -177,13 +152,9 @@ export const signOut = async (): Promise<void> => {
       throw new Error("Nav pieejams access token.");
     }
 
-    const response = await axios.post(
-      API.LOGOUT,
-      { accessToken },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT, {
+      accessToken,
+    });
 
     if (response.status === 204) {
       await clearSession();
@@ -193,5 +164,56 @@ export const signOut = async (): Promise<void> => {
   } catch (error: any) {
     console.error("Kļūda izrakstoties:", error);
     throw new Error(error.response?.data?.message || "Izrakstīšanās kļūda");
+  }
+};
+
+// Freight tracking specific endpoints
+export const getFreightList = async () => {
+  try {
+    const response = await axiosInstance.get(API_ENDPOINTS.FREIGHT.LIST);
+    return response.data;
+  } catch (error: any) {
+    console.error("Kļūda iegūstot kravu sarakstu:", error);
+    throw new Error(error.response?.data?.message || "Kļūda iegūstot kravu sarakstu");
+  }
+};
+
+export const getFreightDetails = async (id: string) => {
+  try {
+    const response = await axiosInstance.get(API_ENDPOINTS.FREIGHT.DETAILS(id));
+    return response.data;
+  } catch (error: any) {
+    console.error("Kļūda iegūstot kravas informāciju:", error);
+    throw new Error(
+      error.response?.data?.message || "Kļūda iegūstot kravas informāciju"
+    );
+  }
+};
+
+export const createFreight = async (freightData: any) => {
+  try {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.FREIGHT.BASE,
+      freightData
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Kļūda izveidojot kravu:", error);
+    throw new Error(error.response?.data?.message || "Kļūda izveidojot kravu");
+  }
+};
+
+export const updateFreightStatus = async (id: string, status: string) => {
+  try {
+    const response = await axiosInstance.patch(
+      API_ENDPOINTS.FREIGHT.STATUS(id),
+      { status }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Kļūda atjaunojot kravas statusu:", error);
+    throw new Error(
+      error.response?.data?.message || "Kļūda atjaunojot kravas statusu"
+    );
   }
 };
