@@ -28,6 +28,10 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Keycloak refresh token"
               - column:
+                  name: last_login_time
+                  type: timestamp
+                  remarks: "Pēdējās autorizēšanās laika zīmogs "
+              - column:
                   name: created_date_time
                   type: timestamp
                   remarks: "Ieraksta izveidošanas laika zīmogs"
