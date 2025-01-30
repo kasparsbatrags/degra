@@ -25,6 +25,6 @@ public class CurrencyServiceImpl implements CurrencyService {
 	}
 
 	public Currency getDefaultCurrency() {
-		return currencyRepository.getByCurrencyCode(DEFAULT_CURRENCY_NAME);
+		return currencyRepository.getByCode(DEFAULT_CURRENCY_NAME);
 	}
 }

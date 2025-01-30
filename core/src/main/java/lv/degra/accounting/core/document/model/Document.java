@@ -1,11 +1,12 @@
 package lv.degra.accounting.core.document.model;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,10 +20,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import lv.degra.accounting.core.account.distribution.model.AccountCodeDistribution;
+import lv.degra.accounting.core.account.posted.model.AccountPosted;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.bank.model.Bank;
 import lv.degra.accounting.core.currency.model.Currency;
 import lv.degra.accounting.core.customer.model.Customer;
@@ -33,7 +36,8 @@ import lv.degra.accounting.core.exchange.model.CurrencyExchangeRate;
 @Setter
 @Entity
 @Table(name = "document")
-public class Document implements Serializable {
+@Audited
+public class Document extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
@@ -49,10 +53,12 @@ public class Document implements Serializable {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "document_sub_type_id", nullable = false)
+	@NotAudited
 	private DocumentSubType documentSubType;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "document_transaction_type_id")
+	@NotAudited
 	private DocumentTransactionType documentTransactionType;
 
 	@NotNull
@@ -69,15 +75,18 @@ public class Document implements Serializable {
 	@Column(name = "payment_type_id")
 	private Integer paymentTypeId;
 
+	@PositiveOrZero(message = "Summai jābūt pozitīvai vai 0")
 	@Column(name = "sum_total", nullable = false)
 	private Double sumTotal;
 
+	@PositiveOrZero(message = "Summai valūtā jābūt pozitīvai vai 0")
 	@Column(name = "sum_total_in_currency", nullable = false)
 	private Double sumTotalInCurrency;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "currency_id", nullable = false)
+	@NotAudited
 	private Currency currency;
 
 	@NotNull
@@ -90,15 +99,6 @@ public class Document implements Serializable {
 
 	@Column(name = "internal_notes", length = Integer.MAX_VALUE)
 	private String internalNotes;
-
-	@Column(name = "created_at")
-	private Instant createdAt;
-
-	@Column(name = "last_modified_at")
-	private Instant lastModifiedAt;
-
-	@OneToMany(mappedBy = "document", fetch = FetchType.EAGER)
-	private Set<AccountCodeDistribution> distributions = new LinkedHashSet<>();
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "publisher_customer_id")
@@ -124,6 +124,40 @@ public class Document implements Serializable {
 	@JoinColumn(name = "receiver_customer_bank_account_id")
 	private CustomerAccount receiverCustomerBankAccount;
 
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "document_status_id")
+	@NotAudited
+	private DocumentStatus documentStatus;
+
 	@OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	private List<AccountCodeDistribution> accountCodeDistributions;
+	private List<AccountPosted> accountPostedList;
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Document document = (Document) o;
+		return Objects.equals(id, document.id) && Objects.equals(documentNumber, document.documentNumber)
+				&& Objects.equals(documentSeries, document.documentSeries) && Objects.equals(documentSubType,
+				document.documentSubType) && Objects.equals(documentTransactionType, document.documentTransactionType)
+				&& Objects.equals(accountingDate, document.accountingDate) && Objects.equals(documentDate,
+				document.documentDate) && Objects.equals(paymentDate, document.paymentDate) && Objects.equals(paymentTypeId,
+				document.paymentTypeId) && Objects.equals(sumTotal, document.sumTotal) && Objects.equals(sumTotalInCurrency,
+				document.sumTotalInCurrency) && Objects.equals(currency, document.currency) && Objects.equals(exchangeRate,
+				document.exchangeRate) && Objects.equals(notesForCustomer, document.notesForCustomer) && Objects.equals(
+				internalNotes, document.internalNotes) && Objects.equals(publisherCustomer, document.publisherCustomer)
+				&& Objects.equals(publisherCustomerBank, document.publisherCustomerBank) && Objects.equals(
+				publisherCustomerBankAccount, document.publisherCustomerBankAccount) && Objects.equals(receiverCustomer,
+				document.receiverCustomer) && Objects.equals(receiverCustomerBank, document.receiverCustomerBank)
+				&& Objects.equals(receiverCustomerBankAccount, document.receiverCustomerBankAccount) && Objects.equals(
+				documentStatus, document.documentStatus) && Objects.equals(accountPostedList, document.accountPostedList);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, documentNumber, documentSeries, documentSubType, documentTransactionType, accountingDate, documentDate,
+				paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, exchangeRate, notesForCustomer, internalNotes,
+				publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer, receiverCustomerBank,
+				receiverCustomerBankAccount, documentStatus, accountPostedList);
+	}
 }

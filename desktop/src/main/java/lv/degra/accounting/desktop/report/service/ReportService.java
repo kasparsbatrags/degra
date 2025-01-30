@@ -61,6 +61,6 @@ public class ReportService {
 	}
 
 	private String getSumWords(DocumentDto documentDto) {
-		return NumberToWordUtil.getWordsFromDouble(documentDto.getSumTotal(), documentDto.getCurrency().getCurrencyCode());
+		return NumberToWordUtil.getWordsFromDouble(documentDto.getSumTotal(), documentDto.getCurrency().getCode());
 	}
 }

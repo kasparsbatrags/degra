@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: Document
+      author: Kaspars Batrags
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: monitor_link
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: link_address
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: scrap_page_id
+                  type: INT
+                  constraints:
+                    nullable: false

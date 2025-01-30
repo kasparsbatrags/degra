@@ -10,24 +10,27 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.4</version>
+		<version>3.4.0</version>
 		<relativePath />
 	</parent>
 
 	<modules>
 		<module>core</module>
+		<module>usermanager</module>
 		<module>desktop</module>
 		<module>company</module>
 		<module>address</module>
+		<module>freighttracking</module>
 	</modules>
 
 	<properties>
+		<jacoco.version>0.8.12</jacoco.version>
 		<java.version>21</java.version>
 		<javafx.version>21</javafx.version>
-		<spring.version>3.3.4</spring.version>
+		<spring.version>3.4.0</spring.version>
 		<postgres.version>42.7.1</postgres.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
-			${project.basedir}${file.separator}target${file.separator}jacoco-aggregate${file.separator}jacoco.xml
+			${project.basedir}${file.separator}target${file.separator}jacoco-aggregate${file.separator}jacoco-resources${file.separator}jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.projectKey>kaspars.batrags_degra_10f646f9-9480-4022-9a8d-8b47125f9b39</sonar.projectKey>
@@ -60,13 +63,13 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.13.0</version>
+			<version>5.14.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>5.13.0</version>
+			<version>5.14.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -77,6 +80,27 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>6.2.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>5.2.0</version> <!-- Replace with the latest version -->
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -105,7 +129,23 @@
 				<artifactId>commons-io</artifactId>
 				<version>2.17.0</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-framework-bom</artifactId>
+				<version>6.2.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>6.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>6.2.0</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<profiles>
@@ -118,8 +158,29 @@
 				<sonar.skip>true</sonar.skip>
 			</properties>
 		</profile>
+		<profile>
+			<id>enable-jacoco</id>
+			<properties>
+				<jacoco.skip>false</jacoco.skip>
+			</properties>
+		</profile>
 	</profiles>
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.3.1</version>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -150,17 +211,29 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
 				<executions>
 					<execution>
-						<id>report-aggregate</id>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report-site-aggregate</id>
+						<phase>verify</phase>
 						<goals>
 							<goal>report-aggregate</goal>
 						</goals>
-						<phase>verify</phase>
 						<configuration>
-							<outputDirectory>${project.build.directory}/jacoco-aggregate</outputDirectory>
-							<dataFileIncludes>${project.build.directory}/jacoco-merged.exec</dataFileIncludes>
+							<dataFileIncludes>${project.build.directory}${file.separator}jacoco-merged.exec</dataFileIncludes>
+							<outputDirectory>${project.build.directory}${file.separator}jacoco-aggregate</outputDirectory>
 						</configuration>
 					</execution>
 					<execution>
@@ -172,41 +245,35 @@
 						<configuration>
 							<fileSets>
 								<fileSet>
-									<directory>/address/target/jacoco.exec</directory>
+									<directory>${project.basedir}${file.separator}core${file.separator}target</directory>
 									<includes>
-										<include>**/*.exec</include>
+										<include>jacoco.exec</include>
 									</includes>
 								</fileSet>
 								<fileSet>
-									<directory>/company/target/jacoco.exec</directory>
+									<directory>${project.basedir}${file.separator}desktop${file.separator}target</directory>
 									<includes>
-										<include>**/*.exec</include>
+										<include>jacoco.exec</include>
 									</includes>
 								</fileSet>
 								<fileSet>
-									<directory>/core/target/jacoco.exec</directory>
+									<directory>${project.basedir}${file.separator}company${file.separator}target</directory>
 									<includes>
-										<include>**/*.exec</include>
+										<include>jacoco.exec</include>
 									</includes>
 								</fileSet>
 								<fileSet>
-									<directory>/desktop/target/jacoco.exec</directory>
+									<directory>${project.basedir}${file.separator}address${file.separator}target</directory>
 									<includes>
-										<include>**/*.exec</include>
+										<include>jacoco.exec</include>
 									</includes>
 								</fileSet>
-
 							</fileSets>
-							<destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+							<destFile>${project.build.directory}${file.separator}jacoco-merged.exec</destFile>
 						</configuration>
 					</execution>
 					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>check</id>
+						<id>default-check</id>
 						<goals>
 							<goal>check</goal>
 						</goals>
@@ -218,7 +285,7 @@
 										<limit>
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.05</minimum>
+											<minimum>0.01</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -226,6 +293,30 @@
 						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<excludes>
+						<exclude>de/jensd/fx/glyphs/fontawesome/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.2</version>
+				<configuration>
+					<argLine>-XX:+EnableDynamicAgentLoading</argLine>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -17,9 +17,9 @@ import javafx.scene.control.TableColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
-import lv.degra.accounting.core.account.distribution.dto.AccountCodeDistributionDto;
-import lv.degra.accounting.core.account.distribution.service.DistributionService;
-import lv.degra.accounting.core.account.distribution.service.exception.AccountDistributionDeletionException;
+import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
+import lv.degra.accounting.core.account.posted.service.AccountPostedService;
+import lv.degra.accounting.core.account.posted.service.exception.AccountPostedDeletionException;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.desktop.system.component.TextAreaWithErrorLabel;
 import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
@@ -32,8 +32,8 @@ import lv.degra.accounting.desktop.validation.service.ValidationService;
 @Getter
 public class AdditionalInfoController extends DocumentControllerComponent {
 
-	private final DistributionService distributionService;
-	private final ObservableList<AccountCodeDistributionDto> accountCodeDistributionDtoObservableList = FXCollections.observableArrayList();
+	private final AccountPostedService accountPostedService;
+	private final ObservableList<AccountPostedDto> accountPostedDtoObservableList = FXCollections.observableArrayList();
 	private final AccountCodeChartService accountCodeChartService;
 	@FXML
 	@Getter
@@ -45,14 +45,16 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public TextAreaWithErrorLabel internalNotesField;
 	@Autowired
 	@FXML
-	public DynamicTableView<AccountCodeDistributionDto> distributionListView = new DynamicTableView<>();
+	public DynamicTableView<AccountPostedDto> postingListView = new DynamicTableView<>();
 	private Map<String, ValidationFunction> additionalInfoValidationFunctions = new HashMap<>();
 	private List<ControlWithErrorLabel<?>> additionalInfoValidationControls = new ArrayList<>();
+	@Autowired
+	private InfoController infoController;
 
-	public AdditionalInfoController(DistributionService distributionService, Mediator mediator, ValidationService validationService,
+	public AdditionalInfoController(AccountPostedService accountPostedService, Mediator mediator, ValidationService validationService,
 			AccountCodeChartService accountCodeChartService) {
 		super(mediator, validationService);
-		this.distributionService = distributionService;
+		this.accountPostedService = accountPostedService;
 		this.accountCodeChartService = accountCodeChartService;
 		this.mediator = mediator;
 	}
@@ -60,18 +62,18 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	@FXML
 	private void initialize() {
 		additionalInfoValidationControls.clear();
-		accountCodeDistributionDtoObservableList.clear();
-		distributionListView.setEditable(true);
-		distributionListView.setType(AccountCodeDistributionDto.class);
-		distributionListView.setCreator(item -> {
+		accountPostedDtoObservableList.clear();
+		postingListView.setEditable(true);
+		postingListView.setType(AccountPostedDto.class);
+		postingListView.setCreator(item -> {
 			addRecord();
 			editRecord();
 		});
-		distributionListView.setUpdater(item -> editRecord());
-		distributionListView.setSaver(item -> saveRecord());
-		distributionListView.setDeleter(item -> {
+		postingListView.setUpdater(item -> editRecord());
+		postingListView.setSaver(item -> saveRecord());
+		postingListView.setDeleter(item -> {
 			deleteRecord();
-			refreshDistributionTable();
+			refreshAccountPostingTable();
 		});
 
 		notesForCustomerField.setOnKeyPressed(event -> {
@@ -91,54 +93,49 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	@Override
 	protected void saveRecord() {
-		AccountCodeDistributionDto selectedItem = distributionListView.getSelectionModel().getSelectedItem();
+		AccountPostedDto selectedItem = postingListView.getSelectionModel().getSelectedItem();
 		if (selectedItem != null) {
-			List<AccountCodeDistributionDto> distributionList = mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList();
-			if (distributionList == null) {
-				distributionList = new ArrayList<>();
+			selectedItem.setDocumentDto(mediator.getEditableDocumentDto());
+			List<AccountPostedDto> accountPostedDtoList = mediator.getEditableDocumentDto().getAccountPostedList();
+			if (accountPostedDtoList == null) {
+				accountPostedDtoList = new ArrayList<>();
 			} else {
-				distributionList = new ArrayList<>(distributionList);
+				accountPostedDtoList = new ArrayList<>(accountPostedDtoList);
 			}
-			int index = distributionList.indexOf(selectedItem);
+			int index = accountPostedDtoList.indexOf(selectedItem);
 			if (index >= 0) {
-				distributionList.set(index, selectedItem);
+				accountPostedDtoList.set(index, selectedItem);
 			} else {
-				distributionList.add(selectedItem);
+				accountPostedDtoList.add(selectedItem);
 			}
-			mediator.getEditableDocumentDto().setAccountCodeDistributionDtoList(distributionList);
-			refreshDistributionTable();
+			mediator.getEditableDocumentDto().setAccountPostedList(accountPostedDtoList);
+			refreshAccountPostingTable();
 		}
 	}
 
 	@Override
 	protected void editRecord() {
-		if (distributionListView.getItems().isEmpty()) {
+		if (postingListView.getItems().isEmpty()) {
 			addRecord();
 		}
 		Platform.runLater(() -> {
-			int rowIndex = distributionListView.getSelectionModel().getSelectedIndex();
+			int rowIndex = postingListView.getSelectionModel().getSelectedIndex();
 			if (rowIndex >= 0) {
-				TableColumn<AccountCodeDistributionDto, ?> firstEditableColumn = distributionListView.getColumns().stream()
-						.filter(TableColumn::isEditable).findFirst().orElse(null);
+				postingListView.getColumns().stream().filter(TableColumn::isEditable)
+						.findFirst().ifPresent(firstEditableColumn -> postingListView.edit(rowIndex, firstEditableColumn));
 
-				if (firstEditableColumn != null) {
-					distributionListView.edit(rowIndex, firstEditableColumn);
-				}
 			}
 		});
 
 	}
 
-	protected void addRecord() {
-		AccountCodeDistributionDto accountCodeDistributionDto = new AccountCodeDistributionDto();
-		accountCodeDistributionDtoObservableList.add(accountCodeDistributionDto);
-		distributionListView.setData(accountCodeDistributionDtoObservableList);
-		distributionListView.getSelectionModel().select(accountCodeDistributionDto);
-	}
-
 	@Override
-	public ControlWithErrorLabel<String> getSumTotalField() {
-		return null;
+	protected void addRecord() {
+		AccountPostedDto accountPostedDto = new AccountPostedDto();
+		accountPostedDto.setDocumentDto(mediator.getEditableDocumentDto());
+		accountPostedDtoObservableList.add(accountPostedDto);
+		postingListView.setData(accountPostedDtoObservableList);
+		postingListView.getSelectionModel().select(accountPostedDto);
 	}
 
 	@Override
@@ -153,19 +150,17 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 
 	@Override
 	protected void deleteRecord() {
-		AccountCodeDistributionDto accountCodeDistributionDto = getRowFromTableView(distributionListView);
-		if (accountCodeDistributionDto == null || accountCodeDistributionDto.getId() == null) {
+		AccountPostedDto accountPostedDto = getRowFromTableView(postingListView);
+		if (accountPostedDto == null || accountPostedDto.getId() == null) {
 			return;
 		}
 		try {
-			distributionListView.getItems().removeAll(accountCodeDistributionDto);
-			List<AccountCodeDistributionDto> distributionList = new ArrayList<>(
-					mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
-			distributionList.remove(accountCodeDistributionDto);
-			mediator.getEditableDocumentDto().setAccountCodeDistributionDtoList(distributionList);
+			postingListView.getItems().removeAll(accountPostedDto);
+			List<AccountPostedDto> accountPostedDtos = new ArrayList<>(mediator.getEditableDocumentDto().getAccountPostedList());
+			accountPostedDtos.remove(accountPostedDto);
+			mediator.getEditableDocumentDto().setAccountPostedList(accountPostedDtos);
 		} catch (RuntimeException e) {
-			throw new AccountDistributionDeletionException("Failed to delete distribution with ID: " + accountCodeDistributionDto.getId(),
-					e);
+			throw new AccountPostedDeletionException("Failed to delete Account Posted with ID: " + accountPostedDto.getId(), e);
 		}
 	}
 
@@ -173,14 +168,24 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public void getData(DocumentDto documentDto) {
 		documentDto.setNotesForCustomer(notesForCustomerField.getText());
 		documentDto.setInternalNotes(internalNotesField.getText());
-		documentDto.setAccountCodeDistributionDtoList(accountCodeDistributionDtoObservableList);
+		accountPostedDtoObservableList
+				.forEach(accountPostedDto -> accountPostedDto.setDocumentDto(documentDto));
+		documentDto.setAccountPostedList(accountPostedDtoObservableList);
 	}
 
 	@Override
 	public void setData(DocumentDto documentDto) {
 		notesForCustomerField.setText(documentDto.getNotesForCustomer());
 		internalNotesField.setText(documentDto.getInternalNotes());
-		refreshDistributionTable();
+		refreshAccountPostingTable();
+	}
+
+	protected void setControllerObjectsValidationRulesByDocumentSubtype(int documentSubTypeId) {
+		validationService.applyValidationRulesByDocumentSubType(this, documentSubTypeId);
+	}
+
+	protected boolean validateAccountPostsList() {
+		return postingListView.validate();
 	}
 
 	public void onAddAccountingRowButton() {
@@ -188,11 +193,11 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		editRecord();
 	}
 
-	private void refreshDistributionTable() {
-		accountCodeDistributionDtoObservableList.clear();
-		if (mediator.getEditableDocumentDto() != null && mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList() != null) {
-			accountCodeDistributionDtoObservableList.addAll(mediator.getEditableDocumentDto().getAccountCodeDistributionDtoList());
-			distributionListView.setData(accountCodeDistributionDtoObservableList);
+	private void refreshAccountPostingTable() {
+		accountPostedDtoObservableList.clear();
+		if (mediator.getEditableDocumentDto() != null && !mediator.getEditableDocumentDto().getAccountPostedList().isEmpty()) {
+			accountPostedDtoObservableList.addAll(mediator.getEditableDocumentDto().getAccountPostedList());
+			postingListView.setData(accountPostedDtoObservableList);
 		}
 	}
 

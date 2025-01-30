@@ -11,4 +11,6 @@ public interface CustomerService extends DataFetchService<Customer> {
 
 	Customer getByNameAndRegistrationNumber(String name, String registrationNumber);
 
+	Customer getByRegistrationNumber(String registrationNumber);
+
 }

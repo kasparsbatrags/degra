@@ -13,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Unikālais identifikātors"
+                  remarks: "Unikālais identifikators"
               - column:
                   name: register_number
                   type: varchar(11)
@@ -94,3 +94,29 @@ databaseChangeLog:
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: company_type
+
+
+  - changeSet:
+      id: CreatePgTrgmExtensionWithCompanyRegister
+      author: Kaspars Batrags
+      changes:
+        - sql:
+            splitStatements: false
+            stripComments: true
+            sql: "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+  - changeSet:
+      id: CreateCompanyRegisterNameTrgmIdx
+      author: Kaspars Batrags
+      changes:
+        - createIndex:
+            tableName: company_register
+            indexName: company_register_name_trgm_idx
+            columns:
+              - column:
+                  name: name
+            unique: false
+            indexType: gin
+            associatedWith: gin_trgm_ops
+            lowerCase: true
+

@@ -1,0 +1,44 @@
+databaseChangeLog:
+   - changeSet:
+      id: AddDocumentStatusNew
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM document_status WHERE id = 1
+      changes:
+        - insert:
+            tableName: document_status
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: code
+                  value: J
+              - column:
+                  name: name
+                  value: Jauns
+
+   - changeSet:
+       id: AddDocumentStatusApproved
+       author: Kaspars Batrags
+       preConditions:
+         - onFail: MARK_RAN
+         - sqlCheck:
+             expectedResult: 0
+             sql: SELECT COUNT(*) FROM document_status WHERE id = 2
+       changes:
+         - insert:
+             tableName: document_status
+             columns:
+               - column:
+                   name: id
+                   value: 2
+               - column:
+                   name: code
+                   value: A
+               - column:
+                   name: name
+                   value: Apstiprināts

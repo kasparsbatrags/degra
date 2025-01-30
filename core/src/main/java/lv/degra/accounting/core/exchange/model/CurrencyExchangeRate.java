@@ -1,47 +1,71 @@
 package lv.degra.accounting.core.exchange.model;
 
-import jakarta.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import org.hibernate.envers.Audited;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.currency.model.Currency;
-import lv.degra.accounting.core.document.model.Document;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "currency_exchange_rate")
-public class CurrencyExchangeRate implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+@Audited
+public class CurrencyExchangeRate extends AuditInfo implements Serializable {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false)
+	private Integer id;
 
-    @jakarta.validation.constraints.NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "currency_id", nullable = false)
-    private Currency currency;
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "currency_id", nullable = false)
+	private Currency currency;
 
-    @jakarta.validation.constraints.NotNull
-    @Column(name = "rate_date", nullable = false)
-    private LocalDate rateDate;
+	@NotNull
+	@Column(name = "rate_date", nullable = false)
+	private LocalDate rateDate;
 
-    @jakarta.validation.constraints.NotNull
-    @Column(name = "rate", nullable = false)
-    private Double rate;
+	@NotNull
+	@Column(name = "rate", nullable = false)
+	private Double rate;
 
-    @Column(name = "created_at")
-    private Instant createdAt;
+	@Override
+	public String toString() {
+		return "CurrencyExchangeRate{" +
+				"id=" + id +
+				", currency=" + currency +
+				", rateDate=" + rateDate +
+				", rate=" + rate +
+				'}';
+	}
 
-    @Column(name = "last_modified_at")
-    private Instant lastModifiedAt;
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		CurrencyExchangeRate that = (CurrencyExchangeRate) o;
+		return Objects.equals(id, that.id) && Objects.equals(currency, that.currency) && Objects.equals(rateDate,
+				that.rateDate) && Objects.equals(rate, that.rate);
+	}
 
-    @OneToMany(mappedBy = "exchangeRate")
-    private Set<Document> documents = new LinkedHashSet<>();
-
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, currency, rateDate, rate);
+	}
 }

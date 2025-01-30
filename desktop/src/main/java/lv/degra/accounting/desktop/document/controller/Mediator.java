@@ -1,6 +1,9 @@
 package lv.degra.accounting.desktop.document.controller;
 
+import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
 import lv.degra.accounting.core.document.dto.DocumentDto;
+import lv.degra.accounting.desktop.system.component.lazycombo.ControlWithErrorLabel;
+import lv.degra.accounting.desktop.system.component.tableView.DynamicTableView;
 
 public interface Mediator {
 
@@ -18,7 +21,14 @@ public interface Mediator {
 
 	void setData();
 
-	boolean validateDocument();
+	boolean idDocumentValid();
 
 	boolean saveDocument();
+
+	ControlWithErrorLabel<String> getSumTotalField();
+
+	DynamicTableView<AccountPostedDto> getAccountPostedListView();
+
+	void storeDataFromControlsToDto();
+
 }

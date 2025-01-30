@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: AccountPosted
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: account_posted
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Unikālais identifikators"
+              - column:
+                  name: document_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Dokumenta identifikators"
+              - column:
+                  name: debit_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Debeta konta Id"
+              - column:
+                  name: amount
+                  type: double
+                  constraints:
+                    nullable: false
+                  remarks: "Summa"
+              - column:
+                  name: credit_account_id
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Kredīta konta ID"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Grāmatojumu saraksts"
+
+  - changeSet:
+      id: ConstraintForeignKeysAccountPostedToDocument
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: document_id
+            baseTableName: account_posted
+            constraintName: fk_account_posted_to_document
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: document

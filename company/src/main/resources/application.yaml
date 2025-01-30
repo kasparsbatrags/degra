@@ -1,23 +1,16 @@
 spring:
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-company-master.yaml
   jpa:
-#    generate-ddl: true
-#    hibernate:
-#      ddl-auto: update
-#    open-in-view: false
-#    show-sql: true
-    properties:
-      org.hibernate.envers.audit_table_suffix: _aud
-      org.hibernate.envers.revision_field_name: revision_id
-      org.hibernate.envers.revision_type_field_name: revision_type
-
-springdoc:
-  swagger-ui:
-    path: '/swagger-ui.html'
-  api-docs:
-    path: '/api-docs'
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+server:
+  port: 8084
 
 application:
-  server-url: http://localhost:8083/
+  server-url: http://localhost:8084/
   company-download-cron: 0 0 2 * * ?

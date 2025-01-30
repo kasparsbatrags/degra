@@ -47,7 +47,7 @@ public class CsvParserImpl implements CsvParser {
 		return parseLine(line).toArray(new String[0]);
 	}
 
-	private String[] joinArrays(String[] array1, String[] array2) {
+	protected String[] joinArrays(String[] array1, String[] array2) {
 		return Stream.concat(Arrays.stream(array1), Arrays.stream(array2))
 				.toArray(String[]::new);
 	}

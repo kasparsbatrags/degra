@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddUser
+      author: Kaspars Batrags
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta ID"
+              - column:
+                  name: user_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                  remarks: "Lietotāja identifikators Keycloak"
+              - column:
+                  name: refresh_token
+                  type: text
+                  constraints:
+                    nullable: false
+                  remarks: "Keycloak refresh token"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+
+            remarks: "Lietotāju saraksts"

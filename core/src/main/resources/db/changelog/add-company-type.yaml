@@ -1,6 +1,4 @@
 databaseChangeLog:
-  - include:
-      file: db/changelog/add-company-type-aud.yaml
   - changeSet:
       id: AddCompanyType
       author: Kaspars Batrags
@@ -15,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Unikālais identifikātors"
+                  remarks: "Unikālais identifikators"
               - column:
                   name: code
                   type: varchar(3)
@@ -31,11 +29,11 @@ databaseChangeLog:
               - column:
                   name: created_date_time
                   type: timestamp
-                  remarks: "Ieraksta izviedošanas laika zīmogs"
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
               - column:
                   name: last_modified_date_time
                   type: timestamp
-                  remarks: "Ieraksta pēdējāslabošanas laika zīmogs"
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
             remarks: "Uzņēmējdarbības tipi"
 
 

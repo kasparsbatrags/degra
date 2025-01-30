@@ -13,30 +13,34 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: "Unikālais identifikators"
               - column:
-                  name: currency_code
+                  name: code
                   type: varchar(3)
                   constraints:
                     nullable: true
+                  remarks: "Valūtas kods"
               - column:
-                  name: currency_name
+                  name: name
                   type: varchar(100)
                   constraints:
                     nullable: true
+                  remarks: "Valūtas nosaukums"
               - column:
                   name: subunit_name
                   type: varchar(100)
                   constraints:
                     nullable: true
-
+                  remarks: "Desmitdaļu nosaukums"
               - column:
-                  name: created_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-                  defaultValueComputed: NOW()
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
               - column:
-                  name: last_modified_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Bankas"
   - changeSet:
       id: ConstraintForeignKeysCurrencyToDocument
       author: Kaspars Batrags
@@ -57,7 +61,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM currency WHERE currency_code = 'EUR'
+            sql: SELECT COUNT(*) FROM currency WHERE code = 'EUR'
       changes:
         - insert:
             tableName: currency
@@ -66,11 +70,11 @@ databaseChangeLog:
                   name: id
                   value: 1
               - column:
-                  name: currency_code
-                  value: EUR
+                  name:  code
+                  value: 'EUR'
               - column:
-                  name: currency_name
-                  value: Eiro
+                  name:  name
+                  value: 'Eiro'
               - column:
                   name: subunit_name
                   value: Centi

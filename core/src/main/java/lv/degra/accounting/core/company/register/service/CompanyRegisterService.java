@@ -1,6 +1,11 @@
 package lv.degra.accounting.core.company.register.service;
 
-public interface CompanyRegisterService {
+import java.util.List;
 
-    void importData();
+import lv.degra.accounting.core.company.register.model.CompanyRegister;
+
+public interface CompanyRegisterService {
+	List<CompanyRegister> findByNameContainingIgnoreCase(String name);
+
+	boolean existsByRegistrationNumber(String registrationNumber);
 }
