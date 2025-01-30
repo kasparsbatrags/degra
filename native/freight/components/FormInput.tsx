@@ -1,5 +1,7 @@
 import React from 'react'
 import {StyleSheet, Text, TextInput, View} from 'react-native'
+import {formStyles} from '../constants/styles'
+import {COLORS} from '../constants/theme'
 
 interface FormInputProps {
   label: string;
@@ -10,6 +12,9 @@ interface FormInputProps {
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  editable?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -21,51 +26,40 @@ const FormInput: React.FC<FormInputProps> = ({
   error,
   autoCapitalize = 'none',
   keyboardType = 'default',
+  editable = true,
+  multiline = false,
+  numberOfLines = 1,
 }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={formStyles.inputContainer}>
+      <Text style={formStyles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error && styles.inputError]}
+        style={[
+          formStyles.input,
+          error && formStyles.inputError,
+          !editable && styles.disabledInput,
+          multiline && { height: numberOfLines * 24 + 24 }, // 24 is line height
+        ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
+        placeholderTextColor={COLORS.text.tertiary}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
-        placeholderTextColor="#666"
+        editable={editable}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={formStyles.errorText}>{error}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-    width: '100%',
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#333',
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  inputError: {
-    borderColor: '#ff3b30',
-  },
-  errorText: {
-    color: '#ff3b30',
-    fontSize: 14,
-    marginTop: 4,
+  disabledInput: {
+    opacity: 0.5,
+    backgroundColor: COLORS.gray3,
   },
 });
 

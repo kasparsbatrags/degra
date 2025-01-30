@@ -1,5 +1,7 @@
 import React from 'react'
-import {ActivityIndicator, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle,} from 'react-native'
+import {ActivityIndicator, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle,} from 'react-native'
+import * as Animatable from 'react-native-animatable'
+import {COLORS} from '../constants/theme'
 
 interface ButtonProps {
   onPress: () => void;
@@ -7,8 +9,9 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   loading?: boolean;
   disabled?: boolean;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  animate?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,45 +22,57 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   style,
   textStyle,
+  animate = false,
 }) => {
-  const getButtonStyle = () => {
-    switch (variant) {
-      case 'secondary':
-        return [styles.button, styles.secondaryButton, style];
-      case 'outline':
-        return [styles.button, styles.outlineButton, style];
-      default:
-        return [styles.button, styles.primaryButton, style];
-    }
-  };
+  const buttonStyles = [
+    styles.button,
+    variant === 'secondary' && styles.buttonSecondary,
+    variant === 'outline' && styles.buttonOutline,
+    variant === 'primary' && styles.buttonPrimary,
+    (disabled || loading) && styles.buttonDisabled,
+    style,
+  ];
 
-  const getTextStyle = () => {
-    switch (variant) {
-      case 'outline':
-        return [styles.text, styles.outlineText, textStyle];
-      default:
-        return [styles.text, textStyle];
-    }
-  };
+  const textStyles = [
+    styles.buttonText,
+    variant === 'outline' && styles.buttonTextOutline,
+    textStyle,
+  ];
+
+  const content = loading ? (
+    <ActivityIndicator
+      color={variant === 'outline' ? COLORS.primary : COLORS.white}
+      size="small"
+    />
+  ) : (
+    <Text style={textStyles}>{title}</Text>
+  );
+
+  if (animate) {
+    const AnimatedButton = Animatable.createAnimatableComponent(TouchableOpacity);
+    return (
+      <AnimatedButton
+        animation="pulse"
+        iterationCount="infinite"
+        duration={1000}
+        style={buttonStyles}
+        onPress={onPress}
+        disabled={disabled || loading}
+        activeOpacity={0.8}
+      >
+        {content}
+      </AnimatedButton>
+    );
+  }
 
   return (
     <TouchableOpacity
-      style={[
-        getButtonStyle(),
-        (disabled || loading) && styles.disabledButton,
-      ]}
+      style={buttonStyles}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
     >
-      {loading ? (
-        <ActivityIndicator
-          color={variant === 'outline' ? '#007AFF' : '#FFFFFF'}
-          size="small"
-        />
-      ) : (
-        <Text style={getTextStyle()}>{title}</Text>
-      )}
+      {content}
     </TouchableOpacity>
   );
 };
@@ -69,29 +84,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    flexDirection: 'row',
   },
-  primaryButton: {
-    backgroundColor: '#007AFF',
+  buttonPrimary: {
+    backgroundColor: COLORS.primary,
   },
-  secondaryButton: {
-    backgroundColor: '#5856D6',
+  buttonSecondary: {
+    backgroundColor: COLORS.secondary,
   },
-  outlineButton: {
+  buttonOutline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: COLORS.primary,
   },
-  disabledButton: {
+  buttonDisabled: {
     opacity: 0.5,
   },
-  text: {
-    color: '#FFFFFF',
+  buttonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: COLORS.white,
   },
-  outlineText: {
-    color: '#007AFF',
+  buttonTextOutline: {
+    color: COLORS.primary,
   },
 });
 

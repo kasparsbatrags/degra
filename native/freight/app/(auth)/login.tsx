@@ -1,8 +1,11 @@
 import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
-import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View,} from 'react-native'
+import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View,} from 'react-native'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
+import {images} from '../../constants/assets'
+import {commonStyles} from '../../constants/styles'
+import {SPACING} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 export default function LoginScreen() {
@@ -39,45 +42,54 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={commonStyles.container}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Pieslēgties</Text>
-          
-          <FormInput
-            label="E-pasts"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Ievadiet e-pastu"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View style={styles.logoContainer}>
+            <Image source={images.logo} style={styles.logo} resizeMode="contain" />
+          </View>
 
-          <FormInput
-            label="Parole"
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Ievadiet paroli"
-            secureTextEntry
-          />
+          <Text style={commonStyles.title}>Pieslēgties</Text>
+          <Text style={[commonStyles.textSecondary, styles.subtitle]}>
+            Ievadiet savu e-pastu un paroli, lai pieslēgtos
+          </Text>
 
-          <Button
-            title="Pieslēgties"
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.loginButton}
-          />
+          <View style={styles.form}>
+            <FormInput
+              label="E-pasts"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Ievadiet e-pastu"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-          <Button
-            title="Reģistrēties"
-            onPress={handleRegister}
-            variant="outline"
-            style={styles.registerButton}
-          />
+            <FormInput
+              label="Parole"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Ievadiet paroli"
+              secureTextEntry
+            />
+
+            <Button
+              title="Pieslēgties"
+              onPress={handleLogin}
+              loading={loading}
+              style={styles.loginButton}
+            />
+
+            <Button
+              title="Reģistrēties"
+              onPress={handleRegister}
+              variant="outline"
+              style={styles.registerButton}
+            />
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -85,29 +97,33 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   scrollContent: {
     flexGrow: 1,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: SPACING.m,
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-    color: '#000',
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  logo: {
+    width: 200,
+    height: 80,
+  },
+  subtitle: {
+    marginTop: SPACING.xs,
+    marginBottom: SPACING.xl,
+  },
+  form: {
+    width: '100%',
   },
   loginButton: {
-    marginTop: 16,
+    marginTop: SPACING.l,
   },
   registerButton: {
-    marginTop: 12,
+    marginTop: SPACING.m,
   },
 });
