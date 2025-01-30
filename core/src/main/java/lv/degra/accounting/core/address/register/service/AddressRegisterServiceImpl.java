@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.file.FileSystems;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -35,171 +34,179 @@ import lv.degra.accounting.core.address.register.model.AddressRegister;
 import lv.degra.accounting.core.address.register.model.AddressRegisterRepository;
 import lv.degra.accounting.core.system.configuration.DegraConfig;
 import lv.degra.accounting.core.system.configuration.service.ConfigService;
-import lv.degra.accounting.core.system.exception.ExtractZipFileException;
 import lv.degra.accounting.core.system.files.FileService;
-
+import lv.degra.accounting.core.system.files.exception.ExtractZipFileException;
 
 @Service
 @Slf4j
 public class AddressRegisterServiceImpl implements AddressRegisterService {
 
-    public static final char CSV_DATA_SEPARATOR = ';';
-    public static final char DOUBLE_QUOTES = '#';
-    private final AddressRegisterRepository addressRegisterRepository;
-    private final FileService fileService;
-    private final JdbcTemplate jdbcTemplate;
-    private final ObjectMapper objectMapper;
-    private final ConfigService configService;
-    @Getter
-    @Setter
-    private String previousArResponseChecksum = "";
+	public static final char CSV_DATA_SEPARATOR = ';';
+	public static final char DOUBLE_QUOTES = '#';
+	private static final List<String> INDEXES = List.of("address_register_full_address_idx", "address_register_code_idx",
+			"address_register_parent_code_idx");
 
-    @Autowired
-    public AddressRegisterServiceImpl(AddressRegisterRepository addressRegisterRepository, FileService fileService, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper,
-                                      ConfigService configService) {
-        this.addressRegisterRepository = addressRegisterRepository;
-        this.fileService = fileService;
-        this.jdbcTemplate = jdbcTemplate;
-        this.objectMapper = objectMapper;
-        this.configService = configService;
-    }
+	private final AddressRegisterRepository addressRegisterRepository;
+	private final FileService fileService;
+	private final JdbcTemplate jdbcTemplate;
+	private final ObjectMapper objectMapper;
+	private final ConfigService configService;
 
-    @Cacheable("addressRegsiterCache")
-    public List<AddressRegister> getByMultipleWords(String searchString) {
-        return addressRegisterRepository.searchByMultipleWords(searchString);
-    }
+	@Getter
+	@Setter
+	private byte[] previousArResponseChecksum = null;
 
-    public void importData() {
-        log.info("Address data import started");
-        byte[] csvFileBytes = fileService.downloadFileByUrl(configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK));
+	@Autowired
+	public AddressRegisterServiceImpl(AddressRegisterRepository addressRegisterRepository, FileService fileService,
+			JdbcTemplate jdbcTemplate, ObjectMapper objectMapper, ConfigService configService) {
+		this.addressRegisterRepository = addressRegisterRepository;
+		this.fileService = fileService;
+		this.jdbcTemplate = jdbcTemplate;
+		this.objectMapper = objectMapper;
+		this.configService = configService;
+	}
 
-        if (csvFileBytes == null || csvFileBytes.length == 0) {
-            handleEmptyDownload();
-            return;
-        }
+	@Cacheable("addressRegisterCache")
+	public List<AddressRegister> getByMultipleWords(String searchString) {
+		return addressRegisterRepository.searchByMultipleWords(searchString);
+	}
 
-        if (isArDataChanged(csvFileBytes)) {
-            processAndImportData(csvFileBytes);
-        } else {
-            log.info("Address CSV file not changed");
-        }
+	public void importData() {
+		log.info("Starting address data import");
+		byte[] csvFileBytes = downloadCsvFile();
 
-        log.info("Address data import finished");
-    }
+		if (csvFileBytes == null || csvFileBytes.length == 0) {
+			handleEmptyDownload();
+			return;
+		}
 
-    public void handleEmptyDownload() {
-        previousArResponseChecksum = "";
-        log.info("Address CSV file unable to download");
-    }
+		if (isArDataChanged(csvFileBytes)) {
+			try {
+				processAndImportData(csvFileBytes);
+			} catch (ExtractZipFileException e) {
+				log.error("Error processing address data", e);
+				throw new RuntimeException(e);
+			}
+		} else {
+			log.info("Address CSV file has not changed");
+		}
 
-    private void processAndImportData(byte[] csvFileBytes) {
-        try {
-            fileService.unzipFileInFolder(csvFileBytes);
-        } catch (Exception e) {
-            log.error("Error unzipping file", e);
-            throw new ExtractZipFileException(e.getMessage() + e.getCause());
-        }
+		log.info("Finished address data import");
+	}
 
-        truncateAddressRegisterTable();
-        importArData();
-        createIndexes();
-        fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
-    }
+	protected byte[] downloadCsvFile() {
+		String downloadLink = configService.get(DegraConfig.ADDRESS_DOWNLOAD_LINK);
+		return fileService.downloadFileByUrl(downloadLink);
+	}
 
-    public void truncateAddressRegisterTable() {
-        jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_full_address_idx");
-        jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_code_idx");
-        jdbcTemplate.execute("DROP INDEX IF EXISTS address_register_parent_code_idx");
-        jdbcTemplate.execute("TRUNCATE TABLE address_register");
-    }
+	public void handleEmptyDownload() {
+		previousArResponseChecksum = null;
+		log.info("No address data available for download");
+	}
 
-    private void createIndexes() {
-        jdbcTemplate.execute("CREATE INDEX address_register_code_idx ON address_register (code)");
-        jdbcTemplate.execute("CREATE INDEX address_register_parent_code_idx ON address_register (parent_code)");
-        jdbcTemplate.execute("CREATE INDEX address_register_full_address_idx ON address_register (full_address)");
-    }
+	protected void processAndImportData(byte[] csvFileBytes) throws ExtractZipFileException {
+		try {
+			fileService.unzipFileInFolder(csvFileBytes);
+			truncateTable();
+			importArData();
+			createIndexes();
+			deleteTempDirectory();
+		} catch (Exception e) {
+			log.error("Error during data import", e);
+			throw new ExtractZipFileException("Error importing data" + e);
+		}
+	}
 
-    private void importArData() {
-        Arrays.stream(ArZipContentFiles.values()).forEach(this::processFile);
-    }
+	private void truncateTable() {
+		INDEXES.forEach(index -> jdbcTemplate.execute("DROP INDEX IF EXISTS " + index));
+		jdbcTemplate.execute("TRUNCATE TABLE address_register");
+	}
 
-    public void processFile(ArZipContentFiles fileInfo) {
-        File archiveFile = new File(fileService.getTempDirectoryPath() + FileSystems.getDefault().getSeparator() + fileInfo.getFileName());
-        byte[] fileContent = getFileContent(archiveFile);
+	private void createIndexes() {
+		jdbcTemplate.execute("CREATE INDEX address_register_code_idx ON address_register (code)");
+		jdbcTemplate.execute("CREATE INDEX address_register_parent_code_idx ON address_register (parent_code)");
+		jdbcTemplate.execute("CREATE INDEX address_register_full_address_idx ON address_register (full_address)");
+	}
 
-        try (Reader reader = new InputStreamReader(new ByteArrayInputStream(fileContent))) {
-            List<AddressData> csvData = parseCsvArDataFileToList(reader, fileInfo.getClasName());
-            List<AddressRegister> addressList = mapCsvDataToAddressList(csvData);
-            batchInsertAddresses(addressList);
-        } catch (Exception e) {
-            log.error("Error processing file: {}", fileInfo.getFileName(), e);
-            throw new ReadArCsvFileContentException("Error processing file: " + fileInfo.getFileName() + e.getCause());
-        }
-    }
+	private void deleteTempDirectory() {
+		fileService.deleteDirectory(fileService.getTempDirectoryPath().toAbsolutePath());
+	}
 
-    private byte[] getFileContent(File archiveFile) {
-        if (!archiveFile.exists()) {
-            throw new ReadArCsvFileContentException("Unable to get file: " + archiveFile.getAbsolutePath());
-        }
-        return fileService.loadFileLocally(archiveFile.getAbsolutePath());
-    }
+	private void importArData() {
+		Arrays.stream(ArZipContentFiles.values()).forEach(this::processFile);
+	}
 
-    private List<AddressRegister> mapCsvDataToAddressList(List<AddressData> csvData) {
-        return csvData.parallelStream()
-                .map(row -> objectMapper.convertValue(row, AddressRegister.class))
-                .filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus()))
-                .toList();
-    }
+	public void processFile(ArZipContentFiles fileInfo) {
+		File archiveFile = new File(fileService.getTempDirectoryPath() + File.separator + fileInfo.getFileName());
+		byte[] fileContent = getFileContent(archiveFile);
 
-    private List<AddressData> parseCsvArDataFileToList(Reader reader, Class<? extends AddressData> clasName) {
-        return new CsvToBeanBuilder<AddressData>(reader)
-                .withType(clasName)
-                .withSkipLines(1)
-                .withSeparator(CSV_DATA_SEPARATOR)
-                .withQuoteChar(DOUBLE_QUOTES)
-                .build()
-                .parse();
-    }
+		try (Reader reader = new InputStreamReader(new ByteArrayInputStream(fileContent))) {
+			List<AddressData> csvData = parseCsvArDataFileToList(reader, fileInfo.getClasName());
+			List<AddressRegister> addressList = mapCsvDataToAddressList(csvData);
+			batchInsertAddresses(addressList);
+		} catch (Exception e) {
+			log.error("Error processing file: {}", fileInfo.getFileName(), e);
+			throw new ReadArCsvFileContentException("Error processing file: " + fileInfo.getFileName() + e);
+		}
+	}
 
-    public boolean isArDataChanged(byte[] bytes) {
-        String md5 = DigestUtils.md5DigestAsHex(bytes);
-        boolean hasChanged = !previousArResponseChecksum.equals(md5);
-        if (hasChanged) {
-            previousArResponseChecksum = md5;
-        }
-        return hasChanged;
-    }
+	protected byte[] getFileContent(File archiveFile) {
+		if (archiveFile == null || !archiveFile.exists()) {
+			throw new ReadArCsvFileContentException(
+					"File does not exist: " + (archiveFile != null ? archiveFile.getAbsolutePath() : "null"));
+		}
+		return fileService.loadFileLocally(archiveFile.getAbsolutePath());
+	}
 
-    public void batchInsertAddresses(List<AddressRegister> addressList) {
-        String sql = """
-                INSERT INTO address_register
-                (code, "type", status, parent_code, parent_type, "name", sort_name, zip, date_from, date_to, update_date_public, full_address, territorial_unit_code)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-                """;
+	protected List<AddressRegister> mapCsvDataToAddressList(List<AddressData> csvData) {
+		return csvData.stream().map(row -> objectMapper.convertValue(row, AddressRegister.class))
+				.filter(address -> !ArRecordStatus.STATUS_ERROR.getCode().equals(address.getStatus())).toList();
+	}
 
-        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(@NotNull PreparedStatement ps, int i) throws SQLException {
-                AddressRegister address = addressList.get(i);
-                ps.setInt(1, address.getCode());
-                ps.setObject(2, address.getType(), Types.INTEGER);
-                ps.setInt(3, ArRecordStatus.getStatusOnSystemByCode(address.getStatus()));
-                ps.setInt(4, address.getParentCode());
-                ps.setInt(5, address.getParentType() != null ? address.getParentType() : 0);
-                ps.setString(6, address.getName());
-                ps.setString(7, address.getSortName());
-                ps.setString(8, address.getZip());
-                ps.setDate(9, Date.valueOf(address.getDateFrom()));
-                ps.setDate(10, address.getDateTo() != null ? Date.valueOf(address.getDateTo()) : null);
-                ps.setDate(11, Date.valueOf(address.getUpdateDatePublic() != null ? address.getUpdateDatePublic() : LocalDate.now()));
-                ps.setString(12, address.getFullAddress());
-                ps.setObject(13, address.getTerritorialUnitCode(), Types.INTEGER);
-            }
+	private List<AddressData> parseCsvArDataFileToList(Reader reader, Class<? extends AddressData> clasName) {
+		return new CsvToBeanBuilder<AddressData>(reader).withType(clasName).withSkipLines(1).withSeparator(CSV_DATA_SEPARATOR)
+				.withQuoteChar(DOUBLE_QUOTES).build().parse();
+	}
 
-            @Override
-            public int getBatchSize() {
-                return addressList.size();
-            }
-        });
-    }
+	public boolean isArDataChanged(byte[] bytes) {
+		String md5 = DigestUtils.md5DigestAsHex(bytes);
+		boolean hasChanged = previousArResponseChecksum != null && !previousArResponseChecksum.equals(md5);
+		if (hasChanged) {
+			previousArResponseChecksum = md5.getBytes();
+		}
+		return hasChanged;
+	}
+
+	public void batchInsertAddresses(List<AddressRegister> addressList) {
+		String sql = """
+				INSERT INTO address_register
+				(code, "type", status, parent_code, parent_type, "name", sort_name, zip, date_from, date_to, update_date_public, full_address, territorial_unit_code)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				""";
+
+		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(@NotNull PreparedStatement ps, int i) throws SQLException {
+				AddressRegister address = addressList.get(i);
+				ps.setInt(1, address.getCode());
+				ps.setObject(2, address.getType(), Types.INTEGER);
+				ps.setInt(3, ArRecordStatus.getStatusOnSystemByCode(address.getStatus()));
+				ps.setInt(4, address.getParentCode());
+				ps.setInt(5, address.getParentType() != null ? address.getParentType() : 0);
+				ps.setString(6, address.getName());
+				ps.setString(7, address.getSortName());
+				ps.setString(8, address.getZip());
+				ps.setDate(9, Date.valueOf(address.getDateFrom()));
+				ps.setDate(10, address.getDateTo() != null ? Date.valueOf(address.getDateTo()) : null);
+				ps.setDate(11, Date.valueOf(address.getUpdateDatePublic() != null ? address.getUpdateDatePublic() : LocalDate.now()));
+				ps.setString(12, address.getFullAddress());
+				ps.setObject(13, address.getTerritorialUnitCode(), Types.INTEGER);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return addressList.size();
+			}
+		});
+	}
 }

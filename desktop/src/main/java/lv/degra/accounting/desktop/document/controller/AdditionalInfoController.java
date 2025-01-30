@@ -121,17 +121,15 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 		Platform.runLater(() -> {
 			int rowIndex = postingListView.getSelectionModel().getSelectedIndex();
 			if (rowIndex >= 0) {
-				TableColumn<AccountPostedDto, ?> firstEditableColumn = postingListView.getColumns().stream().filter(TableColumn::isEditable)
-						.findFirst().orElse(null);
+				postingListView.getColumns().stream().filter(TableColumn::isEditable)
+						.findFirst().ifPresent(firstEditableColumn -> postingListView.edit(rowIndex, firstEditableColumn));
 
-				if (firstEditableColumn != null) {
-					postingListView.edit(rowIndex, firstEditableColumn);
-				}
 			}
 		});
 
 	}
 
+	@Override
 	protected void addRecord() {
 		AccountPostedDto accountPostedDto = new AccountPostedDto();
 		accountPostedDto.setDocumentDto(mediator.getEditableDocumentDto());
@@ -170,7 +168,7 @@ public class AdditionalInfoController extends DocumentControllerComponent {
 	public void getData(DocumentDto documentDto) {
 		documentDto.setNotesForCustomer(notesForCustomerField.getText());
 		documentDto.setInternalNotes(internalNotesField.getText());
-		accountPostedDtoObservableList.stream()
+		accountPostedDtoObservableList
 				.forEach(accountPostedDto -> accountPostedDto.setDocumentDto(documentDto));
 		documentDto.setAccountPostedList(accountPostedDtoObservableList);
 	}

@@ -80,6 +80,17 @@ databaseChangeLog:
     - include:
           file: db/changelog/add-company-type.yaml
     - include:
+        file: db/changelog/add-company-register.yaml
+    - include:
           file: db/changelog/add-company.yaml
     - include:
           file: db/changelog/add-address-register.yaml
+    - include:
+        file: db/changelog/add-user.yaml
+    - include:
+        file: db/changelog/add-truck.yaml
+    - include:
+        file: db/changelog/add-truck-route.yaml
+
+
+

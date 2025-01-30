@@ -8,21 +8,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
+import lv.degra.accounting.core.company.register.service.CompanyRegisterImportService;
 
 @RestController
 @RequestMapping(API_LINK + COMPANY)
 public class DownloadController {
 
-    private final CompanyRegisterService companyRegisterService;
+    private final CompanyRegisterImportService companyRegisterImportService;
 
-    public DownloadController(CompanyRegisterService companyRegisterService) {
-        this.companyRegisterService = companyRegisterService;
+    public DownloadController(CompanyRegisterImportService companyRegisterImportService) {
+        this.companyRegisterImportService = companyRegisterImportService;
     }
 
     @GetMapping(IMPORT)
     public void downloadData() {
-        companyRegisterService.importData();
+        companyRegisterImportService.importData();
     }
 
 }

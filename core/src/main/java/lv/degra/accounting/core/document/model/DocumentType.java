@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.document.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +39,20 @@ public class DocumentType implements Serializable {
 	@Override
 	public String toString() {
 		return getTitle();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		DocumentType that = (DocumentType) o;
+		return Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(name, that.name)
+				&& Objects.equals(code, that.code);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, title, name, code);
 	}
 }
 

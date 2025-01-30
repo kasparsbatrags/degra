@@ -37,7 +37,7 @@ import lv.degra.accounting.core.system.component.TableViewInfo;
 @Getter
 @Setter
 public class DocumentDto implements Serializable {
-	private static final String BILL_CODE = "BILL";
+	public static final String BILL_CODE = "BILL";
 	Integer id;
 	@TableViewInfo(displayName = "Virziens", columnOrder = 4)
 	DocumentDirection documentDirection;
@@ -89,41 +89,6 @@ public class DocumentDto implements Serializable {
 	CustomerAccount receiverCustomerBankAccount;
 	List<AccountPostedDto> accountPostedList;
 
-
-	public boolean isBill() {
-		return this.documentSubType != null && BILL_CODE.equals(this.documentSubType.getCode());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		DocumentDto that = (DocumentDto) obj;
-		return Objects.equals(id, that.id) && documentDirection == that.documentDirection && StringUtils.equals(documentNumber,
-				that.documentNumber) && StringUtils.equals(documentSeries, that.documentSeries) && documentSubType == that.documentSubType
-				&& documentTransactionType == that.documentTransactionType && Objects.equals(accountingDate, that.accountingDate)
-				&& Objects.equals(documentDate, that.documentDate) && Objects.equals(paymentDate, that.paymentDate) && Objects.equals(
-				paymentTypeId, that.paymentTypeId) && Objects.equals(sumTotal, that.sumTotal) && Objects.equals(sumTotalInCurrency,
-				that.sumTotalInCurrency) && Objects.equals(currency, that.currency) && Objects.equals(exchangeRate,
-				that.exchangeRate) && StringUtils.equals(notesForCustomer, that.notesForCustomer) && StringUtils.equals(
-				internalNotes, that.internalNotes) && Objects.equals(publisherCustomer, that.publisherCustomer) && Objects.equals(
-				publisherCustomerBank, that.publisherCustomerBank) && Objects.equals(publisherCustomerBankAccount,
-				that.publisherCustomerBankAccount) && Objects.equals(receiverCustomer, that.receiverCustomer) && Objects.equals(
-				receiverCustomerBank, that.receiverCustomerBank) && Objects.equals(receiverCustomerBankAccount,
-				that.receiverCustomerBankAccount) && Objects.equals(accountPostedList, that.accountPostedList) &&
-				Objects.equals(documentStatus, that.documentStatus);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, documentDirection, documentNumber, documentSeries, documentSubType, documentTransactionType, accountingDate,
-				documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, exchangeRate, notesForCustomer,
-				internalNotes, publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer,
-				receiverCustomerBank, receiverCustomerBankAccount);
-	}
-
 	public DocumentDto(DocumentDto other) {
 		if (other != null) {
 			this.id = other.id;
@@ -151,6 +116,39 @@ public class DocumentDto implements Serializable {
 			this.accountPostedList = other.accountPostedList;
 			this.documentStatus = other.documentStatus;
 		}
+	}
+
+	public boolean isBill() {
+		return this.documentSubType != null && BILL_CODE.equals(this.documentSubType.getCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		DocumentDto that = (DocumentDto) obj;
+		return Objects.equals(id, that.id) && documentDirection == that.documentDirection && StringUtils.equals(documentNumber,
+				that.documentNumber) && StringUtils.equals(documentSeries, that.documentSeries) && documentSubType == that.documentSubType
+				&& documentTransactionType == that.documentTransactionType && Objects.equals(accountingDate, that.accountingDate)
+				&& Objects.equals(documentDate, that.documentDate) && Objects.equals(paymentDate, that.paymentDate) && Objects.equals(
+				paymentTypeId, that.paymentTypeId) && Objects.equals(sumTotal, that.sumTotal) && Objects.equals(sumTotalInCurrency,
+				that.sumTotalInCurrency) && Objects.equals(currency, that.currency) && Objects.equals(exchangeRate, that.exchangeRate)
+				&& StringUtils.equals(notesForCustomer, that.notesForCustomer) && StringUtils.equals(internalNotes, that.internalNotes)
+				&& Objects.equals(publisherCustomer, that.publisherCustomer) && Objects.equals(publisherCustomerBank,
+				that.publisherCustomerBank) && Objects.equals(publisherCustomerBankAccount, that.publisherCustomerBankAccount)
+				&& Objects.equals(receiverCustomer, that.receiverCustomer) && Objects.equals(receiverCustomerBank,
+				that.receiverCustomerBank) && Objects.equals(receiverCustomerBankAccount, that.receiverCustomerBankAccount)
+				&& Objects.equals(accountPostedList, that.accountPostedList) && Objects.equals(documentStatus, that.documentStatus);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, documentDirection, documentNumber, documentSeries, documentSubType, documentTransactionType, accountingDate,
+				documentDate, paymentDate, paymentTypeId, sumTotal, sumTotalInCurrency, currency, exchangeRate, notesForCustomer,
+				internalNotes, publisherCustomer, publisherCustomerBank, publisherCustomerBankAccount, receiverCustomer,
+				receiverCustomerBank, receiverCustomerBankAccount);
 	}
 
 	public void update(DocumentDto updated) {

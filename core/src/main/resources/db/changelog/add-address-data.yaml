@@ -366,8 +366,8 @@ databaseChangeLog:
 
 
   - changeSet:
-      id: 1
-      author: AddMaxSequenceId
+      id: AddMaxSequenceId
+      author: Kaspars Batrags
       changes:
         - sql:
             dbms: postgresql

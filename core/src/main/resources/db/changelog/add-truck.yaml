@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddTruck
+      author: Kaspars Batrags
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: truck
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta ID"
+              - column:
+                  name: make
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+                  remarks: "Ražotājs"
+              - column:
+                  name: model
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+                  remarks: "Modelis"
+              - column:
+                  name: registration_number
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+                  remarks: "Reģistrācijas numurs"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Automašīnu saraksts"

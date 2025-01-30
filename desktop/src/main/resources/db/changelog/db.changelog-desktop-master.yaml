@@ -84,8 +84,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/add-company.yaml
   - include:
-      file: db/changelog/add-auditor-property.yaml
-  - include:
       file: db/changelog/add-document-status.yaml
   - include:
       file: db/changelog/add-document-status-relations.yaml

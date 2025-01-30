@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
 
-    Currency getByCurrencyCode(String currencyName);
+    Currency getByCode(String currencyName);
 
 }

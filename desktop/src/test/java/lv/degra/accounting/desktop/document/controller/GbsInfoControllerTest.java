@@ -1,14 +1,14 @@
 //package lv.degra.accounting.desktop.document.controller;
 //
-//import static lv.degra.accounting.desktop.data.BankDataFactory.ACUSTOMER_SWED_BANK;
-//import static lv.degra.accounting.desktop.data.CustomerAccountDataFactory.CUSTOMER1_BANK1_ACCOUNT1;
-//import static lv.degra.accounting.desktop.data.CustomersData.getCustomer1;
-//import static lv.degra.accounting.desktop.data.DocumentDirectionDataFactory.INTERNAL_ID;
-//import static lv.degra.accounting.desktop.data.DocumentDirectionDataFactory.INTERNAL_NAME;
-//import static lv.degra.accounting.desktop.data.DocumentDirectionDataFactory.createDocumentDirection;
-//import static lv.degra.accounting.desktop.data.DocumentSubTypeDataFactory.getGbsDocumentSubType;
-//import static lv.degra.accounting.desktop.data.ValidationRuleErrorMessageFactory.getRequiredValidationRuleErrorMessage;
-//import static lv.degra.accounting.desktop.data.ValidationRuleFactory.getGbsValidationRules;
+//import static lv.degra.accounting.core.document.dataFactories.BankDataFactory.ACUSTOMER_SWED_BANK;
+//import static lv.degra.accounting.core.document.dataFactories.CustomerAccountDataFactory.CUSTOMER1_BANK1_ACCOUNT1;
+//import static lv.degra.accounting.core.document.dataFactories.CustomersData.getCustomer1;
+//import static lv.degra.accounting.core.document.dataFactories.DocumentDirectionDataFactory.INTERNAL_ID;
+//import static lv.degra.accounting.core.document.dataFactories.DocumentDirectionDataFactory.INTERNAL_NAME;
+//import static lv.degra.accounting.core.document.dataFactories.DocumentDirectionDataFactory.createDocumentDirection;
+//import static lv.degra.accounting.core.document.dataFactories.DocumentSubTypeDataFactory.getGbsDocumentSubType;
+//import static lv.degra.accounting.core.document.dataFactories.ValidationRuleErrorMessageFactory.getRequiredValidationRuleErrorMessage;
+//import static lv.degra.accounting.core.document.dataFactories.ValidationRuleFactory.getGbsValidationRules;
 //import static org.mockito.Mockito.verify;
 //import static org.mockito.Mockito.when;
 //

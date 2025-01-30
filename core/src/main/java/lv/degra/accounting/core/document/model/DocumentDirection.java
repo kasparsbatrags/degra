@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.document.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,4 +33,16 @@ public class DocumentDirection implements Serializable {
 		return getName();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		DocumentDirection that = (DocumentDirection) o;
+		return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name);
+	}
 }

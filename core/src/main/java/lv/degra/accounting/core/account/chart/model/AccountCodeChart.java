@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.account.chart.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 
@@ -67,5 +68,21 @@ public class AccountCodeChart extends AuditInfo implements Serializable {
 	@Override
 	public String toString() {
 		return getCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass())
+			return false;
+		AccountCodeChart that = (AccountCodeChart) o;
+		return isAssetsAccount == that.isAssetsAccount && useForBilance == that.useForBilance && Objects.equals(id, that.id)
+				&& Objects.equals(code, that.code) && Objects.equals(name, that.name) && Objects.equals(currency,
+				that.currency) && Objects.equals(amountInAccount, that.amountInAccount) && Objects.equals(parentAccount,
+				that.parentAccount);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, code, name, isAssetsAccount, useForBilance, currency, amountInAccount, parentAccount);
 	}
 }

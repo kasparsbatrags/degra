@@ -1,5 +1,6 @@
 package lv.degra.accounting.core.configuration.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,38 +33,43 @@ public class BaseMapperConfig {
 					List<AccountPostedDto> sourceList = (List<AccountPostedDto>) ctx.getSource();
 					List<AccountPosted> destinationList = (List<AccountPosted>) ctx.getDestination();
 
-					// Saglabāt sākotnējo atsauci, attīrīt un pievienot jaunos elementus
-					if (destinationList != null) {
+					// Ja mērķa saraksts nav modificējams, izveido jaunu
+					if (destinationList == null || !(destinationList instanceof ArrayList)) {
+						destinationList = new ArrayList<>();
+					} else {
 						destinationList.clear();
-						destinationList.addAll(
-								sourceList.stream()
-										.map(dto -> {
-											AccountPosted entity = modelMapper().map(dto, AccountPosted.class);
-											entity.setDocument((Document) ctx.getParent().getDestination());
-											return entity;
-										})
-										.collect(Collectors.toList())
-						);
 					}
+
+					destinationList.addAll(
+							sourceList.stream()
+									.map(dto -> {
+										AccountPosted entity = modelMapper().map(dto, AccountPosted.class);
+										entity.setDocument((Document) ctx.getParent().getDestination());
+										return entity;
+									})
+									.collect(Collectors.toList())
+					);
+
 					return destinationList;
 				}).map(source.getAccountPostedList(), destination.getAccountPostedList());
 			}
 		});
 
-
 		// Kartēšana no Document uz DocumentDto
 		modelMapper.addMappings(new PropertyMap<Document, DocumentDto>() {
 			@Override
 			protected void configure() {
-				using(ctx -> ((java.util.List<AccountPosted>) ctx.getSource()).stream()
-						.map(entity -> {
-							AccountPostedDto dto = modelMapper().map(entity, AccountPostedDto.class);
-							// Iestatīt atsauci uz DocumentDto
-							dto.setDocumentDto((DocumentDto) ctx.getParent().getDestination());
-							return dto;
-						})
-						.collect(Collectors.toList()))
-						.map(source.getAccountPostedList(), destination.getAccountPostedList());
+				using(ctx -> {
+					List<AccountPosted> sourceList = (List<AccountPosted>) ctx.getSource();
+					return sourceList.stream()
+							.map(entity -> {
+								AccountPostedDto dto = modelMapper().map(entity, AccountPostedDto.class);
+								// Iestatīt atsauci uz DocumentDto
+								dto.setDocumentDto((DocumentDto) ctx.getParent().getDestination());
+								return dto;
+							})
+							.collect(Collectors.toList());
+				}).map(source.getAccountPostedList(), destination.getAccountPostedList());
 			}
 		});
 

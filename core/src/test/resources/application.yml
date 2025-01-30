@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    initialize: false
+  jpa:
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
+
+keycloak:
+  auth-server-url: https://route.degra.lv
+  realm: test-app-realm
+  resource: test-client
+  client-id: test-client
+  credentials:
+    secret: 32327oDub===test===DJbapzGgdBbGr
+  connection-timeout: 5000
+  read-timeout: 5000
+  use-resource-role-mappings: true
+  bearer-only: true
+  public-client: false
+
+logging:
+  level:
+    org.springframework.beans.factory: DEBUG

@@ -43,12 +43,6 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>${project.basedir}/shared-resources</directory>
-				<includes>
-					<include>**/*.yaml</include>
-				</includes>
-			</resource>
-			<resource>
 				<directory>${basedir}/src/main/resources</directory>
 				<includes>
 					<include>**/*.yaml</include>
