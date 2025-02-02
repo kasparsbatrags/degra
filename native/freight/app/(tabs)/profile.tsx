@@ -1,7 +1,6 @@
 import {useRouter} from 'expo-router'
 import {Alert, Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
-import Button from '../../components/Button'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
@@ -42,15 +41,6 @@ export default function ProfileScreen() {
           <Text style={styles.value}>{user?.email}</Text>
         </View>
       </View>
-
-        <View style={styles.actionsContainer}>
-          <Button
-            title="Izrakstīties"
-            onPress={handleSignOut}
-            variant="outline"
-            style={styles.signOutButton}
-          />
-        </View>
       </View>
     </SafeAreaView>
   );

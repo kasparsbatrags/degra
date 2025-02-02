@@ -1,21 +1,24 @@
+import {useRouter} from 'expo-router'
 import {Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import Button from '../../components/Button'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
 
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>
-            Šeit būs pieejama informācija par aktīvajām kravām un to statusiem.
-          </Text>
-        </View>
+      <Button
+        title="Sākt braucienu"
+        onPress={() => router.push('/transportation')}
+        style={styles.startTripButton}
+      />
       </View>
     </SafeAreaView>
   );
@@ -33,6 +36,7 @@ type Styles = {
   statLabel: TextStyle;
   infoContainer: ViewStyle;
   infoText: TextStyle;
+  startTripButton: ViewStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -107,5 +111,8 @@ const styles = StyleSheet.create<Styles>({
     fontFamily: FONT.regular,
     color: COLORS.gray,
     lineHeight: 20,
+  },
+  startTripButton: {
+    marginTop: 24,
   },
 });

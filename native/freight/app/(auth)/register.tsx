@@ -118,7 +118,7 @@ export default function RegisterScreen() {
               onChangeText={(value) =>
                 updateFormData('organizationRegistrationNumber', value)
               }
-              placeholder="Ievadiet reģistrācijas numuru"
+              placeholder="Sāciet rakstīt nosaukumu"
             />
 
             <FormInput
