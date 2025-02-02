@@ -6,10 +6,6 @@ export const saveSession = async (accessToken: string, refreshToken: string, exp
       throw new Error("AccessToken ir tukšs vai undefined.");
     }
 
-    if (!refreshToken) {
-      throw new Error("RefreshToken ir tukšs vai undefined.");
-    }
-
     if (!expiresIn) {
       throw new Error("ExpiresIn ir tukšs vai undefined.");
     }

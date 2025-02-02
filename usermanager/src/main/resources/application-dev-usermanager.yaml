@@ -12,11 +12,11 @@ server:
 
 app:
   security:
-    allowed-origins: "×"
+    allowed-origins: "http://localhost:8081"
 
 logging:
   level:
-    ROOT: INFO
+    ROOT: DEBUG
     #liquibase: INFO
     #org.hibernate.SQL: INFO
     #org.hibernate.envers: INFO

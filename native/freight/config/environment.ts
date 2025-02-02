@@ -4,6 +4,7 @@ interface Environment {
   apiUrl: string;
   androidUrl: string;
   iosUrl: string;
+  webUrl: string;
 }
 
 interface Config {
@@ -15,24 +16,29 @@ export const ENV: Config = {
   dev: {
     apiUrl: 'http://localhost:8080',
     androidUrl: 'http://10.0.2.2:8080',
-    iosUrl: 'http://localhost:8080'
+    iosUrl: 'http://localhost:8080',
+    webUrl: 'http://localhost:8080'
   },
   prod: {
     apiUrl: 'https://api.degra.lv',
     androidUrl: 'https://api.degra.lv',
-    iosUrl: 'https://api.degra.lv'
+    iosUrl: 'https://api.degra.lv',
+    webUrl: 'https://api.degra.lv'
   }
 };
 
 export const getApiUrl = (): string => {
   if (__DEV__) {
-    if (Platform.OS === 'android') {
-      return ENV.dev.androidUrl;
+    switch (Platform.OS) {
+      case 'android':
+        return ENV.dev.androidUrl;
+      case 'ios':
+        return ENV.dev.iosUrl;
+      case 'web':
+        return ENV.dev.webUrl;
+      default:
+        return ENV.dev.apiUrl;
     }
-    if (Platform.OS === 'ios') {
-      return ENV.dev.iosUrl;
-    }
-    return ENV.dev.apiUrl; // web
   }
   return ENV.prod.apiUrl;
 };
