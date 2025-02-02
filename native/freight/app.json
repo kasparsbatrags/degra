@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Freight",
-    "slug": "freight",
+    "name": "Krava",
+    "slug": "Kravas uzskaite",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,22 +9,22 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#161622"
     },
-    "backgroundColor": "#ffffff",
+    "backgroundColor": "#161622",
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.degra.freight"
+      "bundleIdentifier": "lv.degra.accounting.freight"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#161622"
       },
-      "package": "com.degra.freight"
+      "package": "lv.degra.accounting.freight"
     },
     "web": {
       "favicon": "./assets/favicon.png",

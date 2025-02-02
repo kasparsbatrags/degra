@@ -1,7 +1,6 @@
 import React from 'react'
 import {StyleSheet, Text, TextInput, View} from 'react-native'
-import {formStyles} from '../constants/styles'
-import {COLORS} from '../constants/theme'
+import {COLORS, FONT} from '../constants/theme'
 
 interface FormInputProps {
   label: string;
@@ -31,19 +30,19 @@ const FormInput: React.FC<FormInputProps> = ({
   numberOfLines = 1,
 }) => {
   return (
-    <View style={formStyles.inputContainer}>
-      <Text style={formStyles.label}>{label}</Text>
+    <View style={styles.container}>
+      <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[
-          formStyles.input,
-          error && formStyles.inputError,
+          styles.input,
+          error && styles.inputError,
           !editable && styles.disabledInput,
-          multiline && { height: numberOfLines * 24 + 24 }, // 24 is line height
+          multiline && { height: numberOfLines * 24 + 24 },
         ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={COLORS.text.tertiary}
+        placeholderTextColor={COLORS.gray}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
@@ -51,15 +50,43 @@ const FormInput: React.FC<FormInputProps> = ({
         multiline={multiline}
         numberOfLines={numberOfLines}
       />
-      {error && <Text style={formStyles.errorText}>{error}</Text>}
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+    marginTop: 28,
+  },
+  label: {
+    fontFamily: FONT.medium,
+    fontSize: 16,
+    color: COLORS.white,
+    marginBottom: 8,
+  },
+  input: {
+    height: 48,
+    backgroundColor: COLORS.black100,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontFamily: FONT.regular,
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  inputError: {
+    borderColor: COLORS.error,
+    borderWidth: 1,
+  },
   disabledInput: {
     opacity: 0.5,
-    backgroundColor: COLORS.gray3,
+  },
+  errorText: {
+    fontFamily: FONT.regular,
+    fontSize: 14,
+    color: COLORS.error,
+    marginTop: 4,
   },
 });
 

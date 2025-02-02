@@ -1,7 +1,7 @@
 import React from 'react'
 import {ActivityIndicator, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle,} from 'react-native'
 import * as Animatable from 'react-native-animatable'
-import {COLORS} from '../constants/theme'
+import {COLORS, FONT} from '../constants/theme'
 
 interface ButtonProps {
   onPress: () => void;
@@ -86,26 +86,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   buttonPrimary: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.secondary,
   },
   buttonSecondary: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondary100,
   },
   buttonOutline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.secondary,
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
+    fontFamily: FONT.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: COLORS.white,
   },
   buttonTextOutline: {
-    color: COLORS.primary,
+    color: COLORS.secondary,
   },
 });
 

@@ -1,6 +1,8 @@
 import {useRouter} from 'expo-router'
-import {Alert, StyleSheet, Text, View} from 'react-native'
+import {Alert, Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
+import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 export default function ProfileScreen() {
@@ -20,12 +22,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
         <Text style={styles.title}>Profils</Text>
-      </View>
 
-      <View style={styles.infoContainer}>
+        <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Vārds</Text>
           <Text style={styles.value}>{user?.firstName}</Text>
@@ -42,55 +43,78 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <View style={styles.actionsContainer}>
-        <Button
-          title="Izrakstīties"
-          onPress={handleSignOut}
-          variant="outline"
-          style={styles.signOutButton}
-        />
+        <View style={styles.actionsContainer}>
+          <Button
+            title="Izrakstīties"
+            onPress={handleSignOut}
+            variant="outline"
+            style={styles.signOutButton}
+          />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+type Styles = {
+  container: ViewStyle;
+  content: ViewStyle;
+  title: TextStyle;
+  infoContainer: ViewStyle;
+  infoRow: ViewStyle;
+  label: TextStyle;
+  value: TextStyle;
+  actionsContainer: ViewStyle;
+  signOutButton: ViewStyle;
+};
+
+const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.primary,
   },
-  header: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+  content: Platform.OS === 'web' ? {
+    flex: 1,
+    width: '100%' as const,
+    maxWidth: CONTAINER_WIDTH.web,
+    alignSelf: 'center' as const,
+    padding: 24,
+  } : {
+    flex: 1,
+    width: CONTAINER_WIDTH.mobile,
+    padding: 24,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
+    marginBottom: 32,
   },
   infoContainer: {
-    padding: 20,
+    backgroundColor: COLORS.black100,
+    borderRadius: 8,
+    padding: 24,
+    marginBottom: 24,
   },
   infoRow: {
     marginBottom: 20,
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
     marginBottom: 4,
   },
   value: {
     fontSize: 16,
-    color: '#000',
-    fontWeight: '500',
+    fontFamily: FONT.medium,
+    color: COLORS.white,
   },
   actionsContainer: {
-    padding: 20,
     marginTop: 'auto',
   },
   signOutButton: {
-    backgroundColor: '#fff',
-    borderColor: '#ff3b30',
+    backgroundColor: 'transparent',
+    borderColor: COLORS.error,
   },
 });

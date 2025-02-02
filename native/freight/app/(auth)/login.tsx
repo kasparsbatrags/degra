@@ -1,129 +1,177 @@
-import {useRouter} from 'expo-router'
-import React, {useState} from 'react'
-import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View,} from 'react-native'
+import {Link, useRouter} from 'expo-router'
+import {useState} from 'react'
+import {Alert, Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
+
 import {images} from '../../constants/assets'
-import {commonStyles} from '../../constants/styles'
-import {SPACING} from '../../constants/theme'
+import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Kļūda', 'Lūdzu, aizpildiet visus laukus');
+    if (form.email === "" || form.password === "") {
+      Alert.alert("Kļūda", "Lūdzu, aizpildiet visus laukus");
       return;
     }
 
     try {
       setLoading(true);
-      await signIn(email, password);
-      router.replace('/(tabs)');
+      await signIn(form.email, form.password);
+      router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert(
-        'Kļūda',
-        error.message || 'Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz.'
+        "Kļūda",
+        error.message || "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = () => {
-    router.push('/register');
-  };
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={commonStyles.container}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          <View style={styles.logoContainer}>
-            <Image source={images.logo} style={styles.logo} resizeMode="contain" />
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <View
+          style={[
+            styles.content,
+            {
+              minHeight: Dimensions.get("window").height - 100,
+            },
+          ]}
+        >
 
-          <Text style={commonStyles.title}>Pieslēgties</Text>
-          <Text style={[commonStyles.textSecondary, styles.subtitle]}>
-            Ievadiet savu e-pastu un paroli, lai pieslēgtos
+          <Image
+            source={images.logo}
+            resizeMode="contain"
+            style={styles.logo}
+          />
+
+			<Text style={styles.heading}>
+				Kravu uzskaites sistēma
+			</Text>
+
+			<Text style={styles.title}>
+            Pieslēgties
           </Text>
 
-          <View style={styles.form}>
-            <FormInput
-              label="E-pasts"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Ievadiet e-pastu"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+          <FormInput
+            label="E-pasts"
+            value={form.email}
+            onChangeText={(e) => setForm({ ...form, email: e })}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-            <FormInput
-              label="Parole"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Ievadiet paroli"
-              secureTextEntry
-            />
+          <FormInput
+            label="Parole"
+            value={form.password}
+            onChangeText={(e) => setForm({ ...form, password: e })}
+            secureTextEntry
+          />
 
-            <Button
-              title="Pieslēgties"
-              onPress={handleLogin}
-              loading={loading}
-              style={styles.loginButton}
-            />
+          <Button
+            title="Pieslēgties"
+            onPress={handleLogin}
+            loading={loading}
+            style={styles.loginButton}
+          />
 
-            <Button
-              title="Reģistrēties"
-              onPress={handleRegister}
-              variant="outline"
-              style={styles.registerButton}
-            />
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>
+              Nav konta?
+            </Text>
+            <Link
+              href="/register"
+              style={styles.registerLink}
+            >
+              Reģistrēties
+            </Link>
           </View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
+type Styles = {
+  container: ViewStyle;
+  content: ViewStyle;
+  heading: TextStyle;
+  logo: ImageStyle;
+  title: TextStyle;
+  loginButton: ViewStyle;
+  registerContainer: ViewStyle;
+  registerText: TextStyle;
+  registerLink: TextStyle;
+};
+
+const styles = StyleSheet.create<Styles>({
+  container: {
     flex: 1,
-    padding: SPACING.m,
-    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: SPACING.xl,
+  content: Platform.OS === 'web' ? {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    marginVertical: 24,
+    width: '100%' as const,
+    maxWidth: CONTAINER_WIDTH.web,
+    alignSelf: 'center' as const,
+  } : {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    marginVertical: 24,
+    width: CONTAINER_WIDTH.mobile,
+  },
+  heading: {
+    fontSize: 32,
+    fontFamily: FONT.bold,
+    color: COLORS.white,
+    textAlign: 'center',
+    marginBottom: 24,
   },
   logo: {
     width: 200,
-    height: 80,
+    height: 60,
+    alignSelf: 'center',
   },
-  subtitle: {
-    marginTop: SPACING.xs,
-    marginBottom: SPACING.xl,
-  },
-  form: {
-    width: '100%',
+  title: {
+    fontSize: 24,
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
+    marginTop: 40,
+    marginBottom: 28,
   },
   loginButton: {
-    marginTop: SPACING.l,
+    marginTop: 28,
   },
-  registerButton: {
-    marginTop: SPACING.m,
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 20,
+    gap: 8,
+  },
+  registerText: {
+    fontSize: 18,
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
+  },
+  registerLink: {
+    fontSize: 18,
+    fontFamily: FONT.semiBold,
+    color: COLORS.secondary,
   },
 });

@@ -1,50 +1,75 @@
-import {StyleSheet, Text, View} from 'react-native'
+import {Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {SafeAreaView} from 'react-native-safe-area-context'
+import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 export default function HomeScreen() {
   const { user } = useAuth();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
-      <Text style={styles.subtitle}>Kravas pārvadājumu sistēma</Text>
-      
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Aktīvās kravas</Text>
-        </View>
-        
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Pabeigtās kravas</Text>
-        </View>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          Šeit būs pieejama informācija par aktīvajām kravām un to statusiem.
-        </Text>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>
+            Šeit būs pieejama informācija par aktīvajām kravām un to statusiem.
+          </Text>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+type Styles = {
+  container: ViewStyle;
+  content: ViewStyle;
+  heading: TextStyle;
+  title: TextStyle;
+  subtitle: TextStyle;
+  statsContainer: ViewStyle;
+  statCard: ViewStyle;
+  statNumber: TextStyle;
+  statLabel: TextStyle;
+  infoContainer: ViewStyle;
+  infoText: TextStyle;
+};
+
+const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: COLORS.primary,
+  },
+  content: Platform.OS === 'web' ? {
+    flex: 1,
+    paddingHorizontal: 16,
+    marginVertical: 24,
+    width: '100%' as const,
+    maxWidth: CONTAINER_WIDTH.web,
+    alignSelf: 'center' as const,
+  } : {
+    flex: 1,
+    paddingHorizontal: 16,
+    marginVertical: 24,
+    width: CONTAINER_WIDTH.mobile,
+  },
+  heading: {
+    fontSize: 32,
+    fontFamily: FONT.bold,
+    color: COLORS.white,
+    textAlign: 'center',
+    marginBottom: 40,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
     marginBottom: 8,
-    color: '#000',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
     marginBottom: 24,
   },
   statsContainer: {
@@ -54,31 +79,33 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
+    backgroundColor: COLORS.black100,
+    borderRadius: 8,
     padding: 16,
     marginHorizontal: 8,
     alignItems: 'center',
   },
   statNumber: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
+    fontFamily: FONT.bold,
+    color: COLORS.secondary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
     textAlign: 'center',
   },
   infoContainer: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
+    backgroundColor: COLORS.black100,
+    borderRadius: 8,
     padding: 16,
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
     lineHeight: 20,
   },
 });

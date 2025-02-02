@@ -1,7 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import {Redirect, Tabs} from 'expo-router'
-import {useColorScheme} from 'react-native'
-import Colors from '../../constants/Colors'
+import {COLORS} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 
 function TabBarIcon(props: {
@@ -12,7 +11,6 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const { isAuthenticated, loading } = useAuth();
 
   // Ja lietotājs nav autentificēts, novirzām uz login ekrānu
@@ -28,8 +26,19 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: true,
+        tabBarActiveTintColor: COLORS.secondary,
+        tabBarInactiveTintColor: COLORS.gray,
+        headerStyle: {
+          backgroundColor: COLORS.primary,
+        },
+        headerTintColor: COLORS.white,
+        tabBarStyle: {
+          backgroundColor: COLORS.black100,
+          borderTopWidth: 0,
+        },
+        headerTitleStyle: {
+          color: COLORS.white,
+        },
       }}>
       <Tabs.Screen
         name="index"

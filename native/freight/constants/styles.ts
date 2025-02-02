@@ -1,5 +1,11 @@
-import {StyleSheet} from 'react-native'
+import {Platform, StyleSheet} from 'react-native'
 import {BORDER_RADIUS, COLORS, FONT, SHADOWS, SIZES, SPACING} from './theme'
+import {WEB_BORDER_RADIUS, WEB_COMPONENT_SIZES, WEB_SIZES, WEB_SPACING} from './webStyles'
+
+// Use platform-specific sizes
+const sizes = Platform.select({ web: WEB_SIZES, default: SIZES })
+const spacing = Platform.select({ web: WEB_SPACING, default: SPACING })
+const borderRadius = Platform.select({ web: WEB_BORDER_RADIUS, default: BORDER_RADIUS })
 
 export const commonStyles = StyleSheet.create({
   container: {
@@ -12,7 +18,7 @@ export const commonStyles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: SPACING.m,
+    padding: spacing.m,
   },
   row: {
     flexDirection: 'row',
@@ -29,37 +35,37 @@ export const commonStyles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.background.primary,
-    borderRadius: BORDER_RADIUS.m,
-    padding: SPACING.m,
+    borderRadius: borderRadius.m,
+    padding: spacing.m,
     ...SHADOWS.small,
   },
   title: {
     fontFamily: FONT.bold,
-    fontSize: SIZES.xLarge,
+    fontSize: sizes.xLarge,
     color: COLORS.text.primary,
   },
   subtitle: {
     fontFamily: FONT.medium,
-    fontSize: SIZES.large,
+    fontSize: sizes.large,
     color: COLORS.text.secondary,
   },
   text: {
     fontFamily: FONT.regular,
-    fontSize: SIZES.medium,
+    fontSize: sizes.medium,
     color: COLORS.text.primary,
   },
   textSecondary: {
     fontFamily: FONT.regular,
-    fontSize: SIZES.medium,
+    fontSize: sizes.medium,
     color: COLORS.text.secondary,
   },
   input: {
-    height: 48,
+    height: Platform.select({ web: WEB_COMPONENT_SIZES.input, default: 48 }),
     backgroundColor: COLORS.background.secondary,
-    borderRadius: BORDER_RADIUS.s,
-    paddingHorizontal: SPACING.m,
+    borderRadius: borderRadius.s,
+    paddingHorizontal: spacing.m,
     fontFamily: FONT.regular,
-    fontSize: SIZES.medium,
+    fontSize: sizes.medium,
     color: COLORS.text.primary,
   },
   inputError: {
@@ -68,16 +74,16 @@ export const commonStyles = StyleSheet.create({
   },
   errorText: {
     fontFamily: FONT.regular,
-    fontSize: SIZES.small,
+    fontSize: sizes.small,
     color: COLORS.error,
-    marginTop: SPACING.xs,
+    marginTop: spacing.xs,
   },
   button: {
-    height: 48,
-    borderRadius: BORDER_RADIUS.s,
+    height: Platform.select({ web: WEB_COMPONENT_SIZES.button, default: 48 }),
+    borderRadius: borderRadius.s,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: SPACING.m,
+    paddingHorizontal: spacing.m,
   },
   buttonPrimary: {
     backgroundColor: COLORS.primary,
@@ -92,7 +98,7 @@ export const commonStyles = StyleSheet.create({
   },
   buttonText: {
     fontFamily: FONT.medium,
-    fontSize: SIZES.medium,
+    fontSize: sizes.medium,
     color: COLORS.white,
   },
   buttonTextOutline: {
@@ -104,7 +110,7 @@ export const commonStyles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: COLORS.border.default,
-    marginVertical: SPACING.m,
+    marginVertical: spacing.m,
   },
   shadow: {
     ...SHADOWS.small,
@@ -117,16 +123,16 @@ export const commonStyles = StyleSheet.create({
 export const formStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: SPACING.m,
+    padding: spacing.m,
   },
   inputContainer: {
-    marginBottom: SPACING.m,
+    marginBottom: spacing.m,
   },
   label: {
     fontFamily: FONT.medium,
-    fontSize: SIZES.medium,
+    fontSize: sizes.medium,
     color: COLORS.text.primary,
-    marginBottom: SPACING.xs,
+    marginBottom: spacing.xs,
   },
   input: {
     ...commonStyles.input,
@@ -138,7 +144,7 @@ export const formStyles = StyleSheet.create({
     ...commonStyles.errorText,
   },
   submitButton: {
-    marginTop: SPACING.m,
+    marginTop: spacing.m,
   },
 });
 

@@ -1,30 +1,33 @@
-export const COLORS = {
-  primary: '#007AFF',
-  secondary: '#5856D6',
-  tertiary: '#FF2D55',
+import {DimensionValue} from 'react-native'
 
-  gray: '#83829A',
-  gray2: '#C1C0C8',
-  gray3: '#F3F4F8',
+export const COLORS = {
+  primary: '#161622',
+  secondary: '#FF9C01',
+  secondary100: '#FF9001',
+  secondary200: '#FF8E01',
+
+  black: '#000000',
+  black100: '#1E1E2D',
+  black200: '#232533',
+  
+  gray: '#CDCDE0',
 
   white: '#FFFFFF',
-  lightWhite: '#FAFAFC',
-  black: '#000000',
 
   error: '#FF3B30',
   success: '#34C759',
   warning: '#FF9500',
 
   background: {
-    primary: '#FFFFFF',
-    secondary: '#F5F5F5',
-    app: '#FFFFFF',
+    primary: '#161622',
+    secondary: '#1E1E2D',
+    app: '#161622',
   },
 
   text: {
-    primary: '#000000',
-    secondary: '#666666',
-    tertiary: '#83829A',
+    primary: '#FFFFFF',
+    secondary: '#CDCDE0',
+    tertiary: '#CDCDE0',
   },
 
   border: {
@@ -89,4 +92,12 @@ export const BORDER_RADIUS = {
   l: 16,
   xl: 24,
   xxl: 32,
+};
+
+export const CONTAINER_WIDTH: {
+  mobile: DimensionValue;
+  web: number;
+} = {
+  mobile: "100%",
+  web: 400,
 };

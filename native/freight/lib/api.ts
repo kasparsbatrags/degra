@@ -1,7 +1,7 @@
 import {Buffer} from 'buffer'
 import axiosInstance from '../config/axios'
 import {API_ENDPOINTS} from '../config/environment'
-import {clearSession, loadSession} from '../utils/sessionUtils'
+import {clearSession, loadSession, saveSession} from '../utils/sessionUtils'
 
 interface UserRegistrationData {
   username: string;
@@ -100,6 +100,9 @@ export const signIn = async (email: string, password: string) => {
       lastName: userInfo.family_name,
     };
 
+    // Save session data including user info
+    await saveSession(session.access_token, session.refresh_token, session.expires_in, user);
+
     return {
       accessToken: session.access_token,
       refreshToken: session.refresh_token,
@@ -117,16 +120,34 @@ export const signIn = async (email: string, password: string) => {
 
 export const getCurrentUser = async (): Promise<UserInfo | null> => {
   try {
-    const { accessToken } = await loadSession();
+    const { accessToken, user } = await loadSession();
     if (!accessToken) {
       console.error("Nav pieejams accessToken.");
       return null;
     }
 
+    // If we have user data in session, use that
+    if (user) {
+      return user;
+    }
+
+    // Otherwise fetch from API
     const response = await axiosInstance.get(API_ENDPOINTS.AUTH.GET_ME);
 
     if (response.status === 200) {
-      return response.data;
+      const userData = response.data;
+      const userInfo = {
+        id: userData.id,
+        name: `${userData.given_name} ${userData.family_name}`,
+        email: userData.email,
+        firstName: userData.given_name,
+        lastName: userData.family_name,
+      };
+      
+      // Save the user info in session
+      await saveSession(accessToken, '', 0, userInfo);
+      
+      return userInfo;
     }
 
     console.error("Neizdevās iegūt lietotāja informāciju");

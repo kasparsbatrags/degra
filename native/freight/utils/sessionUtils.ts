@@ -1,4 +1,35 @@
 import * as SecureStore from 'expo-secure-store'
+import {Platform} from 'react-native'
+
+const webStorage = {
+  setItemAsync: async (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+      throw error;
+    }
+  },
+  getItemAsync: async (key: string) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      throw error;
+    }
+  },
+  deleteItemAsync: async (key: string) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error removing from localStorage:', error);
+      throw error;
+    }
+  }
+};
+
+// Izvēlamies storage implementāciju atkarībā no platformas
+const storage = Platform.OS === 'web' ? webStorage : SecureStore;
 
 export const saveSession = async (accessToken: string, refreshToken: string, expiresIn: number, user: any) => {
   try {
@@ -19,9 +50,9 @@ export const saveSession = async (accessToken: string, refreshToken: string, exp
     };
 
     try {
-      await SecureStore.setItemAsync("user_session", JSON.stringify(sessionData));
+      await storage.setItemAsync("user_session", JSON.stringify(sessionData));
     } catch (storageError) {
-      console.warn("SecureStore not ready or error:", storageError);
+      console.warn("Storage not ready or error:", storageError);
       // Don't throw error if storage is not ready, just log warning
       return;
     }
@@ -35,9 +66,9 @@ export const loadSession = async () => {
   try {
     let sessionData;
     try {
-      sessionData = await SecureStore.getItemAsync("user_session");
+      sessionData = await storage.getItemAsync("user_session");
     } catch (storageError) {
-      console.warn("SecureStore not ready or error:", storageError);
+      console.warn("Storage not ready or error:", storageError);
       return {
         accessToken: null,
         refreshToken: null,
@@ -84,9 +115,9 @@ export const loadSession = async () => {
 export const clearSession = async () => {
   try {
     try {
-      await SecureStore.deleteItemAsync("user_session");
+      await storage.deleteItemAsync("user_session");
     } catch (storageError) {
-      console.warn("SecureStore not ready or error:", storageError);
+      console.warn("Storage not ready or error:", storageError);
       // Don't throw error if storage is not ready, just log warning
       return;
     }
