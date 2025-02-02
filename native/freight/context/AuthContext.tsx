@@ -26,31 +26,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const mountedRef = React.useRef(true);
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const currentUser = await getCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
-          setIsAuthenticated(true);
+        if (mountedRef.current) {
+          if (currentUser) {
+            setUser(currentUser);
+            setIsAuthenticated(true);
+          }
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
-      } finally {
-        setLoading(false);
+        if (mountedRef.current) {
+          setLoading(false);
+        }
       }
     };
 
     initializeAuth();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const handleSignIn = async (email: string, password: string) => {
     try {
       const { accessToken, refreshToken, expiresIn, user } = await signIn(email, password);
       await saveSession(accessToken, refreshToken, expiresIn, user);
-      setUser(user);
-      setIsAuthenticated(true);
+      if (mountedRef.current) {
+        setUser(user);
+        setIsAuthenticated(true);
+      }
     } catch (error) {
       console.error("Sign in error:", error);
       throw error;
@@ -61,8 +72,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await apiSignOut();
       await clearSession();
-      setUser(null);
-      setIsAuthenticated(false);
+      if (mountedRef.current) {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       console.error("Sign out error:", error);
       throw error;
@@ -73,7 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await createUser(data);
       // Automātiski piesakāmies pēc reģistrācijas
-      await handleSignIn(data.email, data.password);
+      if (mountedRef.current) {
+        await handleSignIn(data.email, data.password);
+      }
     } catch (error) {
       console.error("Registration error:", error);
       throw error;

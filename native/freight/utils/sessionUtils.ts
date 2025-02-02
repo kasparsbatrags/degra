@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store'
 
 export const saveSession = async (accessToken: string, refreshToken: string, expiresIn: number, user: any) => {
   try {
@@ -14,12 +14,20 @@ export const saveSession = async (accessToken: string, refreshToken: string, exp
       throw new Error("ExpiresIn ir tukšs vai undefined.");
     }
 
-    await AsyncStorage.setItem("accessToken", accessToken);
-    await AsyncStorage.setItem("refreshToken", refreshToken);
-    await AsyncStorage.setItem("expiresIn", String(expiresIn));
+    const sessionData = {
+      accessToken,
+      refreshToken,
+      expiresIn,
+      expiresAt: Date.now() + expiresIn * 1000,
+      user: user || null
+    };
 
-    if (user) {
-      await AsyncStorage.setItem("user", JSON.stringify(user));
+    try {
+      await SecureStore.setItemAsync("user_session", JSON.stringify(sessionData));
+    } catch (storageError) {
+      console.warn("SecureStore not ready or error:", storageError);
+      // Don't throw error if storage is not ready, just log warning
+      return;
     }
   } catch (error) {
     console.error("Kļūda sesijas saglabāšanā:", error);
@@ -29,28 +37,66 @@ export const saveSession = async (accessToken: string, refreshToken: string, exp
 
 export const loadSession = async () => {
   try {
-    const accessToken = await AsyncStorage.getItem("accessToken");
-    const refreshToken = await AsyncStorage.getItem("refreshToken");
-    const user = await AsyncStorage.getItem("user");
+    let sessionData;
+    try {
+      sessionData = await SecureStore.getItemAsync("user_session");
+    } catch (storageError) {
+      console.warn("SecureStore not ready or error:", storageError);
+      return {
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+      };
+    }
+    
+    if (!sessionData) {
+      return {
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+      };
+    }
+
+    const session = JSON.parse(sessionData);
+    
+    // Pārbaudam vai tokens nav beidzies
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+      await clearSession();
+      return {
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+      };
+    }
 
     return {
-      accessToken,
-      refreshToken,
-      user: user ? JSON.parse(user) : null,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      user: session.user,
     };
   } catch (error) {
     console.error("Kļūda sesijas ielādēšanā:", error);
-    throw error;
+    // Return null session instead of throwing to prevent app crash
+    return {
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+    };
   }
 };
 
 export const clearSession = async () => {
   try {
-    await AsyncStorage.removeItem("accessToken");
-    await AsyncStorage.removeItem("refreshToken");
-    await AsyncStorage.removeItem("user");
+    try {
+      await SecureStore.deleteItemAsync("user_session");
+    } catch (storageError) {
+      console.warn("SecureStore not ready or error:", storageError);
+      // Don't throw error if storage is not ready, just log warning
+      return;
+    }
   } catch (error) {
     console.error("Kļūda sesijas dzēšanā:", error);
-    throw error;
+    // Don't throw error to prevent app crash
+    return;
   }
 };

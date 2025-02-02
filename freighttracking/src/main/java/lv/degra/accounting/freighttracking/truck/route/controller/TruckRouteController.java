@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lv.degra.accounting.core.truck.route.model.TruckRoute;
 import lv.degra.accounting.core.truck.route.service.TruckRouteService;
-import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
+import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 @RestController
 @RequestMapping(PATH_FREIGHT_TRACKING)

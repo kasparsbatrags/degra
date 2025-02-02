@@ -14,7 +14,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lv.degra.accounting.freighttracking.config.JwtTokenProvider;
+import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

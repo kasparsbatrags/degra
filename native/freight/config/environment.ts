@@ -42,7 +42,8 @@ export const API_ENDPOINTS = {
     REGISTER: '/api/user/register',
     LOGIN: '/api/user/login',
     LOGOUT: '/api/user/logout',
-    GET_ME: '/api/user/me'
+    GET_ME: '/api/user/me',
+    REFRESH: '/api/user/refresh'
   },
   FREIGHT: {
     BASE: '/api/freight',
