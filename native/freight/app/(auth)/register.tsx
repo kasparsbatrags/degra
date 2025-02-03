@@ -46,7 +46,7 @@ export default function RegisterScreen() {
   };
 
   const handleLogin = () => {
-    router.back();
+    router.replace('/(auth)/login');
   };
 
   const updateFormData = (field: keyof UserRegistrationData, value: string) => {
