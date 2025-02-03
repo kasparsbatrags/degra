@@ -9,8 +9,8 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
 server:
-  port: 8084
+  port: 8085
 
 application:
-  server-url: http://localhost:8084/
+  server-url: http://localhost:8085/
   company-download-cron: 0 0 2 * * ?

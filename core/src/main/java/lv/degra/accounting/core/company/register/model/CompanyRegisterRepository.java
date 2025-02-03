@@ -8,8 +8,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CompanyRegisterRepository extends JpaRepository<CompanyRegister, Integer> {
-    boolean existsByRegisterNumber(String registerNumber);
+	boolean existsByRegisterNumber(String registerNumber);
 
-    @Query("SELECT c FROM CompanyRegister c WHERE lower(c.name) LIKE lower(concat('%', :name, '%')) ORDER BY c.name ASC LIMIT 15")
-    List<CompanyRegister> findTopByNameContainingIgnoreCase(String name);
+	@Query(value = """
+			   SELECT c.* FROM company_register c 
+			   	WHERE 
+			   	(
+						to_tsvector('simple', c.name) @@ plainto_tsquery('simple', :name) 
+					    OR c.register_number LIKE :name || '%'
+				)
+			   	AND c.terminated_date IS NULL 
+			   	ORDER BY similarity(c.name, :name) DESC, c.name ASC 
+			   	LIMIT 15
+			""", nativeQuery = true)
+	List<CompanyRegister> findTopByNameContainingIgnoreCase(String name);
 }

@@ -1,8 +1,8 @@
 package lv.degra.accounting.company.search;
 
-import static lv.degra.accounting.core.system.configuration.DegraConfig.API_LINK;
-import static lv.degra.accounting.core.system.configuration.DegraConfig.COMPANY;
-import static lv.degra.accounting.core.system.configuration.DegraConfig.SUGGESTIONS;
+import static lv.degra.accounting.core.config.ApiConstants.BASE_API_URL;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_SUGGESTIONS;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import lv.degra.accounting.core.company.register.model.CompanyRegister;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 
 @RestController
-@RequestMapping(API_LINK + COMPANY)
+@RequestMapping(BASE_API_URL + ENDPOINT_COMPANY)
 public class CompanyController {
 
 	private final CompanyRegisterService companyRegisterService;
@@ -26,7 +26,7 @@ public class CompanyController {
 		this.companyRegisterService = companyRegisterImportService;
 	}
 
-	@GetMapping(SUGGESTIONS)
+	@GetMapping(ENDPOINT_SUGGESTIONS)
 	public ResponseEntity<List<CompanyRegister>> getSuggestions(@Valid @RequestParam String query) {
 		List<CompanyRegister> suggestions = companyRegisterService.findByNameContainingIgnoreCase(query);
 		return ResponseEntity.ok(suggestions);
