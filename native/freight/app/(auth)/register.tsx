@@ -3,6 +3,7 @@ import React, {useState} from 'react'
 import {Alert, Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle,} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
+import CompanySearch from '../../components/CompanySearch'
 import FormInput from '../../components/FormInput'
 import {images} from '../../constants/assets'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
@@ -112,13 +113,12 @@ export default function RegisterScreen() {
               autoCapitalize="words"
             />
 
-            <FormInput
+            <CompanySearch
               label="Organizācijas reģistrācijas numurs"
               value={formData.organizationRegistrationNumber}
-              onChangeText={(value) =>
+              onSelect={(value) =>
                 updateFormData('organizationRegistrationNumber', value)
               }
-              placeholder="Sāciet rakstīt nosaukumu"
             />
 
             <FormInput

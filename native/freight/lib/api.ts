@@ -1,5 +1,6 @@
 import {Buffer} from 'buffer'
 import axiosInstance from '../config/axios'
+import companyAxiosInstance from '../config/companyAxios'
 import {API_ENDPOINTS} from '../config/environment'
 import {clearSession, loadSession, saveSession} from '../utils/sessionUtils'
 
@@ -236,5 +237,22 @@ export const updateFreightStatus = async (id: string, status: string) => {
     throw new Error(
       error.response?.data?.message || "Kļūda atjaunojot kravas statusu"
     );
+  }
+};
+
+export interface CompanySuggestion {
+  registrationNumber: string;
+  name: string;
+}
+
+export const searchCompanies = async (query: string): Promise<CompanySuggestion[]> => {
+  try {
+    const response = await companyAxiosInstance.get(API_ENDPOINTS.COMPANY.SUGGESTION, {
+      params: { query }
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("Kļūda meklējot uzņēmumus:", error);
+    throw new Error(error.response?.data?.message || "Kļūda meklējot uzņēmumus");
   }
 };
