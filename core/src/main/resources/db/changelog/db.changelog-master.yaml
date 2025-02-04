@@ -90,7 +90,8 @@ databaseChangeLog:
     - include:
         file: db/changelog/add-truck.yaml
     - include:
+        file: db/changelog/add-truck-route-page.yaml
+    - include:
+        file: db/changelog/add-truck-object.yaml
+    - include:
         file: db/changelog/add-truck-route.yaml
-
-
-

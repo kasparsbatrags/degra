@@ -15,47 +15,81 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Ieraksta ID"
               - column:
-                  name: date_from
-                  type: date
-                  constraints:
-                    nullable: false
-                  remarks: "Maršruta lapas sākuma datums"
-              - column:
-                  name: date_to
-                  type: date
-                  constraints:
-                    nullable: true
-                  remarks: "Maršruta lapas sākuma datums"
-              - column:
-                  name: truck_id
+                  name: truck_route_page_id
                   type: INT
                   constraints:
                     nullable: false
-                  remarks: "Automašīnas identifikators"
+                  remarks: "Maršruta laspas identifikators"
               - column:
-                  name: user_id
+                  name: route_date
+                  type: date
+                  constraints:
+                    nullable: false
+                  remarks: "Maršruta datums"
+              - column:
+                  name: route_number
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Maršruta numurs"
+              - column:
+                  name: with_cargo
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+                  defaultValue: 'false'
+                  remarks: "Ar kravu vai bez"
+              - column:
+                  name: cargo_valume
+                  type: double
+                  constraints:
+                    nullable: false
+                  defaultValue: '0'
+                  remarks: "Kravas apjoms"
+              - column:
+                  name: out_truck_object_id
                   type: INT
                   constraints:
                     nullable: false
-                  remarks: "Autovadītāja identifikators"
+                  remarks: "Izbrauc no objekta"
               - column:
-                  name: fuel_consumption_norm
-                  type: double
+                  name: odometer_at_start
+                  type: bigint
                   constraints:
                     nullable: false
-                  remarks: "Degvielas patēriņa norma uz 100km"
+                  remarks: "Odometra rādītājs brauciena sākumā"
               - column:
-                  name: fuel_balance_at_start
-                  type: double
+                  name: out_date_time
+                  type: timestamp
+                  remarks: "Izbraukšanas laika zīmogs"
+              - column:
+                  name: odometer_at_finish
+                  type: bigint
                   constraints:
                     nullable: false
-                  remarks: "Degvielas atlikums sākumā"
+                  remarks: "Odometra rādītājs brauciena beigās"
               - column:
-                  name: fuel_balance_at_end
-                  type: double
+                  name: in_truck_object_id
+                  type: INT
                   constraints:
                     nullable: false
-                  remarks: "Degvielas atlikums beigās"
+                  remarks: "Iebrauc no objektā"
+              - column:
+                  name: in_date_time
+                  type: timestamp
+                  remarks: "Iebraukšanas laika zīmogs"
+              - column:
+                  name: route_length
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: "Maršruta garums"
+              - column:
+                  name: fuel_received
+                  type: integer
+                  constraints:
+                    nullable: false
+                  remarks: "Saņemtās degvielas daudzums"
               - column:
                   name: created_date_time
                   type: timestamp
@@ -65,28 +99,41 @@ databaseChangeLog:
                   type: timestamp
                   remarks: "Ieraksta pēdējās labošanas laika zīmogs"
 
-            remarks: "Maršruta lapu saraksts"
+            remarks: "Maršruta lapas braucienu saraksts"
 
   - changeSet:
-      id: ConstraintForeignKeysTruckRouteToTruck
+      id: ConstraintForeignKeysTruckRouteToTruckRoutePage
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: truck_id
+            baseColumnNames: truck_route_page_id
             baseTableName: truck_route
-            constraintName: fk_truck_id_to_truck
+            constraintName: fk_truck_route_id_to_truck_route_page
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: truck
+            referencedTableName: truck_route_page
+
 
   - changeSet:
-      id: ConstraintForeignKeysTruckRouteToUser
+      id: ConstraintForeignKeysTruckRouteOutToTruckRouteObject
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: out_truck_object_id
             baseTableName: truck_route
-            constraintName: fk_user_id_to_user
+            constraintName: fk_out_truck_object_id_to_truck_object
             onDelete: NO ACTION
             referencedColumnNames: id
-            referencedTableName: user
+            referencedTableName: truck_object
+
+  - changeSet:
+      id: ConstraintForeignKeysTruckRouteInToTruckRouteObject
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: in_truck_object_id
+            baseTableName: truck_route
+            constraintName: fk_in_truck_object_id_to_truck_object
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: truck_object
