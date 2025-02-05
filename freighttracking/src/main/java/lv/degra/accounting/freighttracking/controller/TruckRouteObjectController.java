@@ -10,22 +10,35 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
 import lv.degra.accounting.core.truck_object.service.TruckObjectService;
-
 @RestController
 @RequestMapping(PATH_FREIGHT_TRACKING)
 public class TruckRouteObjectController {
 
-	private final TruckObjectService truckObjectService;
+    private final TruckObjectService truckObjectService;
 
-	public TruckRouteObjectController(TruckObjectService truckObjectService) {
-		this.truckObjectService = truckObjectService;
-	}
+    public TruckRouteObjectController(TruckObjectService truckObjectService) {
+        this.truckObjectService = truckObjectService;
+    }
 
-	@GetMapping(ENDPOINT_TRUC_OBJECT)
-	public ResponseEntity<List<TruckObjectDto>> getTruckObjects() {
-		return ResponseEntity.ok(truckObjectService.getTruckObjectList());
-	}
-
+    @GetMapping(ENDPOINT_TRUC_OBJECT)
+    public ResponseEntity<List<TruckObjectDto>> getTruckObjects() {
+        try {
+            List<TruckObjectDto> truckObjects = truckObjectService.getTruckObjectList();
+            
+            if (truckObjects == null || truckObjects.isEmpty()) {
+                throw new ResourceNotFoundException("No truck objects found");
+            }
+            
+            return ResponseEntity.ok(truckObjects);
+            
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Failed to retrieve truck objects: " + e.getMessage());
+        }
+    }
 }
