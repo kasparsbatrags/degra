@@ -1,6 +1,6 @@
 import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios'
 import {clearSession, loadSession, saveSession} from '../utils/sessionUtils'
-import {API_ENDPOINTS, getApiUrl} from './environment'
+import {API_ENDPOINTS, getUserManagerApiUrl} from './environment'
 
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -14,7 +14,7 @@ interface RefreshTokenResponse {
 
 // Izveido axios instanci ar bāzes konfigurāciju
 const axiosInstance = axios.create({
-  baseURL: getApiUrl(),
+  baseURL: getUserManagerApiUrl(),
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ axiosInstance.interceptors.response.use(
 
         // Mēģinam atjaunot tokenu
         const response = await axios.post<RefreshTokenResponse>(
-          `${getApiUrl()}${API_ENDPOINTS.AUTH.REFRESH}`,
+          `${getUserManagerApiUrl()}${API_ENDPOINTS.AUTH.REFRESH}`,
           { refreshToken }
         );
 

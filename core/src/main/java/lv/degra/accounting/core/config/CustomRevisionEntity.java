@@ -1,4 +1,4 @@
-package lv.degra.accounting.company.config;
+package lv.degra.accounting.core.config;
 
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;

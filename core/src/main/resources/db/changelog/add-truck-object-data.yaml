@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddTruckObjectObject1
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM truck_object WHERE name = 'Object1'
+      changes:
+        - insert:
+            tableName: truck_object
+            columns:
+              - column:
+                  name: id
+                  value: '1'
+              - column:
+                  name: name
+                  value: 'Object1'
+
+  - changeSet:
+      id: AddTruckObjectObject2
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM truck_object WHERE name = 'Object2'
+      changes:
+        - insert:
+            tableName: truck_object
+            columns:
+              - column:
+                  name: id
+                  value: '2'
+              - column:
+                  name: name
+                  value: 'Object2'
+
+  - changeSet:
+      id: AddTruckObjectObject3
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM truck_object WHERE name = 'Object3'
+      changes:
+        - insert:
+            tableName: truck_object
+            columns:
+              - column:
+                  name: id
+                  value: '3'
+              - column:
+                  name: name
+                  value: 'Object3'
+
