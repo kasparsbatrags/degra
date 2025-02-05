@@ -47,6 +47,12 @@ databaseChangeLog:
                   defaultValue: '0'
                   remarks: "Kravas apjoms"
               - column:
+                  name: unit_type_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                  remarks: "Kravas apjoma mērvienība"
+              - column:
                   name: out_truck_object_id
                   type: INT
                   constraints:
@@ -137,3 +143,15 @@ databaseChangeLog:
             onDelete: NO ACTION
             referencedColumnNames: id
             referencedTableName: truck_object
+
+  - changeSet:
+      id: ConstraintForeignKeysUnitTypeToTruckRoute
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: unit_type_id
+            baseTableName: truck_route
+            constraintName: fk_unit_type_id_to_unit_type
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: unit_type

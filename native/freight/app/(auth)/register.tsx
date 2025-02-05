@@ -24,7 +24,6 @@ export default function RegisterScreen() {
   const router = useRouter();
 
   const handleRegister = async () => {
-    // Pārbaudam, vai visi lauki ir aizpildīti
     const emptyFields = Object.entries(formData).filter(([_, value]) => !value);
     if (emptyFields.length > 0) {
       Alert.alert('Kļūda', 'Lūdzu, aizpildiet visus laukus');
@@ -33,9 +32,17 @@ export default function RegisterScreen() {
 
     try {
       setLoading(true);
+      console.log('Attempting registration with data:', formData);
       await register(formData);
+      console.log('Registration successful');
       router.replace('/(tabs)');
     } catch (error: any) {
+      console.error('Registration error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       Alert.alert(
         'Kļūda',
         error.message || 'Neizdevās reģistrēties. Lūdzu, mēģiniet vēlreiz.'
@@ -114,7 +121,7 @@ export default function RegisterScreen() {
             />
 
             <CompanySearch
-              label="Organizācijas reģistrācijas numurs"
+              label="Uzņēmuma nosaukums"
               value={formData.organizationRegistrationNumber}
               onSelect={(value) =>
                 updateFormData('organizationRegistrationNumber', value)

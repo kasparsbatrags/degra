@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.truck.route.service;
+package lv.degra.accounting.core.truck_route.service;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import lv.degra.accounting.core.truck.route.model.TruckRoute;
-import lv.degra.accounting.core.truck.route.model.TruckRouteRepository;
+import lv.degra.accounting.core.truck_route.model.TruckRoute;
+import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 

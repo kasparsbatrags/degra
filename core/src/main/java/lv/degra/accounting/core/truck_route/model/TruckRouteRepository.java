@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.truck.route.model;
+package lv.degra.accounting.core.truck_route.model;
 
 
 

@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.truck.route.dto;
+package lv.degra.accounting.core.truck_route.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -6,10 +6,11 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import lv.degra.accounting.core.truck.dto.TruckDto;
+import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.user.dto.UserDto;
 
 /**
- * DTO for {@link lv.degra.accounting.core.truck.route.model.TruckRoute}
+ * DTO for {@link TruckRoute}
  */
 @Value
 public class TruckRouteDto implements Serializable {

@@ -1,8 +1,10 @@
-package lv.degra.accounting.core.truck.route.model;
+package lv.degra.accounting.core.truck_route_page.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Objects;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,8 +25,9 @@ import lv.degra.accounting.core.user.model.User;
 @Getter
 @Setter
 @Entity
-@Table(name = "truck_route")
-public class TruckRoute extends AuditInfo implements Serializable {
+@Audited
+@Table(name = "truck_route_page")
+public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
@@ -45,6 +48,7 @@ public class TruckRoute extends AuditInfo implements Serializable {
 	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
+	@NotAudited
 	private User user;
 
 	@NotNull
@@ -59,19 +63,4 @@ public class TruckRoute extends AuditInfo implements Serializable {
 	@Column(name = "fuel_balance_at_end", nullable = false)
 	private Double fuelBalanceAtEnd;
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || getClass() != o.getClass())
-			return false;
-		TruckRoute that = (TruckRoute) o;
-		return Objects.equals(id, that.id) && Objects.equals(dateFrom, that.dateFrom) && Objects.equals(dateTo,
-				that.dateTo) && Objects.equals(truck, that.truck) && Objects.equals(user, that.user)
-				&& Objects.equals(fuelConsumptionNorm, that.fuelConsumptionNorm) && Objects.equals(fuelBalanceAtStart,
-				that.fuelBalanceAtStart) && Objects.equals(fuelBalanceAtEnd, that.fuelBalanceAtEnd);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, dateFrom, dateTo, truck, user, fuelConsumptionNorm, fuelBalanceAtStart, fuelBalanceAtEnd);
-	}
 }

@@ -13,13 +13,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: 1
+                  value: '1'
               - column:
                   name: code
-                  value: m
+                  value: 'm'
               - column:
                   name: name
-                  value: Metrs(i)
+                  value: 'Metrs(i)'
 
   - changeSet:
       id: AddUnitPiece
@@ -35,13 +35,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: 2
+                  value: '2'
               - column:
                   name: code
-                  value: gab.
+                  value: 'gab.'
               - column:
                   name: name
-                  value: Gabals(i)
+                  value: 'Gabals(i)'
 
   - changeSet:
       id: AddUnitLiter
@@ -57,10 +57,55 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: 3
+                  value: '3'
               - column:
                   name: code
-                  value: l
+                  value: 'l'
               - column:
                   name: name
-                  value: Litrs(i)
+                  value: 'Litrs(i)'
+
+  - changeSet:
+      id: AddUnitCubicMeter
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM unit_type WHERE code = 'm3'
+      changes:
+        - insert:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  value: '4'
+              - column:
+                  name: code
+                  value: 'm3'
+              - column:
+                  name: name
+                  value: 'Kubikmetrs(i)'
+
+
+  - changeSet:
+      id: AddUnitTon
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM unit_type WHERE code = 't'
+      changes:
+        - insert:
+            tableName: unit_type
+            columns:
+              - column:
+                  name: id
+                  value: '5'
+              - column:
+                  name: code
+                  value: 't'
+              - column:
+                  name: name
+                  value: 'Tonna(s)'

@@ -1,7 +1,8 @@
-package lv.degra.accounting.core.user.model;
+package lv.degra.accounting.core.truck_object.model;
 
 import java.io.Serializable;
-import java.time.Instant;
+
+import org.hibernate.envers.Audited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
@@ -16,20 +18,17 @@ import lv.degra.accounting.core.auditor.model.AuditInfo;
 @Getter
 @Setter
 @Entity
-@Table(name = "\"user\"")
-public class User extends AuditInfo implements Serializable {
+@Audited
+@Table(name = "truck_object")
+public class TruckObject extends AuditInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Integer id;
 
-	@Column(name = "user_id", unique = true, nullable = false)
-	private String userId;
+	@Size(max = 100)
+	@Column(name = "name", length = 100)
+	private String name;
 
-	@Column(name = "refresh_token", length = 4096)
-	private String refreshToken;
-
-	@Column(name = "last_login_time")
-	private Instant lastLoginTime;
 
 }

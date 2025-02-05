@@ -123,7 +123,7 @@ export const getCurrentUser = async (): Promise<UserInfo | null> => {
   try {
     const { accessToken, user } = await loadSession();
     if (!accessToken) {
-      console.error("Nav pieejams accessToken.");
+      // console.error("Nav pieejams accessToken.");
       return null;
     }
 
