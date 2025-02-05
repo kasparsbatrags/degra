@@ -32,12 +32,14 @@ export default function TransportationScreen() {
             endpoint="api/freight-tracking/object"
           />
 
-          <FormInput
+          <FormDropdown
             label="Galamērķis"
             value={form.destination}
-            onChangeText={(text) => setForm({ ...form, destination: text })}
+            onSelect={(value) => setForm({ ...form, origin: value })}
             placeholder="Ievadiet galamērķi"
+            endpoint="api/freight-tracking/object"
           />
+
 
           <FormInput
             label="Kravas tips"

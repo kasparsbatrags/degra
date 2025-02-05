@@ -7,7 +7,7 @@ public class ApiConstants {
 	public static final String ENDPOINT_REFRESH = "/refresh";
 	public static final String ENDPOINT_PUBLIC = "/public";
 	public static final String ENDPOINT_REGISTER = "/register";
-	public static final String ENDPOINT_TRUCK_ROUTES = "/truck-routes";
+	public static final String ENDPOINT_TRUCK_ROUTE = "/truck-route";
 
 	public static final String ENDPOINT_ADDRESS = "/address";
 	public static final String ENDPOINT_COMPANY = "/company";
