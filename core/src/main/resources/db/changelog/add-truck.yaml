@@ -34,6 +34,12 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Reģistrācijas numurs"
               - column:
+                  name: fuel_consumption_norm
+                  type: double
+                  constraints:
+                    nullable: false
+                  remarks: "Degvielas patēriņa norma uz 100km"
+              - column:
                   name: created_date_time
                   type: timestamp
                   remarks: "Ieraksta izveidošanas laika zīmogs"

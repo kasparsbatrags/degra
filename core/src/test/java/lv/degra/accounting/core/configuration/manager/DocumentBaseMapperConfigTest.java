@@ -17,18 +17,18 @@ import org.modelmapper.ModelMapper;
 
 import lv.degra.accounting.core.account.posted.dto.AccountPostedDto;
 import lv.degra.accounting.core.account.posted.model.AccountPosted;
-import lv.degra.accounting.core.configuration.mapper.BaseMapperConfig;
+import lv.degra.accounting.core.config.mapper.DocumentBaseMapperConfig;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 
-public class BaseMapperConfigTest {
+public class DocumentBaseMapperConfigTest {
 
 	private ModelMapper modelMapper;
 
 	@BeforeEach
 	public void setUp() {
-		BaseMapperConfig baseMapperConfig = new BaseMapperConfig();
-		this.modelMapper = baseMapperConfig.modelMapper();
+		DocumentBaseMapperConfig documentBaseMapperConfig = new DocumentBaseMapperConfig();
+		this.modelMapper = documentBaseMapperConfig.modelMapper();
 	}
 
 	@Test

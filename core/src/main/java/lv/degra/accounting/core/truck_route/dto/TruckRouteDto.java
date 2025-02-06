@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.user.dto.UserDto;
@@ -12,20 +15,23 @@ import lv.degra.accounting.core.user.dto.UserDto;
 /**
  * DTO for {@link TruckRoute}
  */
-@Value
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TruckRouteDto implements Serializable {
-	Integer id;
+	private Integer id;
 	@NotNull
-	LocalDate dateFrom;
-	LocalDate dateTo;
+	private LocalDate dateFrom;
+	private LocalDate dateTo;
 	@NotNull
-	TruckDto truck;
+	private TruckDto truck;
 	@NotNull
-	UserDto user;
+	private UserDto user;
 	@NotNull
-	Double fuelConsumptionNorm;
+	private Double fuelConsumptionNorm;
 	@NotNull
-	Double fuelBalanceAtStart;
+	private Double fuelBalanceAtStart;
 	@NotNull
-	Double fuelBalanceAtEnd;
+	private Double fuelBalanceAtEnd;
 }

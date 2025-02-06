@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.config.security;
 
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_OBJECT;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUC_OBJECT;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
 import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 
@@ -45,7 +45,7 @@ public class FreightTrackingSecurityConfig {
             })
             .authorizeHttpRequests(authz -> 
                 authz.requestMatchers(PATH_FREIGHT_TRACKING + ENDPOINT_TRUCK_ROUTE + "/**").hasAuthority(USER_ROLE_NAME)
-						.requestMatchers(PATH_FREIGHT_TRACKING + ENDPOINT_TRUC_OBJECT+ "/**").hasAuthority(USER_ROLE_NAME)
+						.requestMatchers(PATH_FREIGHT_TRACKING + ENDPOINT_TRUCK_OBJECT + "/**").hasAuthority(USER_ROLE_NAME)
                     .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> {

@@ -4,23 +4,28 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
-import lv.degra.accounting.core.truck_object.model.TrucObjectRepository;
+import lv.degra.accounting.core.truck_object.model.TruckObject;
+import lv.degra.accounting.core.truck_object.model.TruckObjectRepository;
 
 @Service
 public class TruckObjectServiceImpl implements TruckObjectService {
 
-	private final TrucObjectRepository trucObjectRepository;
+	private final TruckObjectRepository truckObjectRepository;
+	private final FreightMapper freightMapper;
 
-	public TruckObjectServiceImpl(TrucObjectRepository trucObjectRepository) {
-		this.trucObjectRepository = trucObjectRepository;
+	public TruckObjectServiceImpl(TruckObjectRepository truckObjectRepository, FreightMapper freightMapper) {
+		this.truckObjectRepository = truckObjectRepository;
+		this.freightMapper = freightMapper;
 	}
 
-	public List<TruckObjectDto> getTruckObjectList() {
-		return trucObjectRepository.findAll()
-				.stream()
-				.map(truckObject -> new TruckObjectDto(truckObject.getId(), truckObject.getName()))
-				.toList();
+	public List<TruckObject> getTruckObjectList() {
+		return truckObjectRepository.findAll();
+	}
+
+	public List<TruckObjectDto> getTruckObjectListDto() {
+		return getTruckObjectList().stream().map(freightMapper::toDto).toList();
 	}
 
 }

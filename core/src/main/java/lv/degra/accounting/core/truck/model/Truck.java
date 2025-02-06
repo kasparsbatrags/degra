@@ -43,6 +43,9 @@ public class Truck extends AuditInfo implements Serializable {
 	@Size(max = 10)
 	private String registrationNumber;
 
+	@NotNull
+	private Double fuelConsumptionNorm;
+
 	@Override
 	public String toString() {
 		return "Truck{" +
@@ -50,6 +53,7 @@ public class Truck extends AuditInfo implements Serializable {
 				", make='" + make + '\'' +
 				", model='" + model + '\'' +
 				", registrationNumber='" + registrationNumber + '\'' +
+				", fuelConsumptionNorm=" + fuelConsumptionNorm +
 				'}';
 	}
 
@@ -59,11 +63,12 @@ public class Truck extends AuditInfo implements Serializable {
 			return false;
 		Truck truck = (Truck) o;
 		return Objects.equals(id, truck.id) && Objects.equals(make, truck.make) && Objects.equals(model,
-				truck.model) && Objects.equals(registrationNumber, truck.registrationNumber);
+				truck.model) && Objects.equals(registrationNumber, truck.registrationNumber) && Objects.equals(
+				fuelConsumptionNorm, truck.fuelConsumptionNorm);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, make, model, registrationNumber);
+		return Objects.hash(id, make, model, registrationNumber, fuelConsumptionNorm);
 	}
 }

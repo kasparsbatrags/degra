@@ -1,6 +1,6 @@
 package lv.degra.accounting.freighttracking.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUC_OBJECT;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_OBJECT;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
 
 import java.util.List;
@@ -23,10 +23,10 @@ public class TruckRouteObjectController {
         this.truckObjectService = truckObjectService;
     }
 
-    @GetMapping(ENDPOINT_TRUC_OBJECT)
+    @GetMapping(ENDPOINT_TRUCK_OBJECT)
     public ResponseEntity<List<TruckObjectDto>> getTruckObjects() {
         try {
-            List<TruckObjectDto> truckObjects = truckObjectService.getTruckObjectList();
+            List<TruckObjectDto> truckObjects = truckObjectService.getTruckObjectListDto();
             
             if (truckObjects == null || truckObjects.isEmpty()) {
                 throw new ResourceNotFoundException("No truck objects found");

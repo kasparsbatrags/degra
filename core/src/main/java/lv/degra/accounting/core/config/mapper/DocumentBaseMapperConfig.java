@@ -1,4 +1,4 @@
-package lv.degra.accounting.core.configuration.mapper;
+package lv.degra.accounting.core.config.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 
 @Configuration
-public class BaseMapperConfig {
+public class DocumentBaseMapperConfig {
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modelMapper = new ModelMapper();

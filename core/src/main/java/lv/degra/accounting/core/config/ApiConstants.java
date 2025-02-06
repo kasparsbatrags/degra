@@ -15,7 +15,8 @@ public class ApiConstants {
 	public static final String ENDPOINT_IMPORT = "/import";
 
 
-	public static final String ENDPOINT_TRUC_OBJECT = "/object";
+	public static final String ENDPOINT_TRUCK_OBJECT = "/object";
+	public static final String ENDPOINT_TRUCK_PAGE = "/route-page";
 
 
 	public static final String PATH_FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";

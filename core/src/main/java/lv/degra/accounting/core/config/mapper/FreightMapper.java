@@ -1,0 +1,45 @@
+package lv.degra.accounting.core.config.mapper;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.springframework.stereotype.Component;
+
+import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
+import lv.degra.accounting.core.truck_object.model.TruckObject;
+import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
+import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
+
+@Component
+public class FreightMapper {
+	private final ModelMapper modelMapper;
+
+	public FreightMapper(ModelMapper modelMapper) {
+		this.modelMapper = modelMapper;
+
+		modelMapper.addMappings(new PropertyMap<TruckRoutePage, TruckRoutePageDto>() {
+			@Override
+			protected void configure() {
+				map().setFuelConsumptionNorm(source.getTruck().getFuelConsumptionNorm());
+				map().setTruckRegistrationNumber(source.getTruck().getRegistrationNumber());
+			}
+		});
+
+	}
+
+	public TruckRoutePageDto toDto(TruckRoutePage truckRoutePage) {
+		return modelMapper.map(truckRoutePage, TruckRoutePageDto.class);
+	}
+
+	public TruckRoutePage toEntity(TruckRoutePageDto truckRoutePageDto) {
+		return modelMapper.map(truckRoutePageDto, TruckRoutePage.class);
+	}
+
+	public TruckObjectDto toDto(TruckObject truckObject) {
+		return modelMapper.map(truckObject, TruckObjectDto.class);
+	}
+
+	public TruckObject toEntity(TruckObjectDto truckObjectDto) {
+		return modelMapper.map(truckObjectDto, TruckObject.class);
+	}
+
+}

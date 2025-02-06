@@ -2,33 +2,32 @@ package lv.degra.accounting.core.truck_route_page.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
-import lv.degra.accounting.core.truck.dto.TruckDto;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
-import lv.degra.accounting.core.user.dto.UserDto;
 
 /**
  * DTO for {@link TruckRoutePage}
  */
-@Value
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TruckRoutePageDto implements Serializable {
-	LocalDateTime createdDateTime;
-	LocalDateTime lastModifiedDateTime;
-	Integer id;
+	private Integer id;
 	@NotNull
-	LocalDate dateFrom;
-	LocalDate dateTo;
+	private LocalDate dateFrom;
+	private LocalDate dateTo;
 	@NotNull
-	TruckDto truck;
+	private String truckRegistrationNumber;
 	@NotNull
-	UserDto user;
+	private Double fuelConsumptionNorm;
 	@NotNull
-	Double fuelConsumptionNorm;
+	private Double fuelBalanceAtStart;
 	@NotNull
-	Double fuelBalanceAtStart;
-	@NotNull
-	Double fuelBalanceAtEnd;
+	private Double fuelBalanceAtEnd;
 }

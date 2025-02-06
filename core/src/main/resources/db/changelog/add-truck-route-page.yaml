@@ -39,12 +39,6 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Autovadītāja identifikators"
               - column:
-                  name: fuel_consumption_norm
-                  type: double
-                  constraints:
-                    nullable: false
-                  remarks: "Degvielas patēriņa norma uz 100km"
-              - column:
                   name: fuel_balance_at_start
                   type: double
                   constraints:
@@ -54,7 +48,7 @@ databaseChangeLog:
                   name: fuel_balance_at_end
                   type: double
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Degvielas atlikums beigās"
               - column:
                   name: created_date_time
