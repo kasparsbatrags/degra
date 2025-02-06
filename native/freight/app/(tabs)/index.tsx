@@ -1,13 +1,51 @@
-import {useRouter} from 'expo-router'
-import {Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {useFocusEffect, useRouter} from 'expo-router'
+import React, {useEffect, useState} from 'react'
+import {ActivityIndicator, FlatList, Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
+import freightAxiosInstance from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
+
+interface TruckRoutePage {
+  id: number;
+  dateFrom: string;
+  dateTo: string;
+  truckRegistrationNumber: string;
+  fuelConsumptionNorm: number;
+  fuelBalanceAtStart: number;
+  fuelBalanceAtEnd: number | null;
+}
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const [routes, setRoutes] = useState<TruckRoutePage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRoutes = async () => {
+    try {
+      const response = await freightAxiosInstance.get<TruckRoutePage[]>('/api/freight-tracking/route-page');
+      setRoutes(response.data);
+    } catch (error) {
+      console.error('Failed to fetch routes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true);
+      fetchRoutes();
+    }, [])
+  );
+
+  // Initial fetch
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -19,12 +57,53 @@ export default function HomeScreen() {
         onPress={() => router.push('/transportation')}
         style={styles.startTripButton}
       />
+
+      {loading ? (
+        <ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />
+      ) : (
+        <FlatList
+          data={routes}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.list}
+          renderItem={({ item }) => (
+            <View style={styles.routeCard}>
+              <View style={styles.routeInfo}>
+                <Text style={styles.routeLabel}>Datums no - līdz:</Text>
+                <Text style={styles.routeText}>
+                  {new Date(item.dateFrom).toLocaleDateString('lv-LV', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })} - {new Date(item.dateTo).toLocaleDateString('lv-LV', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
+                </Text>
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Nav pieejamu maršrutu</Text>
+            </View>
+          )}
+        />
+      )}
       </View>
     </SafeAreaView>
   );
 }
 
 type Styles = {
+  list: ViewStyle;
+  loader: ViewStyle;
+  routeCard: ViewStyle;
+  routeInfo: ViewStyle;
+  routeLabel: TextStyle;
+  routeText: TextStyle;
+  emptyContainer: ViewStyle;
+  emptyText: TextStyle;
   container: ViewStyle;
   content: ViewStyle;
   heading: TextStyle;
@@ -40,6 +119,41 @@ type Styles = {
 };
 
 const styles = StyleSheet.create<Styles>({
+  list: {
+    marginTop: 16,
+  },
+  loader: {
+    marginTop: 24,
+  },
+  routeCard: {
+    backgroundColor: COLORS.black100,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+  },
+  routeInfo: {
+    marginBottom: 8,
+  },
+  routeLabel: {
+    fontSize: 14,
+    fontFamily: FONT.medium,
+    color: COLORS.gray,
+    marginBottom: 4,
+  },
+  routeText: {
+    fontSize: 16,
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.primary,
