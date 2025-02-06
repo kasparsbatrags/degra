@@ -1,37 +1,53 @@
 package lv.degra.accounting.core.truck_route.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lv.degra.accounting.core.truck.dto.TruckDto;
-import lv.degra.accounting.core.truck_route.model.TruckRoute;
-import lv.degra.accounting.core.user.dto.UserDto;
+import lv.degra.accounting.core.document.bill.model.UnitType;
+import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
+import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 
 /**
- * DTO for {@link TruckRoute}
+ * DTO for {@link lv.degra.accounting.core.truck_route.model.TruckRoute}
  */
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class TruckRouteDto implements Serializable {
 	private Integer id;
+
+	private TruckRoutePageDto truckRoutePage;
 	@NotNull
-	private LocalDate dateFrom;
-	private LocalDate dateTo;
+	private LocalDate routeDate;
+
+	@Positive
+	private Integer routeNumber;
 	@NotNull
-	private TruckDto truck;
+	private Boolean withCargo;
 	@NotNull
-	private UserDto user;
+	private Double cargoValume;
 	@NotNull
-	private Double fuelConsumptionNorm;
+	private UnitType unitType;
 	@NotNull
-	private Double fuelBalanceAtStart;
+	private TruckObjectDto outTruckObject;
 	@NotNull
-	private Double fuelBalanceAtEnd;
+	@Positive
+	private Long odometerAtStart;
+	private Instant outDateTime;
+	@NotNull
+	@Positive
+	private Long odometerAtFinish;
+	@NotNull
+	private TruckObjectDto inTruckObject;
+	private Instant inDateTime;
+	private Long routeLength;
+	private Integer fuelReceived;
 }

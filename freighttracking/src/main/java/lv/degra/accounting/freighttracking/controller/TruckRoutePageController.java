@@ -1,6 +1,6 @@
 package lv.degra.accounting.freighttracking.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_PAGE;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_PAGES;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class TruckRoutePageController {
 		this.trackRoutePageService = trackRoutePageService;
 	}
 
-	@GetMapping(ENDPOINT_TRUCK_PAGE)
+	@GetMapping(ENDPOINT_TRUCK_PAGES)
 	public ResponseEntity<List<TruckRoutePageDto>> getTruckObjects(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 

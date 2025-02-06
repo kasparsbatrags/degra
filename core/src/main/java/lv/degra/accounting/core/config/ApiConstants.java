@@ -7,16 +7,16 @@ public class ApiConstants {
 	public static final String ENDPOINT_REFRESH = "/refresh";
 	public static final String ENDPOINT_PUBLIC = "/public";
 	public static final String ENDPOINT_REGISTER = "/register";
-	public static final String ENDPOINT_TRUCK_ROUTE = "/truck-route";
+	public static final String ENDPOINT_TRUCK_ROUTES = "/truck-routes";
 
 	public static final String ENDPOINT_ADDRESS = "/address";
-	public static final String ENDPOINT_COMPANY = "/company";
-	public static final String ENDPOINT_SUGGESTIONS = "/suggestion";
+	public static final String ENDPOINT_COMPANY = "/companys";
+	public static final String ENDPOINT_SUGGESTIONS = "/suggestions";
 	public static final String ENDPOINT_IMPORT = "/import";
 
 
-	public static final String ENDPOINT_TRUCK_OBJECT = "/object";
-	public static final String ENDPOINT_TRUCK_PAGE = "/route-page";
+	public static final String ENDPOINT_TRUCK_OBJECT = "/objects";
+	public static final String ENDPOINT_TRUCK_PAGES = "/route-pages";
 
 
 	public static final String PATH_FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";

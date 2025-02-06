@@ -30,7 +30,7 @@ databaseChangeLog:
                   name: route_number
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Maršruta numurs"
               - column:
                   name: with_cargo
@@ -43,14 +43,14 @@ databaseChangeLog:
                   name: cargo_valume
                   type: double
                   constraints:
-                    nullable: false
+                    nullable: true
                   defaultValue: '0'
                   remarks: "Kravas apjoms"
               - column:
                   name: unit_type_id
                   type: INT
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Kravas apjoma mērvienība"
               - column:
                   name: out_truck_object_id
@@ -67,34 +67,38 @@ databaseChangeLog:
               - column:
                   name: out_date_time
                   type: timestamp
+                  constraints:
+                    nullable: false
                   remarks: "Izbraukšanas laika zīmogs"
               - column:
                   name: odometer_at_finish
                   type: bigint
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Odometra rādītājs brauciena beigās"
               - column:
                   name: in_truck_object_id
                   type: INT
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Iebrauc no objektā"
               - column:
                   name: in_date_time
                   type: timestamp
+                  constraints:
+                    nullable: true
                   remarks: "Iebraukšanas laika zīmogs"
               - column:
                   name: route_length
                   type: bigint
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Maršruta garums"
               - column:
                   name: fuel_received
                   type: integer
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Saņemtās degvielas daudzums"
               - column:
                   name: created_date_time

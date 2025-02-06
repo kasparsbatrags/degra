@@ -1,9 +1,11 @@
 package lv.degra.accounting.core.truck_route.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
-import lv.degra.accounting.core.truck_route.model.TruckRoute;
+import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 
 public interface TruckRouteService {
-	List<TruckRoute> getLastTruckRoutesByUserId(String userId, int page, int size);
+	Page<TruckRouteDto> getLastTruckRoutesByUserId(String userId, int page, int size);
+
+	TruckRouteDto createOrUpdateTrucRoute(TruckRouteDto truckRouteDto);
 }

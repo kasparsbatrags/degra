@@ -41,12 +41,12 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 	private LocalDate dateTo;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "truck_id", nullable = false)
 	private Truck truck;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
 	@NotAudited
 	private User user;
