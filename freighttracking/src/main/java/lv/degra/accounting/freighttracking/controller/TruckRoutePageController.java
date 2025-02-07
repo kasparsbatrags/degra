@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
-import lv.degra.accounting.core.truck_route_page.service.TrackRoutePageService;
+import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
 
@@ -22,10 +21,10 @@ import lv.degra.accounting.core.validation.request.RequestValidator;
 @RequestMapping(PATH_FREIGHT_TRACKING)
 public class TruckRoutePageController {
 
-	private final TrackRoutePageService trackRoutePageService;
+	private final TruckRoutePageService truckRoutePageService;
 
-	public TruckRoutePageController(TrackRoutePageService trackRoutePageService) {
-		this.trackRoutePageService = trackRoutePageService;
+	public TruckRoutePageController(TruckRoutePageService truckRoutePageService) {
+		this.truckRoutePageService = truckRoutePageService;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_PAGES)
@@ -38,11 +37,7 @@ public class TruckRoutePageController {
 
 			String userId = UserContextUtils.getCurrentUserId();
 
-			if (userId == null || userId.trim().isEmpty()) {
-				throw new InvalidRequestException("Invalid user ID in token");
-			}
-
-			List<TruckRoutePageDto> truckRoutePages = trackRoutePageService.getUserRoutePagesDto(userId, page, size);
+			List<TruckRoutePageDto> truckRoutePages = truckRoutePageService.getUserRoutePagesDto(userId, page, size);
 
 			if (truckRoutePages == null || truckRoutePages.isEmpty()) {
 				throw new ResourceNotFoundException("No truck route pages found");

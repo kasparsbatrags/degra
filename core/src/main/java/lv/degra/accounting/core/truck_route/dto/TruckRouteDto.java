@@ -30,11 +30,8 @@ public class TruckRouteDto implements Serializable {
 
 	@Positive
 	private Integer routeNumber;
-	@NotNull
 	private Boolean withCargo;
-	@NotNull
 	private Double cargoValume;
-	@NotNull
 	private UnitType unitType;
 	@NotNull
 	private TruckObjectDto outTruckObject;
@@ -42,12 +39,12 @@ public class TruckRouteDto implements Serializable {
 	@Positive
 	private Long odometerAtStart;
 	private Instant outDateTime;
-	@NotNull
+
 	@Positive
 	private Long odometerAtFinish;
-	@NotNull
 	private TruckObjectDto inTruckObject;
 	private Instant inDateTime;
 	private Long routeLength;
-	private Integer fuelReceived;
+	private Double fuelBalanceAtStart;
+	private Double fuelReceived;
 }

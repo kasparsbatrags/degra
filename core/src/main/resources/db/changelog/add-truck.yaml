@@ -40,6 +40,12 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Degvielas patēriņa norma uz 100km"
               - column:
+                  name: user_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                  remarks: "Autovadītāja identifikators"
+              - column:
                   name: created_date_time
                   type: timestamp
                   remarks: "Ieraksta izveidošanas laika zīmogs"
@@ -48,3 +54,15 @@ databaseChangeLog:
                   type: timestamp
                   remarks: "Ieraksta pēdējās labošanas laika zīmogs"
             remarks: "Automašīnu saraksts"
+
+  - changeSet:
+      id: ConstraintForeignKeysTruckToUser
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: truck
+            constraintName: fk_truck_user_id_to_user
+            onDelete: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: user

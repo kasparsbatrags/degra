@@ -4,12 +4,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -17,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
+import lv.degra.accounting.core.user.model.User;
 
 @Setter
 @Getter
@@ -38,6 +43,12 @@ public class Truck extends AuditInfo implements Serializable {
 	@NotNull
 	@Size(max = 20)
 	private String model;
+
+	@NotNull
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
+	@NotAudited
+	private User user;
 
 	@NotNull
 	@Size(max = 10)

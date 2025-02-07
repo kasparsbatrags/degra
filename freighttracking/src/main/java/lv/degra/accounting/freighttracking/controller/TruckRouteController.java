@@ -19,6 +19,9 @@ import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.service.TruckRouteService;
+import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
+import lv.degra.accounting.core.user.model.User;
+import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
 
@@ -27,10 +30,15 @@ import lv.degra.accounting.core.validation.request.RequestValidator;
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;
+	private final TruckRoutePageService truckRoutePageService;
+	private final UserRepository userRepository;
 
 	@Autowired
-	public TruckRouteController(TruckRouteService truckRouteService) {
+	public TruckRouteController(TruckRouteService truckRouteService, TruckRoutePageService truckRoutePageService,
+			UserRepository userRepository) {
 		this.truckRouteService = truckRouteService;
+		this.truckRoutePageService = truckRoutePageService;
+		this.userRepository = userRepository;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTES)
@@ -38,40 +46,38 @@ public class TruckRouteController {
 			@RequestParam(defaultValue = "5") int pageSize) {
 
 		RequestValidator.validatePageRequest(pageNumber, pageSize);
+		String userId = UserContextUtils.getCurrentUserId();
 
 		try {
-
-			String userId = UserContextUtils.getCurrentUserId();
-
 			Page<TruckRouteDto> truckRoutesPages = truckRouteService.getLastTruckRoutesByUserId(userId, pageNumber, pageSize);
 
-			if (truckRoutesPages.getContent().isEmpty()) {
+			if (truckRoutesPages.isEmpty()) {
 				throw new ResourceNotFoundException("No truck routes found for page " + pageNumber);
 			}
 
 			return ResponseEntity.ok(truckRoutesPages);
-
+		} catch (InvalidRequestException | ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof InvalidRequestException || e instanceof ResourceNotFoundException) {
-				throw e;
-			}
 			throw new InternalServerErrorException("Failed to retrieve truck routes", e);
 		}
 	}
 
 	@PostMapping(ENDPOINT_TRUCK_ROUTES)
 	public ResponseEntity<TruckRouteDto> createNewTruckRoutes(@Valid @RequestBody TruckRouteDto truckRouteDto) {
+		String userId = UserContextUtils.getCurrentUserId();
+		User user = userRepository.findByUserId(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+		if (truckRouteDto.getTruckRoutePage() == null) {
+			truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user));
+		}
+
 		try {
-			String userId = UserContextUtils.getCurrentUserId();
-
-			TruckRouteDto truckRoute = truckRouteService.createOrUpdateTrucRoute(truckRouteDto);
-
-			return ResponseEntity.ok(truckRoute);
-
+			return ResponseEntity.ok(truckRouteService.createOrUpdateTrucRoute(truckRouteDto));
+		} catch (InvalidRequestException | ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof InvalidRequestException || e instanceof ResourceNotFoundException) {
-				throw e;
-			}
 			throw new InternalServerErrorException("Failed to create truck route", e);
 		}
 	}
