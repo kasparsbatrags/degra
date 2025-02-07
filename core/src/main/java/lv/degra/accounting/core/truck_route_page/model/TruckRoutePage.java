@@ -51,11 +51,9 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 	@NotAudited
 	private User user;
 
-	@NotNull
 	@Column(name = "fuel_balance_at_start", nullable = false)
 	private Double fuelBalanceAtStart;
 
-	@NotNull
 	@Column(name = "fuel_balance_at_end", nullable = false)
 	private Double fuelBalanceAtEnd;
 

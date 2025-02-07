@@ -1,11 +1,15 @@
+spring:
+  jpa:
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+
+
 logging:
   level:
     ROOT: INFO
-    org.springframework.security: INFO
-    org.springframework: INFO
-    org.springframework.jdbc.datasource: INFO
-    com.zaxxer.hikari: INFO
-
-#app:
-#  security:
-#    allowed-origins: "×"
+#    org.springframework.security: INFO
+#    org.springframework: INFO
+#    org.springframework.jdbc.datasource: INFO
+#    com.zaxxer.hikari: INFO

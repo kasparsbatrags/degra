@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lv.degra.accounting.core.config.mapper.FreightMapper;
+import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
@@ -51,7 +52,8 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 					LocalDate routeDate = truckRouteDto.getRouteDate();
 					newTruckRoutePage.setDateFrom(routeDate.withDayOfMonth(1));
 					newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
-					newTruckRoutePage.setTruck(truckService.getTruckByUser(user));
+					Truck userTruck = truckService.getTruckByUser(user);
+					newTruckRoutePage.setTruck(userTruck);
 					newTruckRoutePage.setUser(user);
 					newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
 					return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
