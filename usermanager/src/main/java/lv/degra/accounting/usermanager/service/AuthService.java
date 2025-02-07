@@ -1,5 +1,7 @@
 package lv.degra.accounting.usermanager.service;
 
+import static lv.degra.accounting.usermanager.service.AuthUserService.BEARER_PREFIX;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -127,7 +129,7 @@ public class AuthService {
     public Map<String, Object> refreshTokenIfExpired(String bearerToken) {
         meterRegistry.counter(METRIC_TOKEN_REFRESHES).increment();
         try {
-            String token = bearerToken.replace("Bearer ", "");
+            String token = bearerToken.replace(BEARER_PREFIX, "");
             validateToken(token);
             String userId = extractSub(token);
             

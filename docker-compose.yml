@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.1-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.7
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: ${KC_DB_URL}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: start-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  usermanager:
+    build:
+      context: .
+      dockerfile: usermanager/Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=${KEYCLOAK_RESOURCE}
+      - KEYCLOAK_SSL_REQUIRED=${KEYCLOAK_SSL_REQUIRED}
+      - KEYCLOAK_HOSTNAME=${KEYCLOAK_HOSTNAME}
+      - JAVA_OPTS=${JAVA_OPTS}
+    ports:
+      - "${APP_PORT}:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  company:
+    build:
+      context: .
+      dockerfile: company/Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/company
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=company
+      - KEYCLOAK_SSL_REQUIRED=${KEYCLOAK_SSL_REQUIRED}
+      - KEYCLOAK_HOSTNAME=${KEYCLOAK_HOSTNAME}
+      - USERMANAGER_URL=http://usermanager:8081
+      - ADDRESS_URL=http://address:8083
+      - JAVA_OPTS=${JAVA_OPTS}
+    ports:
+      - "8082:8082"
+    depends_on:
+      - usermanager
+      - address
+
+  address:
+    build:
+      context: .
+      dockerfile: address/Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/address
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=address
+      - KEYCLOAK_SSL_REQUIRED=${KEYCLOAK_SSL_REQUIRED}
+      - KEYCLOAK_HOSTNAME=${KEYCLOAK_HOSTNAME}
+      - USERMANAGER_URL=http://usermanager:8081
+      - JAVA_OPTS=${JAVA_OPTS}
+    ports:
+      - "8083:8083"
+    depends_on:
+      - usermanager
+
+  freighttracking:
+    build:
+      context: .
+      dockerfile: freighttracking/Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/freighttracking
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=freighttracking
+      - KEYCLOAK_SSL_REQUIRED=${KEYCLOAK_SSL_REQUIRED}
+      - KEYCLOAK_HOSTNAME=${KEYCLOAK_HOSTNAME}
+      - USERMANAGER_URL=http://usermanager:8081
+      - COMPANY_URL=http://company:8082
+      - JAVA_OPTS=${JAVA_OPTS}
+    ports:
+      - "8084:8084"
+    depends_on:
+      - usermanager
+      - company
+
+volumes:
+  postgres_data:

@@ -6,4 +6,6 @@ import lv.degra.accounting.core.user.model.User;
 
 public interface TruckService {
 	@NotNull Truck getTruckByUser(User user);
+
+	Truck save(Truck truck);
 }

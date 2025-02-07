@@ -1,6 +1,5 @@
 package lv.degra.accounting.company.downloader.controllers;
 
-import static lv.degra.accounting.core.config.ApiConstants.BASE_API_URL;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_IMPORT;
 
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterImportService;
 
 @RestController
-@RequestMapping(BASE_API_URL + ENDPOINT_COMPANY)
+@RequestMapping(ENDPOINT_COMPANY)
 public class DownloadController {
 
 	private final CompanyRegisterImportService companyRegisterImportService;

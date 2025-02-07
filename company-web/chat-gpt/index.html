@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meklēšana ar Material Design</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1976D2; /* Main primary color */
+      --accent-color: #FF4081; /* Accent color */
+      --background-color: #f5f5f5; /* Background color */
+      --text-color: #333; /* Text color */
+      --secondary-text-color: #757575; /* Secondary text color */
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-color);
+      padding: 20px;
+      color: var(--text-color);
+    }
+    .main-container {
+      padding: 20px 0 0 0;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .content-container {
+      flex: 1 1 100%;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 992px) {
+      .content-container {
+        flex: 9;
+        margin-right: 20px;
+      }
+    }
+    .history-container {
+      flex: 1 1 100%;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      height: auto;
+      overflow-y: auto;
+    }
+    @media (min-width: 992px) {
+      .history-container {
+        flex: 3;
+      }
+    }
+    .search-container, .results-container {
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+    .search-container .input-field {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .search-container .btn {
+      flex: 0;
+      background-color: var(--primary-color);
+    }
+    .card-title {
+      color: var(--primary-color);
+    }
+    .collection-item {
+      color: var(--secondary-text-color);
+    }
+  </style>
+</head>
+<body>
+<header>
+  <nav class="blue darken-3">
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo" style="margin-left: 20px;">Meklēšana</a>
+      <a href="#" data-target="menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+</header>
+<div class="main-container">
+  <div class="content-container">
+    <div class="search-container" style="justify-content: center;">
+      <div class="input-field col s3" style="flex: 0 0 25%; max-width: 25%;">
+        <input id="search" type="text" class="validate">
+        <label for="search">Meklēšana</label>
+      </div>
+      <a href="#" class="btn blue"><i class="material-icons">search</i></a>
+    </div>
+
+    <div class="results-container">
+      <div class="card-content">
+        <span class="card-title">Atrastie uzņēmumi</span>
+        <ul class="collection">
+          <li class="collection-item">
+            <h5>Nosaukums: SIA IT Serviss</h5>
+            <p><strong>Reģistrācijas numurs:</strong> 40001234567</p>
+            <p><strong>PVN maksātāja numurs:</strong> LV40001234567</p>
+            <p><strong>Juridiskā adrese:</strong> Brīvības iela 123, Rīga</p>
+            <p><strong>Datu izmaiņu datums:</strong> 2024-10-01</p>
+          </li>
+          <li class="collection-item">
+            <h5>Nosaukums: SIA Būveksperts</h5>
+            <p><strong>Reģistrācijas numurs:</strong> 40007654321</p>
+            <p><strong>PVN maksātāja numurs:</strong> LV40007654321</p>
+            <p><strong>Juridiskā adrese:</strong> Liepu iela 45, Liepāja</p>
+            <p><strong>Datu izmaiņu datums:</strong> 2024-09-15</p>
+          </li>
+          <li class="collection-item">
+            <h5>Nosaukums: SIA Tehnoloģijas</h5>
+            <p><strong>Reģistrācijas numurs:</strong> 40009876543</p>
+            <p><strong>PVN maksātāja numurs:</strong> LV40009876543</p>
+            <p><strong>Juridiskā adrese:</strong> Valmieras iela 12, Valmiera</p>
+            <p><strong>Datu izmaiņu datums:</strong> 2024-08-20</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-container">
+    <div class="card-content">
+      <span class="card-title">Meklēšanas vēsture</span>
+      <ul class="collection">
+        <li class="collection-item">Meklēšanas frāze: "Latvijas uzņēmumi"</li>
+        <li class="collection-item">Meklēšanas frāze: "IT pakalpojumi Rīgā"</li>
+        <li class="collection-item">Meklēšanas frāze: "IT pakalpojumi Rīgā"</li>
+        <li class="collection-item">Meklēšanas frāze: "IT pakalpojumi Rīgā"</li>
+        <li class="collection-item">Meklēšanas frāze: "IT pakalpojumi Rīgā"</li>
+        <li class="collection-item">Meklēšanas frāze: "Būvniecības uzņēmumi Liepājā"</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems);
+  });
+</script>
+</body>
+</html>

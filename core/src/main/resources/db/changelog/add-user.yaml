@@ -25,7 +25,7 @@ databaseChangeLog:
                   name: refresh_token
                   type: text
                   constraints:
-                    nullable: false
+                    nullable: true
                   remarks: "Keycloak refresh token"
               - column:
                   name: last_login_time

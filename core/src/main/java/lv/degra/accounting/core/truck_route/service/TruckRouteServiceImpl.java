@@ -38,6 +38,6 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 
 
 	public TruckRouteDto createOrUpdateTrucRoute(TruckRouteDto truckRouteDto) {
-		return null;
+		return freightMapper.toDto(truckRouteRepository.save(freightMapper.toEntity(truckRouteDto)));
 	}
 }

@@ -19,4 +19,10 @@ public class UserServiceImpl implements UserService {
 	public Optional<User> getByUserId(String userId) {
 		return userRepository.findByUserId(userId);
 	}
+
+	public User saveUser(String userId) {
+		User user = new User();
+		user.setUserId(userId);
+		return userRepository.save(user);
+	}
 }

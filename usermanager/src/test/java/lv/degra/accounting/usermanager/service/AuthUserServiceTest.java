@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import jakarta.ws.rs.core.Response;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.customer.service.CustomerService;
+import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
@@ -52,6 +53,8 @@ class AuthUserServiceTest {
 	private CustomerService customerServicesMock;
 	private UserService userServiceMock;
 	private UserMapper userMapperMock;
+	private UserService userService;
+	private TruckService truckService;
 	private CompanyRegisterService companyRegisterService;
 
 	@BeforeEach
@@ -66,6 +69,8 @@ class AuthUserServiceTest {
 		userMapperMock = mock(UserMapper.class);
 		companyRegisterService = mock(CompanyRegisterService.class);
 		jwtTokenProviderMock = mock(JwtTokenProvider.class);
+		userService = mock(UserService.class);
+		truckService = mock(TruckService.class);
 
 		var realmResourceMock = mock(org.keycloak.admin.client.resource.RealmResource.class);
 		when(keycloakMock.realm(anyString())).thenReturn(realmResourceMock);
@@ -73,8 +78,9 @@ class AuthUserServiceTest {
 
 		when(propertiesMock.getRealm()).thenReturn("test-realm");
 
-		authUserService = new AuthUserService(keycloakMock, authServiceMock, adminClientMock, propertiesMock, customerServicesMock,
-				userServiceMock, userMapperMock, companyRegisterService, jwtTokenProviderMock);
+		authUserService = new AuthUserService(keycloakMock, propertiesMock, userService, companyRegisterService, truckService,
+				jwtTokenProviderMock);
+
 	}
 
 	@Test
@@ -128,8 +134,7 @@ class AuthUserServiceTest {
 		when(usersResourceMock.search(userDto.getUsername())).thenReturn(List.of(existingUser));
 
 		// Act & Assert
-		UserUniqueException exception = assertThrows(UserUniqueException.class,
-				() -> authUserService.createUser(userDto));
+		UserUniqueException exception = assertThrows(UserUniqueException.class, () -> authUserService.createUser(userDto));
 		assertEquals("Username already exists", exception.getMessage());
 	}
 
@@ -193,14 +198,8 @@ class AuthUserServiceTest {
 	void testGetCurrentUser_Success() {
 		// Arrange
 		String authHeader = "Bearer valid.token";
-		Map<String, Object> claims = Map.of(
-			"sub", "12345",
-			"email", "test@example.com",
-			"name", "Test User",
-			"given_name", "Test",
-			"family_name", "User",
-			"attributes", Map.of("organizationRegistrationNumber", List.of("123456"))
-		);
+		Map<String, Object> claims = Map.of("sub", "12345", "email", "test@example.com", "name", "Test User", "given_name", "Test",
+				"family_name", "User", "attributes", Map.of("organizationRegistrationNumber", List.of("123456")));
 
 		when(jwtTokenProviderMock.parseToken("valid.token")).thenReturn(claims);
 
@@ -221,8 +220,7 @@ class AuthUserServiceTest {
 	void testGetCurrentUser_TokenParsingError() {
 		// Arrange
 		String authHeader = "Bearer invalid.token";
-		when(jwtTokenProviderMock.parseToken("invalid.token"))
-			.thenThrow(new IllegalArgumentException("Invalid token"));
+		when(jwtTokenProviderMock.parseToken("invalid.token")).thenThrow(new IllegalArgumentException("Invalid token"));
 
 		// Act
 		var userDto = authUserService.getCurrentUser(authHeader);

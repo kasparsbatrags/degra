@@ -43,17 +43,17 @@ public class TruckRoute {
 	@Column(name = "route_number")
 	private Integer routeNumber;
 
-	@NotNull
+
 	@ColumnDefault("false")
-	@Column(name = "with_cargo", nullable = false)
-	private Boolean withCargo = false;
+	@Column(name = "with_cargo")
+	private Boolean withCargo;
 
-	@NotNull
+
 	@ColumnDefault("0")
-	@Column(name = "cargo_valume", nullable = false)
-	private Double cargoValume;
+	@Column(name = "cargo_valume")
+	private Double cargoVolume;
 
-	@NotNull
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "unit_type_id")
 	private UnitType unitType;
@@ -70,11 +70,10 @@ public class TruckRoute {
 	@Column(name = "out_date_time", nullable = false)
 	private Instant outDateTime;
 
-	@NotNull
+
 	@Column(name = "odometer_at_finish")
 	private Long odometerAtFinish;
 
-	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "in_truck_object_id")
 	private TruckObject inTruckObject;
@@ -82,11 +81,9 @@ public class TruckRoute {
 	@Column(name = "in_date_time")
 	private Instant inDateTime;
 
-	@NotNull
 	@Column(name = "route_length")
 	private Long routeLength;
 
-	@NotNull
 	@Column(name = "fuel_received")
 	private Integer fuelReceived;
 

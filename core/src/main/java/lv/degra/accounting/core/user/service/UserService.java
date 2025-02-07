@@ -10,4 +10,6 @@ import lv.degra.accounting.core.user.model.User;
 public interface UserService {
 
 	Optional<User> getByUserId(String userId);
+
+	User saveUser(String userId);
 }

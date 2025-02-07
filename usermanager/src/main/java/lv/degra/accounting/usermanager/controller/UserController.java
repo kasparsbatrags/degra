@@ -5,6 +5,7 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGOUT;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REFRESH;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
+import static lv.degra.accounting.usermanager.service.AuthUserService.BEARER_PREFIX;
 
 import java.util.Collections;
 import java.util.Map;
@@ -14,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
@@ -61,28 +60,6 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/me")
-	public ResponseEntity<UserDto> getCurrentUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-		try {
-
-			if (!authorizationHeader.startsWith("Bearer ")) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-			}
-
-			String token = authorizationHeader.substring(7);
-			UserDto userInfo = authUserService.getCurrentUser(token);
-
-			if (userInfo == null) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-			}
-
-			return ResponseEntity.ok(userInfo);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body(new UserDto(null, null, null, "Invalid or expired token", null, null));
-		}
-	}
-
 	@PostMapping(value = ENDPOINT_LOGIN, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
 		try {
@@ -111,7 +88,7 @@ public class UserController {
 	@PostMapping(ENDPOINT_REFRESH)
 	public ResponseEntity<?> refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
 		try {
-			if (!bearerToken.startsWith("Bearer ")) {
+			if (!bearerToken.startsWith(BEARER_PREFIX)) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 						.body(Collections.singletonMap("error", "Invalid token format"));
 			}

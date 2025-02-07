@@ -16,13 +16,13 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Ieraksta ID"
               - column:
-                  name: make
+                  name: truck_maker
                   type: varchar(20)
                   constraints:
                     nullable: true
                   remarks: "Ražotājs"
               - column:
-                  name: model
+                  name: truck_model
                   type: varchar(20)
                   constraints:
                     nullable: true

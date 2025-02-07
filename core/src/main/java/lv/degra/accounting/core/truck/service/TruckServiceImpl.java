@@ -18,4 +18,8 @@ public class TruckServiceImpl implements TruckService {
 	public Truck getTruckByUser(User user) {
 		return truckRepository.findByUser(user);
 	}
+
+	public Truck save(Truck truck) {
+		return truckRepository.save(truck);
+	}
 }

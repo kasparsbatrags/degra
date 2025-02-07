@@ -16,17 +16,17 @@ import org.springframework.stereotype.Service;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
-import lv.degra.accounting.core.customer.service.CustomerService;
+import lv.degra.accounting.core.truck.model.Truck;
+import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
 import lv.degra.accounting.core.user.exception.UserValidationException;
-import lv.degra.accounting.core.user.maper.UserMapper;
+import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
-import lv.degra.accounting.usermanager.client.KeycloakAdminClient;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
 import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
@@ -34,20 +34,23 @@ import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 @Service
 public class AuthUserService {
 	private static final String ORG_NUMBER_REGEX = "^[0-9]{6,12}$";
-	private static final String BEARER_PREFIX = "Bearer ";
+	public static final String BEARER_PREFIX = "Bearer ";
 
 	private final Keycloak keycloak;
 	private final KeycloakProperties keycloakProperties;
 	private final PasswordValidator passwordValidator;
 	private final CompanyRegisterService companyRegisterService;
+	private final UserService userService;
+	private final TruckService truckService;
 	private final JwtTokenProvider jwtTokenProvider;
 
-	public AuthUserService(Keycloak keycloak, AuthService authService, KeycloakAdminClient keycloakAdminClient,
-			KeycloakProperties keycloakProperties, CustomerService customerService, UserService userService, UserMapper userMapper,
-			CompanyRegisterService companyRegisterService, JwtTokenProvider jwtTokenProvider) {
+	public AuthUserService(Keycloak keycloak, KeycloakProperties keycloakProperties, UserService userService,
+			CompanyRegisterService companyRegisterService, TruckService truckService, JwtTokenProvider jwtTokenProvider) {
 		this.keycloak = keycloak;
 		this.keycloakProperties = keycloakProperties;
 		this.companyRegisterService = companyRegisterService;
+		this.userService = userService;
+		this.truckService = truckService;
 		this.passwordValidator = new PasswordValidator();
 		this.jwtTokenProvider = jwtTokenProvider;
 	}
@@ -57,7 +60,7 @@ public class AuthUserService {
 
 		UsersResource usersResource = getUsersResource();
 		String organizationRegistrationNumber = userRegistrationDto.getAttributes().get("organizationRegistrationNumber");
-
+		Truck truck = getTruckData(userRegistrationDto);
 		UserRepresentation userRepresentation = new UserRepresentation();
 		userRepresentation.setUsername(userRegistrationDto.getUsername());
 		userRepresentation.setEmail(userRegistrationDto.getEmail());
@@ -94,6 +97,12 @@ public class AuthUserService {
 				// Handle group assignment
 				String groupId = getOrCreateGroup(organizationRegistrationNumber);
 				addUserToGroup(userId, groupId, organizationRegistrationNumber);
+
+				User user = userService.saveUser(userId);
+				if (user != null && truck != null) {
+					truck.setUser(user);
+					truckService.save(truck);
+				}
 			} else {
 				String errorMessage = response.readEntity(String.class);
 				log.error("Failed to create user. Status: {} Error: {}", response.getStatus(), errorMessage);
@@ -109,6 +118,23 @@ public class AuthUserService {
 		} finally {
 			response.close();
 		}
+	}
+
+	private Truck getTruckData(UserRegistrationDto userRegistrationDto) {
+		Map<String, String> attributes = userRegistrationDto.getAttributes();
+
+		String truckMake = attributes.get("truckMaker");
+		String truckModel = attributes.get("truckModel");
+		String truckRegistrationNumber = attributes.get("truckRegistrationNumber");
+		String fuelConsumptionNorm = attributes.get("fuelConsumptionNorm");
+
+		if (truckMake == null || truckModel == null || truckRegistrationNumber == null || fuelConsumptionNorm == null) {
+			return null;
+		}
+
+		new Truck();
+		return Truck.builder().truckMaker(truckMake).truckModel(truckModel).registrationNumber(truckRegistrationNumber)
+				.fuelConsumptionNorm(Double.parseDouble(fuelConsumptionNorm)).build();
 	}
 
 	private Optional<GroupRepresentation> findGroupByName(String groupName) {

@@ -1,5 +1,67 @@
-target
-.git
-.sonar
-node_modules
-dist
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+
+# Logs
+logs/
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Node modules (for company-web)
+company-web/node_modules/
+company-web/dist/
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.development
+**/.env.test
+**/.env.production
+
+# Git
+.git/
+.gitignore
+
+# Docker
+**/Dockerfile
+docker-compose*.yml
+
+# Test reports
+**/test-output/
+**/reports/
+**/coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# Build artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Documentation
+docs/
+*.md
+LICENSE
