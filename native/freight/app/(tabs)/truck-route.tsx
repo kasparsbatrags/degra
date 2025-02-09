@@ -54,18 +54,20 @@ export default function TruckRouteScreen() {
 
           {hasCargo && (
             <>
-              <FormInput
-                label="Kravas tips"
-                value={form.cargoType}
-                onChangeText={(text) => setForm({ ...form, cargoType: text })}
-                placeholder="Ievadiet kravas tipu"
-              />
+				<FormDropdown
+						label="Kravas tips"
+						value={form.cargoType}
+						onSelect={(value) => setForm({ ...form, cargoType: value })}
+						placeholder=" Izvēlieties"
+						endpoint="api/freight-tracking/cargo-types"
+				/>
+
 
               <FormInput
                 label="Kravas apjoms"
                 value={form.weight}
                 onChangeText={(text) => setForm({ ...form, weight: text })}
-                placeholder="Ievadiet kravas svaru"
+                placeholder="Izvēlieties..."
                 keyboardType="numeric"
               />
             </>
