@@ -21,7 +21,7 @@ import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 @Getter
 @Setter
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 public class User extends AuditInfo implements Serializable {
 
 	@Id

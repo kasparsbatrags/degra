@@ -107,6 +107,7 @@ public class AuthUserService {
 					TruckUserMap truckUserMap = new TruckUserMap();
 					truckUserMap.setTruck(truck);
 					truckUserMap.setUser(user);
+					truckUserMap.setIsDefault(true);
 					truckUserMapRepository.save(truckUserMap);
 				}
 			} else {
@@ -204,7 +205,7 @@ public class AuthUserService {
 			if (attributes != null && attributes.containsKey("organizationRegistrationNumber")) {
 				List<String> orgNumbers = attributes.get("organizationRegistrationNumber");
 				if (!orgNumbers.isEmpty()) {
-					return Collections.singletonMap("organizationRegistrationNumber", orgNumbers.get(0));
+					return Collections.singletonMap("organizationRegistrationNumber", orgNumbers.getFirst());
 				}
 			}
 		} catch (Exception e) {
