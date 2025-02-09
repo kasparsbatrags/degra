@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCargoType
+      author: Kaspars Batrags
+      changes:
+        - createTable:
+            tableName: cargo_type
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Unikālais identifikators"
+              - column:
+                  name: name
+                  type: varchar(254)
+                  constraints:
+                    nullable: false
+                  remarks: "Kravas nosaukums"
+              - column:
+                  name: created_date_time
+                  type: timestamp
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: timestamp
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Uzņēmējdarbības tipi"
+
+
+

@@ -99,3 +99,7 @@ databaseChangeLog:
         file: db/changelog/add-truck-object-data.yaml
     - include:
         file: db/changelog/add-truck-route.yaml
+    - include:
+        file: db/changelog/add-cargo-type.yaml
+    - include:
+        file: db/changelog/add-cargo-type-data.yaml

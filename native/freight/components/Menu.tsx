@@ -14,7 +14,7 @@ export default function Menu({ visible, onClose }: MenuProps) {
   const router = useRouter();
   const { signOut } = useAuth();
 
-  const handleNavigation = (route: '/' | '/profile' | '/transportation' | 'logout') => {
+  const handleNavigation = (route: '/' | '/profile' | '/truck-route' | 'logout') => {
     if (route === 'logout') {
       signOut();
       return;

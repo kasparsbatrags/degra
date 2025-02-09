@@ -54,7 +54,7 @@ export default function HomeScreen() {
 
       <Button
         title="Sākt braucienu"
-        onPress={() => router.push('/transportation')}
+        onPress={() => router.push('/truck-route')}
         style={styles.startTripButton}
       />
 

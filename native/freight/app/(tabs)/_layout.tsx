@@ -68,7 +68,7 @@ export default function TabLayout() {
           }}
         />
         <Stack.Screen
-          name="transportation"
+          name="truck-route"
           options={{
             title: 'Sākt braucienu',
           }}

@@ -6,7 +6,7 @@ import FormDropdown from '../../components/FormDropdown'
 import FormInput from '../../components/FormInput'
 import {COLORS, CONTAINER_WIDTH} from '../../constants/theme'
 
-export default function TransportationScreen() {
+export default function TruckRouteScreen() {
   const [form, setForm] = useState({
     origin: '',
     destination: '',
@@ -52,7 +52,7 @@ export default function TransportationScreen() {
             label="Kravas apjoms"
             value={form.weight}
             onChangeText={(text) => setForm({ ...form, weight: text })}
-            placeholder="Ievadiet kravas svaru"
+            placeholder="Norādiet kravas apjomu (svaru)"
             keyboardType="numeric"
           />
 

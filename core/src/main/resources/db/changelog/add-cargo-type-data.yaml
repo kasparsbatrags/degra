@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddCargoTypeGrant
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM cargo_type WHERE name = 'Grants'
+      changes:
+        - insert:
+            tableName: cargo_type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: 'Grants'
+
+  - changeSet:
+      id: AddCargoTypeChips
+      author: Kaspars Batrags
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM cargo_type WHERE name = 'Šķembas'
+      changes:
+        - insert:
+            tableName: cargo_type
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: 'Šķembas'
