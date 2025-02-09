@@ -5,7 +5,7 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGOUT;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REFRESH;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
-import static lv.degra.accounting.usermanager.service.AuthUserService.BEARER_PREFIX;
+import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.util.Collections;
 import java.util.Map;

@@ -1,6 +1,8 @@
 package lv.degra.accounting.usermanager.service;
 
-import static lv.degra.accounting.usermanager.service.AuthUserService.BEARER_PREFIX;
+
+
+import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.time.Instant;
 import java.util.HashMap;

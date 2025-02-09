@@ -15,7 +15,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.truck.model.Truck;
@@ -25,6 +27,8 @@ import lv.degra.accounting.core.user.model.User;
 @Setter
 @Entity
 @Audited
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "truck_user_map")
 public class TruckUserMap extends AuditInfo implements Serializable {
 	@Id
@@ -47,4 +51,9 @@ public class TruckUserMap extends AuditInfo implements Serializable {
 	@Column(name = "is_default", nullable = false)
 	private Boolean isDefault = false;
 
+	public TruckUserMap(Truck truck, User user, boolean isDefault) {
+		this.truck = truck;
+		this.user = user;
+		this.isDefault = isDefault;
+	}
 }

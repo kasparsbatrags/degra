@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,6 @@ import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 @Service
 public class AuthUserService {
 	private static final String ORG_NUMBER_REGEX = "^[0-9]{6,12}$";
-	public static final String BEARER_PREFIX = "Bearer ";
 
 	private final Keycloak keycloak;
 	private final KeycloakProperties keycloakProperties;
@@ -48,8 +49,8 @@ public class AuthUserService {
 	private final TruckUserMapRepository truckUserMapRepository;
 
 	public AuthUserService(Keycloak keycloak, KeycloakProperties keycloakProperties, UserService userService,
-			CompanyRegisterService companyRegisterService, TruckService truckService, JwtTokenProvider jwtTokenProvider,
-			TruckUserMapRepository truckUserMapRepository) {
+			CompanyRegisterService companyRegisterService, TruckService truckService,
+			JwtTokenProvider jwtTokenProvider, TruckUserMapRepository truckUserMapRepository) {
 		this.keycloak = keycloak;
 		this.keycloakProperties = keycloakProperties;
 		this.companyRegisterService = companyRegisterService;
@@ -64,196 +65,203 @@ public class AuthUserService {
 		validateUserRegistration(userRegistrationDto);
 
 		UsersResource usersResource = getUsersResource();
-		String organizationRegistrationNumber = userRegistrationDto.getAttributes().get("organizationRegistrationNumber");
 		Truck truck = getTruckData(userRegistrationDto);
-		UserRepresentation userRepresentation = new UserRepresentation();
-		userRepresentation.setUsername(userRegistrationDto.getUsername());
-		userRepresentation.setEmail(userRegistrationDto.getEmail());
-		userRepresentation.setFirstName(userRegistrationDto.getFirstName());
-		userRepresentation.setLastName(userRegistrationDto.getLastName());
-		userRepresentation.setEnabled(true);
 
-		// Set credentials from CredentialDto
-		List<CredentialDto> credentials = userRegistrationDto.getCredentials();
-		if (!credentials.isEmpty()) {
-			userRepresentation.setCredentials(credentials.stream().map(credentialDto -> {
-				org.keycloak.representations.idm.CredentialRepresentation credential = new org.keycloak.representations.idm.CredentialRepresentation();
-				credential.setType(org.keycloak.representations.idm.CredentialRepresentation.PASSWORD);
-				credential.setValue(credentialDto.getValue());
-				credential.setTemporary(false);
-				return credential;
-			}).toList());
+		UserRepresentation userRepresentation = mapToUserRepresentation(userRegistrationDto);
+
+		Response response = null;
+		try {
+			response = usersResource.create(userRepresentation);
+			if (response.getStatus() != 201) {
+				throw new KeycloakIntegrationException("Failed to create user: " + response.readEntity(String.class), "USER_CREATION_ERROR");
+			}
+
+			String userId = extractUserId(response);
+			log.info("User created successfully: {}", userRegistrationDto.getUsername());
+
+			String groupId = getOrCreateGroup(userRegistrationDto.getAttributes().get("organizationRegistrationNumber"));
+			addUserToGroup(userId, groupId);
+
+			User user = userService.saveUser(userId);
+			if (user == null) {
+				throw new KeycloakIntegrationException("Failed to complete user registration", "USER_SAVE_ERROR");
+			}
+
+			if (truck != null) {
+				try {
+					truckService.save(truck);
+					truckUserMapRepository.save(new TruckUserMap(truck, user, true));
+				} catch (Exception e) {
+					log.error("Error saving truck data: {}", e.getMessage());
+					throw new KeycloakIntegrationException("Failed to complete user registration", "USER_REGISTRATION_ERROR");
+				}
+			}
+		} catch (KeycloakIntegrationException e) {
+			log.error("Keycloak integration error: {}", e.getMessage());
+			throw e;
+		} finally {
+			if (response != null) {
+				response.close();
+			}
 		}
+	}
+
+	private UserRepresentation mapToUserRepresentation(UserRegistrationDto userRegistrationDto) {
+		UserRepresentation user = new UserRepresentation();
+		user.setUsername(userRegistrationDto.getUsername());
+		user.setEmail(userRegistrationDto.getEmail());
+		user.setFirstName(userRegistrationDto.getFirstName());
+		user.setLastName(userRegistrationDto.getLastName());
+		user.setEnabled(true);
+
+		user.setCredentials(userRegistrationDto.getCredentials().stream()
+				.map(credentialDto -> {
+					CredentialRepresentation credential = new CredentialRepresentation();
+					credential.setType(CredentialRepresentation.PASSWORD);
+					credential.setValue(credentialDto.getValue());
+					credential.setTemporary(false);
+					return credential;
+				}).collect(Collectors.toList()));
 
 		Map<String, List<String>> attributes = new HashMap<>();
-		attributes.put("organizationRegistrationNumber", List.of(organizationRegistrationNumber));
-		userRepresentation.setAttributes(attributes);
+		attributes.put("organizationRegistrationNumber", List.of(userRegistrationDto.getAttributes().get("organizationRegistrationNumber")));
+		user.setAttributes(attributes);
 
-		// Create user
-		Response response = usersResource.create(userRepresentation);
-		String userId = null;
-		try {
-			if (response.getStatus() == 201) {
-				String location = response.getHeaderString("Location");
-				userId = location.substring(location.lastIndexOf("/") + 1);
-				log.info("User created successfully: {}", userRegistrationDto.getUsername());
-
-				String groupId = getOrCreateGroup(organizationRegistrationNumber);
-				addUserToGroup(userId, groupId, organizationRegistrationNumber);
-
-				User user = userService.saveUser(userId);
-				if (user != null && truck != null) {
-					truckService.save(truck);
-					TruckUserMap truckUserMap = new TruckUserMap();
-					truckUserMap.setTruck(truck);
-					truckUserMap.setUser(user);
-					truckUserMap.setIsDefault(true);
-					truckUserMapRepository.save(truckUserMap);
-				}
-			} else {
-				String errorMessage = response.readEntity(String.class);
-				log.error("Failed to create user. Status: {} Error: {}", response.getStatus(), errorMessage);
-				throw new KeycloakIntegrationException("Failed to create user: " + errorMessage, "USER_CREATION_ERROR");
-			}
-		} catch (Exception e) {
-			log.error("Error during user creation or group assignment: {}", e.getMessage());
-			if (userId != null) {
-				// Cleanup: try to delete the user if group operations failed
-				usersResource.get(userId).remove();
-			}
-			throw new KeycloakIntegrationException("Failed to complete user registration: " + e.getMessage(), "USER_REGISTRATION_ERROR");
-		} finally {
-			response.close();
-		}
+		return user;
 	}
 
 	private Truck getTruckData(UserRegistrationDto userRegistrationDto) {
 		Map<String, String> attributes = userRegistrationDto.getAttributes();
 
-		String truckMake = attributes.get("truckMaker");
-		String truckModel = attributes.get("truckModel");
-		String truckRegistrationNumber = attributes.get("truckRegistrationNumber");
-		String fuelConsumptionNorm = attributes.get("fuelConsumptionNorm");
-
-		if (truckMake == null || truckModel == null || truckRegistrationNumber == null || fuelConsumptionNorm == null) {
+		if (attributes == null) {
 			return null;
 		}
 
-		new Truck();
-		return Truck.builder().truckMaker(truckMake).truckModel(truckModel).registrationNumber(truckRegistrationNumber)
-				.fuelConsumptionNorm(Double.parseDouble(fuelConsumptionNorm)).build();
+		boolean hasTruckData = attributes.containsKey("truckMaker") && 
+							  attributes.containsKey("truckModel") &&
+							  attributes.containsKey("truckRegistrationNumber") && 
+							  attributes.containsKey("fuelConsumptionNorm");
+
+		if (!hasTruckData) {
+			return null;
+		}
+
+		try {
+			return Truck.builder()
+					.truckMaker(attributes.get("truckMaker"))
+					.truckModel(attributes.get("truckModel"))
+					.registrationNumber(attributes.get("truckRegistrationNumber"))
+					.fuelConsumptionNorm(Double.parseDouble(attributes.get("fuelConsumptionNorm")))
+					.build();
+		} catch (NumberFormatException e) {
+			log.error("Invalid fuel consumption format: {}", e.getMessage());
+			throw new KeycloakIntegrationException("Invalid fuel consumption format", "INVALID_FUEL_CONSUMPTION");
+		}
 	}
 
 	private Optional<GroupRepresentation> findGroupByName(String groupName) {
-		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
-		return groupsResource.groups().stream().filter(group -> group.getName().equals(groupName)).findFirst();
+		return keycloak.realm(keycloakProperties.getRealm()).groups().groups()
+				.stream().filter(group -> group.getName().equals(groupName)).findFirst();
 	}
 
 	private String createGroup(String groupName) {
 		GroupsResource groupsResource = keycloak.realm(keycloakProperties.getRealm()).groups();
-		GroupRepresentation groupRepresentation = new GroupRepresentation();
-		groupRepresentation.setName(groupName);
+		GroupRepresentation group = new GroupRepresentation();
+		group.setName(groupName);
 
-		Response response = groupsResource.add(groupRepresentation);
-		try {
-			if (response.getStatus() == 201) {
-				String location = response.getHeaderString("Location");
-				String groupId = location.substring(location.lastIndexOf("/") + 1);
-				log.info("Group created successfully: {}", groupName);
-				return groupId;
-			} else {
+		try (Response response = groupsResource.add(group)) {
+			if (response.getStatus() != 201) {
 				String errorMessage = response.readEntity(String.class);
-				log.error("Failed to create group. Status: {} Error: {}", response.getStatus(), errorMessage);
+				log.error("Group creation failed. Status: {} Error: {}", response.getStatus(), errorMessage);
 				throw new KeycloakIntegrationException("Failed to create group: " + errorMessage, "GROUP_CREATION_ERROR");
 			}
-		} finally {
-			response.close();
+			return extractGroupId(response);
+		} catch (KeycloakIntegrationException e) {
+			log.error("Group creation error: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("Unexpected error during group creation", e);
+			throw new KeycloakIntegrationException("Failed to extract group ID", "GROUP_ID_EXTRACTION_ERROR");
 		}
+	}
+
+	private String extractGroupId(Response response) {
+		if (response == null) {
+			throw new KeycloakIntegrationException("Failed to extract group ID", "GROUP_ID_EXTRACTION_ERROR");
+		}
+
+		String locationHeader = response.getHeaderString("Location");
+		if (locationHeader == null || !locationHeader.contains("/")) {
+			log.error("Group creation failed: Missing 'Location' header in response.");
+			throw new KeycloakIntegrationException("Failed to extract group ID", "GROUP_ID_EXTRACTION_ERROR");
+		}
+
+		return locationHeader.substring(locationHeader.lastIndexOf("/") + 1);
 	}
 
 	private String getOrCreateGroup(String groupName) {
 		return findGroupByName(groupName).map(GroupRepresentation::getId).orElseGet(() -> createGroup(groupName));
 	}
 
-	private void addUserToGroup(String userId, String groupId, String groupName) {
-		UsersResource usersResource = getUsersResource();
-		usersResource.get(userId).joinGroup(groupId);
-		log.info("User added to group: {}", groupName);
+	private void addUserToGroup(String userId, String groupId) {
+		getUsersResource().get(userId).joinGroup(groupId);
+		log.info("User added to group: {}", groupId);
 	}
 
 	public UserDto getCurrentUser(String authHeader) {
-		String token = authHeader.substring(7);
-		try {
-			Map<String, Object> claims = extractClaims(token);
-
-			return new UserDto((String) claims.get("sub"), (String) claims.get("email"), (String) claims.get("name"),
-					(String) claims.get("given_name"), (String) claims.get("family_name"), extractOrganizationInfo(claims));
-		} catch (Exception e) {
-			log.error("Error parsing JWT token", e);
-			return null;
-		}
-	}
-
-	protected Map<String, Object> extractClaims(String token) {
-		return jwtTokenProvider.parseToken(token);
+		return Optional.ofNullable(authHeader)
+				.filter(header -> header.startsWith("Bearer "))
+				.map(header -> {
+					try {
+						return jwtTokenProvider.parseToken(header.substring(7));
+					} catch (IllegalArgumentException e) {
+						log.error("Error parsing JWT token: {}", e.getMessage());
+						return null;
+					}
+				})
+				.map(claims -> new UserDto(
+						(String) claims.get("sub"),
+						(String) claims.get("name"),
+						(String) claims.get("email"),
+						(String) claims.get("given_name"),
+						(String) claims.get("family_name"),
+						extractOrganizationInfo(claims)
+				))
+				.orElse(null);
 	}
 
 	private Map<String, String> extractOrganizationInfo(Map<String, Object> claims) {
-		try {
-			@SuppressWarnings("unchecked")
-			Map<String, List<String>> attributes = (Map<String, List<String>>) claims.get("attributes");
-			if (attributes != null && attributes.containsKey("organizationRegistrationNumber")) {
-				List<String> orgNumbers = attributes.get("organizationRegistrationNumber");
-				if (!orgNumbers.isEmpty()) {
-					return Collections.singletonMap("organizationRegistrationNumber", orgNumbers.getFirst());
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Error extracting organization info from claims", e);
-		}
-		return Collections.emptyMap();
+		return Optional.ofNullable(claims)
+				.map(attrs -> (Map<String, List<String>>) attrs.get("attributes"))
+				.map(attrs -> attrs.get("organizationRegistrationNumber"))
+				.filter(list -> !list.isEmpty())
+				.map(list -> Collections.singletonMap("organizationRegistrationNumber", list.get(0)))
+				.orElse(Collections.emptyMap());
 	}
 
 	private void validateUserRegistration(UserRegistrationDto dto) {
 		dto.getCredentials().forEach(this::validateCredentials);
 		validateOrganizationNumber(dto.getAttributes());
-		if (dto.getUsername() == null || dto.getEmail() == null) {
-			throw new IllegalArgumentException("User registration data is incomplete (username or email)");
-		}
 		validateUserUniqueness(dto);
 	}
 
 	private void validateUserUniqueness(UserRegistrationDto dto) {
 		UsersResource usersResource = getUsersResource();
-
-		if (!usersResource.search(dto.getUsername()).isEmpty()) {
-			throw new UserUniqueException("Username already exists");
-		}
-
-		if (!usersResource.search(dto.getEmail()).isEmpty()) {
-			throw new UserUniqueException("Email already exists");
+		if (!usersResource.search(dto.getUsername()).isEmpty() || !usersResource.search(dto.getEmail()).isEmpty()) {
+			throw new UserUniqueException("Username or Email already exists");
 		}
 	}
 
 	private void validateCredentials(CredentialDto credentials) {
-		if (credentials == null) {
-			throw new UserValidationException("Credentials are required");
-		}
-
-		String password = credentials.getValue();
-		passwordValidator.validate(password);
+		passwordValidator.validate(credentials.getValue());
 	}
 
 	private void validateOrganizationNumber(Map<String, String> attributes) {
 		String orgNumber = Optional.ofNullable(attributes).map(attrs -> attrs.get("organizationRegistrationNumber"))
 				.orElseThrow(() -> new UserValidationException("Organization registration number is required"));
 
-		if (!orgNumber.matches(ORG_NUMBER_REGEX)) {
-			throw new UserValidationException("Invalid organization registration number format");
-		}
-
-		if (!companyRegisterService.existsByRegistrationNumber(orgNumber)) {
-			throw new UserValidationException("Company with registration number " + orgNumber + " does not exist");
+		if (!orgNumber.matches(ORG_NUMBER_REGEX) || !companyRegisterService.existsByRegistrationNumber(orgNumber)) {
+			throw new UserValidationException("Invalid or non-existent organization registration number");
 		}
 	}
 
@@ -261,13 +269,14 @@ public class AuthUserService {
 		return keycloak.realm(keycloakProperties.getRealm()).users();
 	}
 
-	protected void handleUserCreationException(Exception e, String username) {
-		log.error("Failed to create user: {}", username, e);
-
-		if (e instanceof KeycloakIntegrationException) {
-			throw (KeycloakIntegrationException) e;
+	private String extractUserId(Response response) {
+		try {
+			if (response.getLocation() == null) {
+				throw new KeycloakIntegrationException("Failed to extract user ID", "USER_ID_EXTRACTION_ERROR");
+			}
+			return response.getLocation().getPath().replaceAll(".*/", "");
+		} catch (Exception e) {
+			throw new KeycloakIntegrationException("Failed to extract user ID", "USER_ID_EXTRACTION_ERROR");
 		}
-
-		throw new KeycloakIntegrationException("Failed to create user: " + e.getMessage(), "INTERNAL_ERROR");
 	}
 }
