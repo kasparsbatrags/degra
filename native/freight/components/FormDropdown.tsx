@@ -38,22 +38,22 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
       setLoading(true);
       const response = await freightAxiosInstance.get(endpoint);
       console.log('API response:', response.data);
-      
+
       // Pārveidojam datus vajadzīgajā formātā
-      const formattedOptions = Array.isArray(response.data) 
+      const formattedOptions = Array.isArray(response.data)
         ? response.data.map(item => {
             const itemObj = item as Record<string, any>;
             return {
               id: String(
-                itemObj.id || 
-                itemObj._id || 
-                itemObj.value || 
+                itemObj.id ||
+                itemObj._id ||
+                itemObj.value ||
                 itemObj
               ),
               name: String(
-                itemObj.name || 
-                itemObj.title || 
-                itemObj.label || 
+                itemObj.name ||
+                itemObj.title ||
+                itemObj.label ||
                 itemObj
               )
             };
@@ -64,7 +64,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
               ? String(value.name || value.title || value.label || key)
               : String(value)
           }));
-      
+
       console.log('Formatted options:', formattedOptions);
       setOptions(formattedOptions);
     } catch (err) {
@@ -138,7 +138,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
-              <Pressable 
+              <Pressable
                 onPress={() => setIsOpen(false)}
                 style={({ pressed }) => [
                   styles.closeButton,
@@ -205,6 +205,7 @@ const styles = StyleSheet.create({
       height: 48,
       backgroundColor: COLORS.black100,
       borderRadius: 8,
+		paddingLeft: 12,
       paddingHorizontal: 16,
       color: COLORS.white,
       border: 'none',
@@ -212,7 +213,8 @@ const styles = StyleSheet.create({
       fontSize: 16,
       outline: 'none',
       cursor: 'pointer',
-    },
+		textAlign: 'left',
+	},
   }) as any,
   modalContainer: {
     flex: 1,
