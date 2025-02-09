@@ -26,17 +26,15 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.core.Response;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
-import lv.degra.accounting.core.customer.service.CustomerService;
 import lv.degra.accounting.core.truck.service.TruckService;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
 import lv.degra.accounting.core.user.exception.UserValidationException;
-import lv.degra.accounting.core.user.maper.UserMapper;
 import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
-import lv.degra.accounting.usermanager.client.KeycloakAdminClient;
 import lv.degra.accounting.usermanager.client.KeycloakProperties;
 import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
@@ -45,32 +43,26 @@ class AuthUserServiceTest {
 	private final Logger log = LoggerFactory.getLogger(AuthUserServiceTest.class);
 	private Keycloak keycloakMock;
 	private JwtTokenProvider jwtTokenProviderMock;
-	private AuthService authServiceMock;
-	private KeycloakAdminClient adminClientMock;
 	private KeycloakProperties propertiesMock;
 	private UsersResource usersResourceMock;
 	private AuthUserService authUserService;
-	private CustomerService customerServicesMock;
 	private UserService userServiceMock;
-	private UserMapper userMapperMock;
-	private UserService userService;
-	private TruckService truckService;
+	private TruckService truckServiceMock;
 	private CompanyRegisterService companyRegisterService;
+	private TruckUserMapRepository truckUserMapRepositoryMock;
 
 	@BeforeEach
 	void setUp() {
 		keycloakMock = mock(Keycloak.class);
-		authServiceMock = mock(AuthService.class);
-		adminClientMock = mock(KeycloakAdminClient.class);
 		propertiesMock = mock(KeycloakProperties.class);
 		usersResourceMock = mock(UsersResource.class);
-		customerServicesMock = mock(CustomerService.class);
 		userServiceMock = mock(UserService.class);
-		userMapperMock = mock(UserMapper.class);
 		companyRegisterService = mock(CompanyRegisterService.class);
 		jwtTokenProviderMock = mock(JwtTokenProvider.class);
-		userService = mock(UserService.class);
-		truckService = mock(TruckService.class);
+		userServiceMock = mock(UserService.class);
+		truckServiceMock = mock(TruckService.class);
+		truckUserMapRepositoryMock = mock(TruckUserMapRepository.class);
+
 
 		var realmResourceMock = mock(org.keycloak.admin.client.resource.RealmResource.class);
 		when(keycloakMock.realm(anyString())).thenReturn(realmResourceMock);
@@ -78,8 +70,8 @@ class AuthUserServiceTest {
 
 		when(propertiesMock.getRealm()).thenReturn("test-realm");
 
-		authUserService = new AuthUserService(keycloakMock, propertiesMock, userService, companyRegisterService, truckService,
-				jwtTokenProviderMock);
+		authUserService = new AuthUserService(keycloakMock, propertiesMock, userServiceMock, companyRegisterService, truckServiceMock,
+				jwtTokenProviderMock, truckUserMapRepositoryMock);
 
 	}
 

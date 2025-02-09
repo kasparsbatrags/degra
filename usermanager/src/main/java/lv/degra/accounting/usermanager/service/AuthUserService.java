@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
@@ -43,14 +45,17 @@ public class AuthUserService {
 	private final UserService userService;
 	private final TruckService truckService;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final TruckUserMapRepository truckUserMapRepository;
 
 	public AuthUserService(Keycloak keycloak, KeycloakProperties keycloakProperties, UserService userService,
-			CompanyRegisterService companyRegisterService, TruckService truckService, JwtTokenProvider jwtTokenProvider) {
+			CompanyRegisterService companyRegisterService, TruckService truckService, JwtTokenProvider jwtTokenProvider,
+			TruckUserMapRepository truckUserMapRepository) {
 		this.keycloak = keycloak;
 		this.keycloakProperties = keycloakProperties;
 		this.companyRegisterService = companyRegisterService;
 		this.userService = userService;
 		this.truckService = truckService;
+		this.truckUserMapRepository = truckUserMapRepository;
 		this.passwordValidator = new PasswordValidator();
 		this.jwtTokenProvider = jwtTokenProvider;
 	}
@@ -89,19 +94,20 @@ public class AuthUserService {
 		String userId = null;
 		try {
 			if (response.getStatus() == 201) {
-				// Extract the user ID from the response
 				String location = response.getHeaderString("Location");
 				userId = location.substring(location.lastIndexOf("/") + 1);
 				log.info("User created successfully: {}", userRegistrationDto.getUsername());
 
-				// Handle group assignment
 				String groupId = getOrCreateGroup(organizationRegistrationNumber);
 				addUserToGroup(userId, groupId, organizationRegistrationNumber);
 
 				User user = userService.saveUser(userId);
 				if (user != null && truck != null) {
-					truck.setUser(user);
 					truckService.save(truck);
+					TruckUserMap truckUserMap = new TruckUserMap();
+					truckUserMap.setTruck(truck);
+					truckUserMap.setUser(user);
+					truckUserMapRepository.save(truckUserMap);
 				}
 			} else {
 				String errorMessage = response.readEntity(String.class);

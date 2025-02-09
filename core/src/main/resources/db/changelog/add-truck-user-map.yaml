@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: AddTruckUserMap
+      author: Kaspars Batrags
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: truck_user_map
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Ieraksta ID"
+              - column:
+                  name: user_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_truck_user_map_user
+                  remarks: "Lietotāja ID"
+              - column:
+                  name: truck_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_truck_user_map_truck
+                  remarks: "Automašīnas ID"
+              - column:
+                  name: is_default
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+                  remarks: "Vai šī ir lietotāja noklusējuma automašīna"
+              - column:
+                  name: created_date_time
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Ieraksta izveidošanas laika zīmogs"
+              - column:
+                  name: last_modified_date_time
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Ieraksta pēdējās labošanas laika zīmogs"
+            remarks: "Lietotāju un automašīnu piesaistes tabula"
+
+  - changeSet:
+      id: ConstraintForeignKeysTruckUserMapToUser
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: truck_user_map
+            baseColumnNames: user_id
+            referencedTableName: user
+            referencedColumnNames: id
+            constraintName: fk_truck_user_map_user
+
+  - changeSet:
+      id: ConstraintForeignKeysTruckUserMapToTruck
+      author: Kaspars Batrags
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: truck_user_map
+            baseColumnNames: truck_id
+            referencedTableName: truck
+            referencedColumnNames: id
+            constraintName: fk_truck_user_map_truck
+
+  - changeSet:
+      id: ConstraintKeysTruckUserMapUser
+      author: Kaspars Batrags
+      changes:
+        - addUniqueConstraint:
+            tableName: truck_user_map
+            columnNames: user_id, truck_id
+            constraintName: uq_truck_user_map
+            remarks: "Lietotājs nevar būt piesaistīts vienai un tai pašai automašīnai vairākas reizes"

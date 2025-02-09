@@ -3,6 +3,7 @@ package lv.degra.accounting.core.truck_route_page.service;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -52,8 +53,11 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 					LocalDate routeDate = truckRouteDto.getRouteDate();
 					newTruckRoutePage.setDateFrom(routeDate.withDayOfMonth(1));
 					newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
-					Truck userTruck = truckService.getTruckByUser(user);
-					newTruckRoutePage.setTruck(userTruck);
+
+					Optional<Truck> userTruck = truckService.getDefaultTruckForUser(user);
+					if (userTruck.isPresent()) {
+						newTruckRoutePage.setTruck(userTruck.get());
+					}
 					newTruckRoutePage.setUser(user);
 					newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
 					return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));

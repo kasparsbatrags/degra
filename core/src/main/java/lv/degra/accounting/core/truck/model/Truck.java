@@ -1,28 +1,27 @@
 package lv.degra.accounting.core.truck.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
-import lv.degra.accounting.core.user.model.User;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 
 @Setter
 @Getter
@@ -31,6 +30,7 @@ import lv.degra.accounting.core.user.model.User;
 @AllArgsConstructor
 @Builder
 @Audited
+@Table(name = "truck")
 public class Truck extends AuditInfo implements Serializable {
 
 	@Id
@@ -38,46 +38,41 @@ public class Truck extends AuditInfo implements Serializable {
 	@Column(name = "id", nullable = false)
 	private Integer id;
 
-	@NotNull
-	@Size(max = 20)
+	@Column(name = "truck_maker", nullable = false, length = 20)
 	private String truckMaker;
 
-	@NotNull
-	@Size(max = 20)
+	@Column(name = "truck_model", nullable = false, length = 20)
 	private String truckModel;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	@NotAudited
-	private User user;
-
-	@NotNull
-	@Size(max = 10)
+	@Column(name = "registration_number", nullable = false, length = 10)
 	private String registrationNumber;
 
-	@NotNull
+	@Column(name = "fuel_consumption_norm", nullable = false)
 	private Double fuelConsumptionNorm;
 
-	@Override
-	public String toString() {
-		return "Truck{" +
-				"id=" + id +
-				", make='" + truckMaker + '\'' +
-				", model='" + truckModel + '\'' +
-				", registrationNumber='" + registrationNumber + '\'' +
-				", fuelConsumptionNorm=" + fuelConsumptionNorm +
-				'}';
+	@OneToMany(mappedBy = "truck", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TruckUserMap> userMappings = new ArrayList<>();
+
+	public void addUserMapping(TruckUserMap mapping) {
+		this.userMappings.add(mapping);
+		mapping.setTruck(this);
+	}
+
+	public void removeUserMapping(TruckUserMap mapping) {
+		this.userMappings.remove(mapping);
+		mapping.setTruck(null);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || getClass() != o.getClass())
-			return false;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		Truck truck = (Truck) o;
-		return Objects.equals(id, truck.id) && Objects.equals(truckMaker, truck.truckMaker) && Objects.equals(truckModel,
-				truck.truckModel) && Objects.equals(registrationNumber, truck.registrationNumber) && Objects.equals(
-				fuelConsumptionNorm, truck.fuelConsumptionNorm);
+		return Objects.equals(id, truck.id) &&
+				Objects.equals(truckMaker, truck.truckMaker) &&
+				Objects.equals(truckModel, truck.truckModel) &&
+				Objects.equals(registrationNumber, truck.registrationNumber) &&
+				Objects.equals(fuelConsumptionNorm, truck.fuelConsumptionNorm);
 	}
 
 	@Override
