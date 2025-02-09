@@ -29,7 +29,7 @@ export default function TransportationScreen() {
             value={form.origin}
             onSelect={(value) => setForm({ ...form, origin: value })}
             placeholder="Izvēlieties sākuma punktu"
-            endpoint="api/freight-tracking/object"
+            endpoint="api/freight-tracking/objects"
           />
 
           <FormDropdown
@@ -37,7 +37,7 @@ export default function TransportationScreen() {
             value={form.destination}
             onSelect={(value) => setForm({ ...form, origin: value })}
             placeholder="Ievadiet galamērķi"
-            endpoint="api/freight-tracking/object"
+            endpoint="api/freight-tracking/objects"
           />
 
 
@@ -49,7 +49,7 @@ export default function TransportationScreen() {
           />
 
           <FormInput
-            label="Svars (kg)"
+            label="Kravas apjoms"
             value={form.weight}
             onChangeText={(text) => setForm({ ...form, weight: text })}
             placeholder="Ievadiet kravas svaru"

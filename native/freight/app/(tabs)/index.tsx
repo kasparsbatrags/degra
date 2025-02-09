@@ -25,7 +25,7 @@ export default function HomeScreen() {
 
   const fetchRoutes = async () => {
     try {
-      const response = await freightAxiosInstance.get<TruckRoutePage[]>('/api/freight-tracking/route-page');
+      const response = await freightAxiosInstance.get<TruckRoutePage[]>('/api/freight-tracking/route-pages');
       setRoutes(response.data);
     } catch (error) {
       console.error('Failed to fetch routes:', error);

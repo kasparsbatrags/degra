@@ -33,7 +33,7 @@ public class TruckRouteDto implements Serializable {
 	@Positive
 	private Integer routeNumber;
 	private Boolean withCargo;
-	private Double cargoValume;
+	private Double cargoVolume;
 	private UnitType unitType;
 	@NotNull
 	private TruckObjectDto outTruckObject;
