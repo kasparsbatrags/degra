@@ -1,12 +1,13 @@
 import React, {useState} from 'react'
-import {Platform, ScrollView, StyleSheet, View} from 'react-native'
+import {Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormDropdown from '../../components/FormDropdown'
 import FormInput from '../../components/FormInput'
-import {COLORS, CONTAINER_WIDTH} from '../../constants/theme'
+import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 
 export default function TruckRouteScreen() {
+  const [hasCargo, setHasCargo] = useState(false);
   const [form, setForm] = useState({
     origin: '',
     destination: '',
@@ -41,29 +42,34 @@ export default function TruckRouteScreen() {
           />
 
 
-          <FormInput
-            label="Kravas tips"
-            value={form.cargoType}
-            onChangeText={(text) => setForm({ ...form, cargoType: text })}
-            placeholder="   Ievadiet kravas tipu"
-          />
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Ar kravu</Text>
+            <Switch
+              value={hasCargo}
+              onValueChange={setHasCargo}
+              trackColor={{ false: COLORS.black100, true: COLORS.secondary }}
+              thumbColor={COLORS.white}
+            />
+          </View>
 
-          <FormInput
-            label="Kravas apjoms"
-            value={form.weight}
-            onChangeText={(text) => setForm({ ...form, weight: text })}
-            placeholder="Norādiet kravas apjomu (svaru)"
-            keyboardType="numeric"
-          />
+          {hasCargo && (
+            <>
+              <FormInput
+                label="Kravas tips"
+                value={form.cargoType}
+                onChangeText={(text) => setForm({ ...form, cargoType: text })}
+                placeholder="Ievadiet kravas tipu"
+              />
 
-          <FormInput
-            label="Piezīmes"
-            value={form.notes}
-            onChangeText={(text) => setForm({ ...form, notes: text })}
-            placeholder="Ievadiet piezīmes"
-            multiline
-            numberOfLines={3}
-          />
+              <FormInput
+                label="Kravas apjoms"
+                value={form.weight}
+                onChangeText={(text) => setForm({ ...form, weight: text })}
+                placeholder="Ievadiet kravas svaru"
+                keyboardType="numeric"
+              />
+            </>
+          )}
 
           <Button
             title="Saglabāt"
@@ -96,5 +102,17 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 24,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    marginBottom: 16,
+  },
+  switchLabel: {
+    fontSize: 16,
+    fontFamily: FONT.medium,
+    color: COLORS.white,
   },
 });

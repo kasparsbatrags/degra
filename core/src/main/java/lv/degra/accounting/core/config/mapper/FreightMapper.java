@@ -4,6 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.stereotype.Component;
 
+import lv.degra.accounting.core.cargo_type.dto.CargoTypeDto;
+import lv.degra.accounting.core.cargo_type.model.CargoType;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
 import lv.degra.accounting.core.truck_object.model.TruckObject;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
@@ -50,6 +52,14 @@ public class FreightMapper {
 
 	public TruckRoute toEntity(TruckRouteDto truckRouteDto) {
 		return modelMapper.map(truckRouteDto, TruckRoute.class);
+	}
+
+	public CargoTypeDto toDto(CargoType cargoType) {
+		return modelMapper.map(cargoType, CargoTypeDto.class);
+	}
+
+	public CargoType toEntity(CargoTypeDto cargoTypeDto) {
+		return modelMapper.map(cargoTypeDto, CargoType.class);
 	}
 
 }

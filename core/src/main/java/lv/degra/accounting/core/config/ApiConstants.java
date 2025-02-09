@@ -15,12 +15,15 @@ public class ApiConstants {
 	public static final String ENDPOINT_IMPORT = "/import";
 
 
+	public static final String PATH_FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";
+	public static final String PATH_USER = BASE_API_URL + "/user";
+
+	public static final String ENDPOINT_CARGO_TYPES = "/cargo-types";
 	public static final String ENDPOINT_TRUCK_OBJECT = "/objects";
 	public static final String ENDPOINT_TRUCK_ROUTE_PAGES = "/route-pages";
 
 
-	public static final String PATH_FREIGHT_TRACKING = BASE_API_URL + "/freight-tracking";
-	public static final String PATH_USER = BASE_API_URL + "/user";
+
 
 	public static final String USER_ROLE_NAME = "USER";
 
