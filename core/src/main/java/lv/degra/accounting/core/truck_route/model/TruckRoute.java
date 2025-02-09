@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.envers.Audited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +25,7 @@ import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
 @Getter
 @Setter
 @Entity
+@Audited
 @Table(name = "truck_route")
 public class TruckRoute {
 	@Id

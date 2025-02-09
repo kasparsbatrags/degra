@@ -36,7 +36,7 @@ export default function TruckRouteScreen() {
             label="Galamērķis"
             value={form.destination}
             onSelect={(value) => setForm({ ...form, origin: value })}
-            placeholder="Ievadiet galamērķi"
+            placeholder="  Ievadiet galamērķi"
             endpoint="api/freight-tracking/objects"
           />
 
@@ -45,7 +45,7 @@ export default function TruckRouteScreen() {
             label="Kravas tips"
             value={form.cargoType}
             onChangeText={(text) => setForm({ ...form, cargoType: text })}
-            placeholder="Ievadiet kravas tipu"
+            placeholder="   Ievadiet kravas tipu"
           />
 
           <FormInput
