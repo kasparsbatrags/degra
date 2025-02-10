@@ -6,10 +6,12 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -20,15 +22,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 @Configuration
 @EnableWebSecurity
@@ -36,81 +44,102 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FreightTrackingSecurityConfig {
 
-    @Bean
-    public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(FREIGHT_TRACKING_PATH + "/**")
-            .cors(cors -> cors.configurationSource(freightTrackingCorsConfigurationSource()))
-            .csrf(csrf -> {
-                log.info("Disabling CSRF");
-                csrf.disable();
-            })
-            .authorizeHttpRequests(authz -> 
-                authz.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
-						.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_OBJECT + "/**").hasAuthority(USER_ROLE_NAME)
-						.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME)
-                    .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> {
-                log.info("Configuring OAuth2 Resource Server");
-                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()));
-            })
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
 
-        return http.build();
-    }
+	@Bean
+	public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher(FREIGHT_TRACKING_PATH + "/**").cors(cors -> cors.configurationSource(freightTrackingCorsConfigurationSource()))
+				.csrf(csrf -> {
+					log.info("Disabling CSRF");
+					csrf.disable();
+				}).authorizeHttpRequests(
+						authz -> authz.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
+								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_OBJECT + "/**").hasAuthority(USER_ROLE_NAME)
+								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME).anyRequest()
+								.authenticated()).addFilterBefore(new OncePerRequestFilter() {
+					@Override
+					protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+							throws ServletException, IOException {
+                    try {
+                        String token = request.getHeader("Authorization");
+                        if (token != null && token.startsWith("Bearer ")) {
+                            token = token.substring(7);
+                            try {
+                                jwtTokenProvider.validateToken(token);
+                            } catch (Exception e) {
+                                log.info("Token validation failed, attempting refresh");
+                                Map<String, Object> newTokens = jwtTokenProvider.refreshExpiredToken(token);
+                                if (newTokens != null && newTokens.containsKey("access_token")) {
+                                    String newToken = (String) newTokens.get("access_token");
+                                    response.setHeader("Authorization", "Bearer " + newToken);
+                                    request = new HttpServletRequestWrapper(request) {
+                                        @Override
+                                        public String getHeader(String name) {
+                                            if ("Authorization".equals(name)) {
+                                                return "Bearer " + newToken;
+                                            }
+                                            return super.getHeader(name);
+                                        }
+                                    };
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Error checking token: {}", e.getMessage(), e);
+                    }
+                    filterChain.doFilter(request, response);
+					}
+				}, SecurityContextHolderFilter.class).oauth2ResourceServer(oauth2 -> {
+					log.info("Configuring OAuth2 Resource Server");
+					oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()));
+				}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
-        return converter;
-    }
+		return http.build();
+	}
 
-    class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            Map<String, Object> realmAccess = jwt.getClaimAsMap("resource_access");
-            if (realmAccess == null) {
-                return List.of();
-            }
+	@Bean
+	public JwtAuthenticationConverter jwtAuthenticationConverter() {
+		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+		converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
+		return converter;
+	}
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> clientAccess = (Map<String, Object>) realmAccess.get("freight-tracking-client");
-            if (clientAccess == null) {
-                return List.of();
-            }
+	@Bean
+	public CorsConfigurationSource freightTrackingCorsConfigurationSource() {
+		log.info("Configuring CORS");
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.addAllowedOrigin("*");  // Not recommended for production
+		configuration.addAllowedMethod("*");
+		configuration.addAllowedHeader("*");
 
-            @SuppressWarnings("unchecked")
-            List<String> roles = (List<String>) clientAccess.get("roles");
-            if (roles == null) {
-                return List.of();
-            }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
-            return roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .map(GrantedAuthority.class::cast)
-                .toList();
-        }
-    }
+	class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+		@Override
+		public Collection<GrantedAuthority> convert(Jwt jwt) {
+			Map<String, Object> realmAccess = jwt.getClaimAsMap("resource_access");
+			if (realmAccess == null) {
+				return List.of();
+			}
 
-    @Bean
-    public CorsConfigurationSource freightTrackingCorsConfigurationSource() {
-        log.info("Configuring CORS");
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*");  // Not recommended for production
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+			@SuppressWarnings("unchecked")
+			Map<String, Object> clientAccess = (Map<String, Object>) realmAccess.get("freight-tracking-client");
+			if (clientAccess == null) {
+				return List.of();
+			}
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+			@SuppressWarnings("unchecked")
+			List<String> roles = (List<String>) clientAccess.get("roles");
+			if (roles == null) {
+				return List.of();
+			}
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("https://route.degra.lv/realms/freight-tracking-app-realm/protocol/openid-connect/certs")
-                .build();
-    }
+			return roles.stream().map(SimpleGrantedAuthority::new).map(GrantedAuthority.class::cast).toList();
+		}
+	}
+
 }

@@ -81,9 +81,10 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        log.info("Configuring JWT Decoder with JWK Set URI: {}", jwkSetUri);
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
-    }
+	@Bean
+	public JwtDecoder jwtDecoder() {
+		return NimbusJwtDecoder.withJwkSetUri("https://route.degra.lv/realms/freight-tracking-app-realm/protocol/openid-connect/certs")
+				.build();
+	}
+
 }

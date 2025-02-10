@@ -1,6 +1,7 @@
 package lv.degra.accounting.usermanager.config;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 
@@ -12,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.usermanager.service.AuthService;
 
 @Service
+@Slf4j
 public class JwtTokenProvider {
 
     private final JwtDecoder jwtDecoder;
@@ -49,6 +52,31 @@ public class JwtTokenProvider {
             return refreshedJwt.getClaims();
         } catch (JwtException ex) {
             throw new RuntimeException("Failed to decode refreshed token: " + ex.getMessage(), ex);
+        }
+    }
+
+    public void validateToken(String token) throws JwtException {
+        try {
+            Jwt jwt = jwtDecoder.decode(token);
+            if (jwt.getExpiresAt() != null && jwt.getExpiresAt().isBefore(Instant.now())) {
+                throw new JwtException("Token has expired");
+            }
+        } catch (Exception e) {
+            throw new JwtException("Invalid token: " + e.getMessage());
+        }
+    }
+
+    public Map<String, Object> refreshExpiredToken(String token) {
+        try {
+            Map<String, Object> claims = parseToken(token);
+            Long exp = ((Number) claims.get("exp")).longValue();
+            if (exp * 1000 < System.currentTimeMillis()) {
+                return authService.refreshTokenIfExpired(token);
+            }
+            return null; // Token is still valid
+        } catch (Exception e) {
+            log.error("Error checking token expiration: {}", e.getMessage());
+            throw new JwtException("Invalid token format", e);
         }
     }
 

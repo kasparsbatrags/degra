@@ -1,10 +1,9 @@
 package lv.degra.accounting.usermanager.service;
 
-
-
 import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.time.Instant;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +16,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtDecoder jwtDecoder;
     private final MeterRegistry meterRegistry;
+    private final ObjectMapper objectMapper;
 
     private static final String METRIC_AUTH_ATTEMPTS = "auth.attempts";
     private static final String METRIC_AUTH_FAILURES = "auth.failures";
@@ -55,6 +58,7 @@ public class AuthService {
         this.userRepository = userRepository;
         this.jwtDecoder = jwtDecoder;
         this.meterRegistry = meterRegistry;
+        this.objectMapper = new ObjectMapper();
     }
 
     @Cacheable(value = "keycloakTokens", key = "#root.methodName")
@@ -76,7 +80,6 @@ public class AuthService {
             throw new KeycloakIntegrationException("Authentication error", "AUTH_ERROR");
         }
     }
-
 
     public Map<String, Object> login(String email, String password) {
         meterRegistry.counter(METRIC_AUTH_ATTEMPTS).increment();
@@ -132,34 +135,59 @@ public class AuthService {
         meterRegistry.counter(METRIC_TOKEN_REFRESHES).increment();
         try {
             String token = bearerToken.replace(BEARER_PREFIX, "");
-            validateToken(token);
-            String userId = extractSub(token);
+            String userId = getUserIdFromToken(token);
             
             User user = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new KeycloakIntegrationException("User not found", "USER_NOT_FOUND"));
 
-            Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
-                    MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-                    createRefreshRequest(user.getRefreshToken())
-            );
+            try {
+                Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
+                        MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                        createRefreshRequest(user.getRefreshToken())
+                );
 
-            String newAccessToken = (String) tokenResponse.get("access_token");
-            validateToken(newAccessToken);
+                String newAccessToken = (String) tokenResponse.get("access_token");
+                validateToken(newAccessToken);
 
-            if (tokenResponse.containsKey("refresh_token")) {
-                user.setRefreshToken((String) tokenResponse.get("refresh_token"));
+                if (tokenResponse.containsKey("refresh_token")) {
+                    user.setRefreshToken((String) tokenResponse.get("refresh_token"));
+                    userRepository.save(user);
+                }
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("access_token", newAccessToken);
+                response.put("expires_in", tokenResponse.get("expires_in"));
+                response.put("token_type", tokenResponse.get("token_type"));
+                return response;
+
+            } catch (Exception e) {
+                log.error("Failed to refresh token, clearing user session: {}", e.getMessage());
+
+                user.setRefreshToken(null);
                 userRepository.save(user);
+                throw new TokenExpiredException("Session expired, please login again");
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("access_token", newAccessToken);
-            response.put("expires_in", tokenResponse.get("expires_in"));
-            response.put("token_type", tokenResponse.get("token_type"));
-            return response;
-
         } catch (Exception e) {
-            log.error("Failed to refresh token: {}", e.getMessage());
+            log.error("Token refresh failed: {}", e.getMessage());
             throw new KeycloakIntegrationException("Token refresh failed", "REFRESH_ERROR");
+        }
+    }
+
+    private String getUserIdFromToken(String token) {
+        try {
+            String[] chunks = token.split("\\.");
+            if (chunks.length < 2) {
+                throw new IllegalArgumentException("Invalid JWT token format");
+            }
+
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+            String payload = new String(decoder.decode(chunks[1]));
+            Map<String, Object> claims = objectMapper.readValue(payload, new TypeReference<Map<String, Object>>() {});
+            return (String) claims.get("sub");
+        } catch (Exception e) {
+            log.error("Failed to extract userId from token: {}", e.getMessage());
+            throw new InvalidTokenException("Failed to extract userId from token");
         }
     }
 
