@@ -142,13 +142,31 @@ export default function TruckRouteScreen() {
 								</Pressable>
 							</Modal>
 						)}
-						<FormDropdown
-								label="Auto"
-								value={form.truck}
-								onSelect={(value) => setForm({...form, truck: value})}
-								placeholder="Izvēlieties auto"
-								endpoint="/api/freight-tracking/trucks"
-						/>
+						<View style={styles.rowContainer}>
+							<View style={styles.truckField}>
+								<FormDropdown
+										label="Auto"
+										value={form.truck}
+										onSelect={(value) => setForm({...form, truck: value})}
+										placeholder="Izvēlieties auto"
+										endpoint="/api/freight-tracking/trucks"
+								/>
+							</View>
+							<View style={styles.odometerField}>
+								<FormInput
+										label="Odometrs izbraucot"
+										value={form.odometerAtStart}
+										onChangeText={(text) => {
+											// Allow only numbers
+											if (/^\d*$/.test(text)) {
+												setForm({...form, odometerAtStart: text})
+											}
+										}}
+										placeholder="Ievadiet odometra rādījumu"
+										keyboardType="numeric"
+								/>
+							</View>
+						</View>
 						<FormDropdown
 								label="Sākuma punkts"
 								value={form.outTruckObject}
@@ -342,5 +360,16 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontFamily: FONT.medium,
 		textTransform: 'capitalize',
+	},
+	rowContainer: {
+		flexDirection: 'row',
+		gap: 16,
+		marginBottom: 16,
+	},
+	truckField: {
+		flex: 1,
+	},
+	odometerField: {
+		flex: 2,
 	},
 })
