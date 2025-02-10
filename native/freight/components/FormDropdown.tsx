@@ -45,19 +45,25 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
       const formattedOptions = Array.isArray(response.data)
         ? response.data.map(item => {
             const itemObj = item as Record<string, any>;
+            // Special handling for trucks to use numeric ID
+            if (endpoint.includes('trucks')) {
+              return {
+                id: String(itemObj.id),
+                name: String(itemObj.registrationNumber)
+              };
+            }
+            // Default handling for other types
             return {
               id: String(
                 itemObj.id ||
                 itemObj._id ||
                 itemObj.value ||
-				itemObj.registrationNumber ||
                 itemObj
               ),
               name: String(
                 itemObj.name ||
                 itemObj.title ||
                 itemObj.label ||
-				itemObj.registrationNumber ||
                 itemObj
               )
             };
@@ -76,7 +82,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
       if (endpoint.includes('trucks') && !value) {
         const defaultTruck = response.data.find((item: any) => item.isDefault === true);
         if (defaultTruck) {
-          onSelect(String(defaultTruck.registrationNumber || defaultTruck.id));
+          onSelect(String(defaultTruck.id));
         }
       }
     } catch (err) {

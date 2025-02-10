@@ -63,6 +63,7 @@ public class TruckRoute {
 	@Column(name = "odometer_at_start", nullable = false)
 	private Long odometerAtStart;
 
+	@NotNull
 	@Column(name = "out_date_time", nullable = false)
 	private Instant outDateTime;
 

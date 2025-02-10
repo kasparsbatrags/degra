@@ -5,6 +5,7 @@ import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormDropdown from '../../components/FormDropdown'
 import FormInput from '../../components/FormInput'
+import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 
 export default function TruckRouteScreen() {
@@ -12,18 +13,51 @@ export default function TruckRouteScreen() {
 	const [showDatePicker, setShowDatePicker] = useState(false)
 	const [form, setForm] = useState({
 		routeDate: new Date(),
+		outDateTime: new Date(),
 		truck: '',
 		odometerAtStart: '',
+		odometerAtFinish: '',
 		outTruckObject: '',
 		inTruckObject: '',
 		cargoType: '',
-		weight: '',
+		cargoVolume: '',
+		unitType: '',
+		fuelBalanceAtStart: '',
+		fuelReceived: '',
 		notes: '',
 	})
 
-	const handleSubmit = () => {
-		// TODO: Implement form submission
-		console.log('Form submitted:', form)
+	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	const handleSubmit = async () => {
+		try {
+			setIsSubmitting(true)
+			
+			// Convert form data to match TruckRouteDto structure
+			const now = new Date().toISOString(); // Current time in ISO format for Instant
+			const payload = {
+				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+				truck: form.truck ? { id: parseInt(form.truck) } : null,
+				outTruckObject: form.outTruckObject ? { id: parseInt(form.outTruckObject) } : null,
+				inTruckObject: form.inTruckObject ? { id: parseInt(form.inTruckObject) } : null,
+				odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
+				odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : null,
+				cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,
+				unitType: hasCargo ? form.unitType : null,
+				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+				fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : null,
+				outDateTime: now,
+				inDateTime: form.inTruckObject ? now : null // If destination is set, also set inDateTime
+			}
+
+			await freightAxios.post('/api/freight-tracking/truck-routes', payload)
+			router.push('/(tabs)')
+		} catch (error) {
+			console.error('Failed to submit form:', error)
+			// You might want to add error handling UI here
+		} finally {
+			setIsSubmitting(false)
+		}
 	}
 
 	return (<SafeAreaView style={styles.container}>
@@ -208,12 +242,48 @@ export default function TruckRouteScreen() {
 
 									<FormInput
 											label="Kravas apjoms"
-											value={form.weight}
-											onChangeText={(text) => setForm({...form, weight: text})}
-											placeholder="Izvēlieties..."
+											value={form.cargoVolume}
+											onChangeText={(text) => setForm({...form, cargoVolume: text})}
+											placeholder="Ievadiet kravas apjomu"
 											keyboardType="numeric"
 									/>
+									<FormDropdown
+											label="Mērvienība"
+											value={form.unitType}
+											onSelect={(value) => setForm({...form, unitType: value})}
+											placeholder="Izvēlieties mērvienību"
+											endpoint="/api/freight-tracking/unit-types"
+									/>
 								</>)}
+
+						{/*<FormInput*/}
+						{/*		label="Odometrs atgriežoties"*/}
+						{/*		value={form.odometerAtFinish}*/}
+						{/*		onChangeText={(text) => {*/}
+						{/*			// Allow only numbers*/}
+						{/*			if (/^\d*$/.test(text)) {*/}
+						{/*				setForm({...form, odometerAtFinish: text})*/}
+						{/*			}*/}
+						{/*		}}*/}
+						{/*		placeholder="Ievadiet odometra rādījumu"*/}
+						{/*		keyboardType="numeric"*/}
+						{/*/>*/}
+
+						{/*<FormInput*/}
+						{/*		label="Degvielas atlikums"*/}
+						{/*		value={form.fuelBalanceAtStart}*/}
+						{/*		onChangeText={(text) => setForm({...form, fuelBalanceAtStart: text})}*/}
+						{/*		placeholder="Ievadiet degvielas atlikumu"*/}
+						{/*		keyboardType="numeric"*/}
+						{/*/>*/}
+
+						{/*<FormInput*/}
+						{/*		label="Saņemtā degviela"*/}
+						{/*		value={form.fuelReceived}*/}
+						{/*		onChangeText={(text) => setForm({...form, fuelReceived: text})}*/}
+						{/*		placeholder="Ievadiet saņemto degvielu"*/}
+						{/*		keyboardType="numeric"*/}
+						{/*/>*/}
 
 						<View style={styles.buttonContainer}>
 							<Button
@@ -225,6 +295,7 @@ export default function TruckRouteScreen() {
 									title="Saglabāt"
 									onPress={handleSubmit}
 									style={styles.submitButton}
+									disabled={isSubmitting}
 							/>
 						</View>
 					</View>
