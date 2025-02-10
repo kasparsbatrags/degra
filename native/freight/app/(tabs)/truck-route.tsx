@@ -63,6 +63,10 @@ export default function TruckRouteScreen() {
 	return (<SafeAreaView style={styles.container}>
 				<ScrollView>
 					<View style={styles.content}>
+						<Text style={styles.explanatoryText}>
+							Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam - norādiet informāciju tās izveidošanai!
+						</Text>
+						
 						<View style={styles.dateContainer}>
 							<Text style={styles.label}>Datums</Text>
 							<TouchableOpacity 
@@ -461,5 +465,15 @@ const styles = StyleSheet.create({
 	},
 	odometerField: {
 		flex: 2,
+	},
+	explanatoryText: {
+		fontSize: 16,
+		fontFamily: FONT.medium,
+		color: COLORS.white,
+		backgroundColor: COLORS.black100,
+		padding: 16,
+		borderRadius: 8,
+		marginBottom: 24,
+		textAlign: 'center',
 	},
 })
