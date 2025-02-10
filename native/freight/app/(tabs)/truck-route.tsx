@@ -36,9 +36,10 @@ export default function TruckRouteScreen() {
           <FormDropdown
             label="Galamērķis"
             value={form.destination}
-            onSelect={(value) => setForm({ ...form, origin: value })}
-            placeholder="  Ievadiet galamērķi"
+            onSelect={(value) => setForm({ ...form, destination: value })}
+            placeholder="Ievadiet galamērķi"
             endpoint="api/freight-tracking/objects"
+            filterValue={form.origin}
           />
 
 

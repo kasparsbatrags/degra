@@ -55,9 +55,8 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 					newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
 
 					Optional<Truck> userTruck = truckService.getDefaultTruckForUser(user);
-					if (userTruck.isPresent()) {
-						newTruckRoutePage.setTruck(userTruck.get());
-					}
+					userTruck.ifPresent(newTruckRoutePage::setTruck);
+
 					newTruckRoutePage.setUser(user);
 					newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
 					return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));

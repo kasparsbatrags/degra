@@ -37,13 +37,13 @@ public class TruckUserMap extends AuditInfo implements Serializable {
 	private Integer id;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
 	@NotAudited
 	private User user;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "truck_id", nullable = false)
 	private Truck truck;
 

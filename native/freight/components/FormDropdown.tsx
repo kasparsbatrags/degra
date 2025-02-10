@@ -10,6 +10,7 @@ interface FormDropdownProps {
   placeholder?: string;
   error?: string;
   endpoint: string;
+  filterValue?: string;
 }
 
 interface Option {
@@ -24,6 +25,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   placeholder = 'Izvēlieties vērtību',
   error,
   endpoint,
+  filterValue,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
@@ -74,7 +76,11 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
     }
   };
 
-  const selectedOption = options.find(opt => opt.id === value);
+  const filteredOptions = filterValue 
+    ? options.filter(opt => opt.id !== filterValue)
+    : options;
+
+  const selectedOption = filteredOptions.find(opt => opt.id === value);
 
   if (Platform.OS === 'web') {
     return (
@@ -89,7 +95,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
           <option value="" disabled>
             {loading ? 'Ielādē...' : placeholder}
           </option>
-          {options.map((option) => (
+          {filteredOptions.map((option) => (
             <option key={option.id} value={option.id}>
               {option.name}
             </option>
@@ -149,7 +155,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
               </Pressable>
             </View>
             <FlatList
-              data={options}
+              data={filteredOptions}
               renderItem={renderOption}
               keyExtractor={(item) => item.id}
               style={styles.optionsList}
@@ -177,7 +183,6 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: COLORS.black100,
     borderRadius: 8,
-    paddingLeft: 21,
     paddingRight: 16,
     justifyContent: 'center',
   },
@@ -185,6 +190,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT.regular,
     fontSize: 16,
     color: COLORS.white,
+    paddingLeft: 12,
   },
   placeholder: {
     color: COLORS.gray,
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
       height: 48,
       backgroundColor: COLORS.black100,
       borderRadius: 8,
-		paddingLeft: 12,
+      paddingLeft: 12,
       paddingHorizontal: 16,
       color: COLORS.white,
       border: 'none',
@@ -213,8 +219,8 @@ const styles = StyleSheet.create({
       fontSize: 16,
       outline: 'none',
       cursor: 'pointer',
-		textAlign: 'left',
-	},
+      textAlign: 'left',
+    },
   }) as any,
   modalContainer: {
     flex: 1,

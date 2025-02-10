@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.controller;
 
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_CARGO_TYPES;
-import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import lv.degra.accounting.core.cargo_type.service.CargoTypeService;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 
 @RestController
-@RequestMapping(PATH_FREIGHT_TRACKING)
+@RequestMapping(FREIGHT_TRACKING_PATH)
 public class CargoTypeController {
 
 	private final CargoTypeService cargoTypeService;

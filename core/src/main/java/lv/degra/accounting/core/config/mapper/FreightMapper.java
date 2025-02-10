@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import lv.degra.accounting.core.cargo_type.dto.CargoTypeDto;
 import lv.degra.accounting.core.cargo_type.model.CargoType;
+import lv.degra.accounting.core.truck.dto.TruckDto;
+import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
 import lv.degra.accounting.core.truck_object.model.TruckObject;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
@@ -62,4 +64,11 @@ public class FreightMapper {
 		return modelMapper.map(cargoTypeDto, CargoType.class);
 	}
 
+	public TruckDto toDto(Truck truck) {
+		return modelMapper.map(truck, TruckDto.class);
+	}
+
+	public Truck toEntity(TruckDto truckDto) {
+		return modelMapper.map(truckDto, Truck.class);
+	}
 }

@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.controller;
 
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
-import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,7 @@ import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
 
 @RestController
-@RequestMapping(PATH_FREIGHT_TRACKING)
+@RequestMapping(FREIGHT_TRACKING_PATH)
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;

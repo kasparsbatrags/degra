@@ -1,7 +1,7 @@
 package lv.degra.accounting.freighttracking.controller;
 
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_OBJECT;
-import static lv.degra.accounting.core.config.ApiConstants.PATH_FREIGHT_TRACKING;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
 import lv.degra.accounting.core.truck_object.service.TruckObjectService;
 @RestController
-@RequestMapping(PATH_FREIGHT_TRACKING)
+@RequestMapping(FREIGHT_TRACKING_PATH)
 public class TruckRouteObjectController {
 
     private final TruckObjectService truckObjectService;
