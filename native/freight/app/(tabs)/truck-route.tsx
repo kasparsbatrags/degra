@@ -1,3 +1,4 @@
+import {router} from 'expo-router'
 import React, {useState} from 'react'
 import {Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
@@ -214,11 +215,18 @@ export default function TruckRouteScreen() {
 									/>
 								</>)}
 
-						<Button
-								title="Saglabāt"
-								onPress={handleSubmit}
-								style={styles.submitButton}
-						/>
+						<View style={styles.buttonContainer}>
+							<Button
+									title="Atpakaļ"
+									onPress={() => router.push('/(tabs)')}
+									style={styles.backButton}
+							/>
+							<Button
+									title="Saglabāt"
+									onPress={handleSubmit}
+									style={styles.submitButton}
+							/>
+						</View>
 					</View>
 				</ScrollView>
 			</SafeAreaView>)
@@ -231,8 +239,6 @@ const styles = StyleSheet.create({
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
 	} : {
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: CONTAINER_WIDTH.mobile,
-	}, submitButton: {
-		marginTop: 24,
 	}, switchContainer: {
 		flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, marginBottom: 16,
 	}, switchLabel: {
@@ -360,6 +366,19 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontFamily: FONT.medium,
 		textTransform: 'capitalize',
+	},
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		gap: 16,
+		marginTop: 24,
+	},
+	backButton: {
+		flex: 1,
+		backgroundColor: COLORS.black100,
+	},
+	submitButton: {
+		flex: 1,
 	},
 	rowContainer: {
 		flexDirection: 'row',
