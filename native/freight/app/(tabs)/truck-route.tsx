@@ -14,6 +14,8 @@ export default function TruckRouteScreen() {
 	const [form, setForm] = useState({
 		routeDate: new Date(),
 		outDateTime: new Date(),
+		dateFrom: new Date(),
+		dateTo: new Date(),
 		truck: '',
 		odometerAtStart: '',
 		odometerAtFinish: '',
@@ -64,11 +66,11 @@ export default function TruckRouteScreen() {
 				<ScrollView>
 					<View style={styles.content}>
 						<Text style={styles.explanatoryText}>
-							Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam - norādiet informāciju tās izveidošanai!
+							Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam un auto - norādiet informāciju tās izveidošanai!
 						</Text>
 						
 						<View style={styles.dateContainer}>
-							<Text style={styles.label}>Datums</Text>
+							<Text style={styles.label}>Brauciena datums</Text>
 							<TouchableOpacity 
 								style={styles.dateButton}
 								onPress={() => setShowDatePicker(true)}

@@ -58,6 +58,14 @@ export default function HomeScreen() {
         style={styles.startTripButton}
       />
       
+      <Button
+        title="Pievienot maršruta lapu"
+        onPress={() => router.push('/truck-route-page')}
+        style={styles.addRouteButton}
+      />
+      
+      <Text style={styles.sectionTitle}>Maršrutu saraksts</Text>
+      
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />
       ) : (
@@ -116,6 +124,7 @@ type Styles = {
   infoContainer: ViewStyle;
   infoText: TextStyle;
   startTripButton: ViewStyle;
+  addRouteButton: ViewStyle;
   sectionTitle: TextStyle;
 };
 
@@ -229,6 +238,10 @@ const styles = StyleSheet.create<Styles>({
   },
   startTripButton: {
     marginTop: 24,
+  },
+  addRouteButton: {
+    marginTop: 16,
+    backgroundColor: COLORS.black100,
   },
   sectionTitle: {
     fontSize: 20,
