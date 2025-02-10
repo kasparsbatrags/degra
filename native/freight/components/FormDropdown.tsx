@@ -50,12 +50,14 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
                 itemObj.id ||
                 itemObj._id ||
                 itemObj.value ||
+				itemObj.registrationNumber ||
                 itemObj
               ),
               name: String(
                 itemObj.name ||
                 itemObj.title ||
                 itemObj.label ||
+				itemObj.registrationNumber ||
                 itemObj
               )
             };
