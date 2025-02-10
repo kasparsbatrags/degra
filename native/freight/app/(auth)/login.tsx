@@ -107,9 +107,6 @@ export default function LoginScreen() {
           />
 
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>
-              Nav konta?
-            </Text>
             <Link
               href="/register"
               style={styles.registerLink}

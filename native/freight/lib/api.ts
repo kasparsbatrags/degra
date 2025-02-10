@@ -82,11 +82,16 @@ export const createUser = async (data: UserRegistrationData) => {
 
 export const signIn = async (email: string, password: string) => {
   try {
-    const response = await axiosInstance.post<UserLoginResponse>(
+    const response = await axiosInstance.post<{success: boolean, message: string, data: any}>(
       API_ENDPOINTS.AUTH.LOGIN,
       { email, password }
     );
-    const session = response.data;
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Pieteikšanās kļūda");
+    }
+
+    const session = response.data.data;
     const userInfo = decodeJwt(session.access_token);
 
     if (!userInfo) {
@@ -94,7 +99,7 @@ export const signIn = async (email: string, password: string) => {
     }
 
     const user: UserInfo = {
-      id: userInfo.id,
+      id: userInfo.sub,
       name: `${userInfo.given_name} ${userInfo.family_name}`,
       email: userInfo.email,
       firstName: userInfo.given_name,
@@ -102,11 +107,11 @@ export const signIn = async (email: string, password: string) => {
     };
 
     // Save session data including user info
-    await saveSession(session.access_token, session.refresh_token, session.expires_in, user);
+    await saveSession(session.access_token, "", session.expires_in, user);
 
     return {
       accessToken: session.access_token,
-      refreshToken: session.refresh_token,
+      refreshToken: "",
       expiresIn: session.expires_in,
       user,
     };
@@ -170,20 +175,18 @@ export const getCurrentUser = async (): Promise<UserInfo | null> => {
 
 export const signOut = async (): Promise<void> => {
   try {
-    const { accessToken } = await loadSession();
-    if (!accessToken) {
-      throw new Error("Nav pieejams access token.");
+    const { refreshToken } = await loadSession();
+    if (!refreshToken) {
+      // If no refresh token, just clear the session
+      await clearSession();
+      return;
     }
 
     const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT, {
-      accessToken,
+      refreshToken,
     });
 
-    if (response.status === 204) {
-      await clearSession();
-    } else {
-      throw new Error("Neizdevās veikt izrakstīšanos.");
-    }
+    await clearSession();
   } catch (error: any) {
     console.error("Kļūda izrakstoties:", error);
     throw new Error(error.response?.data?.message || "Izrakstīšanās kļūda");

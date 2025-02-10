@@ -57,7 +57,6 @@ export default function HomeScreen() {
         onPress={() => router.push('/truck-route')}
         style={styles.startTripButton}
       />
-
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />
       ) : (
