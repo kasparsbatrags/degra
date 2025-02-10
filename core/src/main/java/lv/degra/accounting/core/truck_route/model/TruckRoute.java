@@ -45,12 +45,6 @@ public class TruckRoute {
 	@Column(name = "route_number")
 	private Integer routeNumber;
 
-
-	@ColumnDefault("false")
-	@Column(name = "with_cargo")
-	private Boolean withCargo;
-
-
 	@ColumnDefault("0")
 	@Column(name = "cargo_valume")
 	private Double cargoVolume;

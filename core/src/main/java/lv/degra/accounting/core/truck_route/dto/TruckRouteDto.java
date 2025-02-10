@@ -32,7 +32,6 @@ public class TruckRouteDto implements Serializable {
 
 	@Positive
 	private Integer routeNumber;
-	private Boolean withCargo;
 	private Double cargoVolume;
 	private UnitType unitType;
 	@NotNull

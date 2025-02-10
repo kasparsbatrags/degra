@@ -2,6 +2,7 @@ package lv.degra.accounting.core.truck_object.dto;
 
 import java.io.Serializable;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import lv.degra.accounting.core.truck_object.model.TruckObject;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TruckObjectDto implements Serializable {
+	@NotNull
 	private Integer id;
 	@Size(max = 100)
 	private String name;

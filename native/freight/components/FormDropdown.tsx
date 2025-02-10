@@ -72,13 +72,13 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
       console.log('Formatted options:', formattedOptions);
       setOptions(formattedOptions);
       
-      // Set default truck if available
-      // if (endpoint.includes('trucks')) {
-      //   const defaultTruck = response.data.find((item: any) => item.isDefault === true);
-      //   if (defaultTruck) {
-      //     onSelect(String(defaultTruck.registrationNumber));
-      //   }
-      // }
+      // Set default truck if available and no value is currently selected
+      if (endpoint.includes('trucks') && !value) {
+        const defaultTruck = response.data.find((item: any) => item.isDefault === true);
+        if (defaultTruck) {
+          onSelect(String(defaultTruck.registrationNumber || defaultTruck.id));
+        }
+      }
     } catch (err) {
       console.error('Failed to fetch options:', err);
     } finally {

@@ -12,8 +12,9 @@ export default function TruckRouteScreen() {
 	const [form, setForm] = useState({
 		routeDate: new Date(),
 		truck: '',
-		origin: '',
-		destination: '',
+		odometerAtStart: '',
+		outTruckObject: '',
+		inTruckObject: '',
 		cargoType: '',
 		weight: '',
 		notes: '',
@@ -150,19 +151,19 @@ export default function TruckRouteScreen() {
 						/>
 						<FormDropdown
 								label="Sākuma punkts"
-								value={form.origin}
-								onSelect={(value) => setForm({...form, origin: value})}
+								value={form.outTruckObject}
+								onSelect={(value) => setForm({...form,outTruckObject: value})}
 								placeholder="Izvēlieties sākuma punktu"
 								endpoint="api/freight-tracking/objects"
 						/>
 
 						<FormDropdown
 								label="Galamērķis"
-								value={form.destination}
-								onSelect={(value) => setForm({...form, destination: value})}
+								value={form.inTruckObject}
+								onSelect={(value) => setForm({...form, inTruckObject: value})}
 								placeholder="Ievadiet galamērķi"
 								endpoint="api/freight-tracking/objects"
-								filterValue={form.origin}
+								filterValue={form.outTruckObject}
 						/>
 
 
