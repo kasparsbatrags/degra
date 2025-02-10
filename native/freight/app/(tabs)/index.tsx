@@ -57,6 +57,7 @@ export default function HomeScreen() {
         onPress={() => router.push('/truck-route')}
         style={styles.startTripButton}
       />
+      
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />
       ) : (
@@ -115,6 +116,7 @@ type Styles = {
   infoContainer: ViewStyle;
   infoText: TextStyle;
   startTripButton: ViewStyle;
+  sectionTitle: TextStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -227,5 +229,12 @@ const styles = StyleSheet.create<Styles>({
   },
   startTripButton: {
     marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
+    marginTop: 32,
+    marginBottom: 16,
   },
 });

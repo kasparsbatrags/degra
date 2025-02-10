@@ -183,7 +183,7 @@ export default function TruckRouteScreen() {
 										label="Auto"
 										value={form.truck}
 										onSelect={(value) => setForm({...form, truck: value})}
-										placeholder="Izvēlieties auto"
+										placeholder="Izvēlieties"
 										endpoint="/api/freight-tracking/trucks"
 								/>
 							</View>
@@ -197,7 +197,7 @@ export default function TruckRouteScreen() {
 												setForm({...form, odometerAtStart: text})
 											}
 										}}
-										placeholder="Ievadiet odometra rādījumu"
+										placeholder="Ievadiet rādījumu"
 										keyboardType="numeric"
 								/>
 							</View>
