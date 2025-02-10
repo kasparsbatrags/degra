@@ -60,10 +60,6 @@ export default function LoginScreen() {
 				Kravu uzskaites sistēma
 			</Text>
 
-			<Text style={styles.title}>
-            Pieslēgties
-          </Text>
-
           <FormInput
             label="E-pasts"
             value={form.email}
