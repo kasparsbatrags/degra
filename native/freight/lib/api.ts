@@ -113,7 +113,8 @@ export const signIn = async (email: string, password: string) => {
   } catch (error: any) {
     console.error("Kļūda pieteikšanās laikā:", error);
     if (error.response?.status === 401) {
-      throw new Error("Nepareizs e-pasts vai parole");
+      const errorResponse = error.response?.data;
+      throw new Error(errorResponse?.message || "Nepareizs e-pasts vai parole");
     }
     throw new Error(error.response?.data?.message || "Pieteikšanās kļūda");
   }

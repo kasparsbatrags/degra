@@ -16,11 +16,20 @@ export default function LoginScreen() {
     email: "",
     password: "",
   });
+  const [formErrors, setFormErrors] = useState({
+    email: "",
+    password: "",
+  });
   const router = useRouter();
 
   const handleLogin = async () => {
+    setFormErrors({ email: "", password: "" });
+    
     if (form.email === "" || form.password === "") {
-      Alert.alert("Kļūda", "Lūdzu, aizpildiet visus laukus");
+      setFormErrors({
+        email: form.email === "" ? "Lūdzu, ievadiet e-pastu" : "",
+        password: form.password === "" ? "Lūdzu, ievadiet paroli" : "",
+      });
       return;
     }
 
@@ -29,10 +38,17 @@ export default function LoginScreen() {
       await signIn(form.email, form.password);
       router.replace("/(tabs)");
     } catch (error: any) {
-      Alert.alert(
-        "Kļūda",
-        error.message || "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz."
-      );
+      if (error.message?.includes("Invalid credentials") || error.message === "Nepareizs e-pasts vai parole") {
+        setFormErrors({
+          email: "",
+          password: "Nepareiza parole. Lūdzu, pārbaudiet un mēģiniet vēlreiz.",
+        });
+      } else {
+        Alert.alert(
+          "Kļūda",
+          error.message || "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -63,16 +79,24 @@ export default function LoginScreen() {
           <FormInput
             label="E-pasts"
             value={form.email}
-            onChangeText={(e) => setForm({ ...form, email: e })}
+            onChangeText={(e) => {
+              setForm({ ...form, email: e });
+              setFormErrors({ ...formErrors, email: "" });
+            }}
             keyboardType="email-address"
             autoCapitalize="none"
+            error={formErrors.email}
           />
 
           <FormInput
             label="Parole"
             value={form.password}
-            onChangeText={(e) => setForm({ ...form, password: e })}
+            onChangeText={(e) => {
+              setForm({ ...form, password: e });
+              setFormErrors({ ...formErrors, password: "" });
+            }}
             secureTextEntry
+            error={formErrors.password}
           />
 
           <Button
