@@ -5,6 +5,7 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_OBJECT
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
+import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -35,7 +36,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
@@ -60,11 +60,11 @@ public class FreightTrackingSecurityConfig {
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME).anyRequest()
 								.authenticated()).addFilterBefore(new OncePerRequestFilter() {
 					@Override
-					protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-							@NotNull FilterChain filterChain) throws ServletException, IOException {
+					protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+							FilterChain filterChain) throws ServletException, IOException {
 						try {
 							String token = request.getHeader("Authorization");
-							if (token != null && token.startsWith("Bearer ")) {
+							if (token != null && token.startsWith(BEARER_PREFIX)) {
 								token = token.substring(7);
 								try {
 									jwtTokenProvider.validateToken(token);
@@ -73,12 +73,12 @@ public class FreightTrackingSecurityConfig {
 									Map<String, Object> newTokens = jwtTokenProvider.refreshExpiredToken(token);
 									if (newTokens != null && newTokens.containsKey("access_token")) {
 										String newToken = (String) newTokens.get("access_token");
-										response.setHeader("Authorization", "Bearer " + newToken);
+										response.setHeader("Authorization", BEARER_PREFIX + newToken);
 										request = new HttpServletRequestWrapper(request) {
 											@Override
 											public String getHeader(String name) {
 												if ("Authorization".equals(name)) {
-													return "Bearer " + newToken;
+													return BEARER_PREFIX + newToken;
 												}
 												return super.getHeader(name);
 											}

@@ -1,5 +1,7 @@
 package lv.degra.accounting.usermanager.service;
 
+import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -210,7 +212,7 @@ public class AuthUserService {
 
 	public UserDto getCurrentUser(String authHeader) {
 		return Optional.ofNullable(authHeader)
-				.filter(header -> header.startsWith("Bearer "))
+				.filter(header -> header.startsWith(BEARER_PREFIX))
 				.map(header -> {
 					try {
 						return jwtTokenProvider.parseToken(header.substring(7));
