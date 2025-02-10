@@ -35,6 +35,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
@@ -59,36 +60,36 @@ public class FreightTrackingSecurityConfig {
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME).anyRequest()
 								.authenticated()).addFilterBefore(new OncePerRequestFilter() {
 					@Override
-					protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-							throws ServletException, IOException {
-                    try {
-                        String token = request.getHeader("Authorization");
-                        if (token != null && token.startsWith("Bearer ")) {
-                            token = token.substring(7);
-                            try {
-                                jwtTokenProvider.validateToken(token);
-                            } catch (Exception e) {
-                                log.info("Token validation failed, attempting refresh");
-                                Map<String, Object> newTokens = jwtTokenProvider.refreshExpiredToken(token);
-                                if (newTokens != null && newTokens.containsKey("access_token")) {
-                                    String newToken = (String) newTokens.get("access_token");
-                                    response.setHeader("Authorization", "Bearer " + newToken);
-                                    request = new HttpServletRequestWrapper(request) {
-                                        @Override
-                                        public String getHeader(String name) {
-                                            if ("Authorization".equals(name)) {
-                                                return "Bearer " + newToken;
-                                            }
-                                            return super.getHeader(name);
-                                        }
-                                    };
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.error("Error checking token: {}", e.getMessage(), e);
-                    }
-                    filterChain.doFilter(request, response);
+					protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+							@NotNull FilterChain filterChain) throws ServletException, IOException {
+						try {
+							String token = request.getHeader("Authorization");
+							if (token != null && token.startsWith("Bearer ")) {
+								token = token.substring(7);
+								try {
+									jwtTokenProvider.validateToken(token);
+								} catch (Exception e) {
+									log.info("Token validation failed, attempting refresh");
+									Map<String, Object> newTokens = jwtTokenProvider.refreshExpiredToken(token);
+									if (newTokens != null && newTokens.containsKey("access_token")) {
+										String newToken = (String) newTokens.get("access_token");
+										response.setHeader("Authorization", "Bearer " + newToken);
+										request = new HttpServletRequestWrapper(request) {
+											@Override
+											public String getHeader(String name) {
+												if ("Authorization".equals(name)) {
+													return "Bearer " + newToken;
+												}
+												return super.getHeader(name);
+											}
+										};
+									}
+								}
+							}
+						} catch (Exception e) {
+							log.error("Error checking token: {}", e.getMessage(), e);
+						}
+						filterChain.doFilter(request, response);
 					}
 				}, SecurityContextHolderFilter.class).oauth2ResourceServer(oauth2 -> {
 					log.info("Configuring OAuth2 Resource Server");
@@ -118,7 +119,7 @@ public class FreightTrackingSecurityConfig {
 		return source;
 	}
 
-	class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+	static class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 		@Override
 		public Collection<GrantedAuthority> convert(Jwt jwt) {
 			Map<String, Object> realmAccess = jwt.getClaimAsMap("resource_access");

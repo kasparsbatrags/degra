@@ -183,7 +183,7 @@ public class AuthService {
 
             Base64.Decoder decoder = Base64.getUrlDecoder();
             String payload = new String(decoder.decode(chunks[1]));
-            Map<String, Object> claims = objectMapper.readValue(payload, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> claims = objectMapper.readValue(payload, new TypeReference<>() {});
             return (String) claims.get("sub");
         } catch (Exception e) {
             log.error("Failed to extract userId from token: {}", e.getMessage());

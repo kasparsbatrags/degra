@@ -34,9 +34,6 @@ public class SecurityConfig {
     @Value("${app.security.allowed-origins}")
     private List<String> allowedOrigins;
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-    private String jwkSetUri;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(PATH_USER + "/**")

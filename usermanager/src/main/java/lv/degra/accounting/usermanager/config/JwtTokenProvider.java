@@ -69,7 +69,7 @@ public class JwtTokenProvider {
     public Map<String, Object> refreshExpiredToken(String token) {
         try {
             Map<String, Object> claims = parseToken(token);
-            Long exp = ((Number) claims.get("exp")).longValue();
+            long exp = ((Number) claims.get("exp")).longValue();
             if (exp * 1000 < System.currentTimeMillis()) {
                 return authService.refreshTokenIfExpired(token);
             }
