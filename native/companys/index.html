@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companys App</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .company-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .company-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .company-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            const [companies, setCompanies] = React.useState([
+                { id: 1, name: 'Tech Corp', industry: 'Technology', employees: 500 },
+                { id: 2, name: 'Green Energy Ltd', industry: 'Energy', employees: 300 },
+                { id: 3, name: 'Global Finance', industry: 'Finance', employees: 1000 },
+                { id: 4, name: 'Health Plus', industry: 'Healthcare', employees: 750 },
+            ]);
+            const [searchTerm, setSearchTerm] = React.useState('');
+
+            const filteredCompanies = companies.filter(company =>
+                company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                company.industry.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            return (
+                <div>
+                    <header className="header">
+                        <h1>Company Directory</h1>
+                    </header>
+                    <div className="container">
+                        <input
+                            type="text"
+                            className="search-bar"
+                            placeholder="Search companies..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <div className="company-list">
+                            {filteredCompanies.map(company => (
+                                <div key={company.id} className="company-card">
+                                    <h3>{company.name}</h3>
+                                    <p>Industry: {company.industry}</p>
+                                    <p>Employees: {company.employees}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
