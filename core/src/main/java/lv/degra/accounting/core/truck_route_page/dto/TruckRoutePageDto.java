@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
+import lv.degra.accounting.core.user.model.User;
 
 /**
  * DTO for {@link TruckRoutePage}
@@ -22,6 +24,8 @@ public class TruckRoutePageDto implements Serializable {
 	@NotNull
 	private LocalDate dateFrom;
 	private LocalDate dateTo;
+	private Truck truck;
+	private User user;
 	@NotNull
 	private String truckRegistrationNumber;
 	@NotNull

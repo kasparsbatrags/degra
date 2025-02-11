@@ -65,21 +65,35 @@ export default function TruckRouteScreen() {
 	return (<SafeAreaView style={styles.container}>
 				<ScrollView>
 					<View style={styles.content}>
-						<Text style={styles.explanatoryText}>
-							Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam un auto - norādiet informāciju tās izveidošanai!
-						</Text>
-						
-						<View style={styles.dateContainer}>
-							<Text style={styles.label}>Brauciena datums</Text>
-							<TouchableOpacity 
-								style={styles.dateButton}
-								onPress={() => setShowDatePicker(true)}
-							>
-								<Text style={styles.dateText}>
-									{`${form.routeDate.getDate().toString().padStart(2, '0')}.${(form.routeDate.getMonth() + 1).toString().padStart(2, '0')}.${form.routeDate.getFullYear()}`}
-								</Text>
-							</TouchableOpacity>
-						</View>
+						{/*<View style={[styles.dateContainer, styles.dateSection]}>*/}
+						{/*	<Text style={styles.explanatoryText}>*/}
+						{/*		Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam un auto - norādiet informāciju tās izveidošanai!*/}
+						{/*	</Text>*/}
+						{/*</View>*/}
+
+							<View style={styles.rowContainer}>
+								<View style={styles.dateField}>
+									<Text style={styles.label}>Datums / Auto </Text>
+									<TouchableOpacity
+										style={styles.dateButton}
+										onPress={() => setShowDatePicker(true)}
+									>
+										<Text style={styles.dateText}>
+											{`${form.routeDate.getDate().toString().padStart(2, '0')}.${(form.routeDate.getMonth() + 1).toString().padStart(2, '0')}.${form.routeDate.getFullYear()}`}
+										</Text>
+									</TouchableOpacity>
+								</View>
+								<View style={styles.truckField}>
+									<FormDropdown
+										label=""
+										value={form.truck}
+										onSelect={(value) => setForm({...form, truck: value})}
+										placeholder="Izvēlieties"
+										endpoint="/api/freight-tracking/trucks"
+									/>
+								</View>
+							</View>
+
 
 						{showDatePicker && (
 							<Modal
@@ -183,31 +197,18 @@ export default function TruckRouteScreen() {
 								</Pressable>
 							</Modal>
 						)}
-						<View style={styles.rowContainer}>
-							<View style={styles.truckField}>
-								<FormDropdown
-										label="Auto"
-										value={form.truck}
-										onSelect={(value) => setForm({...form, truck: value})}
-										placeholder="Izvēlieties"
-										endpoint="/api/freight-tracking/trucks"
-								/>
-							</View>
-							<View style={styles.odometerField}>
-								<FormInput
-										label="Odometrs izbraucot"
-										value={form.odometerAtStart}
-										onChangeText={(text) => {
-											// Allow only numbers
-											if (/^\d*$/.test(text)) {
-												setForm({...form, odometerAtStart: text})
-											}
-										}}
-										placeholder="Ievadiet rādījumu"
-										keyboardType="numeric"
-								/>
-							</View>
-						</View>
+						<FormInput
+							label="Odometrs izbraucot"
+							value={form.odometerAtStart}
+							onChangeText={(text) => {
+								// Allow only numbers
+								if (/^\d*$/.test(text)) {
+									setForm({...form, odometerAtStart: text})
+								}
+							}}
+							placeholder="Ievadiet rādījumu"
+							keyboardType="numeric"
+						/>
 						<FormDropdown
 								label="Sākuma punkts"
 								value={form.outTruckObject}
@@ -332,8 +333,9 @@ const styles = StyleSheet.create({
 	},
 	dateButton: {
 		backgroundColor: COLORS.black100,
-		padding: 12,
+		padding: 14,
 		borderRadius: 8,
+		height: 48, // Match FormDropdown input height
 	},
 	dateText: {
 		color: COLORS.white,
@@ -462,11 +464,13 @@ const styles = StyleSheet.create({
 		gap: 16,
 		marginBottom: 16,
 	},
+	dateField: {
+		flex: 1,
+		height: 80, // Match FormDropdown height
+	},
 	truckField: {
 		flex: 1,
-	},
-	odometerField: {
-		flex: 2,
+		marginTop: -4,
 	},
 	explanatoryText: {
 		fontSize: 16,
@@ -476,6 +480,21 @@ const styles = StyleSheet.create({
 		padding: 16,
 		borderRadius: 8,
 		marginBottom: 24,
+		textAlign: 'center',
+	},
+	dateSection: {
+		backgroundColor: COLORS.black100,
+		padding: 16,
+		borderRadius: 8,
+		marginBottom: 24,
+		borderWidth: 2,
+		borderColor: COLORS.secondary,
+	},
+	sectionTitle: {
+		fontSize: 18,
+		fontFamily: FONT.semiBold,
+		color: COLORS.white,
+		marginBottom: 8,
 		textAlign: 'center',
 	},
 })

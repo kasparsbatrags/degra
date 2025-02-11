@@ -58,7 +58,7 @@ export default function TabLayout() {
         <Stack.Screen
           name="index"
           options={{
-            title: 'Kravu uzskaite',
+            title: 'Kravu un braucienu uzskaite',
           }}
         />
         <Stack.Screen

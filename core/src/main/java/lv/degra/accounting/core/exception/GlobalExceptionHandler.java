@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -138,7 +139,11 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 	}
 
-	@ExceptionHandler({ConstraintViolationException.class, InvalidRequestException.class, IllegalArgumentException.class})
+	@ExceptionHandler({
+			ConstraintViolationException.class,
+			InvalidRequestException.class,
+			IllegalArgumentException.class,
+			MissingServletRequestParameterException.class})
 	public ResponseEntity<ApiError> handleValidationExceptions(
 			Exception ex, WebRequest request) {
 		String traceId = UUID.randomUUID().toString();

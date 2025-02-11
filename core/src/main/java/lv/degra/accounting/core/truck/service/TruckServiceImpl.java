@@ -71,6 +71,10 @@ public class TruckServiceImpl implements TruckService {
 		return defaultTruck;
 	}
 
+	public Optional<Truck> getById(Integer truckId) {
+		return truckRepository.findById(Long.valueOf(truckId));
+	}
+
 	public Truck save(Truck truck) {
 		return truckRepository.save(truck);
 	}

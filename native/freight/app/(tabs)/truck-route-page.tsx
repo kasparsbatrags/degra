@@ -57,7 +57,11 @@ export default function TruckRoutePageScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Pievienot maršruta lapu</Text>
 
-          <View style={styles.dateContainer}>
+          <View style={styles.notificationContainer}>
+            <Text style={styles.notificationText}>Brauciena datums</Text>
+          </View>
+
+          <View style={[styles.dateContainer, styles.dateSection]}>
             <Text style={styles.label}>Datums no</Text>
             <TouchableOpacity 
               style={styles.dateButton}
@@ -367,6 +371,26 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: FONT.semiBold,
     color: COLORS.white,
+    marginBottom: 24,
+  },
+  notificationContainer: {
+    backgroundColor: COLORS.black100,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: COLORS.secondary,
+  },
+  notificationText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontFamily: FONT.semiBold,
+    textAlign: 'center',
+  },
+  dateSection: {
+    backgroundColor: COLORS.black100,
+    padding: 16,
+    borderRadius: 8,
     marginBottom: 24,
   },
   buttonContainer: {

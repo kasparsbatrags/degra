@@ -14,6 +14,8 @@ public interface TruckService {
 
 	List<TruckDto> getAllTrucksByUserFirstDefault(String userId);
 
+	Optional<Truck> getById(Integer userId);
+
 	Truck save(Truck truck);
 
 }

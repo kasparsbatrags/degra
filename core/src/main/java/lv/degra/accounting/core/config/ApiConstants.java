@@ -9,6 +9,7 @@ public class ApiConstants {
 	public static final String ENDPOINT_PUBLIC = "/public";
 	public static final String ENDPOINT_REGISTER = "/register";
 	public static final String ENDPOINT_TRUCK_ROUTES = "/truck-routes";
+	public static final String ENDPOINT_EXIST = "/exists";
 	public static final String ENDPOINT_TRUCK = "/trucks";
 	public static final String ENDPOINT_ADDRESS = "/address";
 	public static final String ENDPOINT_COMPANY = BASE_API_URL+ "/companys";

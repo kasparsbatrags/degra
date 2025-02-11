@@ -45,8 +45,8 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		return getUserRoutePages(userId, page, size).stream().map(freightMapper::toDto).toList();
 	}
 
-	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user) {
-		return truckRoutePageRepository.findByUserAndRouteDate(user, truckRouteDto.getRouteDate())
+	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, Truck truck) {
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, truckRouteDto.getRouteDate())
 				.map(freightMapper::toDto)
 				.orElseGet(() -> {
 					TruckRoutePage newTruckRoutePage = new TruckRoutePage();
@@ -61,6 +61,10 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 					newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
 					return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
 				});
+	}
+
+	public boolean userRoutePageByRouteDate(LocalDate routeDate, User user, Truck truck) {
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).isPresent();
 	}
 
 }
