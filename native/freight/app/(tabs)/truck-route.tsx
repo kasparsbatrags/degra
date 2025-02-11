@@ -11,6 +11,7 @@ import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 export default function TruckRouteScreen() {
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showDatePicker, setShowDatePicker] = useState(false)
+	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [form, setForm] = useState({
 		routeDate: new Date(),
 		outDateTime: new Date(),
@@ -30,6 +31,63 @@ export default function TruckRouteScreen() {
 	})
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	const checkRoutePage = React.useCallback(
+		(() => {
+			let timeoutId: NodeJS.Timeout;
+			return async (truckId: string, date: Date) => {
+				if (!truckId || !date) return;
+				
+				// Clear previous timeout
+				if (timeoutId) clearTimeout(timeoutId);
+				
+				// Set new timeout
+				timeoutId = setTimeout(async () => {
+					try {
+						const formattedDate = date.toISOString().split('T')[0];
+						const response = await freightAxios.get(
+							`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`
+						);
+						setShowRoutePageError(!response.data);
+					} catch (error) {
+						console.error('Failed to check route page:', error);
+					}
+				}, 300); // 300ms debounce
+			};
+		})(),
+		[]
+	);
+
+	// Initialize form with default values
+	React.useEffect(() => {
+		const initializeForm = async () => {
+			try {
+				const response = await freightAxios.get('/api/freight-tracking/trucks')
+				if (response.data && response.data.length > 0) {
+					const defaultTruck = response.data[0].id.toString()
+					const currentDate = new Date()
+					setForm(prev => ({
+						...prev,
+						routeDate: currentDate,
+						truck: defaultTruck
+					}))
+					// Only check route page after both values are set
+					checkRoutePage(defaultTruck, currentDate)
+				}
+			} catch (error) {
+				console.error('Failed to fetch default truck:', error)
+			}
+		}
+		initializeForm()
+	}, [checkRoutePage])
+
+	// Check route page when either truck or date changes, but not on initial mount
+	React.useEffect(() => {
+		const isInitialMount = !form.truck
+		if (!isInitialMount) {
+			checkRoutePage(form.truck, form.routeDate)
+		}
+	}, [form.truck, form.routeDate, checkRoutePage])
 
 	const handleSubmit = async () => {
 		try {
@@ -71,11 +129,13 @@ export default function TruckRouteScreen() {
 						{/*	</Text>*/}
 						{/*</View>*/}
 
-							<View style={styles.rowContainer}>
+							<View style={[styles.rowContainer, showRoutePageError && styles.errorBorder]}>
 								<View style={styles.dateField}>
 									<Text style={styles.label}>Datums / Auto </Text>
 									<TouchableOpacity
-										style={styles.dateButton}
+										style={[
+											styles.dateButton,
+										]}
 										onPress={() => setShowDatePicker(true)}
 									>
 										<Text style={styles.dateText}>
@@ -90,10 +150,10 @@ export default function TruckRouteScreen() {
 										onSelect={(value) => setForm({...form, truck: value})}
 										placeholder="Izvēlieties"
 										endpoint="/api/freight-tracking/trucks"
+										error={showRoutePageError ? "Nepieciešams izveidot maršruta lapu" : undefined}
 									/>
 								</View>
 							</View>
-
 
 						{showDatePicker && (
 							<Modal
@@ -489,6 +549,13 @@ const styles = StyleSheet.create({
 		marginBottom: 24,
 		borderWidth: 2,
 		borderColor: COLORS.secondary,
+	},
+	errorBorder: {
+		padding: 16,
+		borderWidth: 2,
+		borderColor: 'rgb(255, 156, 1)',
+		borderRadius: 8,
+		marginBottom: 24,
 	},
 	sectionTitle: {
 		fontSize: 18,
