@@ -36,7 +36,7 @@ export const WEB_BORDER_RADIUS = {
 
 // Web-specific component size adjustments
 export const WEB_COMPONENT_SIZES = {
-  input: Platform.select({ web: 36, default: 48 }), // Input height
+  input: Platform.select({ web: 48, default: 48 }), // Input height
   button: Platform.select({ web: 36, default: 48 }), // Button height
   icon: Platform.select({ web: 20, default: 24 }), // Icon size
 };

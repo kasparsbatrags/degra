@@ -1,8 +1,8 @@
-import {WEB_SPACING} from '@/constants/webStyles'
+import {WEB_BORDER_RADIUS, WEB_COMPONENT_SIZES, WEB_SIZES, WEB_SPACING} from '@/constants/webStyles'
 import React, {useEffect, useState} from 'react'
 import {FlatList, Modal, Platform, Pressable, StyleSheet, Text, View} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
-import {COLORS, FONT, SPACING} from '../constants/theme'
+import {COLORS, FONT} from '../constants/theme'
 
 interface FormDropdownProps {
   label: string;
@@ -185,30 +185,29 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   );
 };
 
-const spacing = Platform.select({ web: WEB_SPACING, default: SPACING })
 const styles = StyleSheet.create({
-
   container: {
-    marginBottom: 16,
-    marginTop: 10,
+    marginBottom: Platform.select({ web: WEB_SPACING.m, default: 16 }),
+    marginTop: Platform.select({ web: WEB_SPACING.xs, default: 10 }),
   },
   label: {
     fontFamily: FONT.medium,
-    fontSize: 16,
+    fontSize: Platform.select({ web: WEB_SIZES.medium, default: 16 }),
     color: COLORS.white,
+	  marginBottom: 4,
   },
   input: {
-    height: 48,
+    height: Platform.select({ web: WEB_COMPONENT_SIZES.input, default: 48 }),
     backgroundColor: COLORS.black100,
-    borderRadius: 8,
-    paddingRight: 16,
+    borderRadius: Platform.select({ web: WEB_BORDER_RADIUS.l, default: 8 }),
+    paddingRight: Platform.select({ web: WEB_SPACING.m, default: 16 }),
     justifyContent: 'center',
   },
   inputText: {
     fontFamily: FONT.regular,
-    fontSize: 16,
+    fontSize: Platform.select({ web: WEB_SIZES.medium, default: 16 }),
     color: COLORS.white,
-    paddingLeft: 12,
+    paddingLeft: Platform.select({ web: WEB_SPACING.s, default: 12 }),
   },
   placeholder: {
     color: COLORS.gray,
@@ -219,22 +218,22 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: FONT.regular,
-    fontSize: 14,
+    fontSize: Platform.select({ web: WEB_SIZES.small, default: 14 }),
     color: COLORS.error,
-    marginTop: 4,
+    marginTop: Platform.select({ web: WEB_SPACING.xs, default: 4 }),
   },
   webSelect: Platform.select({
     web: {
       width: '100%',
-      height: 48,
+      height: WEB_COMPONENT_SIZES.input,
       backgroundColor: COLORS.black100,
-      borderRadius: 8,
-      paddingLeft: 12,
-      paddingHorizontal: 16,
+      borderRadius: WEB_BORDER_RADIUS.l,
+      paddingLeft: WEB_SPACING.s,
+      paddingHorizontal: WEB_SPACING.m,
       color: COLORS.white,
       border: 'none',
       fontFamily: FONT.regular,
-      fontSize: 16,
+      fontSize: WEB_SIZES.medium,
       outline: 'none',
       cursor: 'pointer',
       textAlign: 'left',
@@ -247,48 +246,48 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: COLORS.primary,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: Platform.select({ web: WEB_BORDER_RADIUS.xxl, default: 16 }),
+    borderTopRightRadius: Platform.select({ web: WEB_BORDER_RADIUS.xxl, default: 16 }),
     maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: Platform.select({ web: WEB_SPACING.m, default: 16 }),
     borderBottomWidth: 1,
     borderBottomColor: COLORS.black100,
   },
   modalTitle: {
     fontFamily: FONT.medium,
-    fontSize: 18,
+    fontSize: Platform.select({ web: WEB_SIZES.large, default: 18 }),
     color: COLORS.white,
   },
   closeButton: {
-    padding: 8,
+    padding: Platform.select({ web: WEB_SPACING.xs, default: 8 }),
   },
   closeButtonPressed: {
     opacity: 0.7,
   },
   closeButtonText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: Platform.select({ web: WEB_SIZES.medium, default: 16 }),
   },
   optionsList: {
     maxHeight: '70%',
   },
   optionsContent: {
-    padding: 8,
+    padding: Platform.select({ web: WEB_SPACING.xs, default: 8 }),
   },
   option: {
-    padding: 16,
-    borderRadius: 8,
+    padding: Platform.select({ web: WEB_SPACING.m, default: 16 }),
+    borderRadius: Platform.select({ web: WEB_BORDER_RADIUS.l, default: 8 }),
   },
   optionPressed: {
     backgroundColor: COLORS.black100,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: Platform.select({ web: WEB_SIZES.medium, default: 16 }),
     color: COLORS.white,
   },
 });

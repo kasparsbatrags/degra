@@ -141,6 +141,99 @@ export default function TruckRouteScreen() {
 									endpoint="/api/freight-tracking/trucks"
 							/>
 						</View>
+
+
+						{showDatePicker && (<Modal
+								transparent={true}
+								visible={showDatePicker}
+								animationType="fade"
+								onRequestClose={() => setShowDatePicker(false)}
+						>
+							<Pressable
+									style={styles.modalOverlay}
+									onPress={() => setShowDatePicker(false)}
+							>
+								<Pressable
+										style={styles.modalContent}
+										onPress={(e) => e.stopPropagation()}
+								>
+									<View style={styles.calendarHeader}>
+										<TouchableOpacity
+												style={styles.monthButton}
+												onPress={() => {
+													const newDate = new Date(form.routeDate)
+													newDate.setMonth(newDate.getMonth() - 1)
+													setForm({...form, routeDate: newDate})
+												}}
+										>
+											<Text style={styles.monthButtonText}>←</Text>
+										</TouchableOpacity>
+										<Text style={styles.monthYearText}>
+											{form.routeDate.toLocaleDateString('lv-LV', {
+												month: 'long', year: 'numeric'
+											})}
+										</Text>
+										<TouchableOpacity
+												style={styles.monthButton}
+												onPress={() => {
+													const newDate = new Date(form.routeDate)
+													newDate.setMonth(newDate.getMonth() + 1)
+													setForm({...form, routeDate: newDate})
+												}}
+										>
+											<Text style={styles.monthButtonText}>→</Text>
+										</TouchableOpacity>
+									</View>
+									<View style={styles.weekDaysRow}>
+										{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
+											{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
+										</Text>))}
+									</View>
+									<View style={styles.daysGrid}>
+										{(() => {
+											const year = form.routeDate.getFullYear()
+											const month = form.routeDate.getMonth()
+											const firstDay = new Date(year, month, 1)
+											const lastDay = new Date(year, month + 1, 0)
+											const startingDay = firstDay.getDay()
+											const totalDays = lastDay.getDate()
+
+											const days = []
+											// Add empty spaces for days before the first day of the month
+											for (let i = 0; i < startingDay; i++) {
+												days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
+											}
+
+											// Add the days of the month
+											for (let i = 1; i <= totalDays; i++) {
+												const date = new Date(year, month, i)
+												const isSelected = date.toDateString() === form.routeDate.toDateString()
+												const isToday = date.toDateString() === new Date().toDateString()
+
+												days.push(<Pressable
+														key={i}
+														style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
+														onPress={() => {
+															setForm({...form, routeDate: date})
+															setShowDatePicker(false)
+														}}
+												>
+													<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
+														{i}
+													</Text>
+												</Pressable>)
+											}
+
+											return days
+										})()}
+									</View>
+								</Pressable>
+							</Pressable>
+						</Modal>)}
+
+
+
+
 					</View>
 					{showRoutePageError && (
 						<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
@@ -190,93 +283,6 @@ export default function TruckRouteScreen() {
 							error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
 					/>
 
-					{showDatePicker && (<Modal
-						transparent={true}
-						visible={showDatePicker}
-						animationType="fade"
-						onRequestClose={() => setShowDatePicker(false)}
-				>
-					<Pressable
-							style={styles.modalOverlay}
-							onPress={() => setShowDatePicker(false)}
-					>
-						<Pressable
-								style={styles.modalContent}
-								onPress={(e) => e.stopPropagation()}
-						>
-							<View style={styles.calendarHeader}>
-								<TouchableOpacity
-										style={styles.monthButton}
-										onPress={() => {
-											const newDate = new Date(form.routeDate)
-											newDate.setMonth(newDate.getMonth() - 1)
-											setForm({...form, routeDate: newDate})
-										}}
-								>
-									<Text style={styles.monthButtonText}>←</Text>
-								</TouchableOpacity>
-								<Text style={styles.monthYearText}>
-									{form.routeDate.toLocaleDateString('lv-LV', {
-										month: 'long', year: 'numeric'
-									})}
-								</Text>
-								<TouchableOpacity
-										style={styles.monthButton}
-										onPress={() => {
-											const newDate = new Date(form.routeDate)
-											newDate.setMonth(newDate.getMonth() + 1)
-											setForm({...form, routeDate: newDate})
-										}}
-								>
-									<Text style={styles.monthButtonText}>→</Text>
-								</TouchableOpacity>
-							</View>
-							<View style={styles.weekDaysRow}>
-								{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
-									{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
-								</Text>))}
-							</View>
-							<View style={styles.daysGrid}>
-								{(() => {
-									const year = form.routeDate.getFullYear()
-									const month = form.routeDate.getMonth()
-									const firstDay = new Date(year, month, 1)
-									const lastDay = new Date(year, month + 1, 0)
-									const startingDay = firstDay.getDay()
-									const totalDays = lastDay.getDate()
-
-									const days = []
-									// Add empty spaces for days before the first day of the month
-									for (let i = 0; i < startingDay; i++) {
-										days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
-									}
-
-									// Add the days of the month
-									for (let i = 1; i <= totalDays; i++) {
-										const date = new Date(year, month, i)
-										const isSelected = date.toDateString() === form.routeDate.toDateString()
-										const isToday = date.toDateString() === new Date().toDateString()
-
-										days.push(<Pressable
-												key={i}
-												style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
-												onPress={() => {
-													setForm({...form, routeDate: date})
-													setShowDatePicker(false)
-												}}
-										>
-											<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
-												{i}
-											</Text>
-										</Pressable>)
-									}
-
-									return days
-								})()}
-							</View>
-						</Pressable>
-					</Pressable>
-				</Modal>)}
 					{showDateFromPicker && (<Modal
 						transparent={true}
 						visible={showDateFromPicker}
