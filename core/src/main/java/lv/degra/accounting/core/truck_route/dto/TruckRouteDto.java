@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.document.bill.model.UnitType;
-import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 
@@ -26,7 +25,7 @@ public class TruckRouteDto implements Serializable {
 	private Integer id;
 
 	private TruckRoutePageDto truckRoutePage;
-	private TruckDto routePageTruck;
+	private Integer routePageTruck;
 	@NotNull
 	private LocalDate routeDate;
 

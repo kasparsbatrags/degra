@@ -1,3 +1,5 @@
+import {commonStyles, formStyles} from '@/constants/styles'
+import {COLORS, CONTAINER_WIDTH, FONT} from '@/constants/theme'
 import {router} from 'expo-router'
 import React, {useState} from 'react'
 import {Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native'
@@ -6,8 +8,6 @@ import Button from '../../components/Button'
 import FormDropdown from '../../components/FormDropdown'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
-import {commonStyles, formStyles} from '../../constants/styles'
-import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 
 export default function TruckRouteScreen() {
 	const [hasCargo, setHasCargo] = useState(false)
@@ -65,7 +65,7 @@ export default function TruckRouteScreen() {
 					const defaultTruck = response.data[0].id.toString()
 					const currentDate = new Date()
 					setForm(prev => ({
-						...prev, routeDate: currentDate, truck: defaultTruck
+						...prev, routeDate: currentDate, routePageTruck: defaultTruck
 					}))
 					// Only check route page after both values are set
 					checkRoutePage(defaultTruck, currentDate)
