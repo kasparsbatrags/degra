@@ -180,7 +180,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    marginTop: 28,
+    marginTop: 10,
   },
   label: {
     fontFamily: FONT.medium,
