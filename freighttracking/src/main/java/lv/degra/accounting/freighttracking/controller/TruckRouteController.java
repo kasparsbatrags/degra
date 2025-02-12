@@ -76,7 +76,7 @@ public class TruckRouteController {
 		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-		Long truckId = Long.valueOf(truckRouteDto.getRoutePageTruck());
+		Long truckId = Long.valueOf(truckRouteDto.getTruckRoutePage().getId());
 		Truck truck = truckRepository.findById(truckId)
 				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
 

@@ -64,11 +64,9 @@ export default function TruckRouteScreen() {
 				if (response.data && response.data.length > 0) {
 					const defaultTruck = response.data[0].id.toString()
 					const currentDate = new Date()
-					setForm(prev => ({
-						...prev, routeDate: currentDate, routePageTruck: defaultTruck
-					}))
-					// Only check route page after both values are set
-					checkRoutePage(defaultTruck, currentDate)
+                setForm(prev => ({
+                    ...prev, routeDate: currentDate, routePageTruck: defaultTruck
+                }))
 				}
 			} catch (error) {
 				console.error('Failed to fetch default truck:', error)
@@ -93,7 +91,7 @@ export default function TruckRouteScreen() {
 			const now = new Date().toISOString() // Current time in ISO format for Instant
 			const payload = {
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
-				routePageTruck: form.routePageTruck ? {id: parseInt(form.routePageTruck)} : null,
+				truckRoutePage: form.routePageTruck ? {id: parseInt(form.routePageTruck)} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
 				inTruckObject: form.inTruckObject ? {id: parseInt(form.inTruckObject)} : null,
 				odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,

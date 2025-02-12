@@ -30,12 +30,9 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lastEndpoint, setLastEndpoint] = useState(endpoint);
 
-  useEffect(() => {
-    fetchOptions();
-  }, [endpoint]);
-
-  const fetchOptions = async () => {
+  const fetchOptions = React.useCallback(async () => {
     try {
       setLoading(true);
       const response = await freightAxiosInstance.get(endpoint);
@@ -77,13 +74,22 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 
       console.log('Formatted options:', formattedOptions);
       setOptions(formattedOptions);
-      
     } catch (err) {
       console.error('Failed to fetch options:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [endpoint]);
+
+  useEffect(() => {
+    // Fetch if we have an endpoint and either:
+    // 1. Options are empty, or
+    // 2. Endpoint has changed
+    if (endpoint && (options.length === 0 || endpoint !== lastEndpoint)) {
+      fetchOptions();
+      setLastEndpoint(endpoint);
+    }
+  }, [endpoint, options.length, lastEndpoint, fetchOptions]);
 
   const filteredOptions = filterValue 
     ? options.filter(opt => opt.id !== filterValue)

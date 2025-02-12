@@ -25,7 +25,6 @@ public class TruckRouteDto implements Serializable {
 	private Integer id;
 
 	private TruckRoutePageDto truckRoutePage;
-	private Integer routePageTruck;
 	@NotNull
 	private LocalDate routeDate;
 
