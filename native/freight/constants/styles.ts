@@ -23,6 +23,7 @@ export const commonStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+	  gap: 16,
   },
   center: {
     justifyContent: 'center',
