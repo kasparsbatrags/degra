@@ -63,7 +63,7 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 				});
 	}
 
-	public boolean userRoutePageByRouteDate(LocalDate routeDate, User user, Truck truck) {
+	public boolean userRoutePageByRouteDateExists(LocalDate routeDate, User user, Truck truck) {
 		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).isPresent();
 	}
 

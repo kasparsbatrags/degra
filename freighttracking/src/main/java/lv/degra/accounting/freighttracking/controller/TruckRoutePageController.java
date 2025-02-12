@@ -82,6 +82,6 @@ public class TruckRoutePageController {
 		Truck truck = truckService.getById(truckId)
 				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
 
-		return ResponseEntity.ok(truckRoutePageService.userRoutePageByRouteDate(routeDate, user, truck));
+		return ResponseEntity.ok(truckRoutePageService.userRoutePageByRouteDateExists(routeDate, user, truck));
 	}
 }

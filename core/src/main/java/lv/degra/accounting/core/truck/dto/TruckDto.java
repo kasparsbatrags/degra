@@ -19,16 +19,12 @@ import lombok.Setter;
 public class TruckDto implements Serializable {
 	@NotNull
 	private Integer id;
-	@NotNull
 	@Size(max = 20)
 	private String truckMaker;
-	@NotNull
 	@Size(max = 20)
 	private String truckModel;
-	@NotNull
 	@Size(max = 10)
 	private String registrationNumber;
-	@NotNull
 	private Double fuelConsumptionNorm;
 	private Boolean isDefault = false;
 

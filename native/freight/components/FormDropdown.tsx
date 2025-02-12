@@ -1,7 +1,8 @@
+import {WEB_SPACING} from '@/constants/webStyles'
 import React, {useEffect, useState} from 'react'
 import {FlatList, Modal, Platform, Pressable, StyleSheet, Text, View} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
-import {COLORS, FONT} from '../constants/theme'
+import {COLORS, FONT, SPACING} from '../constants/theme'
 
 interface FormDropdownProps {
   label: string;
@@ -31,6 +32,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastEndpoint, setLastEndpoint] = useState(endpoint);
+
 
   const fetchOptions = React.useCallback(async () => {
     try {
@@ -183,7 +185,9 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   );
 };
 
+const spacing = Platform.select({ web: WEB_SPACING, default: SPACING })
 const styles = StyleSheet.create({
+
   container: {
     marginBottom: 16,
     marginTop: 10,
@@ -192,7 +196,6 @@ const styles = StyleSheet.create({
     fontFamily: FONT.medium,
     fontSize: 16,
     color: COLORS.white,
-    marginBottom: 8,
   },
   input: {
     height: 48,

@@ -24,6 +24,8 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
 	  gap: 16,
+	  paddingBottom: 0,
+	  marginBbottom: 0,
   },
   center: {
     justifyContent: 'center',
@@ -127,7 +129,7 @@ export const formStyles = StyleSheet.create({
     padding: spacing.m,
   },
   inputContainer: {
-    marginBottom: spacing.m,
+
   },
   label: {
     fontFamily: FONT.medium,

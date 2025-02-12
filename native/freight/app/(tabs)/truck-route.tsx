@@ -92,7 +92,6 @@ export default function TruckRouteScreen() {
 			const payload = {
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
 				truckRoutePage: form.routePageTruck ? {
-					id: parseInt(form.routePageTruck),
 					truck: {id: parseInt(form.routePageTruck)}
 				} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
@@ -143,392 +142,399 @@ export default function TruckRouteScreen() {
 							/>
 						</View>
 					</View>
+					{showRoutePageError && (
+						<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
 
-					<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
-						<Text id="ss" style={styles.explanatoryText}>
-							Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju tās izveidošanai!
-						</Text>
-						<View style={commonStyles.row}>
-							<View style={[formStyles.inputContainer, styles.dateField]}>
-								<Text style={formStyles.label}>Sākuma datums</Text>
-								<TouchableOpacity
-										style={styles.dateButton}
-										onPress={() => setShowDateFromPicker(true)}
-								>
-									<Text style={styles.dateText}>
-										{`${form.dateFrom.getDate().toString().padStart(2, '0')}.${(form.dateFrom.getMonth() + 1).toString().padStart(2, '0')}.${form.dateFrom.getFullYear()}`}
-									</Text>
-								</TouchableOpacity>
-							</View>
-							<View style={[formStyles.inputContainer, styles.dateField]}>
-								<Text style={formStyles.label}>Beigu datums</Text>
-								<TouchableOpacity
-										style={styles.dateButton}
-										onPress={() => setShowDateToPicker(true)}
-								>
-									<Text style={styles.dateText}>
-										{`${form.dateTo.getDate().toString().padStart(2, '0')}.${(form.dateTo.getMonth() + 1).toString().padStart(2, '0')}.${form.dateTo.getFullYear()}`}
-									</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-						<FormInput
-								label="Degvielas atlikums ākumā"
-								value={form.fuelBalanceAtStart}
-								onChangeText={(text) => {
-									// Allow only numbers
-									if (/^\d*$/.test(text)) {
-										setForm({...form, fuelBalanceAtStart: text})
-									}
-								}}
-								placeholder="Ievadiet degvielas daudzumu"
-								keyboardType="numeric"
-						/>
+								<Text id="ss" style={styles.explanatoryText}>
+									Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju tās izveidošanai!
+								</Text>
 
-						{showDatePicker && (<Modal
-								transparent={true}
-								visible={showDatePicker}
-								animationType="fade"
-								onRequestClose={() => setShowDatePicker(false)}
-						>
-							<Pressable
-									style={styles.modalOverlay}
-									onPress={() => setShowDatePicker(false)}
+							<View style={commonStyles.row}>
+						<View style={[formStyles.inputContainer, styles.dateField]}>
+							<Text style={formStyles.label}>Sākuma datums</Text>
+							<TouchableOpacity
+									style={[styles.dateButton, showRoutePageError && !form.dateFrom && styles.inputError]}
+									onPress={() => setShowDateFromPicker(true)}
 							>
-								<Pressable
-										style={styles.modalContent}
-										onPress={(e) => e.stopPropagation()}
-								>
-									<View style={styles.calendarHeader}>
-										<TouchableOpacity
-												style={styles.monthButton}
-												onPress={() => {
-													const newDate = new Date(form.routeDate)
-													newDate.setMonth(newDate.getMonth() - 1)
-													setForm({...form, routeDate: newDate})
-												}}
-										>
-											<Text style={styles.monthButtonText}>←</Text>
-										</TouchableOpacity>
-										<Text style={styles.monthYearText}>
-											{form.routeDate.toLocaleDateString('lv-LV', {
-												month: 'long', year: 'numeric'
-											})}
-										</Text>
-										<TouchableOpacity
-												style={styles.monthButton}
-												onPress={() => {
-													const newDate = new Date(form.routeDate)
-													newDate.setMonth(newDate.getMonth() + 1)
-													setForm({...form, routeDate: newDate})
-												}}
-										>
-											<Text style={styles.monthButtonText}>→</Text>
-										</TouchableOpacity>
-									</View>
-									<View style={styles.weekDaysRow}>
-										{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
-											{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
-										</Text>))}
-									</View>
-									<View style={styles.daysGrid}>
-										{(() => {
-											const year = form.routeDate.getFullYear()
-											const month = form.routeDate.getMonth()
-											const firstDay = new Date(year, month, 1)
-											const lastDay = new Date(year, month + 1, 0)
-											const startingDay = firstDay.getDay()
-											const totalDays = lastDay.getDate()
+								<Text style={styles.dateText}>
+									{`${form.dateFrom.getDate().toString().padStart(2, '0')}.${(form.dateFrom.getMonth() + 1).toString().padStart(2, '0')}.${form.dateFrom.getFullYear()}`}
+								</Text>
+							</TouchableOpacity>
+							{showRoutePageError && !form.dateFrom && (<Text style={styles.errorText}>Lauks ir obligāts</Text>)}
+						</View>
+						<View style={[formStyles.inputContainer, styles.dateField]}>
+							<Text style={formStyles.label}>Beigu datums</Text>
+							<TouchableOpacity
+									style={[styles.dateButton, showRoutePageError && !form.dateTo && styles.inputError]}
+									onPress={() => setShowDateToPicker(true)}
+							>
+								<Text style={styles.dateText}>
+									{`${form.dateTo.getDate().toString().padStart(2, '0')}.${(form.dateTo.getMonth() + 1).toString().padStart(2, '0')}.${form.dateTo.getFullYear()}`}
+								</Text>
+							</TouchableOpacity>
+							{showRoutePageError && !form.dateTo && (<Text style={styles.errorText}>Lauks ir obligāts</Text>)}
+						</View>
 
-											const days = []
-											// Add empty spaces for days before the first day of the month
-											for (let i = 0; i < startingDay; i++) {
-												days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
-											}
-
-											// Add the days of the month
-											for (let i = 1; i <= totalDays; i++) {
-												const date = new Date(year, month, i)
-												const isSelected = date.toDateString() === form.routeDate.toDateString()
-												const isToday = date.toDateString() === new Date().toDateString()
-
-												days.push(<Pressable
-														key={i}
-														style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
-														onPress={() => {
-															setForm({...form, routeDate: date})
-															setShowDatePicker(false)
-														}}
-												>
-													<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
-														{i}
-													</Text>
-												</Pressable>)
-											}
-
-											return days
-										})()}
-									</View>
-								</Pressable>
-							</Pressable>
-						</Modal>)}
-						{showDateFromPicker && (<Modal
-										transparent={true}
-										visible={showDateFromPicker}
-										animationType="fade"
-										onRequestClose={() => setShowDateFromPicker(false)}
-								>
-									<Pressable
-											style={styles.modalOverlay}
-											onPress={() => setShowDateFromPicker(false)}
-									>
-										<Pressable
-												style={styles.modalContent}
-												onPress={(e) => e.stopPropagation()}
-										>
-											<View style={styles.calendarHeader}>
-												<TouchableOpacity
-														style={styles.monthButton}
-														onPress={() => {
-															const newDate = new Date(form.dateFrom)
-															newDate.setMonth(newDate.getMonth() - 1)
-															setForm({...form, dateFrom: newDate})
-														}}
-												>
-													<Text style={styles.monthButtonText}>←</Text>
-												</TouchableOpacity>
-												<Text style={styles.monthYearText}>
-													{form.dateFrom.toLocaleDateString('lv-LV', {
-														month: 'long', year: 'numeric'
-													})}
-												</Text>
-												<TouchableOpacity
-														style={styles.monthButton}
-														onPress={() => {
-															const newDate = new Date(form.dateFrom)
-															newDate.setMonth(newDate.getMonth() + 1)
-															setForm({...form, dateFrom: newDate})
-														}}
-												>
-													<Text style={styles.monthButtonText}>→</Text>
-												</TouchableOpacity>
-											</View>
-											<View style={styles.weekDaysRow}>
-												{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
-													{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
-												</Text>))}
-											</View>
-											<View style={styles.daysGrid}>
-												{(() => {
-													const year = form.dateFrom.getFullYear()
-													const month = form.dateFrom.getMonth()
-													const firstDay = new Date(year, month, 1)
-													const lastDay = new Date(year, month + 1, 0)
-													const startingDay = firstDay.getDay()
-													const totalDays = lastDay.getDate()
-
-													const days = []
-													// Add empty spaces for days before the first day of the month
-													for (let i = 0; i < startingDay; i++) {
-														days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
-													}
-
-													// Add the days of the month
-													for (let i = 1; i <= totalDays; i++) {
-														const date = new Date(year, month, i)
-														const isSelected = date.toDateString() === form.dateFrom.toDateString()
-														const isToday = date.toDateString() === new Date().toDateString()
-
-														days.push(<Pressable
-																key={i}
-																style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
-																onPress={() => {
-																	setForm({...form, dateFrom: date})
-																	setShowDateFromPicker(false)
-																}}
-														>
-															<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
-																{i}
-															</Text>
-														</Pressable>)
-													}
-
-													return days
-												})()}
-											</View>
-										</Pressable>
-									</Pressable>
-								</Modal>)}
-						{showDateToPicker && (<Modal
-										transparent={true}
-										visible={showDateToPicker}
-										animationType="fade"
-										onRequestClose={() => setShowDateToPicker(false)}
-								>
-									<Pressable
-											style={styles.modalOverlay}
-											onPress={() => setShowDateToPicker(false)}
-									>
-										<Pressable
-												style={styles.modalContent}
-												onPress={(e) => e.stopPropagation()}
-										>
-											<View style={styles.calendarHeader}>
-												<TouchableOpacity
-														style={styles.monthButton}
-														onPress={() => {
-															const newDate = new Date(form.dateTo)
-															newDate.setMonth(newDate.getMonth() - 1)
-															setForm({...form, dateTo: newDate})
-														}}
-												>
-													<Text style={styles.monthButtonText}>←</Text>
-												</TouchableOpacity>
-												<Text style={styles.monthYearText}>
-													{form.dateTo.toLocaleDateString('lv-LV', {
-														month: 'long', year: 'numeric'
-													})}
-												</Text>
-												<TouchableOpacity
-														style={styles.monthButton}
-														onPress={() => {
-															const newDate = new Date(form.dateTo)
-															newDate.setMonth(newDate.getMonth() + 1)
-															setForm({...form, dateTo: newDate})
-														}}
-												>
-													<Text style={styles.monthButtonText}>→</Text>
-												</TouchableOpacity>
-											</View>
-											<View style={styles.weekDaysRow}>
-												{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
-													{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
-												</Text>))}
-											</View>
-											<View style={styles.daysGrid}>
-												{(() => {
-													const year = form.dateTo.getFullYear()
-													const month = form.dateTo.getMonth()
-													const firstDay = new Date(year, month, 1)
-													const lastDay = new Date(year, month + 1, 0)
-													const startingDay = firstDay.getDay()
-													const totalDays = lastDay.getDate()
-
-													const days = []
-													// Add empty spaces for days before the first day of the month
-													for (let i = 0; i < startingDay; i++) {
-														days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
-													}
-
-													// Add the days of the month
-													for (let i = 1; i <= totalDays; i++) {
-														const date = new Date(year, month, i)
-														const isSelected = date.toDateString() === form.dateTo.toDateString()
-														const isToday = date.toDateString() === new Date().toDateString()
-
-														days.push(<Pressable
-																key={i}
-																style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
-																onPress={() => {
-																	setForm({...form, dateTo: date})
-																	setShowDateToPicker(false)
-																}}
-														>
-															<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
-																{i}
-															</Text>
-														</Pressable>)
-													}
-
-													return days
-												})()}
-											</View>
-										</Pressable>
-									</Pressable>
-								</Modal>)}
 					</View>
+					<FormInput
+							label="Degvielas atlikums sākumā"
+							value={form.fuelBalanceAtStart}
+							onChangeText={(text) => {
+								// Allow only numbers
+								if (/^\d*$/.test(text)) {
+									setForm({...form, fuelBalanceAtStart: text})
+								}
+							}}
+							placeholder="Ievadiet degvielas daudzumu"
+							keyboardType="numeric"
+							error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
+					/>
+
+					{showDatePicker && (<Modal
+						transparent={true}
+						visible={showDatePicker}
+						animationType="fade"
+						onRequestClose={() => setShowDatePicker(false)}
+				>
+					<Pressable
+							style={styles.modalOverlay}
+							onPress={() => setShowDatePicker(false)}
+					>
+						<Pressable
+								style={styles.modalContent}
+								onPress={(e) => e.stopPropagation()}
+						>
+							<View style={styles.calendarHeader}>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.routeDate)
+											newDate.setMonth(newDate.getMonth() - 1)
+											setForm({...form, routeDate: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>←</Text>
+								</TouchableOpacity>
+								<Text style={styles.monthYearText}>
+									{form.routeDate.toLocaleDateString('lv-LV', {
+										month: 'long', year: 'numeric'
+									})}
+								</Text>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.routeDate)
+											newDate.setMonth(newDate.getMonth() + 1)
+											setForm({...form, routeDate: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>→</Text>
+								</TouchableOpacity>
+							</View>
+							<View style={styles.weekDaysRow}>
+								{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
+									{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
+								</Text>))}
+							</View>
+							<View style={styles.daysGrid}>
+								{(() => {
+									const year = form.routeDate.getFullYear()
+									const month = form.routeDate.getMonth()
+									const firstDay = new Date(year, month, 1)
+									const lastDay = new Date(year, month + 1, 0)
+									const startingDay = firstDay.getDay()
+									const totalDays = lastDay.getDate()
+
+									const days = []
+									// Add empty spaces for days before the first day of the month
+									for (let i = 0; i < startingDay; i++) {
+										days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
+									}
+
+									// Add the days of the month
+									for (let i = 1; i <= totalDays; i++) {
+										const date = new Date(year, month, i)
+										const isSelected = date.toDateString() === form.routeDate.toDateString()
+										const isToday = date.toDateString() === new Date().toDateString()
+
+										days.push(<Pressable
+												key={i}
+												style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
+												onPress={() => {
+													setForm({...form, routeDate: date})
+													setShowDatePicker(false)
+												}}
+										>
+											<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
+												{i}
+											</Text>
+										</Pressable>)
+									}
+
+									return days
+								})()}
+							</View>
+						</Pressable>
+					</Pressable>
+				</Modal>)}
+					{showDateFromPicker && (<Modal
+						transparent={true}
+						visible={showDateFromPicker}
+						animationType="fade"
+						onRequestClose={() => setShowDateFromPicker(false)}
+				>
+					<Pressable
+							style={styles.modalOverlay}
+							onPress={() => setShowDateFromPicker(false)}
+					>
+						<Pressable
+								style={styles.modalContent}
+								onPress={(e) => e.stopPropagation()}
+						>
+							<View style={styles.calendarHeader}>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.dateFrom)
+											newDate.setMonth(newDate.getMonth() - 1)
+											setForm({...form, dateFrom: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>←</Text>
+								</TouchableOpacity>
+								<Text style={styles.monthYearText}>
+									{form.dateFrom.toLocaleDateString('lv-LV', {
+										month: 'long', year: 'numeric'
+									})}
+								</Text>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.dateFrom)
+											newDate.setMonth(newDate.getMonth() + 1)
+											setForm({...form, dateFrom: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>→</Text>
+								</TouchableOpacity>
+							</View>
+							<View style={styles.weekDaysRow}>
+								{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
+									{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
+								</Text>))}
+							</View>
+							<View style={styles.daysGrid}>
+								{(() => {
+									const year = form.dateFrom.getFullYear()
+									const month = form.dateFrom.getMonth()
+									const firstDay = new Date(year, month, 1)
+									const lastDay = new Date(year, month + 1, 0)
+									const startingDay = firstDay.getDay()
+									const totalDays = lastDay.getDate()
+
+									const days = []
+									// Add empty spaces for days before the first day of the month
+									for (let i = 0; i < startingDay; i++) {
+										days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
+									}
+
+									// Add the days of the month
+									for (let i = 1; i <= totalDays; i++) {
+										const date = new Date(year, month, i)
+										const isSelected = date.toDateString() === form.dateFrom.toDateString()
+										const isToday = date.toDateString() === new Date().toDateString()
+
+										days.push(<Pressable
+												key={i}
+												style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
+												onPress={() => {
+													setForm({...form, dateFrom: date})
+													setShowDateFromPicker(false)
+												}}
+										>
+											<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
+												{i}
+											</Text>
+										</Pressable>)
+									}
+
+									return days
+								})()}
+							</View>
+						</Pressable>
+					</Pressable>
+				</Modal>)}
+					{showDateToPicker && (<Modal
+						transparent={true}
+						visible={showDateToPicker}
+						animationType="fade"
+						onRequestClose={() => setShowDateToPicker(false)}
+				>
+					<Pressable
+							style={styles.modalOverlay}
+							onPress={() => setShowDateToPicker(false)}
+					>
+						<Pressable
+								style={styles.modalContent}
+								onPress={(e) => e.stopPropagation()}
+						>
+							<View style={styles.calendarHeader}>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.dateTo)
+											newDate.setMonth(newDate.getMonth() - 1)
+											setForm({...form, dateTo: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>←</Text>
+								</TouchableOpacity>
+								<Text style={styles.monthYearText}>
+									{form.dateTo.toLocaleDateString('lv-LV', {
+										month: 'long', year: 'numeric'
+									})}
+								</Text>
+								<TouchableOpacity
+										style={styles.monthButton}
+										onPress={() => {
+											const newDate = new Date(form.dateTo)
+											newDate.setMonth(newDate.getMonth() + 1)
+											setForm({...form, dateTo: newDate})
+										}}
+								>
+									<Text style={styles.monthButtonText}>→</Text>
+								</TouchableOpacity>
+							</View>
+							<View style={styles.weekDaysRow}>
+								{Array.from({length: 7}).map((_, i) => (<Text key={i} style={styles.weekDayText}>
+									{new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', {weekday: 'short'})}
+								</Text>))}
+							</View>
+							<View style={styles.daysGrid}>
+								{(() => {
+									const year = form.dateTo.getFullYear()
+									const month = form.dateTo.getMonth()
+									const firstDay = new Date(year, month, 1)
+									const lastDay = new Date(year, month + 1, 0)
+									const startingDay = firstDay.getDay()
+									const totalDays = lastDay.getDate()
+
+									const days = []
+									// Add empty spaces for days before the first day of the month
+									for (let i = 0; i < startingDay; i++) {
+										days.push(<View key={`empty-${i}`} style={styles.dayButton} />)
+									}
+
+									// Add the days of the month
+									for (let i = 1; i <= totalDays; i++) {
+										const date = new Date(year, month, i)
+										const isSelected = date.toDateString() === form.dateTo.toDateString()
+										const isToday = date.toDateString() === new Date().toDateString()
+
+										days.push(<Pressable
+												key={i}
+												style={[styles.dayButton, isSelected && styles.selectedDay, isToday && styles.todayDay]}
+												onPress={() => {
+													setForm({...form, dateTo: date})
+													setShowDateToPicker(false)
+												}}
+										>
+											<Text style={[styles.dayText, isSelected && styles.selectedDayText, isToday && styles.todayDayText]}>
+												{i}
+											</Text>
+										</Pressable>)
+									}
+
+									return days
+								})()}
+							</View>
+						</Pressable>
+					</Pressable>
+				</Modal>)}
 				</View>
+					)}
+			</View>
+
+			<FormInput
+					label="Odometrs izbraucot"
+					value={form.odometerAtStart}
+					onChangeText={(text) => {
+						// Allow only numbers
+						if (/^\d*$/.test(text)) {
+							setForm({...form, odometerAtStart: text})
+						}
+					}}
+					placeholder="Ievadiet rādījumu"
+					keyboardType="numeric"
+			/>
+			<FormDropdown
+					label="Sākuma punkts"
+					value={form.outTruckObject}
+					onSelect={(value) => setForm({...form, outTruckObject: value})}
+					placeholder="Izvēlieties sākuma punktu"
+					endpoint="api/freight-tracking/objects"
+			/>
+
+			<FormDropdown
+					label="Galamērķis"
+					value={form.inTruckObject}
+					onSelect={(value) => setForm({...form, inTruckObject: value})}
+					placeholder="Ievadiet galamērķi"
+					endpoint="api/freight-tracking/objects"
+					filterValue={form.outTruckObject}
+			/>
+
+			<View style={commonStyles.spaceBetween}>
+				<Text style={commonStyles.text}>Ar kravu</Text>
+				<Switch
+						value={hasCargo}
+						onValueChange={setHasCargo}
+						trackColor={{false: COLORS.black100, true: COLORS.secondary}}
+						thumbColor={COLORS.white}
+				/>
+			</View>
+
+			{hasCargo && (<>
+				<FormDropdown
+						label="Kravas tips"
+						value={form.cargoType}
+						onSelect={(value) => setForm({...form, cargoType: value})}
+						placeholder=" Izvēlieties"
+						endpoint="api/freight-tracking/cargo-types"
+				/>
 
 				<FormInput
-						label="Odometrs izbraucot"
-						value={form.odometerAtStart}
-						onChangeText={(text) => {
-							// Allow only numbers
-							if (/^\d*$/.test(text)) {
-								setForm({...form, odometerAtStart: text})
-							}
-						}}
-						placeholder="Ievadiet rādījumu"
+						label="Kravas apjoms"
+						value={form.cargoVolume}
+						onChangeText={(text) => setForm({...form, cargoVolume: text})}
+						placeholder="Ievadiet kravas apjomu"
 						keyboardType="numeric"
 				/>
 				<FormDropdown
-						label="Sākuma punkts"
-						value={form.outTruckObject}
-						onSelect={(value) => setForm({...form, outTruckObject: value})}
-						placeholder="Izvēlieties sākuma punktu"
-						endpoint="api/freight-tracking/objects"
+						label="Mērvienība"
+						value={form.unitType}
+						onSelect={(value) => setForm({...form, unitType: value})}
+						placeholder="Izvēlieties mērvienību"
+						endpoint="/api/freight-tracking/unit-types"
 				/>
+			</>)}
 
-				<FormDropdown
-						label="Galamērķis"
-						value={form.inTruckObject}
-						onSelect={(value) => setForm({...form, inTruckObject: value})}
-						placeholder="Ievadiet galamērķi"
-						endpoint="api/freight-tracking/objects"
-						filterValue={form.outTruckObject}
+			<View style={[commonStyles.row, styles.buttonContainer]}>
+				<Button
+						title="Atpakaļ"
+						onPress={() => router.push('/(tabs)')}
+						style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
 				/>
-
-				<View style={commonStyles.spaceBetween}>
-					<Text style={commonStyles.text}>Ar kravu</Text>
-					<Switch
-							value={hasCargo}
-							onValueChange={setHasCargo}
-							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
-							thumbColor={COLORS.white}
-					/>
-				</View>
-
-				{hasCargo && (<>
-					<FormDropdown
-							label="Kravas tips"
-							value={form.cargoType}
-							onSelect={(value) => setForm({...form, cargoType: value})}
-							placeholder=" Izvēlieties"
-							endpoint="api/freight-tracking/cargo-types"
-					/>
-
-					<FormInput
-							label="Kravas apjoms"
-							value={form.cargoVolume}
-							onChangeText={(text) => setForm({...form, cargoVolume: text})}
-							placeholder="Ievadiet kravas apjomu"
-							keyboardType="numeric"
-					/>
-					<FormDropdown
-							label="Mērvienība"
-							value={form.unitType}
-							onSelect={(value) => setForm({...form, unitType: value})}
-							placeholder="Izvēlieties mērvienību"
-							endpoint="/api/freight-tracking/unit-types"
-					/>
-				</>)}
-
-				<View style={[commonStyles.row, styles.buttonContainer]}>
-					<Button
-							title="Atpakaļ"
-							onPress={() => router.push('/(tabs)')}
-							style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
-					/>
-					<Button
-							title="Saglabāt"
-							onPress={handleSubmit}
-							style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
-							disabled={isSubmitting}
-					/>
-				</View>
+				<Button
+						title="Saglabāt"
+						onPress={handleSubmit}
+						style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
+						disabled={isSubmitting}
+				/>
 			</View>
-		</ScrollView>
-	</SafeAreaView>)
+		</View>
+	</ScrollView>
+</SafeAreaView>)
 }
 
 const styles = StyleSheet.create({
@@ -590,5 +596,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 	}, errorBorder: {
 		padding: 16, borderWidth: 2, borderColor: 'rgb(255, 156, 1)', borderRadius: 8,
+	}, inputError: {
+		borderWidth: 1, borderColor: 'rgb(255, 156, 1)',
+	}, errorText: {
+		color: 'rgb(255, 156, 1)', fontSize: 12, marginTop: 4, fontFamily: FONT.regular,
 	},
 })
