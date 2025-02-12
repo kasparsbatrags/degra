@@ -20,7 +20,7 @@ export default function TruckRouteScreen() {
 		outDateTime: new Date(),
 		dateFrom: new Date(),
 		dateTo: new Date(),
-		truck: '',
+		routePageTruck: '',
 		odometerAtStart: '',
 		odometerAtFinish: '',
 		outTruckObject: '',
@@ -79,11 +79,11 @@ export default function TruckRouteScreen() {
 
 	// Check route page when either truck or date changes, but not on initial mount
 	React.useEffect(() => {
-		const isInitialMount = !form.truck
+		const isInitialMount = !form.routePageTruck
 		if (!isInitialMount) {
-			checkRoutePage(form.truck, form.routeDate)
+			checkRoutePage(form.routePageTruck, form.routeDate)
 		}
-	}, [form.truck, form.routeDate, checkRoutePage])
+	}, [form.routePageTruck, form.routeDate, checkRoutePage])
 
 	const handleSubmit = async () => {
 		try {
@@ -93,7 +93,7 @@ export default function TruckRouteScreen() {
 			const now = new Date().toISOString() // Current time in ISO format for Instant
 			const payload = {
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
-				truck: form.truck ? {id: parseInt(form.truck)} : null,
+				routePageTruck: form.routePageTruck ? {id: parseInt(form.routePageTruck)} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
 				inTruckObject: form.inTruckObject ? {id: parseInt(form.inTruckObject)} : null,
 				odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
@@ -119,7 +119,7 @@ export default function TruckRouteScreen() {
 	return (<SafeAreaView style={commonStyles.safeArea}>
 		<ScrollView>
 			<View style={[commonStyles.content, styles.webContainer]}>
-				<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
+				<View id="top" style={[styles.topContainer]}>
 					<View style={commonStyles.row}>
 						<View style={[formStyles.inputContainer, styles.dateField]}>
 							<Text style={formStyles.label}>Brauciena datums</Text>
@@ -135,15 +135,17 @@ export default function TruckRouteScreen() {
 						<View style={[formStyles.inputContainer, styles.truckField]}>
 							<FormDropdown
 									label="Auto"
-									value={form.truck}
-									onSelect={(value) => setForm({...form, truck: value})}
+									value={form.routePageTruck}
+									onSelect={(value) => setForm({...form, routePageTruck: value})}
 									placeholder="Izvēlieties"
 									endpoint="/api/freight-tracking/trucks"
 							/>
 						</View>
 					</View>
+
+					<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
 					<Text id="ss" style={styles.explanatoryText}>
-						Konstatēts, ka nav izveidota maršruta lapa izvēlētam datumam un auto - norādiet informāciju tās izveidošanai!
+						Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju tās izveidošanai!
 					</Text>
 					<View style={commonStyles.row}>
 						<View style={[formStyles.inputContainer, styles.dateField]}>
@@ -169,6 +171,19 @@ export default function TruckRouteScreen() {
 							</TouchableOpacity>
 						</View>
 					</View>
+					<FormInput
+							label="Degvielas atlikums ākumā"
+							value={form.fuelBalanceAtStart}
+							onChangeText={(text) => {
+								// Allow only numbers
+								if (/^\d*$/.test(text)) {
+									setForm({...form, fuelBalanceAtStart: text})
+								}
+							}}
+							placeholder="Ievadiet degvielas daudzumu"
+							keyboardType="numeric"
+					/>
+
 					{showDatePicker && (<Modal
 									transparent={true}
 									visible={showDatePicker}
@@ -434,6 +449,7 @@ export default function TruckRouteScreen() {
 							</Pressable>
 						</Modal>
 					)}
+				</View>
 				</View>
 
 				<FormInput
