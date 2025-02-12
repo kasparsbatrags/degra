@@ -216,6 +216,19 @@ export default function TruckRouteScreen() {
 						/>
 					</View>
 
+					<FormInput
+							label="Saņemtā degviela"
+							value={form.fuelReceived}
+							onChangeText={(text) => {
+								// Allow only numbers
+								if (/^\d*$/.test(text)) {
+									setForm({...form, fuelReceived: text})
+								}
+							}}
+							placeholder="Ievadiet daudzumu"
+							keyboardType="numeric"
+					/>
+
 					{hasCargo && (
 						<>
 							<FormDropdown

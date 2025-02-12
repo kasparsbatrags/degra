@@ -1,5 +1,9 @@
 package lv.degra.accounting.core.truck_route.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,21 +13,27 @@ import org.springframework.stereotype.Service;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
+import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
+import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 
 @Service
 public class TruckRouteServiceImpl implements TruckRouteService {
 
+	private static final int LAST_TEN_RECORDS = 10;
+	private static final int FIRST_PAGE = 0;
 	private final TruckRouteRepository truckRouteRepository;
 	private final UserService userService;
 	private final FreightMapper freightMapper;
+	private final TruckRoutePageService truckRoutePageService;
 
 	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, UserService userService,
-			FreightMapper freightMapper) {
+			FreightMapper freightMapper, TruckRoutePageService truckRoutePageService) {
 		this.truckRouteRepository = truckRouteRepository;
 		this.userService = userService;
 		this.freightMapper = freightMapper;
+		this.truckRoutePageService = truckRoutePageService;
 	}
 
 	public Page<TruckRouteDto> getLastTruckRoutesByUserId(String userId, int page, int size) {
@@ -40,4 +50,24 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	public TruckRouteDto createOrUpdateTrucRoute(TruckRouteDto truckRouteDto) {
 		return freightMapper.toDto(truckRouteRepository.save(freightMapper.toEntity(truckRouteDto)));
 	}
+
+	public Optional<TruckRouteDto> getLastTruckRouteByUserId(String userId) {
+
+		List<TruckRoutePage> userRoutePages = truckRoutePageService.getUserRoutePages(userId, FIRST_PAGE, LAST_TEN_RECORDS);
+
+		LocalDate today = LocalDate.now();
+		Optional<TruckRoutePage> actualTruckRoutePage = userRoutePages.stream()
+				.filter(page -> !today.isBefore(page.getDateFrom()) && !today.isAfter(page.getDateTo()))
+				.findFirst();
+
+		Page<TruckRouteDto> truckRouteDtoPage = getLastTruckRoutesByUserId(userId, FIRST_PAGE, LAST_TEN_RECORDS);
+
+		Optional<TruckRouteDto> result = truckRouteDtoPage.getContent()
+				.stream()
+				.filter(route ->route.getTruckRoutePage().equals(truckRouteDtoPage.getContent().getFirst().getTruckRoutePage()))
+				.findFirst();
+
+		return result;
+	}
+
 }

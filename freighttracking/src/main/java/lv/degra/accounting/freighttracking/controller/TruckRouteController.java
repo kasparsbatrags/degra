@@ -1,7 +1,10 @@
 package lv.degra.accounting.freighttracking.controller;
 
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
+
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,6 +63,26 @@ public class TruckRouteController {
 			}
 
 			return ResponseEntity.ok(truckRoutesPages);
+		} catch (InvalidRequestException | ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new InternalServerErrorException("Failed to retrieve truck routes", e);
+		}
+	}
+
+	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_LAST)
+	public ResponseEntity<TruckRouteDto> getLastTruckRoute() {
+
+		String userId = UserContextUtils.getCurrentUserId();
+
+		try {
+			Optional<TruckRouteDto> truckRoute = truckRouteService.getLastTruckRouteByUserId(userId);
+
+			if (!truckRoute.isPresent()) {
+				throw new ResourceNotFoundException("No opened truck route found");
+			}
+
+			return ResponseEntity.ok(truckRoute.get());
 		} catch (InvalidRequestException | ResourceNotFoundException e) {
 			throw e;
 		} catch (Exception e) {

@@ -50,12 +50,12 @@ public class TruckRoute {
 	private Double cargoVolume;
 
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "unit_type_id")
 	private UnitType unitType;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "out_truck_object_id", nullable = false)
 	private TruckObject outTruckObject;
 
@@ -71,7 +71,7 @@ public class TruckRoute {
 	@Column(name = "odometer_at_finish")
 	private Long odometerAtFinish;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "in_truck_object_id")
 	private TruckObject inTruckObject;
 

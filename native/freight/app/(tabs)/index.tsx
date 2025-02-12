@@ -53,18 +53,10 @@ export default function HomeScreen() {
         <Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
 
       <Button
-        title="Sākt braucienu"
+        title="Starts"
         onPress={() => router.push('/truck-route')}
         style={styles.startTripButton}
       />
-      
-      <Button
-        title="Pievienot maršruta lapu"
-        onPress={() => router.push('/truck-route-page')}
-        style={styles.addRouteButton}
-      />
-      
-      <Text style={styles.sectionTitle}>Maršrutu saraksts</Text>
       
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />
