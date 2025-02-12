@@ -40,3 +40,9 @@ export const WEB_COMPONENT_SIZES = {
   button: Platform.select({ web: 36, default: 48 }), // Button height
   icon: Platform.select({ web: 20, default: 24 }), // Icon size
 };
+
+// Web-specific date picker adjustments
+export const WEB_DATE_PICKER = {
+  modalWidth: 320,
+  dayButtonSize: 36,
+};

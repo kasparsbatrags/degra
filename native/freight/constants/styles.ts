@@ -25,7 +25,7 @@ export const commonStyles = StyleSheet.create({
     alignItems: 'center',
 	  gap: 16,
 	  paddingBottom: 0,
-	  marginBbottom: 0,
+	  marginBottom: 0,
   },
   center: {
     justifyContent: 'center',
@@ -129,7 +129,8 @@ export const formStyles = StyleSheet.create({
     padding: spacing.m,
   },
   inputContainer: {
-
+    flex: 1,
+    height: 80,
   },
   label: {
     fontFamily: FONT.medium,
@@ -148,6 +149,93 @@ export const formStyles = StyleSheet.create({
   },
   submitButton: {
     marginTop: spacing.m,
+  },
+  // DatePicker specific styles
+  dateButton: {
+    ...commonStyles.input,
+    justifyContent: 'center',
+    backgroundColor: COLORS.black100,
+    padding: spacing.m,
+    borderRadius: borderRadius.s,
+    height: Platform.select({ web: WEB_COMPONENT_SIZES.input, default: 48 }),
+  },
+  dateText: {
+    ...commonStyles.text,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: COLORS.black100,
+    padding: spacing.l,
+    borderRadius: borderRadius.l,
+    width: '90%',
+    maxWidth: 400,
+  },
+  calendarHeader: {
+    ...commonStyles.spaceBetween,
+    marginBottom: spacing.l,
+  },
+  monthButton: {
+    padding: spacing.s,
+  },
+  monthButtonText: {
+    ...commonStyles.text,
+    fontSize: sizes.xxLarge,
+  },
+  monthYearText: {
+    ...commonStyles.text,
+    textTransform: 'capitalize',
+  },
+  weekDaysRow: {
+    ...commonStyles.row,
+    justifyContent: 'space-between',
+    marginBottom: spacing.s,
+  },
+  weekDayText: {
+    width: '14.28%',
+    textAlign: 'center',
+    color: COLORS.white,
+    marginBottom: spacing.s,
+    fontSize: sizes.small,
+    fontFamily: FONT.medium,
+    textTransform: 'uppercase',
+  },
+  daysGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingTop: spacing.s,
+  },
+  dayButton: {
+    width: '14.28%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: spacing.xs,
+    borderRadius: borderRadius.s,
+  },
+  dayText: {
+    ...commonStyles.text,
+    fontSize: sizes.medium,
+  },
+  selectedDay: {
+    backgroundColor: COLORS.secondary,
+  },
+  todayDay: {
+    borderWidth: 1,
+    borderColor: COLORS.secondary,
+  },
+  selectedDayText: {
+    ...commonStyles.text,
+    fontFamily: FONT.bold,
+  },
+  todayDayText: {
+    color: COLORS.secondary,
+    fontFamily: FONT.medium,
   },
 });
 
