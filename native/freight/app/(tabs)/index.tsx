@@ -1,11 +1,11 @@
+import {COLORS, CONTAINER_WIDTH, FONT} from '@/constants/theme'
+import {useAuth} from '@/context/AuthContext'
 import {useFocusEffect, useRouter} from 'expo-router'
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {ActivityIndicator, FlatList, Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
-import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
-import {useAuth} from '../../context/AuthContext'
 
 interface TruckRoutePage {
   id: number;
@@ -22,6 +22,18 @@ export default function HomeScreen() {
   const router = useRouter();
   const [routes, setRoutes] = useState<TruckRoutePage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buttonText, setButtonText] = useState('Starts');
+
+  const checkLastRouteStatus = useCallback(async () => {
+    try {
+      await freightAxiosInstance.get('/api/freight-tracking/truck-routes/last');
+      setButtonText('Finišs');
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setButtonText('Starts');
+      }
+    }
+  }, []);
 
   const fetchRoutes = async () => {
     try {
@@ -39,6 +51,7 @@ export default function HomeScreen() {
     React.useCallback(() => {
       setLoading(true);
       fetchRoutes();
+      checkLastRouteStatus();
     }, [])
   );
 
@@ -53,7 +66,7 @@ export default function HomeScreen() {
         <Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
 
       <Button
-        title="Starts"
+        title={buttonText}
         onPress={() => router.push('/truck-route')}
         style={styles.startTripButton}
       />
