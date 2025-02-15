@@ -12,6 +12,7 @@ interface FormDropdownProps {
   error?: string;
   endpoint: string;
   filterValue?: string;
+  disabled?: boolean;
 }
 
 interface Option {
@@ -27,6 +28,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
   error,
   endpoint,
   filterValue,
+  disabled,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
@@ -106,8 +108,11 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
         <select
           value={value}
           onChange={(e) => onSelect(e.target.value)}
-          style={styles.webSelect}
-          disabled={loading}
+          style={{
+            ...styles.webSelect,
+            ...(disabled ? styles.inputDisabled : {})
+          }}
+          disabled={loading || disabled}
         >
           <option value="" disabled>
             {loading ? 'Ielādē...' : placeholder}
@@ -142,8 +147,8 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <Pressable
-        style={[styles.input, error && styles.inputError]}
-        onPress={() => setIsOpen(true)}
+        style={[styles.input, error && styles.inputError, disabled && styles.inputDisabled]}
+        onPress={() => !disabled && setIsOpen(true)}
       >
         <Text style={[styles.inputText, !selectedOption && styles.placeholder]}>
           {selectedOption ? selectedOption.name : (loading ? 'Ielādē...' : placeholder)}
@@ -289,6 +294,9 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: Platform.select({ web: WEB_SIZES.medium, default: 16 }),
     color: COLORS.white,
+  },
+  inputDisabled: {
+    opacity: 0.5,
   },
 });
 

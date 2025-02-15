@@ -144,6 +144,9 @@ export const formStyles = StyleSheet.create({
   inputError: {
     ...commonStyles.inputError,
   },
+  inputDisabled: {
+    opacity: 0.5,
+  },
   errorText: {
     ...commonStyles.errorText,
   },

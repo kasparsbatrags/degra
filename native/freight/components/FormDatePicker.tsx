@@ -9,6 +9,7 @@ interface FormDatePickerProps {
   onChange: (date: Date) => void
   error?: string
   showError?: boolean
+  disabled?: boolean
 }
 
 export default function FormDatePicker({ 
@@ -16,7 +17,8 @@ export default function FormDatePicker({
   value, 
   onChange,
   error,
-  showError
+  showError,
+  disabled
 }: FormDatePickerProps) {
   const [showDatePicker, setShowDatePicker] = useState(false)
 
@@ -24,8 +26,13 @@ export default function FormDatePicker({
     <View style={formStyles.inputContainer}>
       <Text style={formStyles.label}>{label}</Text>
       <TouchableOpacity
-        style={[formStyles.dateButton, showError && formStyles.inputError]}
-        onPress={() => setShowDatePicker(true)}
+        style={[
+          formStyles.dateButton, 
+          showError && formStyles.inputError,
+          disabled && formStyles.inputDisabled
+        ]}
+        onPress={() => !disabled && setShowDatePicker(true)}
+        disabled={disabled}
       >
         <Text style={formStyles.dateText}>
           {`${value.getDate().toString().padStart(2, '0')}.${(value.getMonth() + 1).toString().padStart(2, '0')}.${value.getFullYear()}`}
