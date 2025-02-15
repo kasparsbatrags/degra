@@ -59,22 +59,53 @@ export default function TruckRouteScreen() {
 	React.useEffect(() => {
 		const initializeForm = async () => {
 			try {
-				// Check last route status
+				// Get last route and populate form
 				try {
-					await freightAxios.get('/api/freight-tracking/truck-routes/last')
+					const lastRouteResponse = await freightAxios.get('/api/freight-tracking/truck-routes/last')
+					const lastRoute = lastRouteResponse.data
 					setIsReadOnly(true)
+
+					// Set hasCargo based on whether cargoVolume exists
+					setHasCargo(!!lastRoute.cargoVolume)
+
+					// Convert dates from string to Date objects
+					const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date()
+					const dateFrom = lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date()
+					const dateTo = lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date()
+					const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date()
+
+					setForm({
+						routeDate,
+						outDateTime,
+						dateFrom,
+						dateTo,
+						routePageTruck: lastRoute.truckRoutePage?.truck?.id?.toString() || '',
+						odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
+						odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
+						outTruckObject: lastRoute.outTruckObject?.id?.toString() || '',
+						inTruckObject: lastRoute.inTruckObject?.id?.toString() || '',
+						cargoType: '',  // Not provided in the response
+						cargoVolume: lastRoute.cargoVolume?.toString() || '',
+						unitType: lastRoute.unitType || '',
+						fuelBalanceAtStart: lastRoute.fuelBalanceAtStart?.toString() || '',
+						fuelReceived: lastRoute.fuelReceived?.toString() || '',
+						notes: '',  // Not provided in the response
+					})
 				} catch (error: any) {
 					setIsReadOnly(false)
-				}
-
-				// Get default truck
-				const response = await freightAxios.get('/api/freight-tracking/trucks')
-				if (response.data && response.data.length > 0) {
-					const defaultTruck = response.data[0].id.toString()
-					const currentDate = new Date()
-					setForm(prev => ({
-						...prev, routeDate: currentDate, routePageTruck: defaultTruck
-					}))
+					// If no last route exists, get default truck
+					try {
+						const response = await freightAxios.get('/api/freight-tracking/trucks')
+						if (response.data && response.data.length > 0) {
+							const defaultTruck = response.data[0].id.toString()
+							const currentDate = new Date()
+							setForm(prev => ({
+								...prev, routeDate: currentDate, routePageTruck: defaultTruck
+							}))
+						}
+					} catch (truckError) {
+						console.error('Failed to fetch default truck:', truckError)
+					}
 				}
 			} catch (error) {
 				console.error('Failed to fetch default truck:', error)
@@ -124,181 +155,208 @@ export default function TruckRouteScreen() {
 		}
 	}
 
-	return (<SafeAreaView style={commonStyles.safeArea}>
-				<ScrollView>
-					<View style={[commonStyles.content, styles.webContainer]}>
-						<View id="top" style={[styles.topContainer]}>
-							<View style={commonStyles.row}>
-								<FormDatePicker
-										label="Brauciena datums"
-										value={form.routeDate}
-										onChange={(date) => setForm({...form, routeDate: date})}
-										disabled={isReadOnly}
+	return (
+		<SafeAreaView style={commonStyles.safeArea}>
+			<ScrollView>
+				<View style={[commonStyles.content, styles.webContainer]}>
+					<View id="top" style={[styles.topContainer]}>
+						<View style={commonStyles.row}>
+							<FormDatePicker
+								label="Brauciena datums"
+								value={form.routeDate}
+								onChange={(date) => setForm({...form, routeDate: date})}
+								disabled={isReadOnly}
+							/>
+							<View style={[formStyles.inputContainer, styles.truckField]}>
+								<FormDropdown
+									label="Auto"
+									value={form.routePageTruck}
+									onSelect={(value) => setForm({...form, routePageTruck: value})}
+									placeholder="Izvēlieties"
+									endpoint="/api/freight-tracking/trucks"
+									disabled={isReadOnly}
 								/>
-								<View style={[formStyles.inputContainer, styles.truckField]}>
-									<FormDropdown
-											label="Auto"
-											value={form.routePageTruck}
-											onSelect={(value) => setForm({...form, routePageTruck: value})}
-											placeholder="Izvēlieties"
-											endpoint="/api/freight-tracking/trucks"
-											disabled={isReadOnly}
+							</View>
+						</View>
+
+						{showRoutePageError && (
+							<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
+								<Text id="ss" style={styles.explanatoryText}>
+									Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
+									tās izveidošanai!
+								</Text>
+
+								<View style={commonStyles.row}>
+									<FormDatePicker
+										label="Sākuma datums"
+										value={form.dateFrom}
+										onChange={(date) => setForm({...form, dateFrom: date})}
+										error="Lauks ir obligāts"
+										showError={showRoutePageError && !form.dateFrom}
+									/>
+									<FormDatePicker
+										label="Beigu datums"
+										value={form.dateTo}
+										onChange={(date) => setForm({...form, dateTo: date})}
+										error="Lauks ir obligāts"
+										showError={showRoutePageError && !form.dateTo}
 									/>
 								</View>
+
+								<FormInput
+									label="Degvielas atlikums sākumā"
+									value={form.fuelBalanceAtStart}
+									onChangeText={(text) => {
+										// Allow only numbers
+										if (/^\d*$/.test(text)) {
+											setForm({...form, fuelBalanceAtStart: text})
+										}
+									}}
+									placeholder="Ievadiet degvielas daudzumu"
+									keyboardType="numeric"
+									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
+								/>
 							</View>
-
-							{showRoutePageError && (<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
-										<Text id="ss" style={styles.explanatoryText}>
-											Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
-											tās izveidošanai!
-										</Text>
-
-										<View style={commonStyles.row}>
-											<FormDatePicker
-													label="Sākuma datums"
-													value={form.dateFrom}
-													onChange={(date) => setForm({...form, dateFrom: date})}
-													error="Lauks ir obligāts"
-													showError={showRoutePageError && !form.dateFrom}
-											/>
-											<FormDatePicker
-													label="Beigu datums"
-													value={form.dateTo}
-													onChange={(date) => setForm({...form, dateTo: date})}
-													error="Lauks ir obligāts"
-													showError={showRoutePageError && !form.dateTo}
-											/>
-										</View>
-
-										<FormInput
-												label="Degvielas atlikums sākumā"
-												value={form.fuelBalanceAtStart}
-												onChangeText={(text) => {
-													// Allow only numbers
-													if (/^\d*$/.test(text)) {
-														setForm({...form, fuelBalanceAtStart: text})
-													}
-												}}
-												placeholder="Ievadiet degvielas daudzumu"
-												keyboardType="numeric"
-												error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
-										/>
-									</View>)}
-						</View>
-
-						<FormInput
-								label="Odometrs izbraucot"
-								value={form.odometerAtStart}
-								onChangeText={(text) => {
-									// Allow only numbers
-									if (/^\d*$/.test(text)) {
-										setForm({...form, odometerAtStart: text})
-									}
-								}}
-								placeholder="Ievadiet rādījumu"
-								keyboardType="numeric"
-						/>
-
-						<FormDropdown
-								label="Sākuma punkts"
-								value={form.outTruckObject}
-								onSelect={(value) => setForm({...form, outTruckObject: value})}
-								placeholder="Izvēlieties sākuma punktu"
-								endpoint="api/freight-tracking/objects"
-						/>
-
-						<FormDropdown
-								label="Galamērķis"
-								value={form.inTruckObject}
-								onSelect={(value) => setForm({...form, inTruckObject: value})}
-								placeholder="Ievadiet galamērķi"
-								endpoint="api/freight-tracking/objects"
-								filterValue={form.outTruckObject}
-						/>
-
-						<View style={commonStyles.spaceBetween}>
-							<Text style={commonStyles.text}>Ar kravu</Text>
-							<Switch
-									value={hasCargo}
-									onValueChange={setHasCargo}
-									trackColor={{false: COLORS.black100, true: COLORS.secondary}}
-									thumbColor={COLORS.white}
-							/>
-						</View>
-
-						<FormInput
-								label="Saņemtā degviela"
-								value={form.fuelReceived}
-								onChangeText={(text) => {
-									// Allow only numbers
-									if (/^\d*$/.test(text)) {
-										setForm({...form, fuelReceived: text})
-									}
-								}}
-								placeholder="Ievadiet daudzumu"
-								keyboardType="numeric"
-						/>
-
-						{hasCargo && (<>
-									<FormDropdown
-											label="Kravas tips"
-											value={form.cargoType}
-											onSelect={(value) => setForm({...form, cargoType: value})}
-											placeholder=" Izvēlieties"
-											endpoint="api/freight-tracking/cargo-types"
-									/>
-
-									<FormInput
-											label="Kravas apjoms"
-											value={form.cargoVolume}
-											onChangeText={(text) => setForm({...form, cargoVolume: text})}
-											placeholder="Ievadiet kravas apjomu"
-											keyboardType="numeric"
-									/>
-
-									<FormDropdown
-											label="Mērvienība"
-											value={form.unitType}
-											onSelect={(value) => setForm({...form, unitType: value})}
-											placeholder="Izvēlieties mērvienību"
-											endpoint="/api/freight-tracking/unit-types"
-									/>
-								</>)}
-
-						<View style={[commonStyles.row, styles.buttonContainer]}>
-							<Button
-									title="Atpakaļ"
-									onPress={() => router.push('/(tabs)')}
-									style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
-							/>
-							<Button
-									title="Saglabāt"
-									onPress={handleSubmit}
-									style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
-									disabled={isSubmitting}
-							/>
-						</View>
+						)}
 					</View>
-				</ScrollView>
-			</SafeAreaView>)
+
+					<FormInput
+						label="Odometrs izbraucot"
+						value={form.odometerAtStart}
+						onChangeText={(text) => {
+							// Allow only numbers
+							if (/^\d*$/.test(text)) {
+								setForm({...form, odometerAtStart: text})
+							}
+						}}
+						placeholder="Ievadiet rādījumu"
+						keyboardType="numeric"
+					/>
+
+					<FormDropdown
+						label="Sākuma punkts"
+						value={form.outTruckObject}
+						onSelect={(value) => setForm({...form, outTruckObject: value})}
+						placeholder="Izvēlieties sākuma punktu"
+						endpoint="api/freight-tracking/objects"
+					/>
+
+					<FormDropdown
+						label="Galamērķis"
+						value={form.inTruckObject}
+						onSelect={(value) => setForm({...form, inTruckObject: value})}
+						placeholder="Ievadiet galamērķi"
+						endpoint="api/freight-tracking/objects"
+						filterValue={form.outTruckObject}
+					/>
+
+					<View style={commonStyles.spaceBetween}>
+						<Text style={commonStyles.text}>Ar kravu</Text>
+						<Switch
+							value={hasCargo}
+							onValueChange={setHasCargo}
+							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
+							thumbColor={COLORS.white}
+						/>
+					</View>
+
+					<FormInput
+						label="Saņemtā degviela"
+						value={form.fuelReceived}
+						onChangeText={(text) => {
+							// Allow only numbers
+							if (/^\d*$/.test(text)) {
+								setForm({...form, fuelReceived: text})
+							}
+						}}
+						placeholder="Ievadiet daudzumu"
+						keyboardType="numeric"
+					/>
+
+					{hasCargo && (
+						<>
+							<FormDropdown
+								label="Kravas tips"
+								value={form.cargoType}
+								onSelect={(value) => setForm({...form, cargoType: value})}
+								placeholder=" Izvēlieties"
+								endpoint="api/freight-tracking/cargo-types"
+							/>
+
+							<FormInput
+								label="Kravas apjoms"
+								value={form.cargoVolume}
+								onChangeText={(text) => setForm({...form, cargoVolume: text})}
+								placeholder="Ievadiet kravas apjomu"
+								keyboardType="numeric"
+							/>
+
+							<FormDropdown
+								label="Mērvienība"
+								value={form.unitType}
+								onSelect={(value) => setForm({...form, unitType: value})}
+								placeholder="Izvēlieties mērvienību"
+								endpoint="/api/freight-tracking/unit-types"
+							/>
+						</>
+					)}
+
+					<View style={[commonStyles.row, styles.buttonContainer]}>
+						<Button
+							title="Atpakaļ"
+							onPress={() => router.push('/(tabs)')}
+							style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
+						/>
+						<Button
+							title="Saglabāt"
+							onPress={handleSubmit}
+							style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
+							disabled={isSubmitting}
+						/>
+					</View>
+				</View>
+			</ScrollView>
+		</SafeAreaView>
+	)
 }
 
 const styles = StyleSheet.create({
 	webContainer: Platform.OS === 'web' ? {
-		width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
-	} : {}, topContainer: {
+		width: '100%',
+		maxWidth: CONTAINER_WIDTH.web,
+		alignSelf: 'center',
+	} : {},
+	topContainer: {
 		marginBottom: 16,
-	}, truckField: {
-		flex: 1, marginTop: -4,
-	}, explanatoryText: {
-		...commonStyles.text, backgroundColor: COLORS.black100, padding: 16, borderRadius: 8, marginBottom: 16, textAlign: 'center',
-	}, buttonContainer: {
-		justifyContent: 'space-between', gap: 16, marginTop: 24,
-	}, backButton: {
-		flex: 1, backgroundColor: COLORS.black100,
-	}, submitButton: {
+	},
+	truckField: {
 		flex: 1,
-	}, errorBorder: {
-		padding: 16, borderWidth: 2, borderColor: 'rgb(255, 156, 1)', borderRadius: 8,
+		marginTop: -4,
+	},
+	explanatoryText: {
+		...commonStyles.text,
+		backgroundColor: COLORS.black100,
+		padding: 16,
+		borderRadius: 8,
+		marginBottom: 16,
+		textAlign: 'center',
+	},
+	buttonContainer: {
+		justifyContent: 'space-between',
+		gap: 16,
+		marginTop: 24,
+	},
+	backButton: {
+		flex: 1,
+		backgroundColor: COLORS.black100,
+	},
+	submitButton: {
+		flex: 1,
+	},
+	errorBorder: {
+		padding: 16,
+		borderWidth: 2,
+		borderColor: 'rgb(255, 156, 1)',
+		borderRadius: 8,
 	}
 })
