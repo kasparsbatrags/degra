@@ -1,8 +1,8 @@
+import {icons} from '@/constants/assets'
 import {formStyles} from '@/constants/styles'
+import {COLORS, FONT} from '@/constants/theme'
 import React, {useState} from 'react'
 import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
-import {icons} from '../constants/assets'
-import {COLORS, FONT} from '../constants/theme'
 
 interface FormInputProps {
   label: string;

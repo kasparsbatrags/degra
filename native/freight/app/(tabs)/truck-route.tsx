@@ -14,7 +14,6 @@ export default function TruckRouteScreen() {
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [isItRouteFinish, setIsRouteFinish] = useState(false)
-	const [isReadOnly, setIsReadOnly] = useState(false)
 	const [form, setForm] = useState({
 		routeDate: new Date(),
 		outDateTime: new Date(),
