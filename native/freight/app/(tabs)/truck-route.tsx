@@ -13,6 +13,7 @@ import freightAxios from '../../config/freightAxios'
 export default function TruckRouteScreen() {
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
+	const [isItRouteFinish, setIsRouteFinish] = useState(false)
 	const [isReadOnly, setIsReadOnly] = useState(false)
 	const [form, setForm] = useState({
 		routeDate: new Date(),
@@ -63,7 +64,7 @@ export default function TruckRouteScreen() {
 				try {
 					const lastRouteResponse = await freightAxios.get('/api/freight-tracking/truck-routes/last')
 					const lastRoute = lastRouteResponse.data
-					setIsReadOnly(true)
+					setIsRouteFinish(true)
 
 					// Set hasCargo based on whether cargoVolume exists
 					setHasCargo(!!lastRoute.cargoVolume)
@@ -92,7 +93,7 @@ export default function TruckRouteScreen() {
 						notes: '',  // Not provided in the response
 					})
 				} catch (error: any) {
-					setIsReadOnly(false)
+					setIsRouteFinish(false)
 					// If no last route exists, get default truck
 					try {
 						const response = await freightAxios.get('/api/freight-tracking/trucks')
@@ -165,7 +166,7 @@ export default function TruckRouteScreen() {
 								label="Brauciena datums"
 								value={form.routeDate}
 								onChange={(date) => setForm({...form, routeDate: date})}
-								disabled={isReadOnly}
+								disabled={isItRouteFinish}
 							/>
 							<View style={[formStyles.inputContainer, styles.truckField]}>
 								<FormDropdown
@@ -174,14 +175,14 @@ export default function TruckRouteScreen() {
 									onSelect={(value) => setForm({...form, routePageTruck: value})}
 									placeholder="Izvēlieties"
 									endpoint="/api/freight-tracking/trucks"
-									disabled={isReadOnly}
+									disabled={isItRouteFinish}
 								/>
 							</View>
 						</View>
 
 						{showRoutePageError && (
-							<View id="top" style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
-								<Text id="ss" style={styles.explanatoryText}>
+							<View style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
+								<Text style={styles.explanatoryText}>
 									Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
 									tās izveidošanai!
 								</Text>
@@ -231,6 +232,9 @@ export default function TruckRouteScreen() {
 						}}
 						placeholder="Ievadiet rādījumu"
 						keyboardType="numeric"
+						disabled={isItRouteFinish}
+							visible={isItRouteFinish}
+
 					/>
 
 					<FormDropdown
@@ -239,6 +243,7 @@ export default function TruckRouteScreen() {
 						onSelect={(value) => setForm({...form, outTruckObject: value})}
 						placeholder="Izvēlieties sākuma punktu"
 						endpoint="api/freight-tracking/objects"
+						disabled={isItRouteFinish}
 					/>
 
 					<FormDropdown
@@ -257,6 +262,7 @@ export default function TruckRouteScreen() {
 							onValueChange={setHasCargo}
 							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
 							thumbColor={COLORS.white}
+							disabled={isItRouteFinish}
 						/>
 					</View>
 

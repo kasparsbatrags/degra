@@ -1,3 +1,4 @@
+import {formStyles} from '@/constants/styles'
 import React, {useState} from 'react'
 import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
 import {icons} from '../constants/assets'
@@ -15,6 +16,8 @@ interface FormInputProps {
   editable?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
+  disabled?: boolean;
+  visible?: boolean;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -29,8 +32,15 @@ const FormInput: React.FC<FormInputProps> = ({
   editable = true,
   multiline = false,
   numberOfLines = 1,
+  disabled = false,
+  visible = true,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  
+  if (!visible) {
+    return null;
+  }
+  
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -39,7 +49,7 @@ const FormInput: React.FC<FormInputProps> = ({
           style={[
             styles.input,
             error && styles.inputError,
-            !editable && styles.disabledInput,
+            disabled && formStyles.inputDisabled,
             multiline && { height: numberOfLines * 24 + 24 },
             secureTextEntry && { paddingRight: 50 }
           ]}
@@ -50,7 +60,7 @@ const FormInput: React.FC<FormInputProps> = ({
           secureTextEntry={secureTextEntry && !showPassword}
           autoCapitalize={autoCapitalize}
           keyboardType={keyboardType}
-          editable={editable}
+          editable={!disabled && editable}
           multiline={multiline}
           numberOfLines={numberOfLines}
         />
@@ -112,9 +122,6 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: COLORS.error,
     borderWidth: 1,
-  },
-  disabledInput: {
-    opacity: 0.5,
   },
   errorText: {
     fontFamily: FONT.regular,
