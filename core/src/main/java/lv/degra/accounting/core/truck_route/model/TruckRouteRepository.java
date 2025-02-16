@@ -13,4 +13,13 @@ public interface TruckRouteRepository extends JpaRepository<TruckRoute, Integer>
             ORDER BY tr.routeDate DESC
     """)
 	Page<TruckRoute> findByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+
+	@Query("""
+        SELECT tr FROM TruckRoute tr
+        WHERE tr.truckRoutePage.user.id = :userId
+            ORDER BY tr.routeDate DESC
+    """)
+	TruckRoute findByUserId(@Param("userId") Integer userId);
+
 }

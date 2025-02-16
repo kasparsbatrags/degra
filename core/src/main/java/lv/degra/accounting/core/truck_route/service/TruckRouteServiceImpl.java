@@ -1,7 +1,5 @@
 package lv.degra.accounting.core.truck_route.service;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -12,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
+import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
-import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
@@ -46,28 +44,27 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 				.map(freightMapper::toDto);
 	}
 
-
 	public TruckRouteDto createOrUpdateTrucRoute(TruckRouteDto truckRouteDto) {
 		return freightMapper.toDto(truckRouteRepository.save(freightMapper.toEntity(truckRouteDto)));
 	}
 
 	public Optional<TruckRouteDto> getLastTruckRouteByUserId(String userId) {
 
-		List<TruckRoutePage> userRoutePages = truckRoutePageService.getUserRoutePages(userId, FIRST_PAGE, LAST_TEN_RECORDS);
-
-		LocalDate today = LocalDate.now();
-		Optional<TruckRoutePage> actualTruckRoutePage = userRoutePages.stream()
-				.filter(page -> !today.isBefore(page.getDateFrom()) && !today.isAfter(page.getDateTo()))
-				.findFirst();
-
 		Page<TruckRouteDto> truckRouteDtoPage = getLastTruckRoutesByUserId(userId, FIRST_PAGE, LAST_TEN_RECORDS);
 
 		Optional<TruckRouteDto> result = truckRouteDtoPage.getContent()
 				.stream()
-				.filter(route ->route.getTruckRoutePage().equals(truckRouteDtoPage.getContent().getFirst().getTruckRoutePage()))
+				.filter(
+						route ->route.getTruckRoutePage().equals(truckRouteDtoPage.getContent().getFirst().getTruckRoutePage())
+						&& route.getInTruckObject() == null
+				)
 				.findFirst();
 
 		return result;
+	}
+
+	public Optional<TruckRoute> findById(Integer id) {
+		return truckRouteRepository.findById(id);
 	}
 
 }

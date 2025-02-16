@@ -110,13 +110,6 @@
 			<version>2.18.2</version>
 		</dependency>
 
-		<!-- Lombok (optional, for less boilerplate code) -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
