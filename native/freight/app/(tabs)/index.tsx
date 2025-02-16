@@ -98,7 +98,7 @@ export default function HomeScreen() {
           )}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Nav pieejamu maršrutu</Text>
+              <Text style={styles.emptyText}>Nav pieejamu maršrutu lapu</Text>
             </View>
           )}
         />

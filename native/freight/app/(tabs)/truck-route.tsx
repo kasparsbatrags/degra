@@ -15,10 +15,11 @@ export default function TruckRouteScreen() {
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [isItRouteFinish, setIsRouteFinish] = useState(false)
 	const [form, setForm] = useState({
+		id: '',
 		routeDate: new Date(),
 		outDateTime: new Date(),
-		dateFrom: new Date(),
-		dateTo: new Date(),
+		dateFrom: '',
+		dateTo: '',
 		routePageTruck: '',
 		odometerAtStart: '',
 		odometerAtFinish: '',
@@ -70,15 +71,16 @@ export default function TruckRouteScreen() {
 
 					// Convert dates from string to Date objects
 					const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date()
-					const dateFrom = lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date()
-					const dateTo = lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date()
+					// const dateFrom = lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date()
+					// const dateTo = lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date()
 					const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date()
 
 					setForm({
+						id: lastRoute.id?.toString() || '',
 						routeDate,
 						outDateTime,
-						dateFrom,
-						dateTo,
+						dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
+						dateTo: lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date(),
 						routePageTruck: lastRoute.truckRoutePage?.truck?.id?.toString() || '',
 						odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
 						odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
@@ -129,8 +131,11 @@ export default function TruckRouteScreen() {
 			// Convert form data to match TruckRouteDto structure
 			const now = new Date().toISOString() // Current time in ISO format for Instant
 			const payload = {
+				id: form.id ? form.id : null,
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
 				truckRoutePage: form.routePageTruck ? {
+					dateFrom: form.dateFrom,
+					dateTo: form.dateTo,
 					truck: {id: parseInt(form.routePageTruck)}
 				} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
@@ -142,10 +147,16 @@ export default function TruckRouteScreen() {
 				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
 				fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : null,
 				outDateTime: now,
-				inDateTime: form.inTruckObject ? now : null // If destination is set, also set inDateTime
+				inDateTime: form.inTruckObject && isItRouteFinish ? now : null // If destination is set, also set inDateTime
 			}
 
-			await freightAxios.post('/api/freight-tracking/truck-routes', payload)
+			if (isItRouteFinish) {
+				// For finished routes, use PUT to update
+				await freightAxios.put('/api/freight-tracking/truck-routes', payload)
+			} else {
+				// For new routes, use POST to create
+				await freightAxios.post('/api/freight-tracking/truck-routes', payload)
+			}
 			router.push('/(tabs)')
 		} catch (error) {
 			console.error('Failed to submit form:', error)
@@ -215,6 +226,20 @@ export default function TruckRouteScreen() {
 									placeholder="Ievadiet degvielas daudzumu"
 									keyboardType="numeric"
 									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
+								/>
+
+								<FormInput
+										label="Odometrs izbraucot"
+										value={form.odometerAtStart}
+										onChangeText={(text) => {
+											// Allow only numbers
+											if (/^\d*$/.test(text)) {
+												setForm({...form, odometerAtStart: text})
+											}
+										}}
+										placeholder="Ievadiet rādījumu"
+										keyboardType="numeric"
+										disabled={isItRouteFinish}
 								/>
 							</View>
 						)}

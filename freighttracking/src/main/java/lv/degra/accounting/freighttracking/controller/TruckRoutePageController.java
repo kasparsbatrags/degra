@@ -65,8 +65,7 @@ public class TruckRoutePageController {
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + ENDPOINT_EXIST)
-	public ResponseEntity<Boolean> checkTruckRoutePageExists(@RequestParam Integer truckId, @RequestParam LocalDate routeDate) {
-
+	public ResponseEntity<TruckRoutePageDto> checkTruckRoutePageExists(@RequestParam Integer truckId, @RequestParam LocalDate routeDate) {
 		String userId = UserContextUtils.getCurrentUserId();
 
 		User user = userRepository.findByUserId(userId)

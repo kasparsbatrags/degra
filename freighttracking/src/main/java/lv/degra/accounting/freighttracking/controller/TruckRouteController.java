@@ -27,7 +27,6 @@ import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.model.TruckRepository;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.model.TruckRoute;
-import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
 import lv.degra.accounting.core.truck_route.service.TruckRouteService;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
@@ -43,16 +42,14 @@ public class TruckRouteController {
 	private final TruckRoutePageService truckRoutePageService;
 	private final UserRepository userRepository;
 	private final TruckRepository truckRepository;
-	private final TruckRouteRepository truckRouteRepository;
 
 	@Autowired
 	public TruckRouteController(TruckRouteService truckRouteService, TruckRoutePageService truckRoutePageService,
-			UserRepository userRepository, TruckRepository truckRepository, TruckRouteRepository truckRouteRepository) {
+			UserRepository userRepository, TruckRepository truckRepository) {
 		this.truckRouteService = truckRouteService;
 		this.truckRoutePageService = truckRoutePageService;
 		this.userRepository = userRepository;
 		this.truckRepository = truckRepository;
-		this.truckRouteRepository = truckRouteRepository;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTES)
@@ -137,6 +134,12 @@ public class TruckRouteController {
 		if (!existRoute.getTruckRoutePage().getUser().getId().equals(user.getId())) {
 			throw new NotAllowedException("User not allow change TruckRoute with ID.");
 		}
+
+		Long truckId = Long.valueOf(truckRouteDto.getTruckRoutePage().getTruck().getId());
+		Truck truck = truckRepository.findById(truckId)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
+
+		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truck));
 
 		try {
 			TruckRouteDto updatedRoute = truckRouteService.createOrUpdateTrucRoute(truckRouteDto);

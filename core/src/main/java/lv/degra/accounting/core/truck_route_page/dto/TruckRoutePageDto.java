@@ -26,12 +26,9 @@ public class TruckRoutePageDto implements Serializable {
 	private LocalDate dateTo;
 	private TruckDto truck;
 	private UserDto user;
-	@NotNull
 	private String truckRegistrationNumber;
-	@NotNull
 	private Double fuelConsumptionNorm;
 	@NotNull
 	private Double fuelBalanceAtStart;
-	@NotNull
 	private Double fuelBalanceAtEnd;
 }

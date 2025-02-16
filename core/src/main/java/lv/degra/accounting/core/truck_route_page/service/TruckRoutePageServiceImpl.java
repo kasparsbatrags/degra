@@ -63,10 +63,11 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 				});
 	}
 
-	public boolean userRoutePageByRouteDateExists(LocalDate routeDate, User user, Truck truck) {
-		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).isPresent();
+	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, User user, Truck truck) {
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate)
+				.map(freightMapper::toDto)
+				.orElse(null);
 	}
-
 }
 
 

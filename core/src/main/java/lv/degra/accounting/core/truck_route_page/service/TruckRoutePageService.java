@@ -17,5 +17,5 @@ public interface TruckRoutePageService {
 
 	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user, @NotNull Truck truck);
 
-	boolean userRoutePageByRouteDateExists(@NotNull LocalDate routeDate, @NotNull User user, @NotNull Truck truck);
+	TruckRoutePageDto userRoutePageByRouteDateExists(@NotNull LocalDate routeDate, @NotNull User user, @NotNull Truck truck);
 }
