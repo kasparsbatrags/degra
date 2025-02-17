@@ -83,16 +83,6 @@ export const loadSession = async () => {
 
     const session = JSON.parse(sessionData);
     
-    // Pārbaudam vai tokens nav beidzies
-    if (session.expiresAt && Date.now() > session.expiresAt) {
-		debugger
-      await clearSession();
-      return {
-        accessToken: null,
-        user: null,
-      };
-    }
-
     return {
       accessToken: session.accessToken,
       user: session.user,

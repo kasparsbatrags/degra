@@ -1,5 +1,6 @@
 import {commonStyles, formStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH} from '@/constants/theme'
+import {useAuth} from '@/context/AuthContext'
 import {router} from 'expo-router'
 import React, {useState} from 'react'
 import {Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
@@ -11,6 +12,7 @@ import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 
 export default function TruckRouteScreen() {
+	const {user} = useAuth()
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [isItRouteFinish, setIsRouteFinish] = useState(false)
@@ -140,31 +142,17 @@ export default function TruckRouteScreen() {
 			const payload = {
 				id: form.id ? form.id : null,
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
-				truckRoutePage: form.routePageTruck ? (
-					existingRoutePage || {
-						id: form.id ? parseInt(form.id) : null,
+				truckRoutePage: form.routePageTruck ?
+					(existingRoutePage ? existingRoutePage : {
 						dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
 						dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
-						truck: {
-							id: parseInt(form.routePageTruck),
-							truckMaker: null,
-							truckModel: null,
-							registrationNumber: null,
-							fuelConsumptionNorm: null,
-							isDefault: false
+						truck: existingRoutePage?.truck || {
+							id: parseInt(existingRoutePage?.truck.id),
 						},
-						user: {
-							id: "1",
-							preferred_username: null,
-							email: null,
-							given_name: null,
-							family_name: null,
-							attributes: null
+						user: existingRoutePage?.user || {
+							id: parseInt(existingRoutePage?.user.id),
 						},
-						truckRegistrationNumber: null,
-						fuelConsumptionNorm: null,
 						fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-						fuelBalanceAtEnd: null
 					}
 				) : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
@@ -173,7 +161,7 @@ export default function TruckRouteScreen() {
 				odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : null,
 				cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,
 				unitType: hasCargo ? form.unitType : null,
-				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : existingRoutePage ? existingRoutePage.fuelBalanceAtStart : null,
 				fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : null,
 				outDateTime: now,
 				inDateTime: form.inTruckObject && isItRouteFinish ? now : null // If destination is set, also set inDateTime
@@ -276,7 +264,7 @@ export default function TruckRouteScreen() {
 					</View>
 
 					<FormInput
-						label="Odometrs izbraucot"
+						label="Odometrs startā"
 						value={form.odometerAtStart}
 						onChangeText={(text) => {
 							// Allow only numbers
@@ -287,7 +275,7 @@ export default function TruckRouteScreen() {
 						placeholder="Ievadiet rādījumu"
 						keyboardType="numeric"
 						disabled={isItRouteFinish}
-						visible={isItRouteFinish}
+						visible={!isItRouteFinish}
 						error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
 
 					/>
@@ -310,6 +298,26 @@ export default function TruckRouteScreen() {
 						endpoint="api/freight-tracking/objects"
 						filterValue={form.outTruckObject}
 					/>
+
+					<FormInput
+							label="Odometrs finišā"
+							value={form.odometerAtFinish}
+							onChangeText={(text) => {
+								// Allow only numbers
+								if (/^\d*$/.test(text)) {
+									setForm({...form, odometerAtFinish: text})
+								}
+							}}
+							placeholder="Ievadiet rādījumu"
+							keyboardType="numeric"
+							visible={isItRouteFinish}
+							error={!showRoutePageError && !form.odometerAtFinish ? 'Ievadiet datus!' : undefined}
+
+					/>
+
+
+
+
 
 					<View style={commonStyles.spaceBetween}>
 						<Text style={commonStyles.text}>Ar kravu</Text>
