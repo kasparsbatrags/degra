@@ -146,7 +146,15 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<skip>true</skip>
+					<mainClass>lv.degra.accounting.usermanager.UserManagerApplication</mainClass>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>

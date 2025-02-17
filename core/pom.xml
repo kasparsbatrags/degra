@@ -108,10 +108,15 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>repackage</id>
-						<phase>none</phase>
+						<id>default-repackage</id>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
