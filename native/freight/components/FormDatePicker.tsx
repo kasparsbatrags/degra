@@ -23,7 +23,7 @@ export default function FormDatePicker({
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   return (
-    <View style={formStyles.inputContainer}>
+    <View style={[formStyles.inputContainer, { flex: undefined, height: undefined, marginBottom: 16, marginTop: 28 }]}>
       <Text style={formStyles.label}>{label}</Text>
       <TouchableOpacity
         style={[
@@ -38,7 +38,7 @@ export default function FormDatePicker({
           {`${value.getDate().toString().padStart(2, '0')}.${(value.getMonth() + 1).toString().padStart(2, '0')}.${value.getFullYear()}`}
         </Text>
       </TouchableOpacity>
-      {error && showError && <Text style={formStyles.errorText}>{error}</Text>}
+      {error && showError && <Text style={[formStyles.errorText, { fontSize: 14, marginTop: 4 }]}>{error}</Text>}
 
       {showDatePicker && (
         <Modal
