@@ -288,7 +288,7 @@ export default function TruckRouteScreen() {
 						keyboardType="numeric"
 						disabled={isItRouteFinish}
 						visible={isItRouteFinish}
-						error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
+						error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
 
 					/>
 
@@ -299,6 +299,7 @@ export default function TruckRouteScreen() {
 						placeholder="Izvēlieties sākuma punktu"
 						endpoint="api/freight-tracking/objects"
 						disabled={isItRouteFinish}
+						error={!showRoutePageError && !form.outTruckObject ? 'Ievadiet datus!' : undefined}
 					/>
 
 					<FormDropdown

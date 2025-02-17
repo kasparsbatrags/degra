@@ -110,6 +110,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
           onChange={(e) => onSelect(e.target.value)}
           style={{
             ...styles.webSelect,
+            ...(error && styles.inputError),
             ...(disabled ? styles.inputDisabled : {})
           }}
           disabled={loading || disabled}
@@ -192,8 +193,8 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: Platform.select({ web: WEB_SPACING.m, default: 16 }),
-    marginTop: Platform.select({ web: WEB_SPACING.xs, default: 10 }),
+    marginBottom: 16,
+    marginTop: 28,
   },
   label: {
     fontFamily: FONT.medium,
@@ -223,9 +224,9 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: FONT.regular,
-    fontSize: Platform.select({ web: WEB_SIZES.small, default: 14 }),
+    fontSize: 14,
     color: COLORS.error,
-    marginTop: Platform.select({ web: WEB_SPACING.xs, default: 4 }),
+    marginTop: 4,
   },
   webSelect: Platform.select({
     web: {
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
       paddingLeft: WEB_SPACING.s,
       paddingHorizontal: WEB_SPACING.m,
       color: COLORS.white,
-      border: 'none',
+      border: '1px solid transparent',
       fontFamily: FONT.regular,
       fontSize: WEB_SIZES.medium,
       outline: 'none',
