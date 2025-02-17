@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
+    url: jdbc:postgresql://192.168.88.254:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 1
