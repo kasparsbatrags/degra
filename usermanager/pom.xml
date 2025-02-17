@@ -145,7 +145,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<skip>true</skip>
 					<mainClass>lv.degra.accounting.usermanager.UserManagerApplication</mainClass>
 				</configuration>
 				<executions>
