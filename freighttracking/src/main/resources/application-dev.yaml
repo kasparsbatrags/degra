@@ -14,4 +14,4 @@ server:
 
 app:
   security:
-    allowed-origins: "×"
+    allowed-origins: "http://localhost:8081"

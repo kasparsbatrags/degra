@@ -31,7 +31,7 @@ const webStorage = {
 // Izvēlamies storage implementāciju atkarībā no platformas
 const storage = Platform.OS === 'web' ? webStorage : SecureStore;
 
-export const saveSession = async (accessToken: string, refreshToken: string, expiresIn: number, user: any) => {
+export const saveSession = async (accessToken: string, expiresIn: number, user: any) => {
   try {
     if (!accessToken) {
       throw new Error("AccessToken ir tukšs vai undefined.");
@@ -43,7 +43,6 @@ export const saveSession = async (accessToken: string, refreshToken: string, exp
 
     const sessionData = {
       accessToken,
-      refreshToken,
       expiresIn,
       expiresAt: Date.now() + expiresIn * 1000,
       user: user || null
@@ -71,7 +70,6 @@ export const loadSession = async () => {
       console.warn("Storage not ready or error:", storageError);
       return {
         accessToken: null,
-        refreshToken: null,
         user: null,
       };
     }
@@ -79,7 +77,6 @@ export const loadSession = async () => {
     if (!sessionData) {
       return {
         accessToken: null,
-        refreshToken: null,
         user: null,
       };
     }
@@ -88,17 +85,16 @@ export const loadSession = async () => {
     
     // Pārbaudam vai tokens nav beidzies
     if (session.expiresAt && Date.now() > session.expiresAt) {
+		debugger
       await clearSession();
       return {
         accessToken: null,
-        refreshToken: null,
         user: null,
       };
     }
 
     return {
       accessToken: session.accessToken,
-      refreshToken: session.refreshToken,
       user: session.user,
     };
   } catch (error) {
@@ -106,7 +102,6 @@ export const loadSession = async () => {
     // Return null session instead of throwing to prevent app crash
     return {
       accessToken: null,
-      refreshToken: null,
       user: null,
     };
   }

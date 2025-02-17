@@ -8,14 +8,17 @@ import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,17 +51,25 @@ public class FreightTrackingSecurityConfig {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
+	@Value("${app.security.allowed-origins}")
+	private List<String> allowedOrigins;
+
+
 	@Bean
 	public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.securityMatcher(FREIGHT_TRACKING_PATH + "/**").cors(cors -> cors.configurationSource(freightTrackingCorsConfigurationSource()))
+		http.securityMatcher(FREIGHT_TRACKING_PATH + "/**")
+				.cors(cors ->
+						cors.configurationSource(freightTrackingCorsConfigurationSource()))
 				.csrf(csrf -> {
 					log.info("Disabling CSRF");
 					csrf.disable();
 				}).authorizeHttpRequests(
-						authz -> authz.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
+						authz -> authz.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_OBJECT + "/**").hasAuthority(USER_ROLE_NAME)
-								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME).anyRequest()
-								.authenticated()).addFilterBefore(new OncePerRequestFilter() {
+								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME)
+								.anyRequest().authenticated())
+				.addFilterBefore(new OncePerRequestFilter() {
 					@Override
 					protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 							FilterChain filterChain) throws ServletException, IOException {
@@ -108,11 +119,14 @@ public class FreightTrackingSecurityConfig {
 
 	@Bean
 	public CorsConfigurationSource freightTrackingCorsConfigurationSource() {
-		log.info("Configuring CORS");
+		log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedOrigin("*");  // Not recommended for production
-		configuration.addAllowedMethod("*");
-		configuration.addAllowedHeader("*");
+		configuration.setAllowedOrigins(allowedOrigins);
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+		configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);

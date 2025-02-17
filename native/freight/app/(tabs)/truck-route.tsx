@@ -14,12 +14,13 @@ export default function TruckRouteScreen() {
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [isItRouteFinish, setIsRouteFinish] = useState(false)
+	const [existingRoutePage, setExistingRoutePage] = useState<any>(null)
 	const [form, setForm] = useState({
 		id: '',
 		routeDate: new Date(),
 		outDateTime: new Date(),
-		dateFrom: '',
-		dateTo: '',
+		dateFrom: new Date(),
+		dateTo: new Date(),
 		routePageTruck: '',
 		odometerAtStart: '',
 		odometerAtFinish: '',
@@ -48,7 +49,13 @@ export default function TruckRouteScreen() {
 				try {
 					const formattedDate = date.toISOString().split('T')[0]
 					const response = await freightAxios.get(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
-					setShowRoutePageError(!response.data)
+					if (response.data) {
+						setExistingRoutePage(response.data)
+						setShowRoutePageError(false)
+					} else {
+						setExistingRoutePage(null)
+						setShowRoutePageError(true)
+					}
 				} catch (error) {
 					console.error('Failed to check route page:', error)
 				}
@@ -133,11 +140,33 @@ export default function TruckRouteScreen() {
 			const payload = {
 				id: form.id ? form.id : null,
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
-				truckRoutePage: form.routePageTruck ? {
-					dateFrom: form.dateFrom,
-					dateTo: form.dateTo,
-					truck: {id: parseInt(form.routePageTruck)}
-				} : null,
+				truckRoutePage: form.routePageTruck ? (
+					existingRoutePage || {
+						id: form.id ? parseInt(form.id) : null,
+						dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
+						dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
+						truck: {
+							id: parseInt(form.routePageTruck),
+							truckMaker: null,
+							truckModel: null,
+							registrationNumber: null,
+							fuelConsumptionNorm: null,
+							isDefault: false
+						},
+						user: {
+							id: "1",
+							preferred_username: null,
+							email: null,
+							given_name: null,
+							family_name: null,
+							attributes: null
+						},
+						truckRegistrationNumber: null,
+						fuelConsumptionNorm: null,
+						fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+						fuelBalanceAtEnd: null
+					}
+				) : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
 				inTruckObject: form.inTruckObject ? {id: parseInt(form.inTruckObject)} : null,
 				odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
@@ -225,7 +254,7 @@ export default function TruckRouteScreen() {
 									}}
 									placeholder="Ievadiet degvielas daudzumu"
 									keyboardType="numeric"
-									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Lauks ir obligāts' : undefined}
+									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
 								/>
 
 								<FormInput
@@ -240,6 +269,7 @@ export default function TruckRouteScreen() {
 										placeholder="Ievadiet rādījumu"
 										keyboardType="numeric"
 										disabled={isItRouteFinish}
+										error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
 								/>
 							</View>
 						)}
@@ -257,7 +287,8 @@ export default function TruckRouteScreen() {
 						placeholder="Ievadiet rādījumu"
 						keyboardType="numeric"
 						disabled={isItRouteFinish}
-							visible={isItRouteFinish}
+						visible={isItRouteFinish}
+						error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
 
 					/>
 

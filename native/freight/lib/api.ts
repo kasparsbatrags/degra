@@ -107,11 +107,11 @@ export const signIn = async (email: string, password: string) => {
     };
 
     // Save session data including user info
-    await saveSession(session.access_token, "", session.expires_in, user);
+    await saveSession(session.access_token, session.expires_in, user);
 
     return {
       accessToken: session.access_token,
-      refreshToken: "",
+      refreshToken: session.refresh_token,
       expiresIn: session.expires_in,
       user,
     };
@@ -152,7 +152,7 @@ export const getCurrentUser = async (): Promise<UserInfo | null> => {
       };
       
       // Save the user info in session
-      await saveSession(accessToken, '', 0, userInfo);
+      await saveSession(accessToken, 0, userInfo);
       
       return userInfo;
     }
@@ -175,17 +175,6 @@ export const getCurrentUser = async (): Promise<UserInfo | null> => {
 
 export const signOut = async (): Promise<void> => {
   try {
-    const { refreshToken } = await loadSession();
-    if (!refreshToken) {
-      // If no refresh token, just clear the session
-      await clearSession();
-      return;
-    }
-
-    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT, {
-      refreshToken,
-    });
-
     await clearSession();
   } catch (error: any) {
     console.error("Kļūda izrakstoties:", error);

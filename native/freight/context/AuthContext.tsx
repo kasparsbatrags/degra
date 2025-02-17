@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSignIn = async (email: string, password: string) => {
     try {
       const { accessToken, refreshToken, expiresIn, user } = await signIn(email, password);
-      await saveSession(accessToken, refreshToken, expiresIn, user);
+      await saveSession(accessToken, expiresIn, user);
       if (mountedRef.current) {
         setUser(user);
         setIsAuthenticated(true);

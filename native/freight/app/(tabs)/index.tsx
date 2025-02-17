@@ -27,10 +27,10 @@ export default function HomeScreen() {
   const checkLastRouteStatus = useCallback(async () => {
     try {
       await freightAxiosInstance.get('/api/freight-tracking/truck-routes/last');
-      setButtonText('Finišs');
+      setButtonText('FINIŠS');
     } catch (error: any) {
       if (error.response?.status === 404) {
-        setButtonText('Starts');
+        setButtonText('STARTS');
       }
     }
   }, []);

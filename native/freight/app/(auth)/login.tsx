@@ -36,7 +36,6 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       await signIn(form.email, form.password);
-      router.replace("/(tabs)");
     } catch (error: any) {
       if (error.message?.includes("Invalid credentials") || error.message === "Nepareizs e-pasts vai parole") {
         setFormErrors({
