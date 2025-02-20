@@ -48,12 +48,16 @@ import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 @Slf4j
 public class FreightTrackingSecurityConfig {
 
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Value("${app.security.allowed-origins}")
 	private List<String> allowedOrigins;
 
+
+	@Autowired
+	public FreightTrackingSecurityConfig(JwtTokenProvider jwtTokenProvider) {
+		this.jwtTokenProvider = jwtTokenProvider;
+	}
 
 	@Bean
 	public SecurityFilterChain freightTrackingSecurityFilterChain(HttpSecurity http) throws Exception {

@@ -18,11 +18,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>lv.degra</groupId>
-			<artifactId>shared-resources</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>lv.degra</groupId>
 			<artifactId>core</artifactId>
 			<version>1.0</version>
 		</dependency>

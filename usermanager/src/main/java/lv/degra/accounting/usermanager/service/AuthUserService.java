@@ -149,12 +149,13 @@ public class AuthUserService {
 		}
 
 		try {
-			return Truck.builder()
-					.truckMaker(attributes.get("truckMaker"))
-					.truckModel(attributes.get("truckModel"))
-					.registrationNumber(attributes.get("truckRegistrationNumber"))
-					.fuelConsumptionNorm(Double.parseDouble(attributes.get("fuelConsumptionNorm")))
-					.build();
+			Truck truck = new Truck();
+			truck.setTruckMaker(attributes.get("truckMaker"));
+			truck.setTruckModel(attributes.get("truckModel"));
+			truck.setRegistrationNumber(attributes.get("truckRegistrationNumber"));
+			truck.setFuelConsumptionNorm(Double.parseDouble(attributes.get("fuelConsumptionNorm")));
+			return truck;
+
 		} catch (NumberFormatException e) {
 			log.error("Invalid fuel consumption format: {}", e.getMessage());
 			throw new KeycloakIntegrationException("Invalid fuel consumption format", "INVALID_FUEL_CONSUMPTION");

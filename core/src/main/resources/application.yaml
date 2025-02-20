@@ -1,3 +1,5 @@
 spring:
-  profiles:
-    active: dev
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    parameters:
+      file.encoding: UTF-8

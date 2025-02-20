@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Audited
 @Table(name = "truck")
 public class Truck extends AuditInfo implements Serializable {
