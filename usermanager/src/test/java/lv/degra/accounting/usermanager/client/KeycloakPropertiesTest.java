@@ -15,6 +15,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
 
 @ContextConfiguration(classes = KeycloakPropertiesTest.TestConfig.class)
 @EnableConfigurationProperties(KeycloakProperties.class)

@@ -23,10 +23,11 @@ import org.springframework.util.MultiValueMap;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
+import lv.degra.accounting.core.user.authorize.client.KeycloakTokenClient;
+import lv.degra.accounting.core.user.authorize.service.AuthService;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.model.UserRepository;
-import lv.degra.accounting.usermanager.client.KeycloakProperties;
-import lv.degra.accounting.usermanager.client.KeycloakTokenClient;
 
 class AuthServiceTest {
 

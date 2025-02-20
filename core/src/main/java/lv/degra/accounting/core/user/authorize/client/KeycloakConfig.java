@@ -1,4 +1,4 @@
-package lv.degra.accounting.usermanager.client;
+package lv.degra.accounting.core.user.authorize.client;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;

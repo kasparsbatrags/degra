@@ -1,4 +1,4 @@
-package lv.degra.accounting.usermanager.client;
+package lv.degra.accounting.core.user.authorize.client;
 
 import java.util.Map;
 

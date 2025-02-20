@@ -1,6 +1,8 @@
-package lv.degra.accounting.usermanager.service;
+package lv.degra.accounting.core.user.authorize.service;
 
-import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
+
+
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.time.Instant;
 import java.util.Base64;
@@ -22,14 +24,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
+import lv.degra.accounting.core.user.authorize.client.KeycloakTokenClient;
 import lv.degra.accounting.core.user.exception.InvalidTokenException;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.TokenExpiredException;
 import lv.degra.accounting.core.user.exception.UserSaveException;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.model.UserRepository;
-import lv.degra.accounting.usermanager.client.KeycloakProperties;
-import lv.degra.accounting.usermanager.client.KeycloakTokenClient;
 
 @Service
 @Slf4j

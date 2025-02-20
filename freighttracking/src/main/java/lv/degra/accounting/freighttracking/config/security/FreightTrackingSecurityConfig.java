@@ -5,7 +5,7 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_OBJECT
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
-import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.usermanager.config.JwtTokenProvider;
+import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
 
 @Configuration
 @EnableWebSecurity

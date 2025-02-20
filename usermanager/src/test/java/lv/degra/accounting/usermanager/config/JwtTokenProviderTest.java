@@ -18,7 +18,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import lv.degra.accounting.usermanager.service.AuthService;
+import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
+import lv.degra.accounting.core.user.authorize.service.AuthService;
 
 class JwtTokenProviderTest {
 

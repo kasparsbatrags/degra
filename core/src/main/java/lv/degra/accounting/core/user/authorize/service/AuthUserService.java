@@ -1,6 +1,8 @@
-package lv.degra.accounting.usermanager.service;
+package lv.degra.accounting.core.user.authorize.service;
 
-import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
+
+
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
+import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
+import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
@@ -33,8 +37,6 @@ import lv.degra.accounting.core.user.exception.UserValidationException;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
-import lv.degra.accounting.usermanager.client.KeycloakProperties;
-import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 @Slf4j
 @Service

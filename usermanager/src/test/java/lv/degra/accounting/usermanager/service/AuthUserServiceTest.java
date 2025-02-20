@@ -31,6 +31,9 @@ import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
 import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
+import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
+import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
+import lv.degra.accounting.core.user.authorize.service.AuthUserService;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
@@ -39,8 +42,6 @@ import lv.degra.accounting.core.user.exception.UserValidationException;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.user.validator.PasswordValidator;
-import lv.degra.accounting.usermanager.client.KeycloakProperties;
-import lv.degra.accounting.usermanager.config.JwtTokenProvider;
 
 class AuthUserServiceTest {
 

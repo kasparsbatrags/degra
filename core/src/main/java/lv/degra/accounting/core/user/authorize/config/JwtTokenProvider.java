@@ -1,4 +1,4 @@
-package lv.degra.accounting.usermanager.config;
+package lv.degra.accounting.core.user.authorize.config;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.usermanager.service.AuthService;
+import lv.degra.accounting.core.user.authorize.service.AuthService;
 
 @Service
 @Slf4j

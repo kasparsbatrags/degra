@@ -5,9 +5,8 @@ import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LOGOUT;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REFRESH;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_REGISTER;
 import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
-import static lv.degra.accounting.usermanager.config.UserManagerConstants.BEARER_PREFIX;
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,12 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.config.dto.ApiResponse;
+import lv.degra.accounting.core.user.authorize.service.AuthService;
+import lv.degra.accounting.core.user.authorize.service.AuthUserService;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
 import lv.degra.accounting.core.user.exception.UserValidationException;
-import lv.degra.accounting.usermanager.service.AuthService;
-import lv.degra.accounting.usermanager.service.AuthUserService;
 
 @Slf4j
 @RestController
@@ -107,27 +103,6 @@ public class UserController {
             log.error("Kļūda izrakstīšanās laikā: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Neizdevās izrakstīties: " + e.getMessage()));
-        }
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse> getCurrentUser(Authentication authentication) {
-        try {
-            if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-                Map<String, Object> userData = new HashMap<>();
-                userData.put("id", jwt.getSubject());
-                userData.put("email", jwt.getClaimAsString("email"));
-                userData.put("given_name", jwt.getClaimAsString("given_name"));
-                userData.put("family_name", jwt.getClaimAsString("family_name"));
-                
-                return ResponseEntity.ok(new ApiResponse(true, "Lietotāja informācija iegūta", userData));
-            }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse(false, "Nav autorizēts"));
-        } catch (Exception e) {
-            log.error("Kļūda iegūstot lietotāja informāciju: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(false, "Neizdevās iegūt lietotāja informāciju"));
         }
     }
 
