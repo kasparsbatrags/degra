@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 15
+server:
+  port: 8080
+
+app:
+  security:
+    allowed-origins: "http://localhost:8081"
+
+logging:
+  level:
+    ROOT: INFO

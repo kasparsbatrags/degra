@@ -203,6 +203,7 @@ export default function TruckRouteScreen() {
 									placeholder="Izvēlieties"
 									endpoint="/api/freight-tracking/trucks"
 									disabled={isItRouteFinish}
+										error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
 								/>
 							</View>
 						</View>
