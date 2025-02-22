@@ -81,7 +81,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <View style={styles.routeCard}>
               <View style={styles.routeInfo}>
-                <Text style={styles.routeLabel}>Datums no - līdz:</Text>
+                <Text style={styles.routeLabel}>Periods:</Text>
                 <Text style={styles.routeText}>
                   {new Date(item.dateFrom).toLocaleDateString('lv-LV', {
                     day: '2-digit',

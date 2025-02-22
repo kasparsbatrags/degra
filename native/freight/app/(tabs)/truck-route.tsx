@@ -146,9 +146,9 @@ export default function TruckRouteScreen() {
 					(existingRoutePage ? existingRoutePage : {
 						dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
 						dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
-						truck: existingRoutePage?.truck || {
-							id: parseInt(existingRoutePage?.truck.id),
-						},
+						truck: existingRoutePage?.truck && existingRoutePage.truck.id
+								? existingRoutePage.truck
+								: { id: existingRoutePage?.truck?.id ? parseInt(existingRoutePage.truck.id) : form.routePageTruck },
 						user: existingRoutePage?.user || {
 							id: parseInt(existingRoutePage?.user.id),
 						},
@@ -251,8 +251,8 @@ export default function TruckRouteScreen() {
 										value={form.odometerAtStart}
 										onChangeText={(text) => {
 											// Allow only numbers
-											if (/^\d*$/.test(text)) {
-												setForm({...form, odometerAtStart: text})
+											if (/^\d*$/.test(text) && text !== "0") {
+												setForm({ ...form, odometerAtStart: text });
 											}
 										}}
 										placeholder="Ievadiet rādījumu"
@@ -276,7 +276,7 @@ export default function TruckRouteScreen() {
 						placeholder="Ievadiet rādījumu"
 						keyboardType="numeric"
 						disabled={isItRouteFinish}
-						visible={!isItRouteFinish}
+						visible={!showRoutePageError}
 						error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
 
 					/>
@@ -298,13 +298,14 @@ export default function TruckRouteScreen() {
 						placeholder="Ievadiet galamērķi"
 						endpoint="api/freight-tracking/objects"
 						filterValue={form.outTruckObject}
+						error={isItRouteFinish && !form.inTruckObject ? 'Ievadiet datus!' : undefined}
 					/>
 
 					<FormInput
 							label="Odometrs finišā"
 							value={form.odometerAtFinish}
 							onChangeText={(text) => {
-								// Allow only numbers
+								// Atļauj tikai ciparus
 								if (/^\d*$/.test(text)) {
 									setForm({...form, odometerAtFinish: text})
 								}
@@ -312,12 +313,11 @@ export default function TruckRouteScreen() {
 							placeholder="Ievadiet rādījumu"
 							keyboardType="numeric"
 							visible={isItRouteFinish}
-							error={!showRoutePageError && !form.odometerAtFinish ? 'Ievadiet datus!' : undefined}
+							error={!showRoutePageError
+									&& (!form.odometerAtFinish
+									|| (parseInt(form.odometerAtFinish, 10) <= parseInt(form.odometerAtStart, 10))) ? 'Ievadiet datus!' : undefined}
 
 					/>
-
-
-
 
 
 					<View style={commonStyles.spaceBetween}>
