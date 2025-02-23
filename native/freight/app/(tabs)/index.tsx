@@ -145,7 +145,7 @@ export default function HomeScreen() {
 							{item.activeTab === 'odometer' && (
 								<View style={styles.tabContent}>
 									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Sākuma rādījums:</Text>
+										<Text style={styles.routeLabelInline}>Sākumā:</Text>
 										<Text style={styles.routeText}>{item.odometerStart?.toLocaleString() ?? '0'} km</Text>
 									</View>
 									<View style={styles.routeRow}>
@@ -153,7 +153,7 @@ export default function HomeScreen() {
 										<Text style={[styles.routeText, styles.highlightedText]}>+{item.routeLength?.toLocaleString() ?? '0'} km</Text>
 									</View>
 									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Beigu rādījums:</Text>
+										<Text style={styles.routeLabelInline}>Beigās:</Text>
 										<Text style={styles.routeText}>
 											{item.odometerEnd?.toLocaleString() ?? 
 												((item.odometerStart && item.routeLength) 
@@ -168,15 +168,15 @@ export default function HomeScreen() {
 							{item.activeTab === 'fuel' && (
 								<View style={styles.tabContent}>
 									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Sākuma atlikums:</Text>
+										<Text style={styles.routeLabelInline}>Sākumā:</Text>
 										<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
 									</View>
 									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Saņemtā degviela:</Text>
+										<Text style={styles.routeLabelInline}>Saņemta:</Text>
 										<Text style={[styles.routeText, styles.highlightedText]}>+{item.receivedFuel ?? '0'} L</Text>
 									</View>
 									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Beigu atlikums:</Text>
+										<Text style={styles.routeLabelInline}>Beigās:</Text>
 										<Text style={styles.routeText}>{item.fuelBalanceAtEnd ?? '0'} L</Text>
 									</View>
 								</View>
@@ -257,13 +257,13 @@ const styles = StyleSheet.create<Styles>({
 		fontFamily: FONT.medium,
 		color: COLORS.gray,
 		marginRight: 8,
-		flex: 1,
+		flex: 0.33, // 1/3 of the width
 	},
 	routeText: {
 		fontSize: 16,
 		fontFamily: FONT.semiBold,
 		color: COLORS.white,
-		flex: 1,
+		flex: 0.67, // 2/3 of the width
 		textAlign: 'right',
 	},
 	emptyContainer: {
