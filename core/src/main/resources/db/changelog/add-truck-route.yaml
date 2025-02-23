@@ -82,6 +82,12 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Maršruta garums"
               - column:
+                  name: fuel_balance_at_start
+                  type: integer
+                  constraints:
+                    nullable: true
+                  remarks: "Degvielas daudzums sākumā"
+              - column:
                   name: fuel_received
                   type: integer
                   constraints:

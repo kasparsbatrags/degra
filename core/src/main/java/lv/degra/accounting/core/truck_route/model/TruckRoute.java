@@ -84,6 +84,9 @@ public class TruckRoute {
 	@Column(name = "fuel_received")
 	private Integer fuelReceived;
 
+	@Column(name = "fuel_balance_at_start")
+	private Double fuelBalanceAtStart;
+
 	@Column(name = "created_date_time")
 	private Instant createdDateTime;
 
