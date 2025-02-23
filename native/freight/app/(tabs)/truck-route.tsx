@@ -211,7 +211,7 @@ export default function TruckRouteScreen() {
 						{showRoutePageError && (
 							<View style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
 								<Text style={styles.explanatoryText}>
-									Konstatēts, ka nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
+									Nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
 									tās izveidošanai!
 								</Text>
 
