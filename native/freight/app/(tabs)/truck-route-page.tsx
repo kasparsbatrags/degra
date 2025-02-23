@@ -1,6 +1,6 @@
-import {router} from 'expo-router'
-import React, {useState} from 'react'
-import {Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {router, useLocalSearchParams} from 'expo-router'
+import React, {useEffect, useState} from 'react'
+import {ActivityIndicator, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
@@ -17,7 +17,10 @@ interface TruckRoutePageForm {
 }
 
 export default function TruckRoutePageScreen() {
+  const {id} = useLocalSearchParams<{id: string}>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!id);
+  const [isEditMode, setIsEditMode] = useState(!id);
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
   const [form, setForm] = useState<TruckRoutePageForm>({
@@ -27,11 +30,37 @@ export default function TruckRoutePageScreen() {
     fuelConsumptionNorm: '',
     fuelBalanceAtStart: '',
     fuelBalanceAtEnd: '',
-  })
+  });
+
+  useEffect(() => {
+    if (id) {
+      fetchRouteDetails();
+    }
+  }, [id]);
+
+  const fetchRouteDetails = async () => {
+    try {
+      const response = await freightAxios.get(`/api/freight-tracking/route-pages/${id}`);
+      const routeData = response.data;
+      
+      setForm({
+        dateFrom: new Date(routeData.dateFrom),
+        dateTo: new Date(routeData.dateTo),
+        truckRegistrationNumber: routeData.truckRegistrationNumber,
+        fuelConsumptionNorm: routeData.fuelConsumptionNorm.toString(),
+        fuelBalanceAtStart: routeData.fuelBalanceAtStart.toString(),
+        fuelBalanceAtEnd: routeData.fuelBalanceAtEnd?.toString() ?? '',
+      });
+    } catch (error) {
+      console.error('Failed to fetch route details:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       
       const payload = {
         dateFrom: form.dateFrom.toISOString().split('T')[0],
@@ -40,32 +69,53 @@ export default function TruckRoutePageScreen() {
         fuelConsumptionNorm: parseFloat(form.fuelConsumptionNorm),
         fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
         fuelBalanceAtEnd: form.fuelBalanceAtEnd ? parseFloat(form.fuelBalanceAtEnd) : null,
-      }
+      };
 
-      await freightAxios.post('/api/freight-tracking/route-pages', payload)
-      router.push('/(tabs)')
+      if (id) {
+        await freightAxios.put(`/api/freight-tracking/route-pages/${id}`, payload);
+      } else {
+        await freightAxios.post('/api/freight-tracking/route-pages', payload);
+      }
+      router.push('/(tabs)');
     } catch (error) {
-      console.error('Failed to submit form:', error)
+      console.error('Failed to submit form:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.secondary} />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.content}>
-          <Text style={styles.title}>Pievienot maršruta lapu</Text>
+          <Text style={styles.title}>
+            {id ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}
+          </Text>
 
-          <View style={styles.notificationContainer}>
-            <Text style={styles.notificationText}>Brauciena datums</Text>
-          </View>
+          {id && !isEditMode && (
+            <Button
+              title="Rediģēt"
+              onPress={() => setIsEditMode(true)}
+              style={styles.editButton}
+            />
+          )}
 
           <View style={[styles.dateContainer, styles.dateSection]}>
             <Text style={styles.label}>Datums no</Text>
             <TouchableOpacity 
-              style={styles.dateButton}
-              onPress={() => setShowDateFromPicker(true)}
+              style={[styles.dateButton, !isEditMode && styles.disabled]}
+              onPress={() => isEditMode && setShowDateFromPicker(true)}
+              disabled={!isEditMode}
             >
               <Text style={styles.dateText}>
                 {form.dateFrom.toLocaleDateString('lv-LV')}
@@ -76,8 +126,9 @@ export default function TruckRoutePageScreen() {
           <View style={styles.dateContainer}>
             <Text style={styles.label}>Datums līdz</Text>
             <TouchableOpacity 
-              style={styles.dateButton}
-              onPress={() => setShowDateToPicker(true)}
+              style={[styles.dateButton, !isEditMode && styles.disabled]}
+              onPress={() => isEditMode && setShowDateToPicker(true)}
+              disabled={!isEditMode}
             >
               <Text style={styles.dateText}>
                 {form.dateTo.toLocaleDateString('lv-LV')}
@@ -290,44 +341,48 @@ export default function TruckRoutePageScreen() {
           <FormInput
             label="Auto reģistrācijas numurs"
             value={form.truckRegistrationNumber}
-            onChangeText={(text) => setForm({...form, truckRegistrationNumber: text})}
+            onChangeText={(text) => isEditMode && setForm({...form, truckRegistrationNumber: text})}
             placeholder="Ievadiet auto reģistrācijas numuru"
+            editable={isEditMode}
           />
 
           <FormInput
             label="Degvielas patēriņa norma"
             value={form.fuelConsumptionNorm}
             onChangeText={(text) => {
-              if (/^\d*\.?\d*$/.test(text)) {
+              if (isEditMode && /^\d*\.?\d*$/.test(text)) {
                 setForm({...form, fuelConsumptionNorm: text})
               }
             }}
             placeholder="Ievadiet degvielas patēriņa normu"
             keyboardType="numeric"
+            editable={isEditMode}
           />
 
           <FormInput
             label="Degvielas atlikums sākumā"
             value={form.fuelBalanceAtStart}
             onChangeText={(text) => {
-              if (/^\d*\.?\d*$/.test(text)) {
+              if (isEditMode && /^\d*\.?\d*$/.test(text)) {
                 setForm({...form, fuelBalanceAtStart: text})
               }
             }}
             placeholder="Ievadiet degvielas atlikumu"
             keyboardType="numeric"
+            editable={isEditMode}
           />
 
           <FormInput
             label="Degvielas atlikums beigās"
             value={form.fuelBalanceAtEnd}
             onChangeText={(text) => {
-              if (/^\d*\.?\d*$/.test(text)) {
+              if (isEditMode && /^\d*\.?\d*$/.test(text)) {
                 setForm({...form, fuelBalanceAtEnd: text})
               }
             }}
             placeholder="Ievadiet degvielas atlikumu"
             keyboardType="numeric"
+            editable={isEditMode}
           />
 
           <View style={styles.buttonContainer}>
@@ -336,23 +391,30 @@ export default function TruckRoutePageScreen() {
               onPress={() => router.push('/(tabs)')}
               style={styles.backButton}
             />
-            <Button
-              title="Saglabāt"
-              onPress={handleSubmit}
-              style={styles.submitButton}
-              disabled={isSubmitting}
-            />
+            {isEditMode && (
+              <Button
+                title={id ? "Saglabāt" : "Pievienot"}
+                onPress={handleSubmit}
+                style={styles.submitButton}
+                disabled={isSubmitting}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.primary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: Platform.OS === 'web' ? {
     flex: 1,
@@ -372,6 +434,10 @@ const styles = StyleSheet.create({
     fontFamily: FONT.semiBold,
     color: COLORS.white,
     marginBottom: 24,
+  },
+  editButton: {
+    marginBottom: 16,
+    backgroundColor: COLORS.secondary,
   },
   notificationContainer: {
     backgroundColor: COLORS.black100,
@@ -419,6 +485,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black100,
     padding: 12,
     borderRadius: 8,
+  },
+  disabled: {
+    opacity: 0.5,
   },
   dateText: {
     color: COLORS.white,
@@ -506,4 +575,4 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     fontFamily: FONT.medium,
   },
-})
+});

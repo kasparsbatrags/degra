@@ -77,8 +77,18 @@ export default function HomeScreen() {
 					data={routes}
 					keyExtractor={(item) => item.id.toString()}
 					style={styles.list}
-					renderItem={({item}) => (<View style={styles.routeCard}>
-						<View style={styles.routeInfo}>
+					renderItem={({item}) => (
+						<Pressable 
+							style={({pressed}) => [
+								styles.routeCard,
+								pressed && styles.routeCardPressed
+							]}
+							onPress={() => router.push({
+								pathname: "/(tabs)/truck-route-page",
+								params: { id: item.id }
+							})}
+						>
+							<View style={styles.routeInfo}>
 							{/* Tab buttons */}
 							<View style={styles.tabContainer}>
 								<Pressable 
@@ -181,8 +191,9 @@ export default function HomeScreen() {
 									</View>
 								</View>
 							)}
-						</View>
-					</View>)}
+							</View>
+						</Pressable>
+					)}
 					ListEmptyComponent={() => (<View style={styles.emptyContainer}>
 						<Text style={styles.emptyText}>Nav pieejamu maršrutu lapu</Text>
 					</View>)}
@@ -192,6 +203,7 @@ export default function HomeScreen() {
 }
 
 type Styles = {
+	routeCardPressed: ViewStyle;
 	list: ViewStyle;
 	loader: ViewStyle;
 	routeCard: ViewStyle;
@@ -226,6 +238,10 @@ type Styles = {
 };
 
 const styles = StyleSheet.create<Styles>({
+	routeCardPressed: {
+		opacity: 0.7,
+		transform: [{scale: 0.98}],
+	},
 	list: {
 		marginTop: 16,
 	},
