@@ -288,7 +288,7 @@ export default function TruckRouteScreen() {
 						placeholder="Izvēlieties sākuma punktu"
 						endpoint="api/freight-tracking/objects"
 						disabled={isItRouteFinish}
-						error={!showRoutePageError && !form.outTruckObject ? 'Ievadiet datus!' : undefined}
+						error={!form.outTruckObject ? 'Ievadiet datus!' : undefined}
 					/>
 
 					<FormDropdown

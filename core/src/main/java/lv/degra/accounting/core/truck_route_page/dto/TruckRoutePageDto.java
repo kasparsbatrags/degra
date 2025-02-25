@@ -31,4 +31,9 @@ public class TruckRoutePageDto implements Serializable {
 	@NotNull
 	private Double fuelBalanceAtStart;
 	private Double fuelBalanceAtEnd;
+	private Double totalFuelReceived;
+
+	private Long odometerAtStart;
+	private Long odometerAtFinish;
+	private Long totalRouteLength;
 }

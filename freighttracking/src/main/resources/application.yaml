@@ -8,7 +8,7 @@ spring:
 
 logging:
   level:
-    ROOT: DEBUG
+    ROOT: INFO
 #    org.springframework.security: INFO
 #    org.springframework: INFO
 #    org.springframework.jdbc.datasource: INFO

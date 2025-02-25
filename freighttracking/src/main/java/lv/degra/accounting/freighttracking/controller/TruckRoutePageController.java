@@ -39,7 +39,7 @@ public class TruckRoutePageController {
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES)
-	public ResponseEntity<List<TruckRoutePageDto>> getTruckObjects(@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<List<TruckRoutePageDto>> getRoutePages(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
 		RequestValidator.validatePageRequest(page, size);

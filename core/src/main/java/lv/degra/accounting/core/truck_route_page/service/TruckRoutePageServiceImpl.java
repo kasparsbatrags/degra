@@ -3,7 +3,6 @@ package lv.degra.accounting.core.truck_route_page.service;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,7 +37,11 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	public List<TruckRoutePage> getUserRoutePages(String userId, int page, int size) {
 		User user = userService.getByUserId(userId).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-		return truckRoutePageRepository.findByUser(user, PageRequest.of(page, size, Sort.by(Sort.Order.desc("id")))).getContent();
+		List<TruckRoutePage> routePages = truckRoutePageRepository.findByUser(user,
+				PageRequest.of(page, size, Sort.by(Sort.Order.desc("id")))).getContent();
+
+		routePages.forEach(TruckRoutePage::calculateSummary);
+		return routePages;
 	}
 
 	public List<TruckRoutePageDto> getUserRoutePagesDto(String userId, int page, int size) {
@@ -47,27 +50,29 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 
 	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, Truck truck) {
 		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, truckRouteDto.getRouteDate())
-				.map(freightMapper::toDto)
-				.orElseGet(() -> {
-					TruckRoutePage newTruckRoutePage = new TruckRoutePage();
-					LocalDate routeDate = truckRouteDto.getRouteDate();
-					newTruckRoutePage.setDateFrom(routeDate.withDayOfMonth(1));
-					newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
-
-					Optional<Truck> userTruck = truckService.getDefaultTruckForUser(user);
-					userTruck.ifPresent(newTruckRoutePage::setTruck);
-
-					newTruckRoutePage.setUser(user);
-					newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
-					return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
-				});
+				.map(this::convertAndCalculateSummary).orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
 	}
 
 	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, User user, Truck truck) {
-		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate)
-				.map(freightMapper::toDto)
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).map(this::convertAndCalculateSummary)
 				.orElse(null);
 	}
+
+	private TruckRoutePageDto convertAndCalculateSummary(TruckRoutePage truckRoutePage) {
+		truckRoutePage.calculateSummary();
+		return freightMapper.toDto(truckRoutePage);
+	}
+
+	private TruckRoutePageDto createNewTruckRoutePage(TruckRouteDto truckRouteDto, User user) {
+		TruckRoutePage newTruckRoutePage = new TruckRoutePage();
+		LocalDate routeDate = truckRouteDto.getRouteDate();
+		newTruckRoutePage.setDateFrom(routeDate.withDayOfMonth(1));
+		newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
+
+		truckService.getDefaultTruckForUser(user).ifPresent(newTruckRoutePage::setTruck);
+
+		newTruckRoutePage.setUser(user);
+		newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
+		return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
+	}
 }
-
-
