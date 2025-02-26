@@ -1,5 +1,7 @@
 package lv.degra.accounting.core.truck_route.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,14 +72,22 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 		int routeLength = Objects.requireNonNullElse(truckRouteDto.getRouteLength(), 0);
 
 		if (routeLength <= 0) {
-			return Double.valueOf(0);
+			return 0.0;
 		}
 
-		Double fuelConsumptionNorm = Optional.ofNullable(truckRouteDto.getTruckRoutePage()).map(TruckRoutePageDto::getTruck)
-				.map(TruckDto::getFuelConsumptionNorm).filter(norm -> norm > 0).orElse(DEFAULT_CONSUMPTION_NORM);
+		double fuelConsumptionNorm = Optional.ofNullable(truckRouteDto.getTruckRoutePage())
+				.map(TruckRoutePageDto::getTruck)
+				.map(TruckDto::getFuelConsumptionNorm)
+				.filter(norm -> norm > 0)
+				.orElse(DEFAULT_CONSUMPTION_NORM);
 
-		return (fuelConsumptionNorm / 100 * routeLength);
+		double result = (fuelConsumptionNorm / 100) * routeLength;
+
+		return BigDecimal.valueOf(result)
+				.setScale(2, RoundingMode.HALF_UP)
+				.doubleValue();
 	}
+
 
 	public Optional<TruckRouteDto> getLastTruckRouteByUserId(String userId) {
 		Page<TruckRouteDto> truckRouteDtoPage = getLastTruckRoutesByUserId(userId, FIRST_PAGE, LAST_TEN_RECORDS);

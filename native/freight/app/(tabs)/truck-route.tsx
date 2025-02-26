@@ -11,13 +11,100 @@ import FormDropdown from '../../components/FormDropdown'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 
+interface TruckObject {
+    id: number;
+    name?: string;
+}
+
+interface User {
+    id: string;
+    preferred_username?: string;
+    email?: string;
+    given_name?: string;
+    family_name?: string;
+    attributes?: Record<string, string>;
+}
+
+interface Truck {
+    id: number;
+    truckMaker?: string;
+    truckModel?: string;
+    registrationNumber?: string;
+    fuelConsumptionNorm?: number;
+    isDefault?: boolean;
+}
+
+interface TruckRoutePage {
+    id?: number;
+    dateFrom: string;
+    dateTo: string;
+    truck: Truck;
+    user: User;
+    fuelBalanceAtStart: number | null;
+    fuelBalanceAtFinish?: number;
+    truckRegistrationNumber?: string;
+    fuelConsumptionNorm?: number;
+    totalFuelReceivedOnRoutes?: number;
+    totalFuelConsumedOnRoutes?: number;
+    fuelBalanceAtRoutesFinish?: number;
+    odometerAtRouteStart?: number;
+    odometerAtRouteFinish?: number;
+    computedTotalRoutesLength?: number;
+}
+
+interface TruckRouteDto {
+    id: number | null;
+    routeDate: string;
+    truckRoutePage: TruckRoutePage | null;
+    outTruckObject: TruckObject | null;
+    inTruckObject: TruckObject | null;
+    odometerAtStart: number | null;
+    odometerAtFinish: number | null;
+    cargoVolume: number | null;
+    unitType: string | null;
+    fuelBalanceAtStart: number | null;
+    fuelReceived: number | null;
+    outDateTime: string;
+    inDateTime: string | null;
+}
+
+interface CargoType {
+    id: number;
+    name: string;
+}
+
+interface UnitType {
+    id: number;
+    code: string;
+    name: string;
+}
+
+interface FormState {
+    id: string;
+    routeDate: Date;
+    outDateTime: Date;
+    dateFrom: Date;
+    dateTo: Date;
+    routePageTruck: string;
+    odometerAtStart: string;
+    odometerAtFinish: string;
+    outTruckObject: string;
+    inTruckObject: string;
+    cargoType: string; // Stores the ID as string for form handling
+    cargoVolume: string;
+    unitType: string; // Stores the code as string for form handling
+    fuelBalanceAtStart: string;
+    fuelReceived: string;
+    notes: string;
+}
+
 export default function TruckRouteScreen() {
 	const {user} = useAuth()
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
 	const [isItRouteFinish, setIsRouteFinish] = useState(false)
-	const [existingRoutePage, setExistingRoutePage] = useState<any>(null)
-	const [form, setForm] = useState({
+	const [existingRoutePage, setExistingRoutePage] = useState<TruckRoutePage | null>(null)
+	const [form, setForm] = useState<FormState>({
 		id: '',
 		routeDate: new Date(),
 		outDateTime: new Date(),
@@ -50,7 +137,7 @@ export default function TruckRouteScreen() {
 			timeoutId = setTimeout(async () => {
 				try {
 					const formattedDate = date.toISOString().split('T')[0]
-					const response = await freightAxios.get(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
+					const response = await freightAxios.get<TruckRoutePage>(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
 					if (response.data) {
 						setExistingRoutePage(response.data)
 						setShowRoutePageError(false)
@@ -71,7 +158,7 @@ export default function TruckRouteScreen() {
 			try {
 				// Get last route and populate form
 				try {
-					const lastRouteResponse = await freightAxios.get('/api/freight-tracking/truck-routes/last-active')
+					const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active')
 					const lastRoute = lastRouteResponse.data
 					setIsRouteFinish(true)
 
@@ -80,8 +167,6 @@ export default function TruckRouteScreen() {
 
 					// Convert dates from string to Date objects
 					const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date()
-					// const dateFrom = lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date()
-					// const dateTo = lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date()
 					const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date()
 
 					setForm({
@@ -139,22 +224,16 @@ export default function TruckRouteScreen() {
 
 			// Convert form data to match TruckRouteDto structure
 			const now = new Date().toISOString() // Current time in ISO format for Instant
-			const payload = {
-				id: form.id ? form.id : null,
+			const payload: TruckRouteDto = {
+				id: form.id ? parseInt(form.id) : null,
 				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
-				truckRoutePage: form.routePageTruck ?
-					(existingRoutePage ? existingRoutePage : {
-						dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
-						dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
-						truck: existingRoutePage?.truck && existingRoutePage.truck.id
-								? existingRoutePage.truck
-								: { id: existingRoutePage?.truck?.id ? parseInt(existingRoutePage.truck.id) : form.routePageTruck },
-						user: existingRoutePage?.user || {
-							id: parseInt(existingRoutePage?.user.id),
-						},
-						fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-					}
-				) : null,
+				truckRoutePage: form.routePageTruck ? {
+					dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
+					dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
+					truck: { id: parseInt(form.routePageTruck) },
+					user: { id: user?.id || '0' },
+					fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+				} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
 				inTruckObject: form.inTruckObject ? {id: parseInt(form.inTruckObject)} : null,
 				odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
@@ -318,7 +397,6 @@ export default function TruckRouteScreen() {
 									|| (parseInt(form.odometerAtFinish, 10) <= parseInt(form.odometerAtStart, 10))) ? 'Ievadiet datus!' : undefined}
 
 					/>
-
 
 					<View style={commonStyles.spaceBetween}>
 						<Text style={commonStyles.text}>Ar kravu</Text>
