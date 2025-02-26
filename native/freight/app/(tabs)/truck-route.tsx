@@ -68,15 +68,12 @@ interface TruckRouteDto {
     inDateTime: string | null;
 }
 
-interface CargoType {
-    id: number;
-    name: string;
-}
-
-interface UnitType {
-    id: number;
-    code: string;
-    name: string;
+interface Page<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
 }
 
 interface FormState {
@@ -148,17 +145,27 @@ export default function TruckRouteScreen() {
 				} catch (error) {
 					console.error('Failed to check route page:', error)
 				}
-			}, 300) // 300ms debounce
+			}, 300)
 		}
 	})(), [])
 
 	// Initialize form and check last route status
 	React.useEffect(() => {
-		const initializeForm = async () => {
+	const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
+		try {
+			const response = await freightAxios.get<Page<TruckRouteDto>>('/api/freight-tracking/truck-routes?pageSize=1');
+			return response.data.content[0] || null;
+		} catch (error) {
+			console.error('Failed to fetch last finished route:', error);
+			return null;
+		}
+	};
+
+	const initializeForm = async () => {
+		try {
+			// Get last route and populate form
 			try {
-				// Get last route and populate form
-				try {
-					const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active')
+				const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active');
 					const lastRoute = lastRouteResponse.data
 					setIsRouteFinish(true)
 
@@ -190,13 +197,20 @@ export default function TruckRouteScreen() {
 				} catch (error: any) {
 					setIsRouteFinish(false)
 					// If no last route exists, get default truck
+					// Get last finished route for odometer value
+					const lastFinishedRoute = await getLastFinishedRoute();
+					
 					try {
 						const response = await freightAxios.get('/api/freight-tracking/trucks')
 						if (response.data && response.data.length > 0) {
 							const defaultTruck = response.data[0].id.toString()
 							const currentDate = new Date()
 							setForm(prev => ({
-								...prev, routeDate: currentDate, routePageTruck: defaultTruck
+								...prev,
+								routeDate: currentDate,
+								routePageTruck: defaultTruck,
+								odometerAtStart: lastFinishedRoute?.odometerAtFinish?.toString() || '',
+								outTruckObject: lastFinishedRoute?.inTruckObject?.id?.toString() || ''
 							}))
 						}
 					} catch (truckError) {
