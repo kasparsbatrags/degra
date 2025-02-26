@@ -71,7 +71,7 @@ export default function TruckRouteScreen() {
 			try {
 				// Get last route and populate form
 				try {
-					const lastRouteResponse = await freightAxios.get('/api/freight-tracking/truck-routes/last')
+					const lastRouteResponse = await freightAxios.get('/api/freight-tracking/truck-routes/last-active')
 					const lastRoute = lastRouteResponse.data
 					setIsRouteFinish(true)
 

@@ -32,18 +32,23 @@ public class TruckRouteDto implements Serializable {
 	private Integer routeNumber;
 	private Double cargoVolume;
 	private UnitType unitType;
+
 	@NotNull
 	private TruckObjectDto outTruckObject;
+	private Instant outDateTime;
 	@NotNull
 	@Positive
 	private Long odometerAtStart;
-	private Instant outDateTime;
 
-	@Positive
-	private Long odometerAtFinish;
 	private TruckObjectDto inTruckObject;
 	private Instant inDateTime;
-	private Long routeLength;
+	@Positive
+	private Long odometerAtFinish;
+	private Integer routeLength;
+
+
 	private Double fuelBalanceAtStart;
+	private Double fuelConsumed;
 	private Double fuelReceived;
+	private Double fuelBalanceAtFinish;
 }

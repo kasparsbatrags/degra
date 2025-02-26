@@ -63,36 +63,47 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Column(name = "fuel_balance_at_end", nullable = false)
 	private Double fuelBalanceAtFinish;
 
-	@Transient
-	private Integer totalFuelReceived;
-
 	@OneToMany(mappedBy = "truckRoutePage", fetch = FetchType.EAGER)
 	private List<TruckRoute> routes;
 
 	@Transient
-	private Long calculatedOdometerAtStart;
+	private Double totalFuelReceivedOnRoutes;
 
 	@Transient
-	private Long calculatedOdometerAtFinish;
+	private Double totalFuelConsumedOnRoutes;
 
 	@Transient
-	private Long calculatedTotalRouteLength;
+	private Double fuelBalanceAtRoutesFinish;
+
+
+	@Transient
+	private Long odometerAtRouteStart;
+
+	@Transient
+	private Long odometerAtRouteFinish;
+
+	@Transient
+	private Long computedTotalRoutesLength;
 
 
 	public void calculateSummary() {
 		if (routes != null && !routes.isEmpty()) {
 			routes.sort(Comparator.comparing(TruckRoute::getOutDateTime));
-			this.calculatedOdometerAtStart = routes.getFirst().getOdometerAtStart();
+			this.odometerAtRouteStart = routes.getFirst().getOdometerAtStart();
 
 			routes.sort(Comparator.comparing(TruckRoute::getOutDateTime).reversed());
-			this.calculatedOdometerAtFinish = routes.getFirst().getOdometerAtFinish();
+			this.odometerAtRouteFinish = routes.getFirst().getOdometerAtFinish();
+			this.fuelBalanceAtRoutesFinish = routes.getFirst().getFuelBalanceAtFinish();
 
-			this.calculatedTotalRouteLength = routes.stream()
+			this.totalFuelConsumedOnRoutes  = routes.stream()
+					.mapToDouble(route -> Optional.ofNullable(route.getFuelConsumed()).orElse((double) 0))
+					.sum();
+			this.computedTotalRoutesLength = routes.stream()
 					.mapToLong(route -> Optional.ofNullable(route.getRouteLength()).orElse(0L))
 					.sum();
 
-			this.totalFuelReceived = routes.stream()
-					.mapToInt(route -> Optional.ofNullable(route.getFuelReceived()).orElse(0))
+			this.totalFuelReceivedOnRoutes  = routes.stream()
+					.mapToDouble(route -> Optional.ofNullable(route.getFuelReceived()).orElse(Double.valueOf(0)))
 					.sum();
 
 		}

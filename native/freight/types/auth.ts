@@ -15,15 +15,3 @@ export interface UserRegistrationData {
   password: string;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-  user: UserInfo;
-}
-
-export interface AuthState {
-  isAuthenticated: boolean;
-  user: UserInfo | null;
-  loading: boolean;
-}

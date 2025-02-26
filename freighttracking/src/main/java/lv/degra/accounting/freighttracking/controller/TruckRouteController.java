@@ -1,6 +1,6 @@
 package lv.degra.accounting.freighttracking.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 
@@ -74,7 +74,7 @@ public class TruckRouteController {
 		}
 	}
 
-	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_LAST)
+	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_LAST_ACTIVE)
 	public ResponseEntity<TruckRouteDto> getLastTruckRoute() {
 
 		String userId = UserContextUtils.getCurrentUserId();

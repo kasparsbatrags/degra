@@ -14,11 +14,15 @@ interface TruckRoutePage {
 	truckRegistrationNumber: string;
 	fuelConsumptionNorm: number;
 	fuelBalanceAtStart: number;
-	fuelBalanceAtEnd: number | null;
-	receivedFuel: number | null;
-	routeLength: number | null;
-	odometerStart: number | null;
-	odometerEnd: number | null;
+
+
+	totalFuelReceivedOnRoutes: number | null;
+	totalFuelConsumedOnRoutes: number | null;
+	fuelBalanceAtRoutesFinish: number | null;
+
+	odometerAtRouteStart: number | null;
+	odometerAtRouteFinish: number | null;
+	computedTotalRoutesLength: number | null;
 	activeTab?: 'basic' | 'odometer' | 'fuel';
 }
 
@@ -31,7 +35,7 @@ export default function HomeScreen() {
 
 	const checkLastRouteStatus = useCallback(async () => {
 		try {
-			await freightAxiosInstance.get('/api/freight-tracking/truck-routes/last')
+			await freightAxiosInstance.get('/api/freight-tracking/truck-routes/last-active')
 			setButtonText('FINIŠS')
 		} catch (error: any) {
 			if (error.response?.status === 404) {
@@ -65,8 +69,6 @@ export default function HomeScreen() {
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
-			<Text style={styles.title}>Sveicināti, {user?.firstName}!</Text>
-
 			<Button
 					title={buttonText}
 					onPress={() => router.push('/truck-route')}
@@ -149,6 +151,12 @@ export default function HomeScreen() {
 										<Text style={styles.routeLabelInline}>Auto:</Text>
 										<Text style={styles.routeText}>{item.truckRegistrationNumber}</Text>
 									</View>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Vadītājs:</Text>
+										<Text style={styles.routeText}>
+											{[user?.firstName, user?.lastName].filter(Boolean).join(" ")}
+										</Text>
+									</View>
 								</View>
 							)}
 
@@ -156,38 +164,40 @@ export default function HomeScreen() {
 								<View style={styles.tabContent}>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Sākumā:</Text>
-										<Text style={styles.routeText}>{item.odometerStart?.toLocaleString() ?? '0'} km</Text>
+										<Text style={styles.routeText}>{item.odometerAtRouteStart?.toLocaleString() ?? '0'} km</Text>
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Nobraukts:</Text>
-										<Text style={[styles.routeText, styles.highlightedText]}>+{item.routeLength?.toLocaleString() ?? '0'} km</Text>
+										<Text style={[styles.routeText, styles.highlightedText]}>{item.computedTotalRoutesLength?.toLocaleString() ?? '0'} km</Text>
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Beigās:</Text>
-										<Text style={styles.routeText}>
-											{item.odometerEnd?.toLocaleString() ?? 
-												((item.odometerStart && item.routeLength) 
-													? (item.odometerStart + item.routeLength).toLocaleString()
-													: '0')
-											} km
-										</Text>
-									</View>
+										<Text style={[styles.routeText, styles.routeText]}>{item.odometerAtRouteFinish?.toLocaleString() ?? '0'} km</Text>									</View>
 								</View>
 							)}
 
 							{item.activeTab === 'fuel' && (
 								<View style={styles.tabContent}>
 									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Norma:</Text>
+										<Text style={styles.routeText}>{item.fuelConsumptionNorm} L/100 Km</Text>
+									</View>
+
+									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Sākumā:</Text>
 										<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Saņemta:</Text>
-										<Text style={[styles.routeText, styles.highlightedText]}>+{item.receivedFuel ?? '0'} L</Text>
+										<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelReceivedOnRoutes ?? '0'} L</Text>
+									</View>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Patērēta:</Text>
+										<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Beigās:</Text>
-										<Text style={styles.routeText}>{item.fuelBalanceAtEnd ?? '0'} L</Text>
+										<Text style={styles.routeText}>{item.fuelBalanceAtRoutesFinish ?? '0'} L</Text>
 									</View>
 								</View>
 							)}

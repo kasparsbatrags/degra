@@ -26,14 +26,17 @@ public class TruckRoutePageDto implements Serializable {
 	private LocalDate dateTo;
 	private TruckDto truck;
 	private UserDto user;
-	private String truckRegistrationNumber;
-	private Double fuelConsumptionNorm;
 	@NotNull
 	private Double fuelBalanceAtStart;
-	private Double fuelBalanceAtEnd;
-	private Double totalFuelReceived;
+	private Double fuelBalanceAtFinish;
 
-	private Long odometerAtStart;
-	private Long odometerAtFinish;
-	private Long totalRouteLength;
+	private String truckRegistrationNumber;
+	private Double fuelConsumptionNorm;
+
+	private Double totalFuelReceivedOnRoutes;
+	private Double totalFuelConsumedOnRoutes;
+	private Double fuelBalanceAtRoutesFinish;
+	private Long odometerAtRouteStart;
+	private Long odometerAtRouteFinish;
+	private Long computedTotalRoutesLength;
 }

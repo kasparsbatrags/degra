@@ -88,11 +88,24 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Degvielas daudzums sākumā"
               - column:
+                  name: fuel_consumed
+                  type: integer
+                  constraints:
+                    nullable: true
+                  remarks: "Patērētas degvielas daudzums"
+              - column:
                   name: fuel_received
                   type: integer
                   constraints:
                     nullable: true
                   remarks: "Saņemtās degvielas daudzums"
+
+              - column:
+                  name: fuel_balance_at_finish
+                  type: integer
+                  constraints:
+                    nullable: true
+                  remarks: "Degvielas atlikums beigās"
               - column:
                   name: created_date_time
                   type: timestamp
