@@ -64,6 +64,7 @@ interface TruckRouteDto {
     unitType: string | null;
     fuelBalanceAtStart: number | null;
     fuelReceived: number | null;
+	fuelBalanceAtFinish: number | null;
     outDateTime: string;
     inDateTime: string | null;
 }
@@ -210,7 +211,8 @@ export default function TruckRouteScreen() {
 								routeDate: currentDate,
 								routePageTruck: defaultTruck,
 								odometerAtStart: lastFinishedRoute?.odometerAtFinish?.toString() || '',
-								outTruckObject: lastFinishedRoute?.inTruckObject?.id?.toString() || ''
+								outTruckObject: lastFinishedRoute?.inTruckObject?.id?.toString() || '',
+								fuelBalanceAtStart: lastFinishedRoute?.fuelBalanceAtFinish?.toString() || ''
 							}))
 						}
 					} catch (truckError) {
