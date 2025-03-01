@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,6 +63,15 @@ public class TruckRoutePageController {
 			}
 			throw new RuntimeException("Failed to retrieve truck route pages: " + e.getMessage());
 		}
+	}
+
+	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
+	public ResponseEntity<TruckRoutePageDto> getRoutePageById(@PathVariable Integer id) {
+		TruckRoutePageDto truckRoutePageDto = truckRoutePageService.getById(id);
+		if (truckRoutePageDto == null) {
+			throw new ResourceNotFoundException("No truck route pages found with ID: " + id);
+		}
+		return ResponseEntity.ok(truckRoutePageDto);
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + ENDPOINT_EXIST)
