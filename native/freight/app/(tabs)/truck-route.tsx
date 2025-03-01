@@ -12,88 +12,88 @@ import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 
 interface TruckObject {
-    id: number;
-    name?: string;
+	id: number;
+	name?: string;
 }
 
 interface User {
-    id: string;
-    preferred_username?: string;
-    email?: string;
-    given_name?: string;
-    family_name?: string;
-    attributes?: Record<string, string>;
+	id: string;
+	preferred_username?: string;
+	email?: string;
+	given_name?: string;
+	family_name?: string;
+	attributes?: Record<string, string>;
 }
 
 interface Truck {
-    id: number;
-    truckMaker?: string;
-    truckModel?: string;
-    registrationNumber?: string;
-    fuelConsumptionNorm?: number;
-    isDefault?: boolean;
+	id: number;
+	truckMaker?: string;
+	truckModel?: string;
+	registrationNumber?: string;
+	fuelConsumptionNorm?: number;
+	isDefault?: boolean;
 }
 
 interface TruckRoutePage {
-    id?: number;
-    dateFrom: string;
-    dateTo: string;
-    truck: Truck;
-    user: User;
-    fuelBalanceAtStart: number | null;
-    fuelBalanceAtFinish?: number;
-    truckRegistrationNumber?: string;
-    fuelConsumptionNorm?: number;
-    totalFuelReceivedOnRoutes?: number;
-    totalFuelConsumedOnRoutes?: number;
-    fuelBalanceAtRoutesFinish?: number;
-    odometerAtRouteStart?: number;
-    odometerAtRouteFinish?: number;
-    computedTotalRoutesLength?: number;
+	id?: number;
+	dateFrom: string;
+	dateTo: string;
+	truck: Truck;
+	user: User;
+	fuelBalanceAtStart: number | null;
+	fuelBalanceAtFinish?: number;
+	truckRegistrationNumber?: string;
+	fuelConsumptionNorm?: number;
+	totalFuelReceivedOnRoutes?: number;
+	totalFuelConsumedOnRoutes?: number;
+	fuelBalanceAtRoutesFinish?: number;
+	odometerAtRouteStart?: number;
+	odometerAtRouteFinish?: number;
+	computedTotalRoutesLength?: number;
 }
 
 interface TruckRouteDto {
-    id: number | null;
-    routeDate: string;
-    truckRoutePage: TruckRoutePage | null;
-    outTruckObject: TruckObject | null;
-    inTruckObject: TruckObject | null;
-    odometerAtStart: number | null;
-    odometerAtFinish: number | null;
-    cargoVolume: number | null;
-    unitType: string | null;
-    fuelBalanceAtStart: number | null;
-    fuelReceived: number | null;
+	id: number | null;
+	routeDate: string;
+	truckRoutePage: TruckRoutePage | null;
+	outTruckObject: TruckObject | null;
+	inTruckObject: TruckObject | null;
+	odometerAtStart: number | null;
+	odometerAtFinish: number | null;
+	cargoVolume: number | null;
+	unitType: string | null;
+	fuelBalanceAtStart: number | null;
+	fuelReceived: number | null;
 	fuelBalanceAtFinish: number | null;
-    outDateTime: string;
-    inDateTime: string | null;
+	outDateTime: string;
+	inDateTime: string | null;
 }
 
 interface Page<T> {
-    content: T[];
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
+	content: T[];
+	totalPages: number;
+	totalElements: number;
+	size: number;
+	number: number;
 }
 
 interface FormState {
-    id: string;
-    routeDate: Date;
-    outDateTime: Date;
-    dateFrom: Date;
-    dateTo: Date;
-    routePageTruck: string;
-    odometerAtStart: string;
-    odometerAtFinish: string;
-    outTruckObject: string;
-    inTruckObject: string;
-    cargoType: string; // Stores the ID as string for form handling
-    cargoVolume: string;
-    unitType: string; // Stores the code as string for form handling
-    fuelBalanceAtStart: string;
-    fuelReceived: string;
-    notes: string;
+	id: string;
+	routeDate: Date;
+	outDateTime: Date;
+	dateFrom: Date;
+	dateTo: Date;
+	routePageTruck: string;
+	odometerAtStart: string;
+	odometerAtFinish: string;
+	outTruckObject: string;
+	inTruckObject: string;
+	cargoType: string; // Stores the ID as string for form handling
+	cargoVolume: string;
+	unitType: string; // Stores the code as string for form handling
+	fuelBalanceAtStart: string;
+	fuelReceived: string;
+	notes: string;
 }
 
 export default function TruckRouteScreen() {
@@ -152,21 +152,21 @@ export default function TruckRouteScreen() {
 
 	// Initialize form and check last route status
 	React.useEffect(() => {
-	const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
-		try {
-			const response = await freightAxios.get<Page<TruckRouteDto>>('/api/freight-tracking/truck-routes?pageSize=1');
-			return response.data.content[0] || null;
-		} catch (error) {
-			console.error('Failed to fetch last finished route:', error);
-			return null;
-		}
-	};
-
-	const initializeForm = async () => {
-		try {
-			// Get last route and populate form
+		const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
 			try {
-				const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active');
+				const response = await freightAxios.get<Page<TruckRouteDto>>('/api/freight-tracking/truck-routes?pageSize=1')
+				return response.data.content[0] || null
+			} catch (error) {
+				console.error('Failed to fetch last finished route:', error)
+				return null
+			}
+		}
+
+		const initializeForm = async () => {
+			try {
+				// Get last route and populate form
+				try {
+					const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active')
 					const lastRoute = lastRouteResponse.data
 					setIsRouteFinish(true)
 
@@ -199,8 +199,8 @@ export default function TruckRouteScreen() {
 					setIsRouteFinish(false)
 					// If no last route exists, get default truck
 					// Get last finished route for odometer value
-					const lastFinishedRoute = await getLastFinishedRoute();
-					
+					const lastFinishedRoute = await getLastFinishedRoute()
+
 					try {
 						const response = await freightAxios.get('/api/freight-tracking/trucks')
 						if (response.data && response.data.length > 0) {
@@ -246,8 +246,8 @@ export default function TruckRouteScreen() {
 				truckRoutePage: form.routePageTruck ? {
 					dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
 					dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
-					truck: { id: parseInt(form.routePageTruck) },
-					user: { id: user?.id || '0' },
+					truck: {id: parseInt(form.routePageTruck)},
+					user: {id: user?.id || '0'},
 					fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
 				} : null,
 				outTruckObject: form.outTruckObject ? {id: parseInt(form.outTruckObject)} : null,
@@ -278,56 +278,102 @@ export default function TruckRouteScreen() {
 		}
 	}
 
-	return (
-		<SafeAreaView style={commonStyles.safeArea}>
-			<ScrollView>
-				<View style={[commonStyles.content, styles.webContainer]}>
-					<View id="top" style={[styles.topContainer]}>
-						<View style={commonStyles.row}>
-							<FormDatePicker
-								label="Brauciena datums"
-								value={form.routeDate}
-								onChange={(date) => setForm({...form, routeDate: date})}
-								disabled={isItRouteFinish}
-							/>
-							<View style={[formStyles.inputContainer, styles.truckField]}>
-								<FormDropdown
-									label="Auto"
-									value={form.routePageTruck}
-									onSelect={(value) => setForm({...form, routePageTruck: value})}
-									placeholder="Izvēlieties"
-									endpoint="/api/freight-tracking/trucks"
-									disabled={isItRouteFinish}
-										error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
+	return (<SafeAreaView style={commonStyles.safeArea}>
+				<ScrollView>
+					<View style={[commonStyles.content, styles.webContainer]}>
+						<View id="top" style={[styles.topContainer]}>
+							<View style={commonStyles.row}>
+								<FormDatePicker
+										label="Brauciena datums"
+										value={form.routeDate}
+										onChange={(date) => setForm({...form, routeDate: date})}
+										disabled={isItRouteFinish}
 								/>
-							</View>
-						</View>
-
-						{showRoutePageError && (
-							<View style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
-								<Text style={styles.explanatoryText}>
-									Nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
-									tās izveidošanai!
-								</Text>
-
-								<View style={commonStyles.row}>
-									<FormDatePicker
-										label="Sākuma datums"
-										value={form.dateFrom}
-										onChange={(date) => setForm({...form, dateFrom: date})}
-										error="Lauks ir obligāts"
-										showError={showRoutePageError && !form.dateFrom}
-									/>
-									<FormDatePicker
-										label="Beigu datums"
-										value={form.dateTo}
-										onChange={(date) => setForm({...form, dateTo: date})}
-										error="Lauks ir obligāts"
-										showError={showRoutePageError && !form.dateTo}
+								<View style={[formStyles.inputContainer, styles.truckField]}>
+									<FormDropdown
+											label="Auto"
+											value={form.routePageTruck}
+											onSelect={(value) => setForm({...form, routePageTruck: value})}
+											placeholder="Izvēlieties"
+											endpoint="/api/freight-tracking/trucks"
+											disabled={isItRouteFinish}
+											error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
 									/>
 								</View>
+							</View>
 
-								<FormInput
+							{showRoutePageError && (<View style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
+										<Text style={styles.explanatoryText}>
+											Nav izveidota maršruta lapa izvēlētā datuma periodam - pievienojiet informāciju
+											tās izveidošanai!
+										</Text>
+
+										<View style={commonStyles.row}>
+											<FormDatePicker
+													label="Sākuma datums"
+													value={form.dateFrom}
+													onChange={(date) => setForm({...form, dateFrom: date})}
+													error="Lauks ir obligāts"
+													showError={showRoutePageError && !form.dateFrom}
+											/>
+											<FormDatePicker
+													label="Beigu datums"
+													value={form.dateTo}
+													onChange={(date) => setForm({...form, dateTo: date})}
+													error="Lauks ir obligāts"
+													showError={showRoutePageError && !form.dateTo}
+											/>
+										</View>
+
+										<FormInput
+												label="Degvielas atlikums sākumā"
+												value={form.fuelBalanceAtStart}
+												onChangeText={(text) => {
+													// Allow only numbers
+													if (/^\d*$/.test(text)) {
+														setForm({...form, fuelBalanceAtStart: text})
+													}
+												}}
+												placeholder="Ievadiet degvielas daudzumu"
+												keyboardType="numeric"
+												error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
+										/>
+
+										<FormInput
+												label="Odometrs startā"
+												value={form.odometerAtStart}
+												onChangeText={(text) => {
+													// Allow only numbers
+													if (/^\d*$/.test(text) && text !== '0') {
+														setForm({...form, odometerAtStart: text})
+													}
+												}}
+												placeholder="Ievadiet rādījumu"
+												keyboardType="numeric"
+												disabled={isItRouteFinish}
+												error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
+										/>
+									</View>)}
+						</View>
+						<View style={commonStyles.row}>
+							<FormInput
+									label="Odometrs startā"
+									value={form.odometerAtStart}
+									onChangeText={(text) => {
+										// Allow only numbers
+										if (/^\d*$/.test(text)) {
+											setForm({...form, odometerAtStart: text})
+										}
+									}}
+									placeholder="Ievadiet rādījumu"
+									keyboardType="numeric"
+									disabled={isItRouteFinish}
+									visible={!showRoutePageError}
+									error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
+
+							/>
+
+							<FormInput
 									label="Degvielas atlikums sākumā"
 									value={form.fuelBalanceAtStart}
 									onChangeText={(text) => {
@@ -339,150 +385,112 @@ export default function TruckRouteScreen() {
 									placeholder="Ievadiet degvielas daudzumu"
 									keyboardType="numeric"
 									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
-								/>
-
-								<FormInput
-										label="Odometrs izbraucot"
-										value={form.odometerAtStart}
-										onChangeText={(text) => {
-											// Allow only numbers
-											if (/^\d*$/.test(text) && text !== "0") {
-												setForm({ ...form, odometerAtStart: text });
-											}
-										}}
-										placeholder="Ievadiet rādījumu"
-										keyboardType="numeric"
-										disabled={isItRouteFinish}
-										error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
-								/>
-							</View>
-						)}
-					</View>
-
-					<FormInput
-						label="Odometrs startā"
-						value={form.odometerAtStart}
-						onChangeText={(text) => {
-							// Allow only numbers
-							if (/^\d*$/.test(text)) {
-								setForm({...form, odometerAtStart: text})
-							}
-						}}
-						placeholder="Ievadiet rādījumu"
-						keyboardType="numeric"
-						disabled={isItRouteFinish}
-						visible={!showRoutePageError}
-						error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
-
-					/>
-
-					<FormDropdown
-						label="Sākuma punkts"
-						value={form.outTruckObject}
-						onSelect={(value) => setForm({...form, outTruckObject: value})}
-						placeholder="Izvēlieties sākuma punktu"
-						endpoint="api/freight-tracking/objects"
-						disabled={isItRouteFinish}
-						error={!form.outTruckObject ? 'Ievadiet datus!' : undefined}
-					/>
-
-					<FormDropdown
-						label="Galamērķis"
-						value={form.inTruckObject}
-						onSelect={(value) => setForm({...form, inTruckObject: value})}
-						placeholder="Ievadiet galamērķi"
-						endpoint="api/freight-tracking/objects"
-						filterValue={form.outTruckObject}
-						error={isItRouteFinish && !form.inTruckObject ? 'Ievadiet datus!' : undefined}
-					/>
-
-					<FormInput
-							label="Odometrs finišā"
-							value={form.odometerAtFinish}
-							onChangeText={(text) => {
-								// Atļauj tikai ciparus
-								if (/^\d*$/.test(text)) {
-									setForm({...form, odometerAtFinish: text})
-								}
-							}}
-							placeholder="Ievadiet rādījumu"
-							keyboardType="numeric"
-							visible={isItRouteFinish}
-							error={!showRoutePageError
-									&& (!form.odometerAtFinish
-									|| (parseInt(form.odometerAtFinish, 10) <= parseInt(form.odometerAtStart, 10))) ? 'Ievadiet datus!' : undefined}
-
-					/>
-
-					<View style={commonStyles.spaceBetween}>
-						<Text style={commonStyles.text}>Ar kravu</Text>
-						<Switch
-							value={hasCargo}
-							onValueChange={setHasCargo}
-							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
-							thumbColor={COLORS.white}
-							disabled={isItRouteFinish}
-						/>
-					</View>
-
-					<FormInput
-						label="Saņemtā degviela"
-						value={form.fuelReceived}
-						onChangeText={(text) => {
-							// Allow only numbers
-							if (/^\d*$/.test(text)) {
-								setForm({...form, fuelReceived: text})
-							}
-						}}
-						placeholder="Ievadiet daudzumu"
-						keyboardType="numeric"
-					/>
-
-					{hasCargo && (
-						<>
-							<FormDropdown
-								label="Kravas tips"
-								value={form.cargoType}
-								onSelect={(value) => setForm({...form, cargoType: value})}
-								placeholder=" Izvēlieties"
-								endpoint="api/freight-tracking/cargo-types"
 							/>
 
-							<FormInput
-								label="Kravas apjoms"
-								value={form.cargoVolume}
-								onChangeText={(text) => setForm({...form, cargoVolume: text})}
-								placeholder="Ievadiet kravas apjomu"
+						</View>
+
+						<FormDropdown
+								label="Sākuma punkts"
+								value={form.outTruckObject}
+								onSelect={(value) => setForm({...form, outTruckObject: value})}
+								placeholder="Izvēlieties sākuma punktu"
+								endpoint="api/freight-tracking/objects"
+								disabled={isItRouteFinish}
+								error={!form.outTruckObject ? 'Ievadiet datus!' : undefined}
+						/>
+
+						<FormDropdown
+								label="Galamērķis"
+								value={form.inTruckObject}
+								onSelect={(value) => setForm({...form, inTruckObject: value})}
+								placeholder="Ievadiet galamērķi"
+								endpoint="api/freight-tracking/objects"
+								filterValue={form.outTruckObject}
+								error={isItRouteFinish && !form.inTruckObject ? 'Ievadiet datus!' : undefined}
+						/>
+
+						<FormInput
+								label="Odometrs finišā"
+								value={form.odometerAtFinish}
+								onChangeText={(text) => {
+									// Atļauj tikai ciparus
+									if (/^\d*$/.test(text)) {
+										setForm({...form, odometerAtFinish: text})
+									}
+								}}
+								placeholder="Ievadiet rādījumu"
 								keyboardType="numeric"
-							/>
+								visible={isItRouteFinish}
+								error={!showRoutePageError && (!form.odometerAtFinish || (parseInt(form.odometerAtFinish, 10) <= parseInt(form.odometerAtStart, 10))) ? 'Ievadiet datus!' : undefined}
 
-							<FormDropdown
-								label="Mērvienība"
-								value={form.unitType}
-								onSelect={(value) => setForm({...form, unitType: value})}
-								placeholder="Izvēlieties mērvienību"
-								endpoint="/api/freight-tracking/unit-types"
-							/>
-						</>
-					)}
+						/>
 
-					<View style={[commonStyles.row, styles.buttonContainer]}>
-						<Button
-							title="Atpakaļ"
-							onPress={() => router.push('/(tabs)')}
-							style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
+						<View style={commonStyles.spaceBetween}>
+							<Text style={commonStyles.text}>Ar kravu</Text>
+							<Switch
+									value={hasCargo}
+									onValueChange={setHasCargo}
+									trackColor={{false: COLORS.black100, true: COLORS.secondary}}
+									thumbColor={COLORS.white}
+									disabled={isItRouteFinish}
+							/>
+						</View>
+
+						<FormInput
+								label="Saņemtā degviela"
+								value={form.fuelReceived}
+								onChangeText={(text) => {
+									// Allow only numbers
+									if (/^\d*$/.test(text)) {
+										setForm({...form, fuelReceived: text})
+									}
+								}}
+								placeholder="Ievadiet daudzumu"
+								keyboardType="numeric"
 						/>
-						<Button
-							title="Saglabāt"
-							onPress={handleSubmit}
-							style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
-							disabled={isSubmitting}
-						/>
+
+						{hasCargo && (<>
+									<FormDropdown
+											label="Kravas tips"
+											value={form.cargoType}
+											onSelect={(value) => setForm({...form, cargoType: value})}
+											placeholder=" Izvēlieties"
+											endpoint="api/freight-tracking/cargo-types"
+									/>
+
+									<FormInput
+											label="Kravas apjoms"
+											value={form.cargoVolume}
+											onChangeText={(text) => setForm({...form, cargoVolume: text})}
+											placeholder="Ievadiet kravas apjomu"
+											keyboardType="numeric"
+									/>
+
+									<FormDropdown
+											label="Mērvienība"
+											value={form.unitType}
+											onSelect={(value) => setForm({...form, unitType: value})}
+											placeholder="Izvēlieties mērvienību"
+											endpoint="/api/freight-tracking/unit-types"
+									/>
+								</>)}
+
+						<View style={[commonStyles.row, styles.buttonContainer]}>
+							<Button
+									title="Atpakaļ"
+									onPress={() => router.push('/(tabs)')}
+									style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
+							/>
+							<Button
+									title="Saglabāt"
+									onPress={handleSubmit}
+									style={[styles.submitButton, isSubmitting && commonStyles.buttonDisabled]}
+									disabled={isSubmitting}
+							/>
+						</View>
 					</View>
-				</View>
-			</ScrollView>
-		</SafeAreaView>
-	)
+				</ScrollView>
+			</SafeAreaView>)
 }
 
 const styles = StyleSheet.create({
