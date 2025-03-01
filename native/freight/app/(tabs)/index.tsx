@@ -74,13 +74,12 @@ export default function HomeScreen() {
 					onPress={() => router.push('/truck-route')}
 					style={styles.startTripButton}
 			/>
-
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					data={routes}
 					keyExtractor={(item) => item.id.toString()}
 					style={styles.list}
 					renderItem={({item}) => (
-						<Pressable 
+						<Pressable
 							style={({pressed}) => [
 								styles.routeCard,
 								pressed && styles.routeCardPressed
@@ -93,11 +92,11 @@ export default function HomeScreen() {
 							<View style={styles.routeInfo}>
 							{/* Tab buttons */}
 							<View style={styles.tabContainer}>
-								<Pressable 
+								<Pressable
 									style={[styles.tabButton, item.activeTab === 'basic' && styles.tabButtonActive]}
 									onPress={() => {
-										const newRoutes = routes.map(route => 
-											route.id === item.id 
+										const newRoutes = routes.map(route =>
+											route.id === item.id
 												? {...route, activeTab: 'basic' as const}
 												: route
 										)
@@ -106,11 +105,11 @@ export default function HomeScreen() {
 								>
 									<Text style={[styles.tabText, item.activeTab === 'basic' && styles.tabTextActive]}>Pamatinfo</Text>
 								</Pressable>
-								<Pressable 
+								<Pressable
 									style={[styles.tabButton, item.activeTab === 'odometer' && styles.tabButtonActive]}
 									onPress={() => {
-										const newRoutes = routes.map(route => 
-											route.id === item.id 
+										const newRoutes = routes.map(route =>
+											route.id === item.id
 												? {...route, activeTab: 'odometer' as const}
 												: route
 										)
@@ -119,11 +118,11 @@ export default function HomeScreen() {
 								>
 									<Text style={[styles.tabText, item.activeTab === 'odometer' && styles.tabTextActive]}>Odometrs</Text>
 								</Pressable>
-								<Pressable 
+								<Pressable
 									style={[styles.tabButton, item.activeTab === 'fuel' && styles.tabButtonActive]}
 									onPress={() => {
-										const newRoutes = routes.map(route => 
-											route.id === item.id 
+										const newRoutes = routes.map(route =>
+											route.id === item.id
 												? {...route, activeTab: 'fuel' as const}
 												: route
 										)
@@ -193,7 +192,7 @@ export default function HomeScreen() {
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Patērēta:</Text>
-										<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
+										<Text style={[styles.routeText, styles.highlightedText]}>{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
 									</View>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Beigās:</Text>

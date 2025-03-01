@@ -1,6 +1,8 @@
 package lv.degra.accounting.core.truck_route_page.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -75,7 +77,6 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Transient
 	private Double fuelBalanceAtRoutesFinish;
 
-
 	@Transient
 	private Long odometerAtRouteStart;
 
@@ -85,29 +86,28 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Transient
 	private Long computedTotalRoutesLength;
 
-
 	public void calculateSummary() {
-		if (routes != null && !routes.isEmpty()) {
-			routes.sort(Comparator.comparing(TruckRoute::getOutDateTime));
-			this.odometerAtRouteStart = routes.getFirst().getOdometerAtStart();
-
-			routes.sort(Comparator.comparing(TruckRoute::getOutDateTime).reversed());
-			this.odometerAtRouteFinish = routes.getFirst().getOdometerAtFinish();
-			this.fuelBalanceAtRoutesFinish = routes.getFirst().getFuelBalanceAtFinish();
-
-			this.totalFuelConsumedOnRoutes  = routes.stream()
-					.mapToDouble(route -> Optional.ofNullable(route.getFuelConsumed()).orElse((double) 0))
-					.sum();
-			this.computedTotalRoutesLength = routes.stream()
-					.mapToLong(route -> Optional.ofNullable(route.getRouteLength()).orElse(0L))
-					.sum();
-
-			this.totalFuelReceivedOnRoutes  = routes.stream()
-					.mapToDouble(route -> Optional.ofNullable(route.getFuelReceived()).orElse(Double.valueOf(0)))
-					.sum();
-
+		if (routes == null || routes.isEmpty()) {
+			return;
 		}
-	}
 
+		routes.sort(Comparator.comparing(TruckRoute::getOutDateTime));
+
+		TruckRoute firstRoute = routes.getFirst();
+		TruckRoute lastRoute = routes.getLast();
+
+		this.odometerAtRouteStart = firstRoute.getOdometerAtStart();
+		this.odometerAtRouteFinish = lastRoute.getInDateTime() == null ? lastRoute.getOdometerAtStart() : lastRoute.getOdometerAtFinish();
+		this.fuelBalanceAtRoutesFinish = lastRoute.getFuelBalanceAtFinish();
+
+		this.totalFuelConsumedOnRoutes = BigDecimal.valueOf(
+						routes.stream().mapToDouble(route -> Optional.ofNullable(route.getFuelConsumed()).orElse(0.0)).sum())
+				.setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+		this.computedTotalRoutesLength = routes.stream().mapToLong(route -> Optional.ofNullable(route.getRouteLength()).orElse(0L)).sum();
+
+		this.totalFuelReceivedOnRoutes = routes.stream().mapToDouble(route -> Optional.ofNullable(route.getFuelReceived()).orElse(0.0))
+				.sum();
+	}
 
 }

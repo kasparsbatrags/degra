@@ -62,10 +62,12 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	protected double calculateFuelBalanceAtFinish(TruckRouteDto truckRouteDto) {
-		return Objects.requireNonNullElse(truckRouteDto.getFuelBalanceAtStart(), Double.valueOf(0))
-				- Objects.requireNonNullElse(truckRouteDto.getFuelConsumed(), Double.valueOf(0))
-				+ Objects.requireNonNullElse(truckRouteDto.getFuelReceived(),
-				Double.valueOf(0));
+		return  BigDecimal.valueOf(
+					Objects.requireNonNullElse(truckRouteDto.getFuelBalanceAtStart(), Double.valueOf(0))
+					- Objects.requireNonNullElse(truckRouteDto.getFuelConsumed(), Double.valueOf(0))
+					+ Objects.requireNonNullElse(truckRouteDto.getFuelReceived(),
+					Double.valueOf(0)))
+				.setScale(2, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	protected double calculateFuelConsume(TruckRouteDto truckRouteDto) {

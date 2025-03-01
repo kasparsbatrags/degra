@@ -357,38 +357,41 @@ export default function TruckRouteScreen() {
 									</View>)}
 						</View>
 
-						<View id="atStart" style={[commonStyles.row]}>
-							<FormInput
-									label="Odometrs startā"
-									value={form.odometerAtStart}
-									onChangeText={(text) => {
-										// Allow only numbers
-										if (/^\d*$/.test(text)) {
-											setForm({...form, odometerAtStart: text})
-										}
-									}}
-									placeholder="Ievadiet rādījumu"
-									keyboardType="numeric"
-									disabled={isItRouteFinish}
-									visible={!showRoutePageError}
-									error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
+						<View id="atStart" style={[commonStyles.row, styles.atStartContainer]}>
+							<View style={styles.inputWrapper}>
+								<FormInput
+										label="Odometrs startā"
+										value={form.odometerAtStart}
+										onChangeText={(text) => {
+											// Allow only numbers
+											if (/^\d*$/.test(text)) {
+												setForm({...form, odometerAtStart: text})
+											}
+										}}
+										placeholder="Ievadiet rādījumu"
+										keyboardType="numeric"
+										disabled={isItRouteFinish}
+										visible={!showRoutePageError}
+										error={!showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
+								/>
+							</View>
 
-							/>
-
-							<FormInput
-									label="Degvielas atlikums startā"
-									value={form.fuelBalanceAtStart}
-									onChangeText={(text) => {
-										// Allow only numbers
-										if (/^\d*$/.test(text)) {
-											setForm({...form, fuelBalanceAtStart: text})
-										}
-									}}
-									placeholder="Ievadiet degvielas daudzumu"
-									keyboardType="numeric"
-									error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
-							/>
-
+							<View style={styles.inputWrapper}>
+								<FormInput
+										label="Degviela startā"
+										value={form.fuelBalanceAtStart}
+										onChangeText={(text) => {
+											// Allow only numbers
+											if (/^\d*$/.test(text)) {
+												setForm({...form, fuelBalanceAtStart: text})
+											}
+										}}
+										placeholder="Ievadiet degvielas daudzumu"
+										keyboardType="numeric"
+										disabled="true"
+										error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
+								/>
+							</View>
 						</View>
 
 						<FormDropdown
@@ -537,5 +540,8 @@ const styles = StyleSheet.create({
 	atStartContainer: {
 		width: '100%',
 		gap: 16,
+	},
+	inputWrapper: {
+		flex: 1
 	}
 })
