@@ -257,6 +257,7 @@ export default function TruckRouteScreen() {
 				cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,
 				unitType: hasCargo ? form.unitType : null,
 				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : existingRoutePage ? existingRoutePage.fuelBalanceAtStart : null,
+				fuelBalanceAtFinish: null, // Add the required property
 				fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : null,
 				outDateTime: now,
 				inDateTime: form.inTruckObject && isItRouteFinish ? now : null // If destination is set, also set inDateTime
@@ -355,7 +356,8 @@ export default function TruckRouteScreen() {
 										/>
 									</View>)}
 						</View>
-						<View style={commonStyles.row}>
+
+						<View id="atStart" style={[commonStyles.row]}>
 							<FormInput
 									label="Odometrs startā"
 									value={form.odometerAtStart}
@@ -374,7 +376,7 @@ export default function TruckRouteScreen() {
 							/>
 
 							<FormInput
-									label="Degvielas atlikums sākumā"
+									label="Degvielas atlikums startā"
 									value={form.fuelBalanceAtStart}
 									onChangeText={(text) => {
 										// Allow only numbers
@@ -531,5 +533,9 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: 'rgb(255, 156, 1)',
 		borderRadius: 8,
+	},
+	atStartContainer: {
+		width: '100%',
+		gap: 16,
 	}
 })
