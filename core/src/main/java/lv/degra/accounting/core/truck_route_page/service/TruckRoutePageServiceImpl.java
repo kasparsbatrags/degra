@@ -75,4 +75,8 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
 		return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
 	}
+
+	public TruckRoutePageDto getById(Integer id) {
+		return truckRoutePageRepository.findById(id).map(freightMapper::toDto).orElse(null);
+	}
 }
