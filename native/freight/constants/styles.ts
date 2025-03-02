@@ -8,6 +8,9 @@ const spacing = Platform.select({ web: WEB_SPACING, default: SPACING })
 const borderRadius = Platform.select({ web: WEB_BORDER_RADIUS, default: BORDER_RADIUS })
 
 export const commonStyles = StyleSheet.create({
+ loadingContainer: {
+	flex: 1, justifyContent: 'center', alignItems: 'center',
+ },
   container: {
     flex: 1,
     backgroundColor: COLORS.background.primary,

@@ -8,13 +8,16 @@ import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.user.model.User;
 
 public interface TruckService {
-	Optional<Truck> getDefaultTruckForUser(User user);
 
 	TruckDto getDefaultTruckDtoForUser(String userId);
 
 	List<TruckDto> getAllTrucksByUserFirstDefault(String userId);
 
-	Optional<Truck> getById(Integer userId);
+	TruckDto findTruckDtoById(Integer userId);
+
+	Optional<Truck> getDefaultTruckForUser(User user);
+
+	Truck findTruckById(Integer userId);
 
 	Truck save(Truck truck);
 

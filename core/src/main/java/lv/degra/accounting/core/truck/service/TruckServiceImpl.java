@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import lv.degra.accounting.core.config.mapper.FreightMapper;
+import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.model.TruckRepository;
@@ -40,9 +41,7 @@ public class TruckServiceImpl implements TruckService {
 	}
 
 	public TruckDto getDefaultTruckDtoForUser(String userId) {
-		User user = userService.getByUserId(userId)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
-
+		User user = userService.getUserByUserId(userId);
 		return truckUserMapRepository.findByUser(user).stream()
 				.filter(TruckUserMap::getIsDefault)
 				.map(this::convertToDtoWithDefault)
@@ -51,8 +50,7 @@ public class TruckServiceImpl implements TruckService {
 	}
 
 	public List<TruckDto> getAllTrucksByUserFirstDefault(String userId) {
-		User user = userService.getByUserId(userId)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+		User user = userService.getUserByUserId(userId);
 
 		List<TruckUserMap> mappings = truckUserMapRepository.findByUser(user);
 
@@ -71,8 +69,14 @@ public class TruckServiceImpl implements TruckService {
 		return defaultTruck;
 	}
 
-	public Optional<Truck> getById(Integer truckId) {
-		return truckRepository.findById(Long.valueOf(truckId));
+	public Truck findTruckById(Integer truckId) {
+		return truckRepository.findById(truckId)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
+	}
+
+	public TruckDto findTruckDtoById(Integer truckId) {
+		Truck truck = findTruckById(truckId); // Izmanto jau esošo metodi
+		return freightMapper.toDto(truck);
 	}
 
 	public Truck save(Truck truck) {

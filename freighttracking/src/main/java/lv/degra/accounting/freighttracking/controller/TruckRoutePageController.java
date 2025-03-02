@@ -1,26 +1,25 @@
 package lv.degra.accounting.freighttracking.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_EXIST;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE_PAGES;
-import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
-
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_EXIST;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE_PAGES;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
-import lv.degra.accounting.core.truck.dto.TruckDto;
-import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
-import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
@@ -67,30 +66,21 @@ public class TruckRoutePageController {
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
 	public ResponseEntity<TruckRoutePageDto> getRoutePageById(@PathVariable Integer id) {
-		TruckRoutePageDto truckRoutePageDto = truckRoutePageService.getById(id);
-		if (truckRoutePageDto == null) {
-			throw new ResourceNotFoundException("No truck route pages found with ID: " + id);
-		}
+		TruckRoutePageDto truckRoutePageDto = truckRoutePageService.findById(id);
 		return ResponseEntity.ok(truckRoutePageDto);
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + ENDPOINT_EXIST)
 	public ResponseEntity<TruckRoutePageDto> checkTruckRoutePageExists(@RequestParam Integer truckId, @RequestParam LocalDate routeDate) {
 		String userId = UserContextUtils.getCurrentUserId();
+		return ResponseEntity.ok(truckRoutePageService.userRoutePageByRouteDateExists(routeDate, userId, truckId));
+	}
 
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+	@PutMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
+	public ResponseEntity<TruckRoutePageDto> updateTruckRoutePage(@PathVariable Integer id,
+			@Valid @RequestBody TruckRoutePageDto truckRoutePageDto) {
 
-		List<TruckDto>  allUserTrucks = truckService.getAllTrucksByUserFirstDefault(userId);
-
-		if (!allUserTrucks.stream()
-				.anyMatch(truckDto -> truckDto.getId().equals(truckId))) {
-			throw new ResourceNotFoundException("Truck with ID: " + truckId+ " is not allowed for user with ID "+ userId );
-		}
-
-		Truck truck = truckService.getById(truckId)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
-
-		return ResponseEntity.ok(truckRoutePageService.userRoutePageByRouteDateExists(routeDate, user, truck));
+		TruckRoutePageDto updatedPage = truckRoutePageService.updateTruckRoutePage(id, truckRoutePageDto);
+		return ResponseEntity.ok(updatedPage);
 	}
 }

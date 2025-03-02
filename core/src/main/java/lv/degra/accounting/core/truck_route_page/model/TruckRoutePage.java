@@ -23,7 +23,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.auditor.model.AuditInfo;
 import lv.degra.accounting.core.truck.model.Truck;
@@ -34,6 +37,9 @@ import lv.degra.accounting.core.user.model.User;
 @Setter
 @Entity
 @Audited
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "truck_route_page")
 public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Id

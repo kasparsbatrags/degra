@@ -13,11 +13,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lv.degra.accounting.core.config.mapper.FreightMapper;
+import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
+import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 
@@ -28,30 +30,38 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	private static final int FIRST_PAGE = 0;
 	private static final Double DEFAULT_CONSUMPTION_NORM = 1.0;
 	private final TruckRouteRepository truckRouteRepository;
+	private final TruckRoutePageService truckRoutePageService;
 	private final UserService userService;
 	private final FreightMapper freightMapper;
 
-	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, UserService userService, FreightMapper freightMapper) {
+	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, TruckRoutePageService truckRoutePageService, UserService userService, FreightMapper freightMapper) {
 		this.truckRouteRepository = truckRouteRepository;
+		this.truckRoutePageService = truckRoutePageService;
 		this.userService = userService;
 		this.freightMapper = freightMapper;
 	}
 
 	public Page<TruckRouteDto> getLastTruckRoutesByUserId(String userId, int page, int size) {
-		User user = userService.getByUserId(userId).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+		User user = userService.getUserByUserId(userId);
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
 		return truckRouteRepository.findByUserId(user.getId(), pageable).map(freightMapper::toDto);
 	}
 
-	public TruckRouteDto createOrUpdateTrucRoute(TruckRouteDto truckRouteDto) {
-
+	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
 		truckRouteDto.setRouteLength(calculateRouteLength(truckRouteDto));
 		truckRouteDto.setFuelConsumed(calculateFuelConsume(truckRouteDto));
-		truckRouteDto.setFuelBalanceAtFinish(calculateFuelBalanceAtFinish(truckRouteDto));
 
-		return freightMapper.toDto(truckRouteRepository.save(freightMapper.toEntity(truckRouteDto)));
+		double fuelBalanceAtFinish = calculateFuelBalanceAtFinish(truckRouteDto);
+		truckRouteDto.setFuelBalanceAtFinish(fuelBalanceAtFinish);
+
+		TruckRoutePageDto truckRoutePage = truckRouteDto.getTruckRoutePage();
+		truckRoutePage.setFuelBalanceAtFinish(fuelBalanceAtFinish);
+		truckRoutePageService.save(truckRoutePage);
+
+		TruckRoute truckRoute = freightMapper.toEntity(truckRouteDto);
+		return freightMapper.toDto(truckRouteRepository.save(truckRoute));
 	}
 
 	protected int calculateRouteLength(TruckRouteDto truckRouteDto) {
@@ -105,8 +115,10 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 				.findFirst();
 	}
 
-	public Optional<TruckRoute> findById(Integer id) {
-		return truckRouteRepository.findById(id);
+	public TruckRouteDto findById(Integer id) {
+		return truckRouteRepository.findById(id)
+				.map(freightMapper::toDto)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with ID: " + id));
 	}
 
 }

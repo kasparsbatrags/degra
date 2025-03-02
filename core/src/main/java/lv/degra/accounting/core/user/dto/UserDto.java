@@ -1,21 +1,23 @@
 package lv.degra.accounting.core.user.dto;
 
-import java.util.Map;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Value;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDto {
-	private String id;
-	private String preferred_username;
-	private String email;
-	private String given_name;
-	private String family_name;
-	private Map<String, String> attributes;
+/**
+ * DTO for {@link lv.degra.accounting.core.user.model.User}
+ */
+@Value
+public class UserDto implements Serializable {
+	LocalDateTime createdDateTime;
+	LocalDateTime lastModifiedDateTime;
+	Integer id;
+	String userId;
+	String refreshToken;
+	Instant lastLoginTime;
+	List<TruckUserMap> truckMappings;
 }

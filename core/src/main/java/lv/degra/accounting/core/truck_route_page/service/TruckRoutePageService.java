@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.validation.constraints.NotNull;
-import lv.degra.accounting.core.truck.model.Truck;
+import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
@@ -15,9 +15,13 @@ public interface TruckRoutePageService {
 
 	List<TruckRoutePageDto> getUserRoutePagesDto(String userId, int page, int size);
 
-	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user, @NotNull Truck truck);
+	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user, @NotNull TruckDto truckDto);
 
-	TruckRoutePageDto userRoutePageByRouteDateExists(@NotNull LocalDate routeDate, @NotNull User user, @NotNull Truck truck);
+	TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, Integer truckId);
 
-	TruckRoutePageDto getById(Integer id);
+	TruckRoutePageDto findById(Integer id);
+
+	TruckRoutePageDto save(@NotNull TruckRoutePageDto truckRoutePageDto);
+
+	TruckRoutePageDto updateTruckRoutePage(Integer id, TruckRoutePageDto truckRoutePageDto);
 }

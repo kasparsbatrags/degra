@@ -8,7 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
+import lv.degra.accounting.core.exception.ResourceNotFoundException;
+import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
@@ -35,7 +38,8 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 	public List<TruckRoutePage> getUserRoutePages(String userId, int page, int size) {
-		User user = userService.getByUserId(userId).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+		User user = userService.getUserByUserId(userId);
 
 		List<TruckRoutePage> routePages = truckRoutePageRepository.findByUser(user,
 				PageRequest.of(page, size, Sort.by(Sort.Order.desc("id")))).getContent();
@@ -48,14 +52,26 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		return getUserRoutePages(userId, page, size).stream().map(freightMapper::toDto).toList();
 	}
 
-	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, Truck truck) {
-		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, truckRouteDto.getRouteDate())
-				.map(this::convertAndCalculateSummary).orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
+	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, TruckDto truckDto) {
+
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, freightMapper.toEntity(truckDto), truckRouteDto.getRouteDate())
+				.map(this::convertAndCalculateSummary)
+				.orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
 	}
 
-	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, User user, Truck truck) {
-		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).map(this::convertAndCalculateSummary)
-				.orElse(null);
+	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, Integer truckId) {
+		User user = userService.getUserByUserId(userId);
+
+		List<TruckDto> allUserTrucks = truckService.getAllTrucksByUserFirstDefault(userId);
+		if (allUserTrucks.stream().noneMatch(truckDto -> truckDto.getId().equals(truckId))) {
+			throw new ResourceNotFoundException("Truck with ID: " + truckId + " is not allowed for user with ID " + userId);
+		}
+
+		Truck truck = truckService.findTruckById(truckId);
+
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate)
+				.map(this::convertAndCalculateSummary)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found for user and truck on date " + routeDate));
 	}
 
 	private TruckRoutePageDto convertAndCalculateSummary(TruckRoutePage truckRoutePage) {
@@ -64,19 +80,52 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 	private TruckRoutePageDto createNewTruckRoutePage(TruckRouteDto truckRouteDto, User user) {
-		TruckRoutePage newTruckRoutePage = new TruckRoutePage();
 		LocalDate routeDate = truckRouteDto.getRouteDate();
-		newTruckRoutePage.setDateFrom(routeDate.withDayOfMonth(1));
-		newTruckRoutePage.setDateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()));
 
-		truckService.getDefaultTruckForUser(user).ifPresent(newTruckRoutePage::setTruck);
+		TruckRoutePage newTruckRoutePage = TruckRoutePage.builder()
+				.dateFrom(routeDate.withDayOfMonth(1))
+				.dateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()))
+				.user(user)
+				.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart())
+				.build();
 
-		newTruckRoutePage.setUser(user);
-		newTruckRoutePage.setFuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart());
-		return freightMapper.toDto(truckRoutePageRepository.save(newTruckRoutePage));
+		Truck truck = truckService.getDefaultTruckForUser(user)
+				.orElseThrow(() -> new ResourceNotFoundException("No default truck found for user: " + user.getId()));
+
+		newTruckRoutePage.setTruck(truck);
+
+		TruckRoutePage savedPage = truckRoutePageRepository.save(newTruckRoutePage);
+		return freightMapper.toDto(savedPage);
 	}
 
-	public TruckRoutePageDto getById(Integer id) {
-		return truckRoutePageRepository.findById(id).map(freightMapper::toDto).orElse(null);
+
+	public TruckRoutePageDto findById(Integer id) {
+		return truckRoutePageRepository.findById(id).map(freightMapper::toDto)
+				.orElseThrow(() -> new ResourceNotFoundException("No truck route pages found with ID: " + id));
 	}
+
+	public TruckRoutePageDto save(TruckRoutePageDto truckRoutePageDto) {
+		TruckRoutePage entity = freightMapper.toEntity(truckRoutePageDto);
+		entity = truckRoutePageRepository.save(entity);
+		return freightMapper.toDto(entity);
+	}
+
+	@Transactional
+	public TruckRoutePageDto updateTruckRoutePage(Integer id, TruckRoutePageDto truckRoutePageDto) {
+		TruckRoutePage existingPage = truckRoutePageRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found with ID: " + id));
+
+		existingPage.setDateFrom(truckRoutePageDto.getDateFrom());
+		existingPage.setDateTo(truckRoutePageDto.getDateTo());
+		existingPage.setTruck(freightMapper.toEntity(truckRoutePageDto.getTruck()));
+		existingPage.setFuelBalanceAtStart(truckRoutePageDto.getFuelBalanceAtStart());
+
+		TruckRoutePage updatedPage = truckRoutePageRepository.save(existingPage);
+
+		return freightMapper.toDto(updatedPage);
+	}
+
+
+
+
 }

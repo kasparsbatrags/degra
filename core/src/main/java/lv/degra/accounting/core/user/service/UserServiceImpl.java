@@ -1,9 +1,9 @@
 package lv.degra.accounting.core.user.service;
 
-import java.util.Optional;
-
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import lv.degra.accounting.core.user.dto.UserDto;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.model.UserRepository;
 
@@ -11,14 +11,26 @@ import lv.degra.accounting.core.user.model.UserRepository;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final ModelMapper modelMapper;
 
-	public UserServiceImpl(UserRepository userRepository) {
+	public UserServiceImpl(UserRepository userRepository,
+			ModelMapper modelMapper) {
 		this.userRepository = userRepository;
+		this.modelMapper = modelMapper;
 	}
-	@Override
-	public Optional<User> getByUserId(String userId) {
-		return userRepository.findByUserId(userId);
+
+	public UserDto getUserDtoByUserId(String userId) {
+		return userRepository.findByUserId(userId)
+				.map((element) -> modelMapper.map(element, UserDto.class))
+				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 	}
+
+	public User getUserByUserId(String userId) {
+		return userRepository.findByUserId(userId)
+				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+	}
+
+
 
 	public User saveUser(String userId) {
 		User user = new User();

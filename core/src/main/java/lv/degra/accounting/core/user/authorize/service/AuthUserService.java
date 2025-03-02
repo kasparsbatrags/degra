@@ -1,9 +1,5 @@
 package lv.degra.accounting.core.user.authorize.service;
 
-
-
-import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +24,9 @@ import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
 import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 import lv.degra.accounting.core.user.dto.CredentialDto;
-import lv.degra.accounting.core.user.dto.UserDto;
+import lv.degra.accounting.core.user.dto.UserManagementDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
@@ -213,7 +210,7 @@ public class AuthUserService {
 		log.info("User added to group: {}", groupId);
 	}
 
-	public UserDto getCurrentUser(String authHeader) {
+	public UserManagementDto getCurrentUser(String authHeader) {
 		return Optional.ofNullable(authHeader)
 				.filter(header -> header.startsWith(BEARER_PREFIX))
 				.map(header -> {
@@ -224,7 +221,7 @@ public class AuthUserService {
 						return null;
 					}
 				})
-				.map(claims -> new UserDto(
+				.map(claims -> new UserManagementDto(
 						(String) claims.get("sub"),
 						(String) claims.get("name"),
 						(String) claims.get("email"),

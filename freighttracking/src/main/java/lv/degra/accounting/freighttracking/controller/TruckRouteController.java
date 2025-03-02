@@ -1,9 +1,5 @@
 package lv.degra.accounting.freighttracking.controller;
 
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
-import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
-
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +17,15 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAllowedException;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
+import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
-import lv.degra.accounting.core.truck.model.Truck;
-import lv.degra.accounting.core.truck.model.TruckRepository;
+import lv.degra.accounting.core.truck.dto.TruckDto;
+import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
-import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.service.TruckRouteService;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
@@ -41,15 +40,15 @@ public class TruckRouteController {
 	private final TruckRouteService truckRouteService;
 	private final TruckRoutePageService truckRoutePageService;
 	private final UserRepository userRepository;
-	private final TruckRepository truckRepository;
+	private final TruckService truckService;
 
 	@Autowired
 	public TruckRouteController(TruckRouteService truckRouteService, TruckRoutePageService truckRoutePageService,
-			UserRepository userRepository, TruckRepository truckRepository) {
+			UserRepository userRepository, TruckService truckService, FreightMapper freightMapper) {
 		this.truckRouteService = truckRouteService;
 		this.truckRoutePageService = truckRoutePageService;
 		this.userRepository = userRepository;
-		this.truckRepository = truckRepository;
+		this.truckService = truckService;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTES)
@@ -101,14 +100,13 @@ public class TruckRouteController {
 		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-		Long truckId = Long.valueOf(truckRouteDto.getTruckRoutePage().getTruck().getId());
-		Truck truck = truckRepository.findById(truckId)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
+		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
+		TruckDto truckDto = truckService.findTruckDtoById(truckId);
 
-		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truck));
+		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
 
 		try {
-			return ResponseEntity.ok(truckRouteService.createOrUpdateTrucRoute(truckRouteDto));
+			return ResponseEntity.ok(truckRouteService.createOrUpdateTruckRoute(truckRouteDto));
 		} catch (InvalidRequestException | ResourceNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
@@ -128,21 +126,20 @@ public class TruckRouteController {
 		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-		TruckRoute existRoute = truckRouteService.findById(truckRouteDto.getId())
-				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with ID: " + truckRouteDto.getId()));
+		TruckRouteDto existRoute = truckRouteService.findById(truckRouteDto.getId());
+
 
 		if (!existRoute.getTruckRoutePage().getUser().getId().equals(user.getId())) {
 			throw new NotAllowedException("User not allow change TruckRoute with ID.");
 		}
 
-		Long truckId = Long.valueOf(truckRouteDto.getTruckRoutePage().getTruck().getId());
-		Truck truck = truckRepository.findById(truckId)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
+		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
+		TruckDto truckDto = truckService.findTruckDtoById(truckId);
 
-		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truck));
+		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
 
 		try {
-			TruckRouteDto updatedRoute = truckRouteService.createOrUpdateTrucRoute(truckRouteDto);
+			TruckRouteDto updatedRoute = truckRouteService.createOrUpdateTruckRoute(truckRouteDto);
 			return ResponseEntity.ok(updatedRoute);
 		} catch (InvalidRequestException | ResourceNotFoundException e) {
 			throw e;

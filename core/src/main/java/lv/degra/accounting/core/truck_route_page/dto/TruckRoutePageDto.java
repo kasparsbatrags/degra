@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
-import lv.degra.accounting.core.user.dto.UserDto;
+import lv.degra.accounting.core.user.dto.UserManagementDto;
 
 /**
  * DTO for {@link TruckRoutePage}
@@ -25,7 +25,7 @@ public class TruckRoutePageDto implements Serializable {
 	private LocalDate dateFrom;
 	private LocalDate dateTo;
 	private TruckDto truck;
-	private UserDto user;
+	private UserManagementDto user;
 	@NotNull
 	private Double fuelBalanceAtStart;
 	private Double fuelBalanceAtFinish;
