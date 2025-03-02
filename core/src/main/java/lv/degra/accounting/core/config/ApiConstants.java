@@ -29,5 +29,6 @@ public class ApiConstants {
 
 
 	public static final String USER_ROLE_NAME = "USER";
+	public static final String USER_MANAGER_ROLE_NAME = "USER_MANAGER";
 
 }
