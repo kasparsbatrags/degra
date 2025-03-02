@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
+import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
@@ -22,6 +23,7 @@ import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
+import lv.degra.accounting.core.utils.UserContextUtils;
 
 @Service
 public class TruckRouteServiceImpl implements TruckRouteService {
@@ -32,12 +34,15 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	private final TruckRouteRepository truckRouteRepository;
 	private final TruckRoutePageService truckRoutePageService;
 	private final UserService userService;
+	private final TruckService truckService;
 	private final FreightMapper freightMapper;
 
-	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, TruckRoutePageService truckRoutePageService, UserService userService, FreightMapper freightMapper) {
+	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, TruckRoutePageService truckRoutePageService,
+			UserService userService, TruckService truckService, FreightMapper freightMapper) {
 		this.truckRouteRepository = truckRouteRepository;
 		this.truckRoutePageService = truckRoutePageService;
 		this.userService = userService;
+		this.truckService = truckService;
 		this.freightMapper = freightMapper;
 	}
 
@@ -50,6 +55,15 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
+
+		String userId = UserContextUtils.getCurrentUserId();
+		User user = userService.getUserByUserId(userId);
+
+		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
+		TruckDto truckDto = truckService.findTruckDtoById(truckId);
+
+		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
+
 		truckRouteDto.setRouteLength(calculateRouteLength(truckRouteDto));
 		truckRouteDto.setFuelConsumed(calculateFuelConsume(truckRouteDto));
 
@@ -72,12 +86,10 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	protected double calculateFuelBalanceAtFinish(TruckRouteDto truckRouteDto) {
-		return  BigDecimal.valueOf(
-					Objects.requireNonNullElse(truckRouteDto.getFuelBalanceAtStart(), Double.valueOf(0))
-					- Objects.requireNonNullElse(truckRouteDto.getFuelConsumed(), Double.valueOf(0))
-					+ Objects.requireNonNullElse(truckRouteDto.getFuelReceived(),
-					Double.valueOf(0)))
-				.setScale(2, RoundingMode.HALF_UP).doubleValue();
+		return BigDecimal.valueOf(
+				Objects.requireNonNullElse(truckRouteDto.getFuelBalanceAtStart(), Double.valueOf(0)) - Objects.requireNonNullElse(
+						truckRouteDto.getFuelConsumed(), Double.valueOf(0)) + Objects.requireNonNullElse(truckRouteDto.getFuelReceived(),
+						Double.valueOf(0))).setScale(2, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	protected double calculateFuelConsume(TruckRouteDto truckRouteDto) {
@@ -87,19 +99,13 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 			return 0.0;
 		}
 
-		double fuelConsumptionNorm = Optional.ofNullable(truckRouteDto.getTruckRoutePage())
-				.map(TruckRoutePageDto::getTruck)
-				.map(TruckDto::getFuelConsumptionNorm)
-				.filter(norm -> norm > 0)
-				.orElse(DEFAULT_CONSUMPTION_NORM);
+		double fuelConsumptionNorm = Optional.ofNullable(truckRouteDto.getTruckRoutePage()).map(TruckRoutePageDto::getTruck)
+				.map(TruckDto::getFuelConsumptionNorm).filter(norm -> norm > 0).orElse(DEFAULT_CONSUMPTION_NORM);
 
 		double result = (fuelConsumptionNorm / 100) * routeLength;
 
-		return BigDecimal.valueOf(result)
-				.setScale(2, RoundingMode.HALF_UP)
-				.doubleValue();
+		return BigDecimal.valueOf(result).setScale(2, RoundingMode.HALF_UP).doubleValue();
 	}
-
 
 	public Optional<TruckRouteDto> getLastTruckRouteByUserId(String userId) {
 		Page<TruckRouteDto> truckRouteDtoPage = getLastTruckRoutesByUserId(userId, FIRST_PAGE, LAST_TEN_RECORDS);
@@ -116,8 +122,7 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	public TruckRouteDto findById(Integer id) {
-		return truckRouteRepository.findById(id)
-				.map(freightMapper::toDto)
+		return truckRouteRepository.findById(id).map(freightMapper::toDto)
 				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with ID: " + id));
 	}
 

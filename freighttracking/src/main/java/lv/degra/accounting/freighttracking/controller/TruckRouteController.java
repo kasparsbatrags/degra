@@ -16,19 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAllowedException;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
-import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.service.TruckRouteService;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
-import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
@@ -95,15 +92,6 @@ public class TruckRouteController {
 
 	@PostMapping(ENDPOINT_TRUCK_ROUTES)
 	public ResponseEntity<TruckRouteDto> createNewTruckRoutes(@Valid @RequestBody TruckRouteDto truckRouteDto) {
-		String userId = UserContextUtils.getCurrentUserId();
-
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-
-		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
-		TruckDto truckDto = truckService.findTruckDtoById(truckId);
-
-		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
 
 		try {
 			return ResponseEntity.ok(truckRouteService.createOrUpdateTruckRoute(truckRouteDto));
@@ -120,23 +108,6 @@ public class TruckRouteController {
 		if (truckRouteDto.getId() == null) {
 			throw new BadRequestException("TruckRoute ID must be provided in the request body.");
 		}
-
-		String userId = UserContextUtils.getCurrentUserId();
-
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-
-		TruckRouteDto existRoute = truckRouteService.findById(truckRouteDto.getId());
-
-
-		if (!existRoute.getTruckRoutePage().getUser().getId().equals(user.getId())) {
-			throw new NotAllowedException("User not allow change TruckRoute with ID.");
-		}
-
-		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
-		TruckDto truckDto = truckService.findTruckDtoById(truckId);
-
-		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
 
 		try {
 			TruckRouteDto updatedRoute = truckRouteService.createOrUpdateTruckRoute(truckRouteDto);

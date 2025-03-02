@@ -77,7 +77,8 @@ export default function TruckRoutePageScreen() {
 				fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
 				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
 			}
-
+			console.log("===========================")
+			console.log(form.dateFrom.toISOString().split('T')[0])
 			if (id) {
 				await freightAxios.put(`/api/freight-tracking/route-pages/${id}`, payload)
 			} else {
@@ -118,7 +119,7 @@ export default function TruckRoutePageScreen() {
 						<FormDropdown
 								label="Auto"
 								value={form.truck}
-								onSelect={(value) => setForm({...form, truck: value})}
+								onSelect={(value) => setForm(prevForm => ({...prevForm, truck: value}))}
 								placeholder="Izvēlieties"
 								endpoint="/api/freight-tracking/trucks"
 								disabled={!isEditMode}
@@ -133,7 +134,7 @@ export default function TruckRoutePageScreen() {
 					<FormDatePicker
 							label="Sākuma datums"
 							value={form.dateFrom}
-							onChange={(date) => setForm({...form, dateFrom: date})}
+							onChange={(date) => setForm(prevForm => ({...prevForm, dateFrom: date}))}
 							error="Lauks ir obligāts"
 							showError={!form.dateFrom}
 							disabled={!isEditMode}
@@ -141,7 +142,7 @@ export default function TruckRoutePageScreen() {
 					<FormDatePicker
 							label="Beigu datums"
 							value={form.dateTo}
-							onChange={(date) => setForm({...form, dateTo: date})}
+							onChange={(date) => setForm(prevForm => ({...prevForm, dateTo: date}))}
 							error="Lauks ir obligāts"
 							showError={!form.dateTo}
 							disabled={!isEditMode}
@@ -155,7 +156,7 @@ export default function TruckRoutePageScreen() {
 								value={form.fuelBalanceAtStart}
 								onChangeText={(text) => {
 									if (isEditMode && /^\d*\.?\d*$/.test(text)) {
-										setForm({...form, fuelBalanceAtStart: text})
+										setForm(prevForm => ({...prevForm, fuelBalanceAtStart: text}))
 									}
 								}}
 								placeholder="Ievadiet degvielas atlikumu"
@@ -169,7 +170,7 @@ export default function TruckRoutePageScreen() {
 								value={form.fuelBalanceAtFinish}
 								onChangeText={(text) => {
 									if (isEditMode && /^\d*\.?\d*$/.test(text)) {
-										setForm({...form, fuelBalanceAtFinish: text})
+										setForm(prevForm => ({...prevForm, fuelBalanceAtFinish: text}))
 									}
 								}}
 								placeholder="Ievadiet degvielas atlikumu"

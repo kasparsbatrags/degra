@@ -29,13 +29,9 @@ import lv.degra.accounting.core.validation.request.RequestValidator;
 public class TruckRoutePageController {
 
 	private final TruckRoutePageService truckRoutePageService;
-	private final UserRepository userRepository;
-	private final TruckService truckService;
 
 	public TruckRoutePageController(TruckRoutePageService truckRoutePageService, UserRepository userRepository, TruckService truckService) {
 		this.truckRoutePageService = truckRoutePageService;
-		this.userRepository = userRepository;
-		this.truckService = truckService;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES)

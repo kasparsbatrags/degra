@@ -75,7 +75,7 @@ public class TruckServiceImpl implements TruckService {
 	}
 
 	public TruckDto findTruckDtoById(Integer truckId) {
-		Truck truck = findTruckById(truckId); // Izmanto jau esošo metodi
+		Truck truck = findTruckById(truckId);
 		return freightMapper.toDto(truck);
 	}
 
