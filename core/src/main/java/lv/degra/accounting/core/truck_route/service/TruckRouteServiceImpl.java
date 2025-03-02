@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import static lv.degra.accounting.core.config.ApiConstants.USER_MANAGER_ROLE_NAME;
+import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
@@ -55,6 +57,7 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
+		UserContextUtils.requireAllGroups(USER_ROLE_NAME, USER_MANAGER_ROLE_NAME);
 
 		String userId = UserContextUtils.getCurrentUserId();
 		User user = userService.getUserByUserId(userId);
