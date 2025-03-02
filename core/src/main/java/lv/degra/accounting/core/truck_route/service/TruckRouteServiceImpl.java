@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import static lv.degra.accounting.core.config.ApiConstants.USER_MANAGER_ROLE_NAME;
@@ -23,6 +24,7 @@ import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
 import lv.degra.accounting.core.utils.UserContextUtils;
@@ -38,14 +40,17 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	private final UserService userService;
 	private final TruckService truckService;
 	private final FreightMapper freightMapper;
+	private final TruckUserMapRepository truckUserMapRepository;
 
 	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, TruckRoutePageService truckRoutePageService,
-			UserService userService, TruckService truckService, FreightMapper freightMapper) {
+			UserService userService, TruckService truckService, FreightMapper freightMapper,
+			TruckUserMapRepository truckUserMapRepository) {
 		this.truckRouteRepository = truckRouteRepository;
 		this.truckRoutePageService = truckRoutePageService;
 		this.userService = userService;
 		this.truckService = truckService;
 		this.freightMapper = freightMapper;
+		this.truckUserMapRepository = truckUserMapRepository;
 	}
 
 	public Page<TruckRouteDto> getLastTruckRoutesByUserId(String userId, int page, int size) {
@@ -56,13 +61,31 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 		return truckRouteRepository.findByUserId(user.getId(), pageable).map(freightMapper::toDto);
 	}
 
-	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
-		UserContextUtils.requireAllGroups(USER_ROLE_NAME, USER_MANAGER_ROLE_NAME);
+	protected void validateUserAccessToTruck(Integer truckId, User user) {
+		if (UserContextUtils.hasGroup(USER_MANAGER_ROLE_NAME)) {
+			return;
+		}
+		
+		if (!UserContextUtils.hasGroup(USER_ROLE_NAME)) {
+			throw new AccessDeniedException("User must have USER role to edit truck routes");
+		}
+		
+		boolean hasTruckAssociation = truckUserMapRepository.findByUser(user).stream()
+				.anyMatch(mapping -> mapping.getTruck().getId().equals(truckId));
+		
+		if (!hasTruckAssociation) {
+			throw new AccessDeniedException("User does not have access to this truck");
+		}
+	}
 
+	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
 		String userId = UserContextUtils.getCurrentUserId();
 		User user = userService.getUserByUserId(userId);
-
+		
 		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
+		
+		validateUserAccessToTruck(truckId, user);
+		
 		TruckDto truckDto = truckService.findTruckDtoById(truckId);
 
 		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
