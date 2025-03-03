@@ -1,5 +1,7 @@
 import {formStyles} from '@/constants/styles'
 import {WEB_DATE_PICKER} from '@/constants/webStyles'
+import {format} from 'date-fns'
+import {lv} from 'date-fns/locale'
 import React, {useState} from 'react'
 import {Modal, Platform, Pressable, Text, TouchableOpacity, View} from 'react-native'
 
@@ -23,7 +25,7 @@ export default function FormDatePicker({
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   return (
-    <View style={[formStyles.inputContainer, { flex: undefined, height: undefined, marginBottom: 16, marginTop: 28 }]}>
+    <View style={[formStyles.inputContainer, { flex: undefined, height: undefined, marginBottom: 1, marginTop: 28 }]}>
       <Text style={formStyles.label}>{label}</Text>
       <TouchableOpacity
         style={[
@@ -35,7 +37,7 @@ export default function FormDatePicker({
         disabled={disabled}
       >
         <Text style={formStyles.dateText}>
-          {`${value.getDate().toString().padStart(2, '0')}.${(value.getMonth() + 1).toString().padStart(2, '0')}.${value.getFullYear()}`}
+          {format(value, 'dd.MM.yyyy', {locale: lv})}
         </Text>
       </TouchableOpacity>
       {error && showError && <Text style={[formStyles.errorText, { fontSize: 14, marginTop: 4 }]}>{error}</Text>}
@@ -72,10 +74,7 @@ export default function FormDatePicker({
                   <Text style={formStyles.monthButtonText}>←</Text>
                 </TouchableOpacity>
                 <Text style={formStyles.monthYearText}>
-                  {value.toLocaleDateString('lv-LV', {
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  {format(value, 'MMMM yyyy', {locale: lv})}
                 </Text>
                 <TouchableOpacity
                   style={formStyles.monthButton}
@@ -91,7 +90,7 @@ export default function FormDatePicker({
               <View style={formStyles.weekDaysRow}>
                 {Array.from({ length: 7 }).map((_, i) => (
                   <Text key={i} style={formStyles.weekDayText}>
-                    {new Date(2024, 0, i + 1).toLocaleDateString('lv-LV', { weekday: 'short' })}
+                    {format(new Date(2024, 0, i + 1), 'EEE', {locale: lv})}
                   </Text>
                 ))}
               </View>

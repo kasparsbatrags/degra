@@ -1,6 +1,7 @@
 import FormDatePicker from '@/components/FormDatePicker'
 import FormDropdown from '@/components/FormDropdown'
 import {commonStyles, formStyles} from '@/constants/styles'
+import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View} from 'react-native'
@@ -71,14 +72,14 @@ export default function TruckRoutePageScreen() {
 			setIsSubmitting(true)
 
 			const payload = {
-				dateFrom: form.dateFrom.toISOString().split('T')[0],
-				dateTo: form.dateTo.toISOString().split('T')[0],
+				dateFrom: format(form.dateFrom, 'yyyy-MM-dd'),
+				dateTo: format(form.dateTo, 'yyyy-MM-dd'),
 				truck:  {id: parseInt(form.truck)},
 				fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
 				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
 			}
 			console.log("===========================")
-			console.log(form.dateFrom.toISOString().split('T')[0])
+			console.log(format(form.dateFrom, 'yyyy-MM-dd'))
 			if (id) {
 				await freightAxios.put(`/api/freight-tracking/route-pages/${id}`, payload)
 			} else {

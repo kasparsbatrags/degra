@@ -1,6 +1,7 @@
 import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
+import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useState} from 'react'
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
@@ -136,7 +137,7 @@ export default function TruckRouteScreen() {
 			// Set new timeout
 			timeoutId = setTimeout(async () => {
 				try {
-					const formattedDate = date.toISOString().split('T')[0]
+					const formattedDate = format(date, 'yyyy-MM-dd')
 					const response = await freightAxios.get<TruckRoutePage>(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
 					if (response.data) {
 						setExistingRoutePage(response.data)
@@ -247,10 +248,10 @@ export default function TruckRouteScreen() {
 			const now = new Date().toISOString() // Current time in ISO format for Instant
 			const payload: TruckRouteDto = {
 				id: form.id ? parseInt(form.id) : null,
-				routeDate: form.routeDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+				routeDate: format(form.routeDate, 'yyyy-MM-dd'), // Format date as YYYY-MM-DD
 				truckRoutePage: form.routePageTruck ? {
-					dateFrom: (form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom)).toISOString().split('T')[0],
-					dateTo: (form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo)).toISOString().split('T')[0],
+					dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
+					dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
 					truck: {id: parseInt(form.routePageTruck)},
 					user: {id: user?.id || '0'},
 					fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
