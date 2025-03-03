@@ -19,14 +19,10 @@ import jakarta.ws.rs.InternalServerErrorException;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
-import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
-import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.service.TruckRouteService;
-import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
-import lv.degra.accounting.core.user.model.UserRepository;
 import lv.degra.accounting.core.utils.UserContextUtils;
 import lv.degra.accounting.core.validation.request.RequestValidator;
 
@@ -35,17 +31,10 @@ import lv.degra.accounting.core.validation.request.RequestValidator;
 public class TruckRouteController {
 
 	private final TruckRouteService truckRouteService;
-	private final TruckRoutePageService truckRoutePageService;
-	private final UserRepository userRepository;
-	private final TruckService truckService;
 
 	@Autowired
-	public TruckRouteController(TruckRouteService truckRouteService, TruckRoutePageService truckRoutePageService,
-			UserRepository userRepository, TruckService truckService, FreightMapper freightMapper) {
+	public TruckRouteController(TruckRouteService truckRouteService) {
 		this.truckRouteService = truckRouteService;
-		this.truckRoutePageService = truckRoutePageService;
-		this.userRepository = userRepository;
-		this.truckService = truckService;
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTES)

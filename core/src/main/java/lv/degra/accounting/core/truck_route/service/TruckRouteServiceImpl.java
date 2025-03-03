@@ -10,11 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import static lv.degra.accounting.core.config.ApiConstants.USER_MANAGER_ROLE_NAME;
-import static lv.degra.accounting.core.config.ApiConstants.USER_ROLE_NAME;
 import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
@@ -27,6 +24,7 @@ import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
+import lv.degra.accounting.core.utils.TruckAccessUtils;
 import lv.degra.accounting.core.utils.UserContextUtils;
 
 @Service
@@ -62,30 +60,17 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 
 	protected void validateUserAccessToTruck(Integer truckId, User user) {
-		if (UserContextUtils.hasGroup(USER_MANAGER_ROLE_NAME)) {
-			return;
-		}
-		
-		if (!UserContextUtils.hasGroup(USER_ROLE_NAME)) {
-			throw new AccessDeniedException("User must have USER role to edit truck routes");
-		}
-		
-		boolean hasTruckAssociation = truckUserMapRepository.findByUser(user).stream()
-				.anyMatch(mapping -> mapping.getTruck().getId().equals(truckId));
-		
-		if (!hasTruckAssociation) {
-			throw new AccessDeniedException("User does not have access to this truck");
-		}
+		TruckAccessUtils.validateUserAccessToTruck(truckId, user, truckUserMapRepository);
 	}
 
 	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
 		String userId = UserContextUtils.getCurrentUserId();
 		User user = userService.getUserByUserId(userId);
-		
+
 		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
-		
+
 		validateUserAccessToTruck(truckId, user);
-		
+
 		TruckDto truckDto = truckService.findTruckDtoById(truckId);
 
 		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));

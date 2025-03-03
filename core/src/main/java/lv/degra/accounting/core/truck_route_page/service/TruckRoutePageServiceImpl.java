@@ -18,8 +18,10 @@ import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
 import lv.degra.accounting.core.truck_route_page.model.TruckRoutePageRepository;
+import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.model.User;
 import lv.degra.accounting.core.user.service.UserService;
+import lv.degra.accounting.core.utils.TruckAccessUtils;
 
 @Service
 public class TruckRoutePageServiceImpl implements TruckRoutePageService {
@@ -28,13 +30,19 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	private final UserService userService;
 	private final TruckService truckService;
 	private final FreightMapper freightMapper;
+	private final TruckUserMapRepository truckUserMapRepository;
 
 	public TruckRoutePageServiceImpl(TruckRoutePageRepository truckRoutePageRepository, UserService userService, TruckService truckService,
-			FreightMapper freightMapper) {
+			FreightMapper freightMapper, TruckUserMapRepository truckUserMapRepository) {
 		this.truckRoutePageRepository = truckRoutePageRepository;
 		this.userService = userService;
 		this.truckService = truckService;
 		this.freightMapper = freightMapper;
+		this.truckUserMapRepository = truckUserMapRepository;
+	}
+
+	protected void validateUserAccessToTruck(Integer truckId, User user) {
+		TruckAccessUtils.validateUserAccessToTruck(truckId, user, truckUserMapRepository);
 	}
 
 	public List<TruckRoutePage> getUserRoutePages(String userId, int page, int size) {
@@ -53,10 +61,12 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, TruckDto truckDto) {
+		Integer truckId = truckDto.getId();
+
+		validateUserAccessToTruck(truckId, user);
 
 		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, freightMapper.toEntity(truckDto), truckRouteDto.getRouteDate())
-				.map(this::convertAndCalculateSummary)
-				.orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
+				.map(this::convertAndCalculateSummary).orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
 	}
 
 	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, Integer truckId) {
@@ -69,8 +79,7 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 
 		Truck truck = truckService.findTruckById(truckId);
 
-		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate)
-				.map(this::convertAndCalculateSummary)
+		return truckRoutePageRepository.findByUserAndTruckAndRouteDate(user, truck, routeDate).map(this::convertAndCalculateSummary)
 				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found for user and truck on date " + routeDate));
 	}
 
@@ -82,12 +91,9 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	private TruckRoutePageDto createNewTruckRoutePage(TruckRouteDto truckRouteDto, User user) {
 		LocalDate routeDate = truckRouteDto.getRouteDate();
 
-		TruckRoutePage newTruckRoutePage = TruckRoutePage.builder()
-				.dateFrom(routeDate.withDayOfMonth(1))
-				.dateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth()))
-				.user(user)
-				.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart())
-				.build();
+		TruckRoutePage newTruckRoutePage = TruckRoutePage.builder().dateFrom(routeDate.withDayOfMonth(1))
+				.dateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth())).user(user)
+				.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart()).build();
 
 		Truck truck = truckService.getDefaultTruckForUser(user)
 				.orElseThrow(() -> new ResourceNotFoundException("No default truck found for user: " + user.getId()));
@@ -97,7 +103,6 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		TruckRoutePage savedPage = truckRoutePageRepository.save(newTruckRoutePage);
 		return freightMapper.toDto(savedPage);
 	}
-
 
 	public TruckRoutePageDto findById(Integer id) {
 		return truckRoutePageRepository.findById(id).map(freightMapper::toDto)
@@ -124,8 +129,5 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 
 		return freightMapper.toDto(updatedPage);
 	}
-
-
-
 
 }
