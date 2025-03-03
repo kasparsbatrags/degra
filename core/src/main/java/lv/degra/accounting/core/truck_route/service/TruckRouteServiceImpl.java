@@ -58,6 +58,16 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 
 		return truckRouteRepository.findByUserId(user.getId(), pageable).map(freightMapper::toDto);
 	}
+	
+	@Override
+	public Page<TruckRouteDto> getTruckRoutesByTruckRoutePageId(Integer truckRoutePageId, int page, int size) {
+		// Verify that the truck route page exists
+		truckRoutePageService.findById(truckRoutePageId);
+		
+		Pageable pageable = PageRequest.of(page, size, Sort.by("routeDate").descending());
+		
+		return truckRouteRepository.findByTruckRoutePageId(truckRoutePageId, pageable).map(freightMapper::toDto);
+	}
 
 	protected void validateUserAccessToTruck(Integer truckId, User user) {
 		TruckAccessUtils.validateUserAccessToTruck(truckId, user, truckUserMapRepository);

@@ -18,6 +18,7 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_LAST_ACTIVE;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTES;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE_BY_PAGE;
 import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
 import lv.degra.accounting.core.exception.InvalidRequestException;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
@@ -78,6 +79,30 @@ public class TruckRouteController {
 			throw new InternalServerErrorException("Failed to retrieve truck routes", e);
 		}
 	}
+
+	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_TRUCK_ROUTE_BY_PAGE + "/{truckRoutePageId}")
+	public ResponseEntity<Page<TruckRouteDto>> getTruckRoutesByTruckRoutePage(
+			@org.springframework.web.bind.annotation.PathVariable Integer truckRoutePageId,
+			@RequestParam(defaultValue = "0") int pageNumber,
+			@RequestParam(defaultValue = "5") int pageSize) {
+
+		RequestValidator.validatePageRequest(pageNumber, pageSize);
+
+		try {
+			Page<TruckRouteDto> truckRoutesPages = truckRouteService.getTruckRoutesByTruckRoutePageId(truckRoutePageId, pageNumber, pageSize);
+
+			if (truckRoutesPages.isEmpty()) {
+				throw new ResourceNotFoundException("No truck routes found for truck route page ID " + truckRoutePageId);
+			}
+
+			return ResponseEntity.ok(truckRoutesPages);
+		} catch (InvalidRequestException | ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new InternalServerErrorException("Failed to retrieve truck routes", e);
+		}
+	}
+
 
 	@PostMapping(ENDPOINT_TRUCK_ROUTES)
 	public ResponseEntity<TruckRouteDto> createNewTruckRoutes(@Valid @RequestBody TruckRouteDto truckRouteDto) {

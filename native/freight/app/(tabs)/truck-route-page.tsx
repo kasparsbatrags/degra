@@ -91,7 +91,12 @@ export default function TruckRoutePageScreen() {
 		
 		try {
 			const response = await freightAxios.get(`/api/freight-tracking/truck-routes/by-page/${id}`)
-			setTruckRoutes(response.data)
+			// Handle paginated response
+			if (response.data.content) {
+				setTruckRoutes(response.data.content)
+			} else {
+				setTruckRoutes(response.data)
+			}
 		} catch (error) {
 			console.error('Failed to fetch truck routes:', error)
 		}

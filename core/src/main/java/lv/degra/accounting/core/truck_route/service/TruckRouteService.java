@@ -14,6 +14,7 @@ public interface TruckRouteService {
 	Optional<TruckRouteDto> getLastTruckRouteByUserId(String userId);
 
 	TruckRouteDto findById(Integer id);
-
+	
+	Page<TruckRouteDto> getTruckRoutesByTruckRoutePageId(Integer truckRoutePageId, int page, int size);
 
 }

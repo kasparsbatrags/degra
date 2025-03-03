@@ -24,6 +24,7 @@ public class ApiConstants {
 	public static final String ENDPOINT_CARGO_TYPES = "/cargo-types";
 	public static final String ENDPOINT_TRUCK_OBJECT = "/objects";
 	public static final String ENDPOINT_TRUCK_ROUTE_PAGES = "/route-pages";
+	public static final String ENDPOINT_TRUCK_ROUTE_BY_PAGE = "/by-page";
 
 
 
