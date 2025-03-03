@@ -276,7 +276,13 @@ export default function TruckRoutePageScreen() {
 				<View style={styles.buttonContainer}>
 					<Button
 							title="Atpakaļ"
-							onPress={() => router.push('/(tabs)')}
+							onPress={() => {
+								if (isEditMode) {
+									setIsEditMode(false)
+								} else {
+									router.push('/(tabs)')
+								}
+							}}
 							style={styles.backButton}
 					/>
 					{isEditMode && (<Button
