@@ -4,7 +4,7 @@ import {commonStyles, formStyles} from '@/constants/styles'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
-import {ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View} from 'react-native'
+import {ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
@@ -28,12 +28,30 @@ interface Truck {
 	isDefault?: boolean;
 }
 
+interface TruckRoute {
+	id: number;
+	routeDate: string;
+	outTruckObject: { id: number; name?: string };
+	inTruckObject: { id: number; name?: string };
+	odometerAtStart: number | null;
+	odometerAtFinish: number | null;
+	cargoVolume: number | null;
+	unitType: string | null;
+	fuelBalanceAtStart: number | null;
+	fuelReceived: number | null;
+	fuelBalanceAtFinish: number | null;
+	outDateTime: string;
+	inDateTime: string | null;
+}
+
 
 export default function TruckRoutePageScreen() {
 	const {id} = useLocalSearchParams<{ id: string }>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [isLoading, setIsLoading] = useState(!!id)
 	const [isEditMode, setIsEditMode] = useState(!id)
+	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
+	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
 	const [form, setForm] = useState<TruckRoutePageForm>({
 		dateFrom: new Date(),
 		dateTo: new Date(),
@@ -45,6 +63,7 @@ export default function TruckRoutePageScreen() {
 	useEffect(() => {
 		if (id) {
 			fetchRouteDetails()
+			fetchTruckRoutes()
 		}
 	}, [id])
 
@@ -64,6 +83,17 @@ export default function TruckRoutePageScreen() {
 			console.error('Failed to fetch route details:', error)
 		} finally {
 			setIsLoading(false)
+		}
+	}
+
+	const fetchTruckRoutes = async () => {
+		if (!id) return;
+		
+		try {
+			const response = await freightAxios.get(`/api/freight-tracking/truck-routes/by-page/${id}`)
+			setTruckRoutes(response.data)
+		} catch (error) {
+			console.error('Failed to fetch truck routes:', error)
 		}
 	}
 
@@ -114,72 +144,135 @@ export default function TruckRoutePageScreen() {
 						style={styles.editButton}
 				/>)}
 
-				<View style={styles.inputWrapper}>
-
-					<View style={[formStyles.inputContainer, styles.truckField]}>
-						<FormDropdown
-								label="Auto"
-								value={form.truck}
-								onSelect={(value) => setForm(prevForm => ({...prevForm, truck: value}))}
-								placeholder="Izvēlieties"
-								endpoint="/api/freight-tracking/trucks"
-								disabled={!isEditMode}
-								// error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
-						/>
+				{/* Tab buttons */}
+				{id && !isEditMode && (
+					<View style={styles.tabContainer}>
+						<Pressable
+							style={[styles.tabButton, activeTab === 'basic' && styles.tabButtonActive]}
+							onPress={() => setActiveTab('basic')}
+						>
+							<Text style={[styles.tabText, activeTab === 'basic' && styles.tabTextActive]}>Pamatinformācija</Text>
+						</Pressable>
+						<Pressable
+							style={[styles.tabButton, activeTab === 'routes' && styles.tabButtonActive]}
+							onPress={() => setActiveTab('routes')}
+						>
+							<Text style={[styles.tabText, activeTab === 'routes' && styles.tabTextActive]}>Braucieni</Text>
+						</Pressable>
 					</View>
+				)}
 
-				</View>
+				{/* Tab content */}
+				{(activeTab === 'basic' || isEditMode) && (
+					<>
+						<View style={styles.inputWrapper}>
+							<View style={[formStyles.inputContainer, styles.truckField]}>
+								<FormDropdown
+										label="Auto"
+										value={form.truck}
+										onSelect={(value) => setForm(prevForm => ({...prevForm, truck: value}))}
+										placeholder="Izvēlieties"
+										endpoint="/api/freight-tracking/trucks"
+										disabled={!isEditMode}
+										// error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
+								/>
+							</View>
+						</View>
 
+						<View style={commonStyles.row}>
+							<FormDatePicker
+									label="Sākuma datums"
+									value={form.dateFrom}
+									onChange={(date) => setForm(prevForm => ({...prevForm, dateFrom: date}))}
+									error="Lauks ir obligāts"
+									showError={!form.dateFrom}
+									disabled={!isEditMode}
+							/>
+							<FormDatePicker
+									label="Beigu datums"
+									value={form.dateTo}
+									onChange={(date) => setForm(prevForm => ({...prevForm, dateTo: date}))}
+									error="Lauks ir obligāts"
+									showError={!form.dateTo}
+									disabled={!isEditMode}
+							/>
+						</View>
 
-				<View style={commonStyles.row}>
-					<FormDatePicker
-							label="Sākuma datums"
-							value={form.dateFrom}
-							onChange={(date) => setForm(prevForm => ({...prevForm, dateFrom: date}))}
-							error="Lauks ir obligāts"
-							showError={!form.dateFrom}
-							disabled={!isEditMode}
-					/>
-					<FormDatePicker
-							label="Beigu datums"
-							value={form.dateTo}
-							onChange={(date) => setForm(prevForm => ({...prevForm, dateTo: date}))}
-							error="Lauks ir obligāts"
-							showError={!form.dateTo}
-							disabled={!isEditMode}
-					/>
-				</View>
+						<View style={commonStyles.row}>
+							<View style={styles.inputWrapper}>
+								<FormInput
+										label="Degviela sākumā"
+										value={form.fuelBalanceAtStart}
+										onChangeText={(text) => {
+											if (isEditMode && /^\d*\.?\d*$/.test(text)) {
+												setForm(prevForm => ({...prevForm, fuelBalanceAtStart: text}))
+											}
+										}}
+										placeholder="Ievadiet degvielas atlikumu"
+										keyboardType="numeric"
+										editable={isEditMode}
+								/>
+							</View>
+							<View style={styles.inputWrapper}>
+								<FormInput
+										label="Degviela beigās"
+										value={form.fuelBalanceAtFinish}
+										onChangeText={(text) => {
+											if (isEditMode && /^\d*\.?\d*$/.test(text)) {
+												setForm(prevForm => ({...prevForm, fuelBalanceAtFinish: text}))
+											}
+										}}
+										placeholder="Ievadiet degvielas atlikumu"
+										keyboardType="numeric"
+										editable={isEditMode}
+								/>
+							</View>
+						</View>
+					</>
+				)}
 
-				<View style={commonStyles.row}>
-					<View style={styles.inputWrapper}>
-						<FormInput
-								label="Degviela sākumā"
-								value={form.fuelBalanceAtStart}
-								onChangeText={(text) => {
-									if (isEditMode && /^\d*\.?\d*$/.test(text)) {
-										setForm(prevForm => ({...prevForm, fuelBalanceAtStart: text}))
-									}
-								}}
-								placeholder="Ievadiet degvielas atlikumu"
-								keyboardType="numeric"
-								editable={isEditMode}
-						/>
+				{activeTab === 'routes' && !isEditMode && (
+					<View style={styles.routesContainer}>
+						{truckRoutes.length > 0 ? (
+							truckRoutes.map((route) => (
+								<View key={route.id} style={styles.routeCard}>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Datums:</Text>
+										<Text style={styles.routeText}>
+											{new Date(route.routeDate).toLocaleDateString('lv-LV', {
+												day: '2-digit', month: '2-digit', year: 'numeric'
+											})}
+										</Text>
+									</View>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>No:</Text>
+										<Text style={styles.routeText}>{route.outTruckObject?.name || '-'}</Text>
+									</View>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Uz:</Text>
+										<Text style={styles.routeText}>{route.inTruckObject?.name || '-'}</Text>
+									</View>
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelInline}>Odometrs:</Text>
+										<Text style={styles.routeText}>
+											{route.odometerAtStart} - {route.odometerAtFinish} km
+										</Text>
+									</View>
+									{route.cargoVolume && (
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Krava:</Text>
+											<Text style={styles.routeText}>
+												{route.cargoVolume} {route.unitType}
+											</Text>
+										</View>
+									)}
+								</View>
+							))
+						) : (
+							<Text style={styles.emptyText}>Nav braucienu</Text>
+						)}
 					</View>
-					<View style={styles.inputWrapper}>
-						<FormInput
-								label="Degviela beigās"
-								value={form.fuelBalanceAtFinish}
-								onChangeText={(text) => {
-									if (isEditMode && /^\d*\.?\d*$/.test(text)) {
-										setForm(prevForm => ({...prevForm, fuelBalanceAtFinish: text}))
-									}
-								}}
-								placeholder="Ievadiet degvielas atlikumu"
-								keyboardType="numeric"
-								editable={isEditMode}
-						/>
-					</View>
-				</View>
+				)}
 				<View style={styles.buttonContainer}>
 					<Button
 							title="Atpakaļ"
@@ -274,5 +367,65 @@ const styles = StyleSheet.create({
 		color: COLORS.secondary, fontFamily: FONT.medium,
 	}, inputWrapper: {
 		flex: 1
+	},
+	tabContainer: {
+		flexDirection: 'row',
+		marginBottom: 16,
+		borderRadius: 8,
+		overflow: 'hidden',
+		backgroundColor: COLORS.black200,
+	},
+	tabButton: {
+		flex: 1,
+		paddingVertical: 8,
+		paddingHorizontal: 12,
+		alignItems: 'center',
+	},
+	tabButtonActive: {
+		backgroundColor: COLORS.secondary,
+	},
+	tabText: {
+		fontSize: 14,
+		fontFamily: FONT.medium,
+		color: COLORS.gray,
+	},
+	tabTextActive: {
+		color: COLORS.white,
+		fontFamily: FONT.semiBold,
+	},
+	routesContainer: {
+		marginTop: 16,
+	},
+	routeCard: {
+		backgroundColor: COLORS.black100,
+		borderRadius: 8,
+		padding: 16,
+		marginBottom: 12,
+	},
+	routeRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 8,
+	},
+	routeLabelInline: {
+		fontSize: 14,
+		fontFamily: FONT.medium,
+		color: COLORS.gray,
+		marginRight: 8,
+		flex: 0.33,
+	},
+	routeText: {
+		fontSize: 16,
+		fontFamily: FONT.semiBold,
+		color: COLORS.white,
+		flex: 0.67,
+		textAlign: 'right',
+	},
+	emptyText: {
+		fontSize: 16,
+		fontFamily: FONT.regular,
+		color: COLORS.gray,
+		textAlign: 'center',
+		marginTop: 24,
 	},
 })
