@@ -25,22 +25,50 @@ export default function FormDatePicker({
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   return (
-    <View style={[formStyles.inputContainer, { flex: undefined, height: undefined, marginBottom: 1, marginTop: 28 }]}>
-      <Text style={formStyles.label}>{label}</Text>
+    <View style={[
+      formStyles.inputContainer, 
+      { 
+        flex: 1, 
+        height: Platform.select({ web: 80, default: 80 }), 
+        marginBottom: Platform.select({ web: 4, default: 1 }), 
+        marginTop: Platform.select({ web: 24, default: 24 }) 
+      }
+    ]}>
+      <Text style={[
+        formStyles.label,
+        { 
+          fontSize: Platform.select({ web: 14, default: 16 }),
+          marginBottom: Platform.select({ web: 6, default: 4 })
+        }
+      ]}>{label}</Text>
       <TouchableOpacity
         style={[
-          formStyles.dateButton, 
+          formStyles.dateButton,
+          {
+            height: Platform.select({ web: 40, default: 48 }),
+            paddingVertical: Platform.select({ web: 8, default: 12 }),
+            paddingHorizontal: Platform.select({ web: 12, default: 12 })
+          },
           showError && formStyles.inputError,
           disabled && formStyles.inputDisabled
         ]}
         onPress={() => !disabled && setShowDatePicker(true)}
         disabled={disabled}
       >
-        <Text style={formStyles.dateText}>
+        <Text style={[
+          formStyles.dateText,
+          { fontSize: Platform.select({ web: 14, default: 16 }) }
+        ]}>
           {format(value, 'dd.MM.yyyy', {locale: lv})}
         </Text>
       </TouchableOpacity>
-      {error && showError && <Text style={[formStyles.errorText, { fontSize: 14, marginTop: 4 }]}>{error}</Text>}
+      {error && showError && <Text style={[
+        formStyles.errorText, 
+        { 
+          fontSize: Platform.select({ web: 12, default: 14 }), 
+          marginTop: Platform.select({ web: 4, default: 4 })
+        }
+      ]}>{error}</Text>}
 
       {showDatePicker && (
         <Modal
