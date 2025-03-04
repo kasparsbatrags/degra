@@ -73,6 +73,12 @@ export default function TabLayout() {
             title: 'Sākt braucienu',
           }}
         />
+		  <Stack.Screen
+				  name="truck-route-page"
+				  options={{
+					  title: 'Maršruta lapa',
+				  }}
+		  />
       </Stack>
     </>
   );

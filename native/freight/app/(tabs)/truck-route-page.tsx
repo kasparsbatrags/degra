@@ -139,9 +139,9 @@ export default function TruckRoutePageScreen() {
 	return (<SafeAreaView style={styles.container}>
 		<ScrollView>
 			<View style={styles.content}>
-				<Text style={styles.title}>
-					{id ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}
-				</Text>
+				{/*<Text style={styles.title}>*/}
+				{/*	{id ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}*/}
+				{/*</Text>*/}
 
 				{id && !isEditMode && (<Button
 						title="Rediģēt"
