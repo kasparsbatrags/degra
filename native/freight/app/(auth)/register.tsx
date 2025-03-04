@@ -145,7 +145,7 @@ export default function RegisterScreen() {
           />
 
           <BackButton
-            title="Atpakaļ"
+            title="Atpakaļ uz pieslēgšanos"
             onPress={handleLogin}
             style={styles.loginButton}
           />

@@ -19,7 +19,7 @@ const BackButton: React.FC<BackButtonProps> = ({
       title={title}
       onPress={onPress}
       variant="outline"
-      style={[styles.backButton, style]}
+      style={[styles.backButton, style, { borderColor: COLORS.secondary, borderWidth: 1 }]}
     />
   );
 };
