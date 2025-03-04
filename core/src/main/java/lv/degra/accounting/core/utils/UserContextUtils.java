@@ -1,6 +1,9 @@
 package lv.degra.accounting.core.utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,7 +39,57 @@ public class UserContextUtils {
      */
     public static List<String> getCurrentUserGroups() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return jwt.getClaimAsStringList("groups");
+        
+        // Mēģina iegūt grupas no realm_access.roles
+        List<String> realmRoles = null;
+        if (jwt.getClaims().containsKey("realm_access")) {
+            try {
+                Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
+                if (realmAccess != null && realmAccess.containsKey("roles")) {
+                    List<?> roles = (List<?>) realmAccess.get("roles");
+                    realmRoles = roles.stream()
+                        .map(Object::toString)
+                        .collect(Collectors.toList());
+                }
+            } catch (Exception e) {
+                // Ignorējam kļūdas, ja nevar iegūt realm_access.roles
+            }
+        }
+        
+        // Mēģina iegūt grupas no resource_access.{client}.roles
+        List<String> resourceRoles = new ArrayList<>();
+        if (jwt.getClaims().containsKey("resource_access")) {
+            try {
+                Map<String, Object> resourceAccess = (Map<String, Object>) jwt.getClaims().get("resource_access");
+                if (resourceAccess != null) {
+                    resourceAccess.forEach((client, access) -> {
+                        if (access instanceof Map) {
+                            Map<String, Object> clientAccess = (Map<String, Object>) access;
+                            if (clientAccess.containsKey("roles") && clientAccess.get("roles") instanceof List<?> roles) {
+								roles.forEach(role -> resourceRoles.add(role.toString()));
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                // Ignorējam kļūdas, ja nevar iegūt resource_access.{client}.roles
+            }
+        }
+        
+        // Apvieno visas grupas
+        List<String> allGroups = new ArrayList<>();
+        if (realmRoles != null) {
+            allGroups.addAll(realmRoles);
+        }
+        allGroups.addAll(resourceRoles);
+        
+        // Mēģina iegūt grupas no "groups" claim (atpakaļsaderība)
+        List<String> groupsClaim = jwt.getClaimAsStringList("groups");
+        if (groupsClaim != null) {
+            allGroups.addAll(groupsClaim);
+        }
+        
+        return allGroups;
     }
     
     /**
