@@ -39,11 +39,20 @@ export const commonStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  card: {
+  card: Platform.OS === 'web' ? {
     backgroundColor: COLORS.background.primary,
     borderRadius: borderRadius.m,
     padding: spacing.m,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
     ...SHADOWS.small,
+  } : {
+    backgroundColor: COLORS.background.primary,
+    borderRadius: borderRadius.m,
+    padding: spacing.m,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    ...SHADOWS.medium,
   },
   title: {
     fontFamily: FONT.bold,
@@ -65,14 +74,28 @@ export const commonStyles = StyleSheet.create({
     fontSize: sizes.medium,
     color: COLORS.text.secondary,
   },
-  input: {
-    height: Platform.select({ web: WEB_COMPONENT_SIZES.input, default: 48 }),
+  input: Platform.OS === 'web' ? {
+    height: WEB_COMPONENT_SIZES.input,
     backgroundColor: COLORS.background.secondary,
     borderRadius: borderRadius.s,
     paddingHorizontal: spacing.m,
     fontFamily: FONT.regular,
     fontSize: sizes.medium,
     color: COLORS.text.primary,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    ...SHADOWS.small,
+  } : {
+    height: 48,
+    backgroundColor: COLORS.background.secondary,
+    borderRadius: borderRadius.s,
+    paddingHorizontal: spacing.m,
+    fontFamily: FONT.regular,
+    fontSize: sizes.medium,
+    color: COLORS.text.primary,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    ...SHADOWS.medium,
   },
   inputError: {
     borderColor: COLORS.error,
@@ -84,12 +107,20 @@ export const commonStyles = StyleSheet.create({
     color: COLORS.error,
     marginTop: spacing.xs,
   },
-  button: {
-    height: Platform.select({ web: WEB_COMPONENT_SIZES.button, default: 48 }),
+  button: Platform.OS === 'web' ? {
+    height: WEB_COMPONENT_SIZES.button,
     borderRadius: borderRadius.s,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: spacing.m,
+    ...SHADOWS.small,
+  } : {
+    height: 48,
+    borderRadius: borderRadius.s,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.m,
+    ...SHADOWS.medium,
   },
   buttonPrimary: {
     backgroundColor: COLORS.primary,
@@ -157,13 +188,26 @@ export const formStyles = StyleSheet.create({
     marginTop: spacing.m,
   },
   // DatePicker specific styles
-  dateButton: {
+  dateButton: Platform.OS === 'web' ? {
     ...commonStyles.input,
     justifyContent: 'center',
     backgroundColor: COLORS.black100,
     padding: spacing.m,
     borderRadius: borderRadius.s,
-    height: Platform.select({ web: WEB_COMPONENT_SIZES.input, default: 48 }),
+    height: WEB_COMPONENT_SIZES.input,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    ...SHADOWS.small,
+  } : {
+    ...commonStyles.input,
+    justifyContent: 'center',
+    backgroundColor: COLORS.black100,
+    padding: spacing.m,
+    borderRadius: borderRadius.s,
+    height: 48,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    ...SHADOWS.medium,
   },
   dateText: {
     ...commonStyles.text,
@@ -174,12 +218,24 @@ export const formStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
+  modalContent: Platform.OS === 'web' ? {
     backgroundColor: COLORS.black100,
     padding: spacing.l,
     borderRadius: borderRadius.l,
     width: '90%',
     maxWidth: 400,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    ...SHADOWS.small,
+  } : {
+    backgroundColor: COLORS.black100,
+    padding: spacing.l,
+    borderRadius: borderRadius.l,
+    width: '90%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    ...SHADOWS.medium,
   },
   calendarHeader: {
     ...commonStyles.spaceBetween,
@@ -228,8 +284,12 @@ export const formStyles = StyleSheet.create({
     ...commonStyles.text,
     fontSize: sizes.medium,
   },
-  selectedDay: {
+  selectedDay: Platform.OS === 'web' ? {
     backgroundColor: COLORS.secondary,
+    ...SHADOWS.small,
+  } : {
+    backgroundColor: COLORS.secondary,
+    ...SHADOWS.medium,
   },
   todayDay: {
     borderWidth: 1,

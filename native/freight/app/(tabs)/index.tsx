@@ -1,4 +1,4 @@
-import {COLORS, CONTAINER_WIDTH, FONT} from '@/constants/theme'
+import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState} from 'react'
@@ -257,11 +257,22 @@ const styles = StyleSheet.create<Styles>({
 	loader: {
 		marginTop: 24,
 	},
-	routeCard: {
+	routeCard: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
 		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100,
+		borderRadius: 8,
+		padding: 16,
+		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	routeInfo: {
 		marginBottom: 8,
@@ -341,13 +352,26 @@ const styles = StyleSheet.create<Styles>({
 		justifyContent: 'space-between',
 		marginBottom: 24,
 	},
-	statCard: {
+	statCard: Platform.OS === 'web' ? {
 		flex: 1,
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
 		marginHorizontal: 8,
 		alignItems: 'center',
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		flex: 1,
+		backgroundColor: COLORS.black100,
+		borderRadius: 8,
+		padding: 16,
+		marginHorizontal: 8,
+		alignItems: 'center',
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	statNumber: {
 		fontSize: 24,
@@ -361,10 +385,20 @@ const styles = StyleSheet.create<Styles>({
 		color: COLORS.gray,
 		textAlign: 'center',
 	},
-	infoContainer: {
+	infoContainer: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100,
+		borderRadius: 8,
+		padding: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	infoText: {
 		fontSize: 14,
@@ -372,12 +406,24 @@ const styles = StyleSheet.create<Styles>({
 		color: COLORS.gray,
 		lineHeight: 20,
 	},
-	startTripButton: {
+	startTripButton: Platform.OS === 'web' ? {
 		marginTop: 24,
+	} : {
+		marginTop: 24,
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
-	addRouteButton: {
+	addRouteButton: Platform.OS === 'web' ? {
 		marginTop: 16,
 		backgroundColor: COLORS.black100,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		marginTop: 16,
+		backgroundColor: COLORS.black100,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	sectionTitle: {
 		fontSize: 20,
@@ -386,12 +432,22 @@ const styles = StyleSheet.create<Styles>({
 		marginTop: 32,
 		marginBottom: 16,
 	},
-	tabContainer: {
+	tabContainer: Platform.OS === 'web' ? {
 		flexDirection: 'row',
 		marginBottom: 16,
 		borderRadius: 8,
 		overflow: 'hidden',
 		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.08)',
+	} : {
+		flexDirection: 'row',
+		marginBottom: 16,
+		borderRadius: 8,
+		overflow: 'hidden',
+		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
 	},
 	tabButton: {
 		flex: 1,
@@ -399,8 +455,12 @@ const styles = StyleSheet.create<Styles>({
 		paddingHorizontal: 12,
 		alignItems: 'center',
 	},
-	tabButtonActive: {
+	tabButtonActive: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.secondary,
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.secondary,
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	tabText: {
 		fontSize: 14,
@@ -415,6 +475,7 @@ const styles = StyleSheet.create<Styles>({
 		paddingTop: 8,
 	},
 	highlightedText: {
-		color: COLORS.secondary,
+		color: COLORS.highlight,
+		fontFamily: FONT.semiBold,
 	},
 })

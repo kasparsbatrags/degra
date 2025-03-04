@@ -9,7 +9,7 @@ import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
-import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
+import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
 
 interface TruckRoutePageForm {
 	dateFrom: Date;
@@ -296,53 +296,107 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1, backgroundColor: COLORS.primary,
-	}, loadingContainer: {
+	}, 
+	loadingContainer: {
 		flex: 1, justifyContent: 'center', alignItems: 'center',
-	}, content: Platform.OS === 'web' ? {
+	}, 
+	content: Platform.OS === 'web' ? {
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
 	} : {
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: CONTAINER_WIDTH.mobile,
-	}, title: {
+	}, 
+	title: {
 		fontSize: 24, fontFamily: FONT.semiBold, color: COLORS.white, marginBottom: 24,
-	}, editButton: {
+	}, 
+	editButton: {
 		marginBottom: 16, backgroundColor: COLORS.secondary,
-	}, notificationContainer: {
+	}, 
+	notificationContainer: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100, padding: 12, borderRadius: 8, marginBottom: 16, borderWidth: 2, borderColor: COLORS.secondary,
-	}, notificationText: {
+	} : {
+		backgroundColor: COLORS.black100, padding: 12, borderRadius: 8, marginBottom: 16, borderWidth: 2, borderColor: COLORS.secondary,
+		...SHADOWS.medium,
+	}, 
+	notificationText: {
 		color: COLORS.white, fontSize: 18, fontFamily: FONT.semiBold, textAlign: 'center',
-	}, dateSection: {
+	}, 
+	dateSection: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100, padding: 16, borderRadius: 8, marginBottom: 24,
-	}, buttonContainer: {
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100, padding: 16, borderRadius: 8, marginBottom: 24,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	buttonContainer: {
 		flexDirection: 'row', justifyContent: 'space-between', gap: 16, marginTop: 24,
-	}, backButton: {
+	}, 
+	backButton: Platform.OS === 'web' ? {
 		flex: 1, backgroundColor: COLORS.black100,
-	}, submitButton: {
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		flex: 1, backgroundColor: COLORS.black100,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	submitButton: Platform.OS === 'web' ? {
 		flex: 1,
-	}, dateContainer: {
+		...SHADOWS.small,
+	} : {
+		flex: 1,
+		...SHADOWS.medium,
+	}, 
+	dateContainer: {
 		marginBottom: 16,
-	}, label: {
+	}, 
+	label: {
 		fontSize: 16, fontFamily: FONT.medium, color: COLORS.white, marginBottom: 8,
-	}, dateButton: {
+	}, 
+	dateButton: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100, padding: 12, borderRadius: 8,
-	}, disabled: {
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100, padding: 12, borderRadius: 8,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	disabled: {
 		opacity: 0.5,
-	}, dateText: {
+	}, 
+	dateText: {
 		color: COLORS.white, fontSize: 16, fontFamily: FONT.regular,
-	}, modalOverlay: {
+	}, 
+	modalOverlay: {
 		flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center',
-	}, modalContent: {
+	}, 
+	modalContent: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100, padding: 16, borderRadius: 12, width: '90%', maxWidth: 400,
-	}, calendarHeader: {
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100, padding: 16, borderRadius: 12, width: '90%', maxWidth: 400,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	calendarHeader: {
 		flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16,
-	}, monthButton: {
+	}, 
+	monthButton: {
 		padding: 8,
-	}, monthButtonText: {
+	}, 
+	monthButtonText: {
 		color: COLORS.white, fontSize: 24, fontFamily: FONT.medium,
-	}, monthYearText: {
+	}, 
+	monthYearText: {
 		color: COLORS.white, fontSize: 16, fontFamily: FONT.medium, textTransform: 'capitalize',
-	}, weekDaysRow: {
+	}, 
+	weekDaysRow: {
 		flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8,
-	}, weekDayText: {
+	}, 
+	weekDayText: {
 		width: '14.28%',
 		textAlign: 'center',
 		color: COLORS.white,
@@ -350,29 +404,47 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		fontFamily: FONT.medium,
 		textTransform: 'uppercase',
-	}, daysGrid: {
+	}, 
+	daysGrid: {
 		flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingTop: 8,
-	}, dayButton: {
+	}, 
+	dayButton: {
 		width: '14.28%', aspectRatio: 1, justifyContent: 'center', alignItems: 'center', marginVertical: 4, borderRadius: 8,
-	}, dayText: {
+	}, 
+	dayText: {
 		color: COLORS.white, fontSize: 14, fontFamily: FONT.regular,
-	}, selectedDay: {
+	}, 
+	selectedDay: {
 		backgroundColor: COLORS.secondary,
-	}, todayDay: {
+	}, 
+	todayDay: {
 		borderWidth: 1, borderColor: COLORS.secondary,
-	}, selectedDayText: {
+	}, 
+	selectedDayText: {
 		color: COLORS.white, fontFamily: FONT.bold,
-	}, todayDayText: {
+	}, 
+	todayDayText: {
 		color: COLORS.secondary, fontFamily: FONT.medium,
-	}, inputWrapper: {
+	}, 
+	inputWrapper: {
 		flex: 1
 	},
-	tabContainer: {
+	tabContainer: Platform.OS === 'web' ? {
 		flexDirection: 'row',
 		marginBottom: 16,
 		borderRadius: 8,
 		overflow: 'hidden',
 		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.08)',
+	} : {
+		flexDirection: 'row',
+		marginBottom: 16,
+		borderRadius: 8,
+		overflow: 'hidden',
+		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
 	},
 	tabButton: {
 		flex: 1,
@@ -380,8 +452,12 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		alignItems: 'center',
 	},
-	tabButtonActive: {
+	tabButtonActive: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.secondary,
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.secondary,
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	tabText: {
 		fontSize: 14,
@@ -395,11 +471,22 @@ const styles = StyleSheet.create({
 	routesContainer: {
 		marginTop: 16,
 	},
-	routeCard: {
+	routeCard: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
 		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.black100,
+		borderRadius: 8,
+		padding: 16,
+		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	routeRow: {
 		flexDirection: 'row',

@@ -7,8 +7,8 @@ export const COLORS = {
   secondary200: '#FF8E01',
 
   black: '#000000',
-  black100: '#1E1E2D',
-  black200: '#232533',
+  black100: '#252536',       // Updated: Lighter and more saturated for better contrast
+  black200: '#2D2D45',       // Updated: Even lighter for tab containers
   
   gray: '#CDCDE0',
 
@@ -17,10 +17,11 @@ export const COLORS = {
   error: '#FF3B30',
   success: '#34C759',
   warning: '#FF9500',
+  highlight: '#3E7BFA',      // Added: Blue highlight color for variety
 
   background: {
     primary: '#161622',
-    secondary: '#1E1E2D',
+    secondary: '#252536',    // Updated to match black100
     app: '#161622',
   },
 
@@ -62,17 +63,17 @@ export const SHADOWS = {
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 2,
+    elevation: 3, // Increased from 2 for better visibility on Android
   },
   medium: {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 5.84,
-    elevation: 5,
+    elevation: 6, // Increased from 5 for better visibility on Android
   },
 };
 

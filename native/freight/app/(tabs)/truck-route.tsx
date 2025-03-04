@@ -1,5 +1,5 @@
 import {commonStyles} from '@/constants/styles'
-import {COLORS, CONTAINER_WIDTH} from '@/constants/theme'
+import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
@@ -515,23 +515,74 @@ export default function TruckRouteScreen() {
 const styles = StyleSheet.create({
 	webContainer: Platform.OS === 'web' ? {
 		width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
-	} : {}, topContainer: {
+	} : {}, 
+	topContainer: {
 		marginBottom: 0,
-	}, truckField: {
+	}, 
+	truckField: {
 		flex: 1, marginTop: -4,
-	}, explanatoryText: {
-		...commonStyles.text, backgroundColor: COLORS.black100, padding: 16, borderRadius: 8, marginBottom: 16, textAlign: 'center',
-	}, buttonContainer: {
+	}, 
+	explanatoryText: Platform.OS === 'web' ? {
+		...commonStyles.text, 
+		backgroundColor: COLORS.black100, 
+		padding: 16, 
+		borderRadius: 8, 
+		marginBottom: 16, 
+		textAlign: 'center',
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		...commonStyles.text, 
+		backgroundColor: COLORS.black100, 
+		padding: 16, 
+		borderRadius: 8, 
+		marginBottom: 16, 
+		textAlign: 'center',
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	buttonContainer: {
 		justifyContent: 'space-between', gap: 16, marginTop: 24,
-	}, backButton: {
-		flex: 1, backgroundColor: COLORS.black100,
-	}, submitButton: {
+	}, 
+	backButton: Platform.OS === 'web' ? {
+		flex: 1, 
+		backgroundColor: COLORS.black100,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		flex: 1, 
+		backgroundColor: COLORS.black100,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	}, 
+	submitButton: Platform.OS === 'web' ? {
 		flex: 1,
-	}, errorBorder: {
-		padding: 16, borderWidth: 2, borderColor: 'rgb(255, 156, 1)', borderRadius: 8,
-	}, atStartContainer: {
+		...SHADOWS.small,
+	} : {
+		flex: 1,
+		...SHADOWS.medium,
+	}, 
+	errorBorder: Platform.OS === 'web' ? {
+		padding: 16, 
+		borderWidth: 2, 
+		borderColor: 'rgb(255, 156, 1)', 
+		borderRadius: 8,
+		...SHADOWS.small,
+	} : {
+		padding: 16, 
+		borderWidth: 2, 
+		borderColor: 'rgb(255, 156, 1)', 
+		borderRadius: 8,
+		...SHADOWS.medium,
+	}, 
+	atStartContainer: {
 		width: '100%', gap: 16,
-	}, inputWrapper: {
+	}, 
+	inputWrapper: {
 		flex: 1
 	}
 })
