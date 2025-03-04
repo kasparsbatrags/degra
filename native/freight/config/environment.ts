@@ -7,6 +7,9 @@ interface Environment {
   webUrl: string;
   companyApiUrl: string;
   freightTrackingApiUrl: string;
+  androidFreightTrackingUrl: string;
+  iosFreightTrackingUrl: string;
+  webFreightTrackingUrl: string;
 }
 
 interface Config {
@@ -21,7 +24,10 @@ export const ENV: Config = {
     iosUrl: 'http://localhost:8080',
     webUrl: 'http://localhost:8080',
     companyApiUrl: 'http://localhost:8085',
-    freightTrackingApiUrl: 'http://localhost:8084'
+    freightTrackingApiUrl: 'http://localhost:8084',
+    androidFreightTrackingUrl: 'http://10.0.2.2:8084',
+    iosFreightTrackingUrl: 'http://localhost:8084',
+    webFreightTrackingUrl: 'http://localhost:8084'
   },
   prod: {
     userManagerApiUrl: 'https://api.degra.lv',
@@ -29,7 +35,10 @@ export const ENV: Config = {
     iosUrl: 'https://api.degra.lv',
     webUrl: 'https://api.degra.lv',
     companyApiUrl: 'https://company-api.degra.lv',
-    freightTrackingApiUrl: 'https://freight-tracking-api.degra.lv'
+    freightTrackingApiUrl: 'https://freight-tracking-api.degra.lv',
+    androidFreightTrackingUrl: 'https://freight-tracking-api.degra.lv',
+    iosFreightTrackingUrl: 'https://freight-tracking-api.degra.lv',
+    webFreightTrackingUrl: 'https://freight-tracking-api.degra.lv'
   }
 };
 
@@ -54,7 +63,19 @@ export const getUserManagerApiUrl = (): string => {
 };
 
 export const getFreightTrackingApiUrl = (): string => {
-  return __DEV__ ? ENV.dev.freightTrackingApiUrl : ENV.prod.freightTrackingApiUrl;
+  if (__DEV__) {
+    switch (Platform.OS) {
+      case 'android':
+        return ENV.dev.androidFreightTrackingUrl;
+      case 'ios':
+        return ENV.dev.iosFreightTrackingUrl;
+      case 'web':
+        return ENV.dev.webFreightTrackingUrl;
+      default:
+        return ENV.dev.freightTrackingApiUrl;
+    }
+  }
+  return ENV.prod.freightTrackingApiUrl;
 };
 
 export const API_ENDPOINTS = {
