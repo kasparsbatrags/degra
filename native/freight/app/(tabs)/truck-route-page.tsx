@@ -49,7 +49,7 @@ export default function TruckRoutePageScreen() {
 	const {id} = useLocalSearchParams<{ id: string }>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [isLoading, setIsLoading] = useState(!!id)
-	const [isEditMode, setIsEditMode] = useState(!id)
+	const [isEditMode, setIsEditMode] = useState(true)
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
 	const [form, setForm] = useState<TruckRoutePageForm>({
@@ -143,14 +143,8 @@ export default function TruckRoutePageScreen() {
 				{/*	{id ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}*/}
 				{/*</Text>*/}
 
-				{id && !isEditMode && (<Button
-						title="Rediģēt"
-						onPress={() => setIsEditMode(true)}
-						style={styles.editButton}
-				/>)}
-
 				{/* Tab buttons */}
-				{id && !isEditMode && (
+				{id && (
 					<View style={styles.tabContainer}>
 						<Pressable
 							style={[styles.tabButton, activeTab === 'basic' && styles.tabButtonActive]}
@@ -168,7 +162,7 @@ export default function TruckRoutePageScreen() {
 				)}
 
 				{/* Tab content */}
-				{(activeTab === 'basic' || isEditMode) && (
+				{activeTab === 'basic' && (
 					<>
 						<View style={styles.inputWrapper}>
 							<View style={[formStyles.inputContainer, styles.truckField]}>
@@ -236,7 +230,7 @@ export default function TruckRoutePageScreen() {
 					</>
 				)}
 
-				{activeTab === 'routes' && !isEditMode && (
+				{activeTab === 'routes' && (
 					<View style={styles.routesContainer}>
 						{truckRoutes.length > 0 ? (
 							truckRoutes.map((route) => (
@@ -281,21 +275,15 @@ export default function TruckRoutePageScreen() {
 				<View style={styles.buttonContainer}>
 					<Button
 							title="Atpakaļ"
-							onPress={() => {
-								if (isEditMode) {
-									setIsEditMode(false)
-								} else {
-									router.push('/(tabs)')
-								}
-							}}
+							onPress={() => router.push('/(tabs)')}
 							style={styles.backButton}
 					/>
-					{isEditMode && (<Button
-							title={id ? 'Saglabāt' : 'Pievienot'}
+					<Button
+							title="Saglabāt"
 							onPress={handleSubmit}
 							style={styles.submitButton}
 							disabled={isSubmitting}
-					/>)}
+					/>
 				</View>
 			</View>
 		</ScrollView>
