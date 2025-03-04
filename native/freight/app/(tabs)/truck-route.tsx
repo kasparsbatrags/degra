@@ -6,6 +6,7 @@ import {router, useLocalSearchParams} from 'expo-router'
 import React, {useState} from 'react'
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormDatePicker from '../../components/FormDatePicker'
 import FormDropdown from '../../components/FormDropdown'
@@ -495,8 +496,7 @@ export default function TruckRouteScreen() {
 				</>)}
 
 				<View style={[commonStyles.row, styles.buttonContainer]}>
-					<Button
-							title="Atpakaļ"
+					<BackButton
 							onPress={() => router.push('/(tabs)')}
 							style={[styles.backButton, isSubmitting && commonStyles.buttonDisabled]}
 					/>

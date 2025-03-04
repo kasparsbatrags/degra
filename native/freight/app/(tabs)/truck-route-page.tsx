@@ -6,6 +6,7 @@ import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
 import {ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
@@ -273,8 +274,7 @@ export default function TruckRoutePageScreen() {
 					</View>
 				)}
 				<View style={styles.buttonContainer}>
-					<Button
-							title="Atpakaļ"
+					<BackButton
 							onPress={() => router.push('/(tabs)')}
 							style={styles.backButton}
 					/>

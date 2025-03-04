@@ -2,6 +2,7 @@ import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
 import {Alert, Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle,} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import CompanySearch from '../../components/CompanySearch'
 import FormInput from '../../components/FormInput'
@@ -143,10 +144,9 @@ export default function RegisterScreen() {
             style={styles.registerButton}
           />
 
-          <Button
-            title="Atpakaļ uz pieslēgšanos"
+          <BackButton
+            title="Atpakaļ"
             onPress={handleLogin}
-            variant="outline"
             style={styles.loginButton}
           />
         </View>
