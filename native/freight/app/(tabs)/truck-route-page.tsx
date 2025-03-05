@@ -1,10 +1,11 @@
 import FormDatePicker from '@/components/FormDatePicker'
 import FormDropdown from '@/components/FormDropdown'
+import Pagination from '@/components/Pagination'
 import {commonStyles, formStyles} from '@/constants/styles'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
-import {ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
+import {ActivityIndicator, FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
@@ -53,6 +54,13 @@ export default function TruckRoutePageScreen() {
 	const [isEditMode, setIsEditMode] = useState(true)
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
+	const [pagination, setPagination] = useState({
+		page: 0,
+		size: 5,
+		totalElements: 0,
+		totalPages: 1,
+		loading: false
+	})
 	const [form, setForm] = useState<TruckRoutePageForm>({
 		dateFrom: new Date(),
 		dateTo: new Date(),
@@ -87,19 +95,45 @@ export default function TruckRoutePageScreen() {
 		}
 	}
 
-	const fetchTruckRoutes = async () => {
+	const fetchTruckRoutes = async (page = 0) => {
 		if (!id) return;
 		
 		try {
-			const response = await freightAxios.get(`/api/freight-tracking/truck-routes/by-page/${id}`)
+			setPagination(prev => ({ ...prev, loading: true }));
+			const response = await freightAxios.get(
+				`/api/freight-tracking/truck-routes/by-page/${id}`,
+				{ params: { page, size: pagination.size } }
+			);
+			
 			// Handle paginated response
 			if (response.data.content) {
-				setTruckRoutes(response.data.content)
+				// If loading more (page > 0 and not the first page), append to existing routes
+				if (page > 0 && Platform.OS !== 'web') {
+					setTruckRoutes(prev => [...prev, ...response.data.content]);
+				} else {
+					setTruckRoutes(response.data.content);
+				}
+				
+				// Update pagination metadata
+				setPagination({
+					page: page,
+					size: pagination.size,
+					totalElements: response.data.totalElements || 0,
+					totalPages: response.data.totalPages || 1,
+					loading: false
+				});
 			} else {
-				setTruckRoutes(response.data)
+				// Handle non-paginated response (fallback)
+				setTruckRoutes(response.data);
+				setPagination(prev => ({ 
+					...prev, 
+					totalPages: 1,
+					loading: false 
+				}));
 			}
 		} catch (error) {
-			console.error('Failed to fetch truck routes:', error)
+			console.error('Failed to fetch truck routes:', error);
+			setPagination(prev => ({ ...prev, loading: false }));
 		}
 	}
 
@@ -114,8 +148,6 @@ export default function TruckRoutePageScreen() {
 				fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
 				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
 			}
-			console.log("===========================")
-			console.log(format(form.dateFrom, 'yyyy-MM-dd'))
 			if (id) {
 				await freightAxios.put(`/api/freight-tracking/route-pages/${id}`, payload)
 			} else {
@@ -234,40 +266,55 @@ export default function TruckRoutePageScreen() {
 				{activeTab === 'routes' && (
 					<View style={styles.routesContainer}>
 						{truckRoutes.length > 0 ? (
-							truckRoutes.map((route) => (
-								<View key={route.id} style={styles.routeCard}>
-									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Datums:</Text>
-										<Text style={styles.routeText}>
-											{new Date(route.routeDate).toLocaleDateString('lv-LV', {
-												day: '2-digit', month: '2-digit', year: 'numeric'
-											})}
-										</Text>
-									</View>
-									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>No:</Text>
-										<Text style={styles.routeText}>{route.outTruckObject?.name || '-'}</Text>
-									</View>
-									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Uz:</Text>
-										<Text style={styles.routeText}>{route.inTruckObject?.name || '-'}</Text>
-									</View>
-									<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Odometrs:</Text>
-										<Text style={styles.routeText}>
-											{route.odometerAtStart} - {route.odometerAtFinish} km
-										</Text>
-									</View>
-									{route.cargoVolume && (
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Krava:</Text>
-											<Text style={styles.routeText}>
-												{route.cargoVolume} {route.unitType}
-											</Text>
+							<>
+								<FlatList
+									data={truckRoutes}
+									keyExtractor={(item) => item.id.toString()}
+									renderItem={({ item: route }) => (
+										<View style={styles.routeCard}>
+											<View style={styles.routeRow}>
+												<Text style={styles.routeLabelInline}>Datums:</Text>
+												<Text style={styles.routeText}>
+													{new Date(route.routeDate).toLocaleDateString('lv-LV', {
+														day: '2-digit', month: '2-digit', year: 'numeric'
+													})}
+												</Text>
+											</View>
+											<View style={styles.routeRow}>
+												<Text style={styles.routeLabelInline}>No:</Text>
+												<Text style={styles.routeText}>{route.outTruckObject?.name || '-'}</Text>
+											</View>
+											<View style={styles.routeRow}>
+												<Text style={styles.routeLabelInline}>Uz:</Text>
+												<Text style={styles.routeText}>{route.inTruckObject?.name || '-'}</Text>
+											</View>
+											<View style={styles.routeRow}>
+												<Text style={styles.routeLabelInline}>Odometrs:</Text>
+												<Text style={styles.routeText}>
+													{route.odometerAtStart} - {route.odometerAtFinish} km
+												</Text>
+											</View>
+											{route.cargoVolume && (
+												<View style={styles.routeRow}>
+													<Text style={styles.routeLabelInline}>Krava:</Text>
+													<Text style={styles.routeText}>
+														{route.cargoVolume} {route.unitType}
+													</Text>
+												</View>
+											)}
 										</View>
 									)}
-								</View>
-							))
+									scrollEnabled={false}
+									ListFooterComponent={
+										<Pagination
+											currentPage={pagination.page}
+											totalPages={pagination.totalPages}
+											loading={pagination.loading}
+											onPageChange={(page) => fetchTruckRoutes(page)}
+										/>
+									}
+								/>
+							</>
 						) : (
 							<Text style={styles.emptyText}>Nav braucienu</Text>
 						)}

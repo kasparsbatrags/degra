@@ -83,8 +83,8 @@ public class TruckRouteController {
 	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_TRUCK_ROUTE_BY_PAGE + "/{truckRoutePageId}")
 	public ResponseEntity<Page<TruckRouteDto>> getTruckRoutesByTruckRoutePage(
 			@org.springframework.web.bind.annotation.PathVariable Integer truckRoutePageId,
-			@RequestParam(defaultValue = "0") int pageNumber,
-			@RequestParam(defaultValue = "5") int pageSize) {
+			@RequestParam(name = "page", defaultValue = "0") int pageNumber,
+			@RequestParam(name = "size", defaultValue = "5") int pageSize) {
 
 		RequestValidator.validatePageRequest(pageNumber, pageSize);
 
