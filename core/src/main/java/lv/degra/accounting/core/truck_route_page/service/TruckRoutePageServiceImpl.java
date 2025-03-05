@@ -3,6 +3,7 @@ package lv.degra.accounting.core.truck_route_page.service;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -91,18 +92,23 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	private TruckRoutePageDto createNewTruckRoutePage(TruckRouteDto truckRouteDto, User user) {
 		LocalDate routeDate = truckRouteDto.getRouteDate();
 
-		TruckRoutePage newTruckRoutePage = TruckRoutePage.builder().dateFrom(routeDate.withDayOfMonth(1))
-				.dateTo(routeDate.with(TemporalAdjusters.lastDayOfMonth())).user(user)
-				.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart()).build();
+		TruckRoutePage truckRoutePageDto = Optional.ofNullable(truckRouteDto.getTruckRoutePage())
+				.map(page -> TruckRoutePage.builder()
+						.dateFrom(Optional.ofNullable(page.getDateFrom()).orElse(routeDate.withDayOfMonth(1)))
+						.dateTo(Optional.ofNullable(page.getDateTo()).orElse(routeDate.with(TemporalAdjusters.lastDayOfMonth())))
+						.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart())
+						.user(user)
+						.build())
+				.orElseThrow(() -> new IllegalArgumentException("TruckRoutePage is required in TruckRouteDto"));
 
 		Truck truck = truckService.getDefaultTruckForUser(user)
 				.orElseThrow(() -> new ResourceNotFoundException("No default truck found for user: " + user.getId()));
 
-		newTruckRoutePage.setTruck(truck);
+		truckRoutePageDto.setTruck(truck);
 
-		TruckRoutePage savedPage = truckRoutePageRepository.save(newTruckRoutePage);
-		return freightMapper.toDto(savedPage);
+		return freightMapper.toDto(truckRoutePageRepository.save(truckRoutePageDto));
 	}
+
 
 	public TruckRoutePageDto findById(Integer id) {
 		return truckRoutePageRepository.findById(id).map(freightMapper::toDto)

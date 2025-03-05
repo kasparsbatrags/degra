@@ -141,14 +141,18 @@ export default function TruckRouteScreen() {
 					const formattedDate = format(date, 'yyyy-MM-dd')
 					const response = await freightAxios.get<TruckRoutePage>(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
 					if (response.data) {
+						console.log('Route page exists:', response.data)
 						setExistingRoutePage(response.data)
 						setShowRoutePageError(false)
-					} else {
-						setExistingRoutePage(null)
-						setShowRoutePageError(true)
 					}
 				} catch (error) {
-					console.error('Failed to check route page:', error)
+					if (error.response?.status === 404) {
+						console.log('Route page does not exist')
+						setExistingRoutePage(null)
+						setShowRoutePageError(true)
+					} else {
+						console.error('Failed to check route page:', error)
+					}
 				}
 			}, 300)
 		}
@@ -303,7 +307,7 @@ export default function TruckRouteScreen() {
 								label="Brauciena datums"
 								value={form.routeDate}
 								onChange={(date) => setForm({...form, routeDate: date})}
-								disabled={isItRouteFinish}
+								// disabled={isItRouteFinish}
 						/>
 						<View style={styles.truckField}>
 							<FormDropdown
@@ -404,6 +408,7 @@ export default function TruckRouteScreen() {
 								placeholder="Ievadiet degvielas daudzumu"
 								keyboardType="numeric"
 								disabled={true}
+								visible={!showRoutePageError}
 								error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
 						/>
 					</View>
