@@ -4,12 +4,25 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-  liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-server:
-  port: 8085
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
+          jwk-set-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/certs
+
+keycloak:
+  auth-server-url: https://route.degra.lv
+  realm: freight-tracking-app-realm
+  resource: freight-tracking-client
+  credentials:
+    secret: 3Fv47oFkRuqYh2iZDubDJbapzGgdBbGr
+  connection-timeout: 5000
+  read-timeout: 5000
+  use-resource-role-mappings: true
+  bearer-only: true
+  public-client: false
 
 application:
   server-url: http://localhost:8085/

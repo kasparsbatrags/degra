@@ -1,34 +1,15 @@
-# Build stage
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.5-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy the module pom files
-COPY core/pom.xml /app/core/
-COPY company/pom.xml /app/company/
+COPY . .
 
-# Copy source code
-COPY core/src /app/core/src/
-COPY company/src /app/company/src/
+RUN mvn install -pl core -am -DskipTests -Dsonar.skip=true
 
-# Build the application
-RUN mvn clean package -DskipTests -pl core,company
+RUN mvn clean package -pl company -am -DskipTests -Dsonar.skip=true
 
-# Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+COPY --from=build /app/company/target/company*.jar app.jar
 
-# Copy the built artifact from the build stage
-COPY --from=build /app/company/target/*.jar app.jar
-
-# Set environment variables
-ENV JAVA_OPTS="-Xms512m -Xmx1024m"
-
-# Expose the application port
-EXPOSE 8082
-
-# Start the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

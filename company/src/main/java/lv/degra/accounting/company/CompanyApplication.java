@@ -3,6 +3,7 @@ package lv.degra.accounting.company;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +13,7 @@ import lv.degra.accounting.core.company.register.service.CompanyRegisterImportSe
 @SpringBootApplication
 @ComponentScan(basePackages = {"lv.degra.accounting.core", "lv.degra.accounting.company"})
 @EnableJpaRepositories(basePackages = {"lv.degra.accounting.core"})
+@EnableFeignClients(basePackages = "lv.degra.accounting.core.user.authorize.client")
 @EntityScan(basePackages = {"lv.degra.accounting.core"})
 public class CompanyApplication {
 
