@@ -38,8 +38,8 @@
         </root>
 
         <logger name="lv.degra.accounting.company" level="info"/>
-        <logger name="org.hibernate.SQL" level="info"/>
-        <logger name="org.hibernate.type.descriptor.sql" level="info"/>
+        <logger name="org.hibernate.SQL" level="off"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="off"/>
 
     </springProfile>
 

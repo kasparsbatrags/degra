@@ -1,4 +1,6 @@
 spring:
+  jpa:
+    show-sql: false
   datasource:
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource

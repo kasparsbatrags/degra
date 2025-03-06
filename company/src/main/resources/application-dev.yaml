@@ -1,4 +1,6 @@
 spring:
+  jpa:
+    show-sql: true
   datasource:
     url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver

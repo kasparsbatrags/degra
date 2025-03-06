@@ -93,6 +93,6 @@ export const API_ENDPOINTS = {
     STATUS: (id: string) => `/api/freight/${id}/status`
   },
   COMPANY: {
-    SUGGESTION: '/api/company/suggestion'
+    SUGGESTION: '/api/companys/suggestions'
   }
 };
