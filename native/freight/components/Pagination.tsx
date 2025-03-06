@@ -84,7 +84,7 @@ const Pagination = ({ currentPage, totalPages, loading, onPageChange }: Paginati
           {loading ? (
             <ActivityIndicator size="small" color={COLORS.white} />
           ) : (
-            <Text style={styles.loadMoreText}>Ielādēt vairāk</Text>
+            <Text style={styles.loadMoreText}>Vēl...</Text>
           )}
         </Pressable>
       )}

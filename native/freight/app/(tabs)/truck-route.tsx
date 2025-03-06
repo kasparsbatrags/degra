@@ -450,17 +450,6 @@ export default function TruckRouteScreen() {
 
 				/>
 
-				<View style={commonStyles.spaceBetween}>
-					<Text style={commonStyles.text}>Ar kravu</Text>
-					<Switch
-							value={hasCargo}
-							onValueChange={setHasCargo}
-							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
-							thumbColor={COLORS.white}
-							disabled={isItRouteFinish}
-					/>
-				</View>
-
 				<FormInput
 						label="Saņemtā degviela"
 						value={form.fuelReceived}
@@ -473,6 +462,17 @@ export default function TruckRouteScreen() {
 						placeholder="Ievadiet daudzumu"
 						keyboardType="numeric"
 				/>
+
+				<View style={commonStyles.spaceBetween}>
+					<Text style={commonStyles.text}>Ar kravu</Text>
+					<Switch
+							value={hasCargo}
+							onValueChange={setHasCargo}
+							trackColor={{false: COLORS.black100, true: COLORS.secondary}}
+							thumbColor={COLORS.white}
+							disabled={isItRouteFinish}
+					/>
+				</View>
 
 				{hasCargo && (<>
 					<FormDropdown

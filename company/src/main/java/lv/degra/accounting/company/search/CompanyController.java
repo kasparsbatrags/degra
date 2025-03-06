@@ -1,9 +1,5 @@
 package lv.degra.accounting.company.search;
 
-import static lv.degra.accounting.core.config.ApiConstants.BASE_API_URL;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_SUGGESTIONS;
-
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -15,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lv.degra.accounting.core.company.register.model.CompanyRegister;
 import lv.degra.accounting.core.company.register.service.CompanyRegisterService;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_SUGGESTIONS;
 
 @RestController
-@RequestMapping(BASE_API_URL + ENDPOINT_COMPANY)
+@RequestMapping(ENDPOINT_COMPANY)
 public class CompanyController {
 
 	private final CompanyRegisterService companyRegisterService;

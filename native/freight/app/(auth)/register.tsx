@@ -81,10 +81,6 @@ export default function RegisterScreen() {
             resizeMode="contain"
             style={styles.logo}
           />
-			<Text style={styles.heading}>
-				Kravu uzskaite...
-			</Text>
-
           <Text style={styles.title}>
             Reģistrēties
           </Text>
@@ -136,7 +132,6 @@ export default function RegisterScreen() {
               placeholder="Ievadiet paroli"
               secureTextEntry
             />
-
           <Button
             title="Reģistrēties"
             onPress={handleRegister}
