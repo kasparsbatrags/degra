@@ -1,5 +1,6 @@
 services:
   company-backend:
+    image: company-backend:latest
     build:
       context: ..
       dockerfile: company/Dockerfile
@@ -16,6 +17,8 @@ services:
       - APP_SECURITY_ALLOWED_ORIGINS=${APP_SECURITY_ALLOWED_ORIGINS}
     ports:
       - "${APP_PORT}:8085"
+    volumes:
+      - ../logs:/logs
     networks:
       - app-network
     restart: unless-stopped

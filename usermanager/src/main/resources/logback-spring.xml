@@ -14,7 +14,7 @@
             <appender-ref ref="Console"/>
         </root>
 
-        <logger name="lv.degra.accounting.company" level="debug"/>
+        <logger name="lv.degra.accounting.usermanager" level="debug"/>
         <logger name="org.hibernate.SQL" level="debug"/>
         <logger name="org.hibernate.type.descriptor.sql" level="trace"/>
     </springProfile>
@@ -23,13 +23,13 @@
         <property name="LOGS" value="/logs"/>
 
         <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${LOGS}/companyLog.log</file>
+            <file>${LOGS}/usermanagerLog.log</file>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <Pattern>%d %p %logger{1} [%t] %m%n</Pattern>
             </encoder>
 
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${LOGS}/archived/companyLog.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+                <fileNamePattern>${LOGS}/archived/usermanagerLog.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
             </rollingPolicy>
         </appender>
 
@@ -37,7 +37,7 @@
             <appender-ref ref="RollingFile"/>
         </root>
 
-        <logger name="lv.degra.accounting.company" level="info"/>
+        <logger name="lv.degra.accounting.usermanager" level="info"/>
         <logger name="org.hibernate.SQL" level="info"/>
         <logger name="org.hibernate.type.descriptor.sql" level="info"/>
 
