@@ -69,27 +69,55 @@ sonarcloud-check:
     - develop
 
 # Būvēšanas darbi
-usermanager-build:
+usermanager-maven-build:
   <<: *maven-setup
   stage: build
   script:
     - mvn clean package -pl usermanager -am -DskipTests
-    - docker build -t $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG -f usermanager/Dockerfile .
-    - docker push $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+  artifacts:
+    paths:
+      - usermanager/target/*.jar
+      - core/target/*.jar
   dependencies:
     - usermanager-test
   only:
     - branches
 
-company-build:
+usermanager-docker-build:
+  stage: build
+  image: docker:20
+  needs:
+    - usermanager-maven-build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG -f usermanager/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+  only:
+    - branches
+
+company-maven-build:
   <<: *maven-setup
   stage: build
   script:
     - mvn clean package -pl company -am -DskipTests
-    - docker build -t $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG -f company/Dockerfile .
-    - docker push $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+  artifacts:
+    paths:
+      - company/target/*.jar
+      - core/target/*.jar
   dependencies:
     - company-test
+  only:
+    - branches
+
+company-docker-build:
+  stage: build
+  image: docker:20
+  needs:
+    - company-maven-build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG -f company/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
   only:
     - branches
 
@@ -135,7 +163,7 @@ usermanager-deploy-test:
         docker-compose up -d
       "
   dependencies:
-    - usermanager-build
+    - usermanager-docker-build
   environment:
     name: test-usermanager
     url: https://test.degra.lv/usermanager
@@ -183,7 +211,7 @@ company-deploy-test:
         docker-compose up -d
       "
   dependencies:
-    - company-build
+    - company-docker-build
   environment:
     name: test-company
     url: https://test.degra.lv/company
@@ -232,7 +260,7 @@ usermanager-deploy-prod:
         docker-compose up -d
       "
   dependencies:
-    - usermanager-build
+    - usermanager-docker-build
   environment:
     name: production-usermanager
     url: https://degra.lv/usermanager
@@ -282,7 +310,7 @@ company-deploy-prod:
         docker-compose up -d
       "
   dependencies:
-    - company-build
+    - company-docker-build
   environment:
     name: production-company
     url: https://degra.lv/company
