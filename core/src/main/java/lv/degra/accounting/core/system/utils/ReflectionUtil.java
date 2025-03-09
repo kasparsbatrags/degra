@@ -31,7 +31,7 @@ public class ReflectionUtil {
 				}
 				fieldMap.put(field.getName(), value);
 			} catch (IllegalAccessException e) {
-				log.error("Nevar piekļūt laukam: " + field.getName(), e);
+				log.error("Cannot access field: " + field.getName(), e);
 			}
 		}
 		return fieldMap;

@@ -22,7 +22,7 @@ import lv.degra.accounting.core.document.service.exception.SaveDocumentException
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
-	private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";
+	private static final String SAVE_EXCEPTION_MESSAGE = "Error saving document! ";
 
 	private final DocumentRepository documentRepository;
 	private final DocumentStatusService documentStatusService;

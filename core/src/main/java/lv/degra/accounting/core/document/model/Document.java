@@ -75,11 +75,11 @@ public class Document extends AuditInfo implements Serializable {
 	@Column(name = "payment_type_id")
 	private Integer paymentTypeId;
 
-	@PositiveOrZero(message = "Summai jābūt pozitīvai vai 0")
+	@PositiveOrZero(message = "Amount must be positive or 0")
 	@Column(name = "sum_total", nullable = false)
 	private Double sumTotal;
 
-	@PositiveOrZero(message = "Summai valūtā jābūt pozitīvai vai 0")
+	@PositiveOrZero(message = "Amount in currency must be positive or 0")
 	@Column(name = "sum_total_in_currency", nullable = false)
 	private Double sumTotalInCurrency;
 

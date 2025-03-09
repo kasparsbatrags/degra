@@ -42,7 +42,7 @@ public class AccountPostedDto implements Serializable {
 
 	@TableViewInfo(displayName = "Summa", columnOrder = 3, columnWidth = 200, editable = true, styleClass = "sum-column")
 	@NotNull
-	@PositiveOrZero(message = "Summai jābūt pozitīvai vai 0")
+	@PositiveOrZero(message = "Amount must be positive or 0")
 	private Double amount;
 
 }

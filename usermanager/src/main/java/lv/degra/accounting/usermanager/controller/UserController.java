@@ -38,9 +38,6 @@ import lv.degra.accounting.core.user.exception.UserValidationException;
 @Tag(name = "User Management", description = "API for user registration, authentication and management")
 public class UserController {
 
-	private static final String SUCCESS_MESSAGE = "Operation successful";
-	private static final String ERROR_MESSAGE = "Error";
-
 	private final AuthUserService authUserService;
 	private final AuthService authService;
 

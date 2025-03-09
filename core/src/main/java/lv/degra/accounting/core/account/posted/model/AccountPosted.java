@@ -42,7 +42,7 @@ public class AccountPosted extends AuditInfo implements Serializable {
 	private AccountCodeChart debitAccount;
 
 	@NotNull
-	@Min(value = 0, message = "Summai jābūt pozitīvai")
+	@Min(value = 0, message = "Amount must be positive")
 	@Column(name = "amount", nullable = false)
 	private Double amount;
 

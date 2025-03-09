@@ -111,7 +111,7 @@ public class AuthService {
             response.put("token_type", tokenResponse.get("token_type"));
             return response;
         } catch (Exception e) {
-            log.error("Neizdevās autentificēt lietotāju ar e-pastu: {}", email, e);
+            log.error("Failed to authenticate user with email: {}", email, e);
             meterRegistry.counter(METRIC_AUTH_FAILURES).increment();
             throw new KeycloakIntegrationException("Invalid credentials", "AUTH_ERROR");
         }
@@ -127,7 +127,7 @@ public class AuthService {
         try {
             keycloakTokenClient.logout(MediaType.APPLICATION_FORM_URLENCODED_VALUE, request);
         } catch (Exception e) {
-            log.error("Neizdevās izrakstīt lietotāju", e);
+            log.error("Failed to logout user", e);
             throw new KeycloakIntegrationException("Logout failed", "LOGOUT_ERROR");
         }
     }
@@ -236,8 +236,8 @@ public class AuthService {
             user.setLastLoginTime(Instant.now());
             userRepository.save(user);
         } catch (Exception e) {
-            log.error("Neizdevās saglabāt lietotāja informāciju: {}", e.getMessage());
-            throw new UserSaveException("Neizdevās saglabāt lietotāja informāciju", "USER_SAVE_ERROR");
+            log.error("Failed to save user information: {}", e.getMessage());
+            throw new UserSaveException("Failed to save user information", "USER_SAVE_ERROR");
         }
     }
 }
