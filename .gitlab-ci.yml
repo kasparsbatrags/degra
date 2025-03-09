@@ -154,8 +154,8 @@ usermanager-deploy-test:
     - chmod 600 ~/.ssh/id_rsa
     - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
-        mkdir -p ~/degra/usermanager &&
-        cd ~/degra/usermanager &&
+        mkdir -p /home/dockeruser/degra/test/usermanager &&
+        cd /home/dockeruser/degra/test/usermanager &&
         echo \"$TEST_ENV_USERMANAGER\" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
