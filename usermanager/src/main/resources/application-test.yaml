@@ -11,6 +11,18 @@ app:
   security:
     allowed-origins: "http://localhost:8081"
 
+keycloak:
+  auth-server-url: https://route.degra.lv
+  realm: degra-test-realm
+  resource: freight-tracking-client
+  credentials:
+    secret: LfJVcO6ArZHzxl0J9YoLj8jdQOYxxiki
+  connection-timeout: 5000
+  read-timeout: 5000
+  use-resource-role-mappings: true
+  bearer-only: true
+  public-client: false
+
 logging:
   level:
     ROOT: INFO
