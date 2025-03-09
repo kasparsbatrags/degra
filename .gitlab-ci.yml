@@ -1,8 +1,30 @@
+stages:
+  - test
+  - build
+  - deploy-test
+  - deploy-prod
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+
+services:
+  - docker:20-dind
+
+# Kopīgais skripts, kas tiks izmantots vairākos darbos
+.maven-setup: &maven-setup
+  image: maven:3.9.5-eclipse-temurin-21
+  cache:
+    paths:
+      - .m2/repository
+
+# Qodana koda kvalitātes pārbaude
 qodana:
-  only:
-    - master
-    - add-account-distribution
-    - merge_requests
+  stage: test
   image:
     name: jetbrains/qodana-jvm
     entrypoint: [""]
@@ -10,49 +32,249 @@ qodana:
     QODANA_TOKEN: $qodana_token
   script:
     - qodana --save-report --results-dir=$CI_PROJECT_DIR/.qodana
+  only:
+    - master
+    - main
+    - merge_requests
 
-variables:
-  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-  GIT_DEPTH: "0"
-
-services:
-  - docker:20-dind
-
-stages:
-  - build
-  - test
-
-before_script:
-  - docker info
-
-build:
-  stage: build
-  image: docker:20
+# Testēšanas darbi
+usermanager-test:
+  <<: *maven-setup
+  stage: test
   script:
-    - docker build -t my-custom-docker-image:latest .
-    - docker save my-custom-docker-image:latest -o my-custom-docker-image.tar
-    - gzip my-custom-docker-image.tar
+    - mvn clean test -pl usermanager -am
   artifacts:
-    paths:
-      - my-custom-docker-image.tar.gz
-    expire_in: 1 day
+    reports:
+      junit: usermanager/target/surefire-reports/TEST-*.xml
 
+company-test:
+  <<: *maven-setup
+  stage: test
+  script:
+    - mvn clean test -pl company -am
+  artifacts:
+    reports:
+      junit: company/target/surefire-reports/TEST-*.xml
+
+# SonarCloud integrācija
 sonarcloud-check:
   stage: test
-  image: docker:20
-  services:
-    - docker:20-dind
-  needs:
-    - build
+  image: maven:3.9.5-eclipse-temurin-21
   script:
-    - ls -al  # Pārbaudiet, vai artefakts ir pieejams
-    - if [ -f my-custom-docker-image.tar.gz ]; then echo "File exists"; else echo "File does not exist"; fi
-    - gzip -d my-custom-docker-image.tar.gz
-    - docker load -i my-custom-docker-image.tar
-    - docker run --rm -v $CI_PROJECT_DIR:/usr/src/app my-custom-docker-image:latest sh -c "cd /usr/src/app && git init && git remote add origin $CI_REPOSITORY_URL && git fetch --all && git reset --hard origin/$CI_COMMIT_REF_NAME && Xvfb :99 -screen 0 1024x768x16 & export DISPLAY=:99 && mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17"
-  dependencies:
-    - build
+    - mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17
   only:
     - merge_requests
     - master
+    - main
     - develop
+
+# Būvēšanas darbi
+usermanager-build:
+  <<: *maven-setup
+  stage: build
+  script:
+    - mvn clean package -pl usermanager -am -DskipTests
+    - docker build -t $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG -f usermanager/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+  dependencies:
+    - usermanager-test
+  only:
+    - branches
+
+company-build:
+  <<: *maven-setup
+  stage: build
+  script:
+    - mvn clean package -pl company -am -DskipTests
+    - docker build -t $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG -f company/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+  dependencies:
+    - company-test
+  only:
+    - branches
+
+# Automātiska izvietošana testa vidē
+usermanager-deploy-test:
+  stage: deploy-test
+  image: docker:20
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$TEST_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        mkdir -p ~/degra/usermanager &&
+        cd ~/degra/usermanager &&
+        echo \"$TEST_ENV_USERMANAGER\" > .env &&
+        echo \"version: '3'
+        services:
+          usermanager:
+            image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+            environment:
+              - SPRING_DATASOURCE_URL=\\\${SPRING_DATASOURCE_URL}
+              - SPRING_DATASOURCE_USERNAME=\\\${POSTGRES_USER}
+              - SPRING_DATASOURCE_PASSWORD=\\\${POSTGRES_PASSWORD}
+              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+              - KEYCLOAK_AUTH_SERVER_URL=\\\${KEYCLOAK_AUTH_SERVER_URL}
+              - KEYCLOAK_REALM=\\\${KEYCLOAK_REALM}
+              - KEYCLOAK_RESOURCE=\\\${KEYCLOAK_RESOURCE}
+              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+              - SPRING_PROFILES_ACTIVE=\\\${SPRING_PROFILES_ACTIVE}
+              - APP_SECURITY_ALLOWED_ORIGINS=\\\${APP_SECURITY_ALLOWED_ORIGINS}
+            ports:
+              - \\\"\\\${APP_PORT}:8080\\\"
+            volumes:
+              - ./logs:/logs
+            restart: unless-stopped
+        \" > docker-compose.yml &&
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
+      "
+  dependencies:
+    - usermanager-build
+  environment:
+    name: test-usermanager
+    url: https://test.degra.lv/usermanager
+  only:
+    - branches
+
+company-deploy-test:
+  stage: deploy-test
+  image: docker:20
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$TEST_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        mkdir -p ~/degra/company &&
+        cd ~/degra/company &&
+        echo \"$TEST_ENV_COMPANY\" > .env &&
+        echo \"version: '3'
+        services:
+          company:
+            image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+            environment:
+              - SPRING_DATASOURCE_URL=\\\${SPRING_DATASOURCE_URL}
+              - SPRING_DATASOURCE_USERNAME=\\\${POSTGRES_USER}
+              - SPRING_DATASOURCE_PASSWORD=\\\${POSTGRES_PASSWORD}
+              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+              - KEYCLOAK_AUTH_SERVER_URL=\\\${KEYCLOAK_AUTH_SERVER_URL}
+              - KEYCLOAK_REALM=\\\${KEYCLOAK_REALM}
+              - KEYCLOAK_RESOURCE=\\\${KEYCLOAK_RESOURCE}
+              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+              - SPRING_PROFILES_ACTIVE=\\\${SPRING_PROFILES_ACTIVE}
+              - APP_SECURITY_ALLOWED_ORIGINS=\\\${APP_SECURITY_ALLOWED_ORIGINS}
+            ports:
+              - \\\"\\\${APP_PORT}:8085\\\"
+            volumes:
+              - ./logs:/logs
+            restart: unless-stopped
+        \" > docker-compose.yml &&
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
+      "
+  dependencies:
+    - company-build
+  environment:
+    name: test-company
+    url: https://test.degra.lv/company
+  only:
+    - branches
+
+# Manuāla izvietošana produkcijas vidē
+usermanager-deploy-prod:
+  stage: deploy-prod
+  image: docker:20
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
+        mkdir -p ~/degra/usermanager &&
+        cd ~/degra/usermanager &&
+        echo \"$PROD_ENV_USERMANAGER\" > .env &&
+        echo \"version: '3'
+        services:
+          usermanager:
+            image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+            environment:
+              - SPRING_DATASOURCE_URL=\\\${SPRING_DATASOURCE_URL}
+              - SPRING_DATASOURCE_USERNAME=\\\${POSTGRES_USER}
+              - SPRING_DATASOURCE_PASSWORD=\\\${POSTGRES_PASSWORD}
+              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+              - KEYCLOAK_AUTH_SERVER_URL=\\\${KEYCLOAK_AUTH_SERVER_URL}
+              - KEYCLOAK_REALM=\\\${KEYCLOAK_REALM}
+              - KEYCLOAK_RESOURCE=\\\${KEYCLOAK_RESOURCE}
+              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+              - SPRING_PROFILES_ACTIVE=\\\${SPRING_PROFILES_ACTIVE}
+              - APP_SECURITY_ALLOWED_ORIGINS=\\\${APP_SECURITY_ALLOWED_ORIGINS}
+            ports:
+              - \\\"\\\${APP_PORT}:8080\\\"
+            volumes:
+              - ./logs:/logs
+            restart: unless-stopped
+        \" > docker-compose.yml &&
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
+      "
+  dependencies:
+    - usermanager-build
+  environment:
+    name: production-usermanager
+    url: https://degra.lv/usermanager
+  when: manual
+  only:
+    - main
+    - master
+
+company-deploy-prod:
+  stage: deploy-prod
+  image: docker:20
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
+        mkdir -p ~/degra/company &&
+        cd ~/degra/company &&
+        echo \"$PROD_ENV_COMPANY\" > .env &&
+        echo \"version: '3'
+        services:
+          company:
+            image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+            environment:
+              - SPRING_DATASOURCE_URL=\\\${SPRING_DATASOURCE_URL}
+              - SPRING_DATASOURCE_USERNAME=\\\${POSTGRES_USER}
+              - SPRING_DATASOURCE_PASSWORD=\\\${POSTGRES_PASSWORD}
+              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+              - KEYCLOAK_AUTH_SERVER_URL=\\\${KEYCLOAK_AUTH_SERVER_URL}
+              - KEYCLOAK_REALM=\\\${KEYCLOAK_REALM}
+              - KEYCLOAK_RESOURCE=\\\${KEYCLOAK_RESOURCE}
+              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+              - SPRING_PROFILES_ACTIVE=\\\${SPRING_PROFILES_ACTIVE}
+              - APP_SECURITY_ALLOWED_ORIGINS=\\\${APP_SECURITY_ALLOWED_ORIGINS}
+            ports:
+              - \\\"\\\${APP_PORT}:8085\\\"
+            volumes:
+              - ./logs:/logs
+            restart: unless-stopped
+        \" > docker-compose.yml &&
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
+      "
+  dependencies:
+    - company-build
+  environment:
+    name: production-company
+    url: https://degra.lv/company
+  when: manual
+  only:
+    - main
+    - master
