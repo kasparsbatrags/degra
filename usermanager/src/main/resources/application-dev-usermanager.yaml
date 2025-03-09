@@ -25,3 +25,9 @@ keycloak:
   use-resource-role-mappings: true
   bearer-only: true
   public-client: false
+
+# OpenAPI Server Configuration
+springdoc:
+  server:
+    dev:
+      url: http://localhost:8080

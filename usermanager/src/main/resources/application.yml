@@ -22,3 +22,10 @@ springdoc:
     tagsSorter: alpha
     display-request-duration: true
   show-actuator: false
+  server:
+    dev:
+      url: http://localhost:8080
+    test:
+      url: https://test-api.degra.lv
+    prod:
+      url: https://api.degra.lv

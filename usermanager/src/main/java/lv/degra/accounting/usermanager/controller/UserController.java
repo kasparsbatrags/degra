@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.config.dto.ApiResponse;
 import lv.degra.accounting.core.user.authorize.service.AuthService;
 import lv.degra.accounting.core.user.authorize.service.AuthUserService;
+import lv.degra.accounting.core.user.dto.LoginRequestDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
 import lv.degra.accounting.core.user.exception.KeycloakIntegrationException;
 import lv.degra.accounting.core.user.exception.UserUniqueException;
@@ -73,26 +74,22 @@ public class UserController {
 
 	@Operation(summary = "Login user", description = "Authenticates a user with email and password")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
-			value = { @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Authentication successful"),
+			value = {
+					@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Authentication successful"),
 					@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Missing credentials"),
-					@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Invalid credentials") })
+					@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Invalid credentials")
+			})
 	@PostMapping(value = ENDPOINT_LOGIN, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponse> login(@RequestBody Map<String, String> credentials) {
+	public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequestDto request) {
 		try {
-			String email = credentials.get("email");
-			String password = credentials.get("password");
-
-			if (email == null || password == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(false, "Email and password are required"));
-			}
-
-			Map<String, Object> token = authService.login(email, password);
+			Map<String, Object> token = authService.login(request.getEmail(), request.getPassword());
 			return ResponseEntity.ok(new ApiResponse(true, "Authentication successful", token));
 		} catch (Exception e) {
 			log.warn("Failed login attempt: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(false, "Invalid email or password"));
 		}
 	}
+
 
 	@Operation(summary = "Logout user", description = "Logs out a user by invalidating their refresh token")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
