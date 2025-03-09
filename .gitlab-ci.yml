@@ -69,6 +69,18 @@ sonarcloud-check:
     - develop
 
 # Būvēšanas darbi
+# Core moduļa būvēšana
+core-build:
+  <<: *maven-setup
+  stage: build
+  script:
+    - mvn clean install -pl core -am -DskipTests
+  artifacts:
+    paths:
+      - core/target/*.jar
+  only:
+    - branches
+
 usermanager-maven-build:
   <<: *maven-setup
   stage: build
@@ -80,6 +92,10 @@ usermanager-maven-build:
       - core/target/*.jar
   dependencies:
     - usermanager-test
+    - core-build
+  needs:
+    - usermanager-test
+    - core-build
   only:
     - branches
 
@@ -106,6 +122,10 @@ company-maven-build:
       - core/target/*.jar
   dependencies:
     - company-test
+    - core-build
+  needs:
+    - company-test
+    - core-build
   only:
     - branches
 
@@ -125,6 +145,8 @@ company-docker-build:
 usermanager-deploy-test:
   stage: deploy-test
   image: docker:20
+  needs:
+    - usermanager-docker-build
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -173,6 +195,8 @@ usermanager-deploy-test:
 company-deploy-test:
   stage: deploy-test
   image: docker:20
+  needs:
+    - company-docker-build
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -222,6 +246,8 @@ company-deploy-test:
 usermanager-deploy-prod:
   stage: deploy-prod
   image: docker:20
+  needs:
+    - usermanager-docker-build
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -272,6 +298,8 @@ usermanager-deploy-prod:
 company-deploy-prod:
   stage: deploy-prod
   image: docker:20
+  needs:
+    - company-docker-build
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh

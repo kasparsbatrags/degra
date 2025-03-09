@@ -1,0 +1,89 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  
+  <mirrors>
+    <!-- Maven Central mirror -->
+    <mirror>
+      <id>maven-default-http-blocker</id>
+      <mirrorOf>external:http:*</mirrorOf>
+      <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <blocked>true</blocked>
+    </mirror>
+    
+    <!-- Alternative mirror 1: Google Maven Repository -->
+    <mirror>
+      <id>google</id>
+      <name>Google Maven Repository</name>
+      <url>https://maven-central.storage.googleapis.com/maven2/</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+    
+    <!-- Alternative mirror 2: JBoss Repository -->
+    <mirror>
+      <id>jboss-public-repository-group</id>
+      <mirrorOf>central</mirrorOf>
+      <name>JBoss Public Maven Repository Group</name>
+      <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+    </mirror>
+  </mirrors>
+  
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo.maven.apache.org/maven2</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>jboss-public-repository-group</id>
+          <name>JBoss Public Maven Repository Group</name>
+          <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  
+  <servers>
+    <!-- Add any authentication for private repositories here if needed -->
+  </servers>
+  
+  <!-- Configure retry settings -->
+  <pluginGroups>
+    <pluginGroup>org.apache.maven.plugins</pluginGroup>
+  </pluginGroups>
+  
+  <!-- Configure connection settings -->
+  <proxies>
+    <!-- Add proxy settings if needed -->
+  </proxies>
+  
+  <!-- Configure global Maven settings -->
+  <activeProfiles>
+    <activeProfile>default</activeProfile>
+  </activeProfiles>
+  
+  <!-- Configure connection timeout and retry settings -->
+  <interactiveMode>false</interactiveMode>
+  <offline>false</offline>
+</settings>
