@@ -28,7 +28,7 @@ keycloak:
 
 logging:
   level:
-    ROOT: INFO
+    ROOT: DEBUG
     #liquibase: INFO
     #org.hibernate.SQL: INFO
     #org.hibernate.envers: INFO

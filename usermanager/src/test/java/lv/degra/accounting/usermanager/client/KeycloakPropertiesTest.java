@@ -86,6 +86,6 @@ class KeycloakPropertiesTest {
 
 	@Configuration
 	static class TestConfig {
-		// Šeit var pievienot papildu @Bean anotācijas, ja nepieciešams
+		// Here you can add additional @Bean annotations if needed
 	}
 }
