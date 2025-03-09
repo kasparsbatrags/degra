@@ -74,7 +74,7 @@ core-build:
   <<: *maven-setup
   stage: build
   script:
-    - mvn clean install -pl core -am -DskipTests
+    - mvn clean install -pl core -am -DskipTests -Dsonar.skip=true
   artifacts:
     paths:
       - core/target/*.jar
