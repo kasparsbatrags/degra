@@ -25,14 +25,3 @@ keycloak:
   use-resource-role-mappings: true
   bearer-only: true
   public-client: false
-
-logging:
-  level:
-    ROOT: DEBUG
-    #liquibase: INFO
-    #org.hibernate.SQL: INFO
-    #org.hibernate.envers: INFO
-    #org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    com.zaxxer.hikari: DEBUG
