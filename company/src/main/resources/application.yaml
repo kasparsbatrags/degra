@@ -25,5 +25,4 @@ keycloak:
   public-client: false
 
 application:
-  server-url: http://localhost:8085/
   company-download-cron: 0 0 2 * * ?
