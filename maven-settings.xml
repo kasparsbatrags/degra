@@ -9,7 +9,6 @@
       <mirrorOf>external:http:*</mirrorOf>
       <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
       <url>https://repo.maven.apache.org/maven2</url>
-      <blocked>true</blocked>
     </mirror>
     
     <!-- Alternative mirror 1: Google Maven Repository -->
