@@ -50,6 +50,10 @@ public class SecurityConfig {
                 .requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
                 .requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll()
                 .requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**").permitAll()
+                // Allow Swagger UI and OpenAPI resources
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
