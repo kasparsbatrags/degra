@@ -12,7 +12,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.account.maper.AccountPostedMapper;
 import lv.degra.accounting.core.document.dto.DocumentDto;
 import lv.degra.accounting.core.document.model.Document;
 import lv.degra.accounting.core.document.model.DocumentRepository;
@@ -22,21 +21,18 @@ import lv.degra.accounting.core.document.service.exception.SaveDocumentException
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
-	private static final String SAVE_EXCEPTION_MESSAGE = "Error saving document! ";
+	private static final String SAVE_EXCEPTION_MESSAGE = "Kļūda saglabājot dokumentu! ";
 
 	private final DocumentRepository documentRepository;
 	private final DocumentStatusService documentStatusService;
 
 	private final ModelMapper modelMapper;
-	private final AccountPostedMapper accountPostedMapper;
 
 	@Autowired
-	public DocumentServiceImpl(DocumentRepository documentRepository, DocumentStatusService documentStatusService, ModelMapper modelMapper,
-			AccountPostedMapper accountPostedMapper) {
+	public DocumentServiceImpl(DocumentRepository documentRepository, DocumentStatusService documentStatusService, ModelMapper modelMapper) {
 		this.documentRepository = documentRepository;
 		this.documentStatusService = documentStatusService;
 		this.modelMapper = modelMapper;
-		this.accountPostedMapper = accountPostedMapper;
 	}
 
 	@Override
@@ -72,13 +68,15 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	public List<DocumentDto> getDocumentList() {
-		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().map(document -> {
-			return modelMapper.map(document, DocumentDto.class);
-		}).toList();
+		return documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
+				.stream().map(this::apply).toList();
 	}
 
 	public void deleteById(Integer documentId) {
 		documentRepository.deleteById(Long.valueOf(documentId));
 	}
 
+	private DocumentDto apply(Document document) {
+		return modelMapper.map(document, DocumentDto.class);
+	}
 }
