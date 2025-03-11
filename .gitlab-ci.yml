@@ -220,9 +220,9 @@ usermanager-deploy-test:
     name: test-usermanager
     url: https://test.degra.lv/usermanager
   rules:
-    - if: $CI_COMMIT_BRANCH == "test"
+    - if: '$CI_COMMIT_BRANCH == "test"'
       when: always
-    - if: $CI_COMMIT_BRANCH =~ /^((?!test|master).)*$/
+    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
 
 company-deploy-test:
@@ -273,9 +273,9 @@ company-deploy-test:
     name: test-company
     url: https://test.degra.lv/company
   rules:
-    - if: $CI_COMMIT_BRANCH == "test"
+    - if: '$CI_COMMIT_BRANCH == "test"'
       when: always
-    - if: $CI_COMMIT_BRANCH =~ /^((?!test|master).)*$/
+    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
 
 # Izvietošana produkcijas vidē
@@ -327,7 +327,7 @@ usermanager-deploy-prod:
     name: production-usermanager
     url: https://degra.lv/usermanager
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
 
 company-deploy-prod:
@@ -378,5 +378,5 @@ company-deploy-prod:
     name: production-company
     url: https://degra.lv/company
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
