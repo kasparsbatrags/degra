@@ -188,32 +188,30 @@ usermanager-deploy-test:
         cd /home/dockeruser/degra/test/usermanager &&
         echo "$TEST_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
-        services:
-          usermanager:
-            image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
-            environment:
-              - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-              - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-              - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-              - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-              - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-              - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-              - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-              - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-            ports:
-              - \"\${APP_PORT}:8080\"
-            volumes:
-              - ./logs:/logs
-            restart: unless-stopped
-      EOL
-      &&
-      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      docker-compose pull &&
-      docker-compose up -d
-      EOF
+version: '3'
+services:
+  usermanager:
+    image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+    environment:
+      - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+      - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+      - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+      - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+      - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+    ports:
+      - \"\${APP_PORT}:8080\"
+    volumes:
+      - ./logs:/logs
+    restart: unless-stopped
+EOL
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
       "
   dependencies:
     - usermanager-docker-build
@@ -242,32 +240,30 @@ company-deploy-test:
         cd /home/dockeruser/degra/test/company &&
         echo "$TEST_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
-        services:
-          company:
-            image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
-            environment:
-              - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-              - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-              - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-              - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-              - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-              - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-              - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-              - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-            ports:
-              - \"\${APP_PORT}:8085\"
-            volumes:
-              - ./logs:/logs
-            restart: unless-stopped
-      EOL
-      &&
-      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      docker-compose pull &&
-      docker-compose up -d
-      EOF
+version: '3'
+services:
+  company:
+    image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+    environment:
+      - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+      - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+      - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+      - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+      - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+    ports:
+      - \"\${APP_PORT}:8085\"
+    volumes:
+      - ./logs:/logs
+    restart: unless-stopped
+EOL
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
       "
   dependencies:
     - company-docker-build
@@ -297,32 +293,30 @@ usermanager-deploy-prod:
         cd /home/dockeruser/degra/prod/usermanager &&
         echo "$PROD_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
-        services:
-          usermanager:
-            image: $CI_REGISTRY_IMAGE/usermanager:latest
-            environment:
-              - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-              - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-              - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-              - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-              - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-              - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-              - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-              - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-            ports:
-              - \"\${APP_PORT}:8080\"
-            volumes:
-              - ./logs:/logs
-            restart: unless-stopped
-      EOL
-      &&
-      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      docker-compose pull &&
-      docker-compose up -d
-      EOF
+version: '3'
+services:
+  usermanager:
+    image: $CI_REGISTRY_IMAGE/usermanager:latest
+    environment:
+      - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+      - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+      - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+      - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+      - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+    ports:
+      - \"\${APP_PORT}:8080\"
+    volumes:
+      - ./logs:/logs
+    restart: unless-stopped
+EOL
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
       "
   dependencies:
     - usermanager-docker-build
@@ -349,32 +343,30 @@ company-deploy-prod:
         cd /home/dockeruser/degra/prod/company &&
         echo "$PROD_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
-        services:
-          company:
-            image: $CI_REGISTRY_IMAGE/company:latest
-            environment:
-              - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-              - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-              - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-              - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-              - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-              - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-              - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-              - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-            ports:
-              - \"\${APP_PORT}:8085\"
-            volumes:
-              - ./logs:/logs
-            restart: unless-stopped
-      EOL
-      &&
-      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      docker-compose pull &&
-      docker-compose up -d
-      EOF
+version: '3'
+services:
+  company:
+    image: $CI_REGISTRY_IMAGE/company:latest
+    environment:
+      - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+      - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+      - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+      - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+      - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+      - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+    ports:
+      - \"\${APP_PORT}:8085\"
+    volumes:
+      - ./logs:/logs
+    restart: unless-stopped
+EOL
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose pull &&
+        docker-compose up -d
       "
   dependencies:
     - company-docker-build
