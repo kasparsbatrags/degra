@@ -142,6 +142,19 @@ sonarcloud-check:
     - develop
   when: manual
 
+core-build:
+  <<: *maven-setup
+  stage: build
+  script:
+    - mvn clean install -pl core -am -DskipTests -Dsonar.skip=true
+  artifacts:
+    paths:
+      - core/target/*.jar
+  only:
+    - branches
+    - test
+    - master
+
 # ✅ Testēšanas darbi
 usermanager-test:
   <<: *maven-setup
