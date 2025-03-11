@@ -186,7 +186,7 @@ usermanager-deploy-test:
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
         mkdir -p /home/dockeruser/degra/test/usermanager &&
         cd /home/dockeruser/degra/test/usermanager &&
-        echo \"$TEST_ENV_USERMANAGER\" > .env &&
+        echo "$TEST_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
         services:
@@ -239,11 +239,11 @@ company-deploy-test:
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
         mkdir -p ~/degra/company &&
         cd ~/degra/company &&
-        echo \"$TEST_ENV_COMPANY\" > .env &&
+        echo "$TEST_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
         services:
-          company:
+          company-backend:
             image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
@@ -259,7 +259,7 @@ company-deploy-test:
             ports:
               - \"\${APP_PORT}:8085\"
             volumes:
-              - ./logs:/logs
+              - ../logs:/logs
             restart: unless-stopped
         EOL
         &&
@@ -293,7 +293,7 @@ usermanager-deploy-prod:
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
         mkdir -p ~/degra/usermanager &&
         cd ~/degra/usermanager &&
-        echo \"$PROD_ENV_USERMANAGER\" > .env &&
+        echo "$PROD_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
         services:
@@ -344,7 +344,7 @@ company-deploy-prod:
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
         mkdir -p ~/degra/company &&
         cd ~/degra/company &&
-        echo \"$PROD_ENV_COMPANY\" > .env &&
+        echo "$PROD_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
         services:
