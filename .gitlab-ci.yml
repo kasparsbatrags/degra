@@ -226,6 +226,8 @@ usermanager-deploy-test:
     PORT: "8080"
   needs:
     - usermanager-docker-build
+  dependencies:
+    - usermanager-docker-build
 
 company-deploy-test:
   <<: *deploy
@@ -240,6 +242,8 @@ company-deploy-test:
     STAGE: "deploy-test"
     PORT: "8085"
   needs:
+    - company-docker-build
+  dependencies:
     - company-docker-build
 
 # ✅ Izvietošana produkcijā
