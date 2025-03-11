@@ -208,11 +208,12 @@ usermanager-deploy-test:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-EOL
-        &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker-compose pull &&
-        docker-compose up -d
+      EOL
+      &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker-compose pull &&
+      docker-compose up -d
+      EOF
       "
   dependencies:
     - usermanager-docker-build
@@ -261,11 +262,12 @@ company-deploy-test:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-EOL
-        &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker-compose pull &&
-        docker-compose up -d
+      EOL
+      &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker-compose pull &&
+      docker-compose up -d
+      EOF
       "
   dependencies:
     - company-docker-build
@@ -315,11 +317,12 @@ usermanager-deploy-prod:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-EOL
-        &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker-compose pull &&
-        docker-compose up -d
+      EOL
+      &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker-compose pull &&
+      docker-compose up -d
+      EOF
       "
   dependencies:
     - usermanager-docker-build
@@ -366,11 +369,12 @@ company-deploy-prod:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-EOL
-        &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker-compose pull &&
-        docker-compose up -d
+      EOL
+      &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker-compose pull &&
+      docker-compose up -d
+      EOF
       "
   dependencies:
     - company-docker-build
