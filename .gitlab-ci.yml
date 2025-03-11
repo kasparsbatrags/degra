@@ -80,6 +80,8 @@ core-build:
       - core/target/*.jar
   only:
     - branches
+    - test
+    - master
 
 usermanager-maven-build:
   <<: *maven-setup
@@ -98,6 +100,8 @@ usermanager-maven-build:
     - core-build
   only:
     - branches
+    - test
+    - master
 
 usermanager-docker-build:
   stage: build
@@ -108,8 +112,20 @@ usermanager-docker-build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG -f usermanager/Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "test" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/usermanager:test
+        docker push $CI_REGISTRY_IMAGE/usermanager:test
+      fi
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/usermanager:latest
+        docker push $CI_REGISTRY_IMAGE/usermanager:latest
+      fi
   only:
     - branches
+    - test
+    - master
 
 company-maven-build:
   <<: *maven-setup
@@ -128,6 +144,8 @@ company-maven-build:
     - core-build
   only:
     - branches
+    - test
+    - master
 
 company-docker-build:
   stage: build
@@ -138,8 +156,20 @@ company-docker-build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG -f company/Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "test" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/company:test
+        docker push $CI_REGISTRY_IMAGE/company:test
+      fi
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/company:latest
+        docker push $CI_REGISTRY_IMAGE/company:latest
+      fi
   only:
     - branches
+    - test
+    - master
 
 # Automātiska izvietošana testa vidē
 usermanager-deploy-test:
@@ -189,8 +219,11 @@ usermanager-deploy-test:
   environment:
     name: test-usermanager
     url: https://test.degra.lv/usermanager
-  only:
-    - branches
+  rules:
+    - if: $CI_COMMIT_BRANCH == "test"
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /^((?!test|master).)*$/
+      when: manual
 
 company-deploy-test:
   stage: deploy-test
@@ -239,10 +272,13 @@ company-deploy-test:
   environment:
     name: test-company
     url: https://test.degra.lv/company
-  only:
-    - branches
+  rules:
+    - if: $CI_COMMIT_BRANCH == "test"
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /^((?!test|master).)*$/
+      when: manual
 
-# Manuāla izvietošana produkcijas vidē
+# Izvietošana produkcijas vidē
 usermanager-deploy-prod:
   stage: deploy-prod
   image: docker:20
@@ -262,7 +298,7 @@ usermanager-deploy-prod:
         version: '3'
         services:
           usermanager:
-            image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+            image: $CI_REGISTRY_IMAGE/usermanager:latest
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
               - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
@@ -290,10 +326,9 @@ usermanager-deploy-prod:
   environment:
     name: production-usermanager
     url: https://degra.lv/usermanager
-  when: manual
-  only:
-    - main
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
 
 company-deploy-prod:
   stage: deploy-prod
@@ -314,7 +349,7 @@ company-deploy-prod:
         version: '3'
         services:
           company:
-            image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
+            image: $CI_REGISTRY_IMAGE/company:latest
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
               - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
@@ -342,7 +377,6 @@ company-deploy-prod:
   environment:
     name: production-company
     url: https://degra.lv/company
-  when: manual
-  only:
-    - main
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
