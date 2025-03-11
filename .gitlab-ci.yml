@@ -171,7 +171,8 @@ usermanager-deploy-test:
   stage: deploy-test
   image: docker:20
   needs:
-    - usermanager-docker-build
+    - job: usermanager-docker-build
+      optional: true
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -228,7 +229,8 @@ company-deploy-test:
   stage: deploy-test
   image: docker:20
   needs:
-    - company-docker-build
+    - job: company-docker-build
+      optional: true
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -288,7 +290,8 @@ usermanager-deploy-prod:
   stage: deploy-prod
   image: docker:20
   needs:
-    - usermanager-docker-build
+    - job: usermanager-docker-build
+      optional: true
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -346,7 +349,8 @@ company-deploy-prod:
   stage: deploy-prod
   image: docker:20
   needs:
-    - company-docker-build
+    - job: company-docker-build
+      optional: true
   script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
