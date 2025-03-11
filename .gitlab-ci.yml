@@ -179,21 +179,37 @@ usermanager-maven-build:
   <<: *maven-build
   variables:
     MODULE: "usermanager"
+  dependencies:
+    - core-build
+  needs:
+    - core-build
 
 company-maven-build:
   <<: *maven-build
   variables:
     MODULE: "company"
+  dependencies:
+    - core-build
+  needs:
+    - core-build
 
 usermanager-docker-build:
   <<: *docker-build
   variables:
     MODULE: "usermanager"
+  needs:
+    - usermanager-maven-build
+  dependencies:
+    - usermanager-maven-build
 
 company-docker-build:
   <<: *docker-build
   variables:
     MODULE: "company"
+  needs:
+    - company-maven-build
+  dependencies:
+    - company-maven-build
 
 # ✅ Izvietošana testā
 usermanager-deploy-test:
