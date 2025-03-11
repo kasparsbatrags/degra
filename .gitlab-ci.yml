@@ -225,6 +225,9 @@ usermanager-deploy-test:
       when: always
     - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
+  only:
+    - master
+    - test
 
 company-deploy-test:
   stage: deploy-test
@@ -285,6 +288,10 @@ company-deploy-test:
       when: always
     - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
+  only:
+    - master
+    - test
+
 
 # Izvietošana produkcijas vidē
 usermanager-deploy-prod:
