@@ -224,9 +224,8 @@ usermanager-deploy-test:
     TAG: "$CI_COMMIT_REF_SLUG"
     STAGE: "deploy-test"
     PORT: "8080"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test"'
-      when: always
+  needs:
+    - usermanager-docker-build
 
 company-deploy-test:
   <<: *deploy
@@ -240,9 +239,8 @@ company-deploy-test:
     TAG: "$CI_COMMIT_REF_SLUG"
     STAGE: "deploy-test"
     PORT: "8085"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test"'
-      when: always
+  needs:
+    - company-docker-build
 
 # ✅ Izvietošana produkcijā
 usermanager-deploy-prod:
