@@ -79,7 +79,6 @@ core-build:
     paths:
       - core/target/*.jar
   only:
-    - branches
     - test
     - master
 
@@ -99,7 +98,6 @@ usermanager-maven-build:
     - usermanager-test
     - core-build
   only:
-    - branches
     - test
     - master
 
@@ -123,7 +121,6 @@ usermanager-docker-build:
         docker push $CI_REGISTRY_IMAGE/usermanager:latest
       fi
   only:
-    - branches
     - test
     - master
 
@@ -143,7 +140,6 @@ company-maven-build:
     - company-test
     - core-build
   only:
-    - branches
     - test
     - master
 
@@ -167,7 +163,6 @@ company-docker-build:
         docker push $CI_REGISTRY_IMAGE/company:latest
       fi
   only:
-    - branches
     - test
     - master
 
@@ -209,9 +204,11 @@ usermanager-deploy-test:
               - ./logs:/logs
             restart: unless-stopped
       EOL
+      EOF
       "
       - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        cd /home/dockeruser/degra/test/usermanager &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
         docker-compose up -d
@@ -264,9 +261,11 @@ company-deploy-test:
               - ./logs:/logs
             restart: unless-stopped
       EOL
+      EOF
       "
       - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        cd /home/dockeruser/degra/test/company &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
         docker-compose up -d
@@ -322,15 +321,17 @@ usermanager-deploy-prod:
               - ./logs:/logs
             restart: unless-stopped
       EOL
+      EOF
       "
       - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        cd /home/dockeruser/degra/prod/usermanager &&      
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
         docker-compose up -d
       "
-  
-  
+      
+      
 
   dependencies:
     - usermanager-docker-build
@@ -378,9 +379,11 @@ company-deploy-prod:
               - ./logs:/logs
             restart: unless-stopped
       EOL
+      EOF
       "
       - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+        cd /home/dockeruser/degra/prod/company &&      
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
         docker-compose up -d
