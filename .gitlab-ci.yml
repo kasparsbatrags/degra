@@ -237,13 +237,13 @@ company-deploy-test:
     - chmod 600 ~/.ssh/id_rsa
     - |
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
-        mkdir -p ~/degra/company &&
-        cd ~/degra/company &&
+        mkdir -p /home/dockeruser/degra/test/company &&
+        cd /home/dockeruser/degra/test/company &&
         echo "$TEST_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
         services:
-          company-backend:
+          company:
             image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
@@ -259,7 +259,7 @@ company-deploy-test:
             ports:
               - \"\${APP_PORT}:8085\"
             volumes:
-              - ../logs:/logs
+              - ./logs:/logs
             restart: unless-stopped
 EOL
         &&
@@ -291,8 +291,8 @@ usermanager-deploy-prod:
     - chmod 600 ~/.ssh/id_rsa
     - |
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
-        mkdir -p ~/degra/usermanager &&
-        cd ~/degra/usermanager &&
+        mkdir -p /home/dockeruser/degra/test/usermanager &&
+        cd /home/dockeruser/degra/test/usermanager &&
         echo "$PROD_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
@@ -342,8 +342,8 @@ company-deploy-prod:
     - chmod 600 ~/.ssh/id_rsa
     - |
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
-        mkdir -p ~/degra/company &&
-        cd ~/degra/company &&
+        mkdir -p /home/dockeruser/degra/prod/company &&
+        cd /home/dockeruser/degra/prod/company &&
         echo "$PROD_ENV_COMPANY" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
