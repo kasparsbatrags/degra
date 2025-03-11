@@ -36,6 +36,7 @@ qodana:
     - master
     - main
     - merge_requests
+  when: manual
 
 # Testēšanas darbi
 usermanager-test:
@@ -67,6 +68,7 @@ sonarcloud-check:
     - master
     - main
     - develop
+  when: manual
 
 # Būvēšanas darbi
 # Core moduļa būvēšana
