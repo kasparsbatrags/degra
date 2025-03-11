@@ -208,7 +208,7 @@ usermanager-deploy-test:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-        EOL
+EOL
         &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
@@ -261,7 +261,7 @@ company-deploy-test:
             volumes:
               - ../logs:/logs
             restart: unless-stopped
-        EOL
+EOL
         &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
@@ -315,7 +315,7 @@ usermanager-deploy-prod:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-        EOL
+EOL
         &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
@@ -366,7 +366,7 @@ company-deploy-prod:
             volumes:
               - ./logs:/logs
             restart: unless-stopped
-        EOL
+EOL
         &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
