@@ -291,8 +291,8 @@ usermanager-deploy-prod:
     - chmod 600 ~/.ssh/id_rsa
     - |
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
-        mkdir -p /home/dockeruser/degra/test/usermanager &&
-        cd /home/dockeruser/degra/test/usermanager &&
+        mkdir -p /home/dockeruser/degra/prod/usermanager &&
+        cd /home/dockeruser/degra/prod/usermanager &&
         echo "$PROD_ENV_USERMANAGER" > .env &&
         cat > docker-compose.yml << 'EOL'
         version: '3'
