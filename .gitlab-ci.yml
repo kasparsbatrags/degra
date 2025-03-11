@@ -79,6 +79,7 @@ core-build:
     paths:
       - core/target/*.jar
   only:
+    - branches
     - test
     - master
 
