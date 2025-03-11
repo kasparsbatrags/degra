@@ -226,7 +226,6 @@ usermanager-deploy-test:
     - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
   only:
-    - master
     - test
 
 company-deploy-test:
@@ -289,7 +288,6 @@ company-deploy-test:
     - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: manual
   only:
-    - master
     - test
 
 
