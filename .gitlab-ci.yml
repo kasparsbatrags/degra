@@ -139,6 +139,7 @@ company-maven-build:
     - company-test
     - core-build
   needs:
+    - company-test
     - core-build
   only:
     - test
