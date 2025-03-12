@@ -217,6 +217,8 @@ usermanager-deploy-test:
       "
   dependencies:
     - usermanager-docker-build
+  only:
+    - test
   environment:
     name: test-usermanager
     url: https://test.degra.lv/usermanager
@@ -275,6 +277,8 @@ company-deploy-test:
 
   dependencies:
     - company-docker-build
+  only:
+    - test
   environment:
     name: test-company
     url: https://test.degra.lv/company
