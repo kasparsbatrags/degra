@@ -95,16 +95,6 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: company_type
 
-
-  - changeSet:
-      id: CreatePgTrgmExtensionWithCompanyRegister
-      author: Kaspars Batrags
-      changes:
-        - sql:
-            splitStatements: false
-            stripComments: true
-            sql: "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
-
   - changeSet:
       id: CreateCompanyRegisterNameTrgmIdx
       author: Kaspars Batrags
