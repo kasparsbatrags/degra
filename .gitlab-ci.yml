@@ -192,7 +192,6 @@ usermanager-deploy-test:
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
         cd /home/dockeruser/degra/test/usermanager &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
         services:
           usermanager:
             image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
@@ -254,7 +253,6 @@ company-deploy-test:
       ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
         cd /home/dockeruser/degra/test/company &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
         services:
           company:
             image: $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG
@@ -319,7 +317,6 @@ usermanager-deploy-prod:
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
         cd /home/dockeruser/degra/prod/usermanager &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
         services:
           usermanager:
             image: $CI_REGISTRY_IMAGE/usermanager:latest
@@ -382,7 +379,6 @@ company-deploy-prod:
       ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER "
         cd /home/dockeruser/degra/prod/company &&
         cat > docker-compose.yml << 'EOL'
-        version: '3'
         services:
           company:
             image: $CI_REGISTRY_IMAGE/company:latest
