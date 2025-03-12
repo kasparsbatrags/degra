@@ -270,7 +270,7 @@ company-deploy-test:
               - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
               - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
             ports:
-              - \"\${APP_PORT}:8085\"
+              - \"\${APP_PORT}:8080\"
             volumes:
               - ./logs:/logs
             restart: unless-stopped
@@ -282,7 +282,7 @@ company-deploy-test:
         docker-compose pull &&
         docker-compose up -d
       "
-      
+  
 
   dependencies:
     - company-docker-build
@@ -348,8 +348,8 @@ usermanager-deploy-prod:
         docker-compose pull &&
         docker-compose up -d
       "
-      
-      
+  
+  
 
   dependencies:
     - usermanager-docker-build
@@ -398,7 +398,7 @@ company-deploy-prod:
               - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
               - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
             ports:
-              - \"\${APP_PORT}:8085\"
+              - \"\${APP_PORT}:8080\"
             volumes:
               - ./logs:/logs
             restart: unless-stopped
@@ -411,7 +411,7 @@ company-deploy-prod:
         docker-compose pull &&
         docker-compose up -d
       "
-      
+  
 
   dependencies:
     - company-docker-build

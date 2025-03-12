@@ -6,22 +6,25 @@
   <title>Meklēšana ar Material Design</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #1976D2; /* Main primary color */
+      --primary-color: #5914ff; /* Updated to match style.css primary color */
       --accent-color: #FF4081; /* Accent color */
-      --background-color: #f5f5f5; /* Background color */
+      --background-color: #f8f9fc; /* Updated to match style.css background */
       --text-color: #333; /* Text color */
       --secondary-text-color: #757575; /* Secondary text color */
     }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Montserrat', Arial, sans-serif;
       background-color: var(--background-color);
-      padding: 20px;
+      padding: 0;
+      margin: 0;
       color: var(--text-color);
     }
     .main-container {
-      padding: 20px 0 0 0;
+      padding: 40px;
       display: flex;
       flex-wrap: wrap;
     }
@@ -40,7 +43,7 @@
       padding: 20px;
       background-color: #ffffff;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 25px rgba(24, 24, 24, 0.1);
       height: auto;
       overflow-y: auto;
     }
@@ -53,7 +56,7 @@
       padding: 20px;
       background-color: #ffffff;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 25px rgba(24, 24, 24, 0.1);
       margin-bottom: 20px;
     }
     .search-container {
@@ -68,17 +71,104 @@
       flex: 0;
       background-color: var(--primary-color);
     }
+    .search-container .btn:hover {
+      background-color: #1f1f1f;
+    }
     .card-title {
       color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 20px;
     }
     .collection-item {
-      color: var(--secondary-text-color);
+      color: var(--text-color);
+      transition: all 0.3s;
+      border-bottom: 1px solid #e6e6e6;
+      padding: 15px !important;
+    }
+    .collection-item:hover {
+      background-color: #f8f9fc;
+    }
+    .collection-item h5 {
+      color: #1f1f1f;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .collection-item p {
+      margin: 5px 0;
+      color: #666;
+    }
+    .collection {
+      border: none;
+      margin: 0;
+    }
+    nav {
+      background-color: #282828 !important;
+    }
+    nav .brand-logo {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+    }
+    .main-btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      border: 0;
+      padding: 0 40px;
+      font-size: 16px;
+      height: 50px;
+      line-height: 50px;
+      border-radius: 50px;
+      color: #fff;
+      cursor: pointer;
+      z-index: 5;
+      transition: all .4s linear;
+      background-color: #5914ff;
+    }
+    .main-btn:hover {
+      background-color: #1f1f1f;
+      color: #fff;
     }
   </style>
 </head>
 <body>
 <header>
-  <nav class="blue darken-3">
+  <div class="top-bar">
+    <div class="container">
+      <div class="row">
+        <div class="col s12">
+          <div class="menu-two">
+<!--            <div class="social-icon">-->
+<!--              <a href="#"><i class="fab fa-facebook-f"></i></a>-->
+<!--              <a href="#"><i class="fab fa-twitter"></i></a>-->
+<!--              <a href="#"><i class="fab fa-linkedin-in"></i></a>-->
+<!--            </div>-->
+<!--            <div class="d-flex">-->
+<!--              <div class="content">-->
+<!--                <div class="icon">-->
+<!--                  <i class="fas fa-envelope"></i>-->
+<!--                </div>-->
+<!--                <div class="details">-->
+<!--                  <p class="light">info@example.com</p>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--              <div class="content">-->
+<!--                <div class="icon">-->
+<!--                  <i class="fas fa-phone-alt"></i>-->
+<!--                </div>-->
+<!--                <div class="details">-->
+<!--                  <p class="light">+371 2345 6789</p>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav>
     <div class="nav-wrapper">
       <a href="#" class="brand-logo" style="margin-left: 20px;">Meklēšana</a>
       <a href="#" data-target="menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -92,7 +182,7 @@
         <input id="search" type="text" class="validate">
         <label for="search">Meklēšana</label>
       </div>
-      <a href="#" class="btn blue"><i class="material-icons">search</i></a>
+      <a href="#" class="main-btn"><i class="material-icons">search</i></a>
     </div>
 
     <div class="results-container">
@@ -139,6 +229,64 @@
     </div>
   </div>
 </div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m6 l4">
+        <div class="foot-top">
+          <div class="logo">
+            <h2 style="color: #fff;">Meklēšana</h2>
+          </div>
+          <p class="desc">Uzņēmumu meklēšanas sistēma, kas ļauj ātri un ērti atrast informāciju par Latvijas uzņēmumiem.</p>
+          <ul class="social-icon">
+            <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+            <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+            <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+            <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col s12 m6 l4">
+        <div class="foot-top">
+<!--          <h4 class="heading-con">Kontakti</h4>-->
+<!--          <div class="address-list">-->
+<!--            <ul>-->
+<!--              <li>-->
+<!--                <i class="fas fa-map-marker-alt"></i>-->
+<!--                <p>Brīvības iela 123, Rīga, LV-1001</p>-->
+<!--              </li>-->
+<!--              <li>-->
+<!--                <i class="fas fa-phone-alt"></i>-->
+<!--                <p>+371 2345 6789</p>-->
+<!--              </li>-->
+<!--              <li>-->
+<!--                <i class="fas fa-envelope"></i>-->
+<!--                <p>info@example.com</p>-->
+<!--              </li>-->
+<!--            </ul>-->
+<!--          </div>-->
+        </div>
+      </div>
+      <div class="col s12 m6 l4">
+        <div class="foot-top">
+<!--          <h4 class="heading-con">Ātrās saites</h4>-->
+<!--          <ul class="menu-link">-->
+<!--            <li><a href="#">Sākums</a></li>-->
+<!--            <li><a href="#">Par mums</a></li>-->
+<!--            <li><a href="#">Pakalpojumi</a></li>-->
+<!--            <li><a href="#">Kontakti</a></li>-->
+<!--          </ul>-->
+        </div>
+      </div>
+    </div>
+    <div class="row footer-credits">
+      <div class="col s12">
+        <p style="color: #fff; text-align: center; margin-top: 20px;">© 2025 Meklēšana. Visas tiesības aizsargātas.</p>
+      </div>
+    </div>
+  </div>
+</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
