@@ -1,6 +1,6 @@
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
   datasource:
     url: jdbc:postgresql://104.248.195.223:5432/degra_test?currentSchema=public
     driver-class-name: org.postgresql.Driver
@@ -12,10 +12,3 @@ spring:
 
 server:
   port: 8080
-
-logging:
-  level:
-    ROOT: INFO
-    org.springframework: INFO
-    org.springframework.jdbc.datasource: INFO
-    com.zaxxer.hikari: INFO

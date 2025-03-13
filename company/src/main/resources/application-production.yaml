@@ -6,12 +6,4 @@ spring:
       maximum-pool-size: 15
 
 server:
-  port: 8085
-
-app:
-  security:
-    allowed-origins: "*"
-
-logging:
-  level:
-    ROOT: INFO
+  port: 8080

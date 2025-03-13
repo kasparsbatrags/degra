@@ -26,3 +26,7 @@ keycloak:
 
 application:
   company-download-cron: 0 0 2 * * ?
+
+app:
+  security:
+    allowed-origins: "*"

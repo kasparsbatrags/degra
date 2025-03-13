@@ -12,10 +12,3 @@ spring:
 
 server:
   port: 8085
-
-logging:
-  level:
-    ROOT: INFO
-    org.springframework: INFO
-    org.springframework.jdbc.datasource: INFO
-    com.zaxxer.hikari: INFO
