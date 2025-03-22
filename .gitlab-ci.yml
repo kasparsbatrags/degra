@@ -209,7 +209,7 @@ usermanager-deploy-test:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./logs:/app/Logs
+              - ./Logs:/app/Logs
             restart: unless-stopped
       EOL
       "
