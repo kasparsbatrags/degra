@@ -26,9 +26,9 @@ springdoc:
     dev:
       url: http://localhost:8080
     test:
-      url: https://test-api.degra.lv
+      url: https://test-usermanager.degra.lv
     prod:
-      url: https://api.degra.lv
+      url: https://usermanager.degra.lv
 
 # Logging configuration with relative path
 logging:

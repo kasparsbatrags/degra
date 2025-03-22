@@ -9,7 +9,7 @@ server:
 
 app:
   security:
-    allowed-origins: "https://test-company.degra.lv, https://test-api.degra.lv"
+    allowed-origins: "*"
 
 keycloak:
   auth-server-url: https://route.degra.lv
@@ -27,7 +27,7 @@ keycloak:
 springdoc:
   server:
     test:
-      url: https://test-api.degra.lv
+      url: https://test-usermanager.degra.lv
 
 
 # Logging configuration with relative path
