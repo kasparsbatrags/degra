@@ -31,3 +31,13 @@ springdoc:
   server:
     dev:
       url: http://localhost:8080
+
+
+# Logging configuration with relative path
+logging:
+  file:
+    name: Logs/usermanager-dev.log
+  level:
+    root: debug
+    lv.degra.accounting.company: debug
+    org.hibernate.SQL: debug

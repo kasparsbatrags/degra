@@ -209,7 +209,7 @@ usermanager-deploy-test:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./logs:/logs
+              - ./logs:/app/Logs
             restart: unless-stopped
       EOL
       "
@@ -270,7 +270,7 @@ company-deploy-test:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./logs:/logs
+              - ./Logs:/app/Logs
             restart: unless-stopped
       "
       - |
@@ -334,7 +334,7 @@ usermanager-deploy-prod:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./logs:/logs
+              - ./Logs:/app/logs
             restart: unless-stopped
       EOL
       "
@@ -396,7 +396,7 @@ company-deploy-prod:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./logs:/logs
+              - ./Logs:/app/Logs
             restart: unless-stopped
       EOL
       "

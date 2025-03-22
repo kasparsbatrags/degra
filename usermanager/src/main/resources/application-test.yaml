@@ -28,3 +28,13 @@ springdoc:
   server:
     test:
       url: https://test-api.degra.lv
+
+
+# Logging configuration with relative path
+logging:
+  file:
+    name: Logs/usermanager-test.log
+  level:
+    root: info
+    lv.degra.accounting.company: info
+    org.hibernate.SQL: info
