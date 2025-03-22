@@ -36,3 +36,4 @@
 /target/
 /company-web/.vscode/
 /native/companys/node_modules/
+/usermanager/Logs/usermanager.log

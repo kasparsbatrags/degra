@@ -16,4 +16,4 @@ server:
   # Logging configuration with relative path
   logging:
     file:
-      name: Logs/company-test.log
+      name: /app/Logs/company-test.log

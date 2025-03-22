@@ -334,7 +334,7 @@ usermanager-deploy-prod:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./Logs:/app/logs
+              - ./Logs:/app/Logs
             restart: unless-stopped
       EOL
       "

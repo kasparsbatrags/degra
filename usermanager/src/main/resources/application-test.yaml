@@ -33,7 +33,7 @@ springdoc:
 # Logging configuration with relative path
 logging:
   file:
-    name: Logs/usermanager-test.log
+    name: /app/Logs/usermanager-test.log
   level:
     root: info
     lv.degra.accounting.company: info
