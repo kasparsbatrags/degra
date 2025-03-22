@@ -67,7 +67,7 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new ApiResponse(false, "Failed to create user: " + e.getMessage()));
 		} catch (Exception e) {
-			log.error("Unexpected error during user creation: {}", e.getMessage());
+			log.error("Unexpected error during user creation: {} {}", e.getMessage(), e.getCause());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, "An unexpected error occurred"));
 		}
 	}
