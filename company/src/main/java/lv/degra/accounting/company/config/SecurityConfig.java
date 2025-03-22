@@ -1,5 +1,7 @@
 package lv.degra.accounting.company.config;
 
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -19,7 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.extern.slf4j.Slf4j;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
 
 @Configuration
 @EnableWebSecurity
@@ -29,14 +31,26 @@ public class SecurityConfig {
 
     @Value("${app.security.allowed-origins}")
     private List<String> allowedOrigins;
+    
+    @Value("${keycloak.realm}")
+    private String keycloakRealm;
 
-    @Bean
+	@Value("${spring.profiles.active:}")
+	private String activeProfile;
+
+
+	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(ENDPOINT_COMPANY + "/**")
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable()) // Enable in production
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.csrf(csrf -> {
+					if (!"production".equalsIgnoreCase(activeProfile)) {
+						csrf.disable();
+					}
+				})
             .headers(headers -> headers
-                .frameOptions(frame -> frame.deny())
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 .referrerPolicy(referrer -> referrer
                     .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 .contentSecurityPolicy(csp -> csp
@@ -70,7 +84,7 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withJwkSetUri("https://route.degra.lv/realms/freight-tracking-app-realm/protocol/openid-connect/certs")
+		return NimbusJwtDecoder.withJwkSetUri("https://route.degra.lv/realms/" + keycloakRealm + "/protocol/openid-connect/certs")
 				.build();
 	}
 

@@ -1,11 +1,7 @@
 spring:
-  jpa:
-    show-sql: false
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      maximum-pool-size: 15
+  config:
+    import: optional:classpath:application-shared-${spring.profiles.active}.yaml
+
 server:
   port: 8080
 
@@ -30,4 +26,4 @@ keycloak:
 springdoc:
   server:
     prod:
-      url: https://api.degra.lv
+      url: https://usermanager.degra.lv

@@ -1,9 +1,7 @@
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      maximum-pool-size: 15
+  config:
+    import: optional:classpath:application-shared-${spring.profiles.active}.yaml
+
 server:
   port: 8080
 
@@ -28,13 +26,3 @@ springdoc:
   server:
     test:
       url: https://test-usermanager.degra.lv
-
-
-# Logging configuration with relative path
-logging:
-  file:
-    name: /app/Logs/usermanager-test.log
-  level:
-    root: info
-    lv.degra.accounting.company: info
-    org.hibernate.SQL: info

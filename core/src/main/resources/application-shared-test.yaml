@@ -1,0 +1,20 @@
+spring:
+  jpa:
+    show-sql: false
+  datasource:
+    url: jdbc:postgresql://104.248.195.223:5432/degra_test?currentSchema=public
+    driver-class-name: org.postgresql.Driver
+    username: degra_test
+    password: XHlPqtbx84WZhs6b9it
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 15
+
+# Logging configuration with relative path
+logging:
+  file:
+    name: Logs/company-dev.log
+  level:
+    root: info
+    lv.degra.accounting.company: info
+    org.hibernate.SQL: info
