@@ -12,3 +12,12 @@ spring:
 
 server:
   port: 8085
+
+# Logging configuration with relative path
+logging:
+  file:
+    name: Logs/company-dev.log
+  level:
+    root: debug
+    lv.degra.accounting.company: debug
+    org.hibernate.SQL: debug

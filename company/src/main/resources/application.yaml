@@ -30,3 +30,12 @@ application:
 app:
   security:
     allowed-origins: "*"
+
+# Logging configuration with relative path
+logging:
+  file:
+    name: Logs/company.log
+  level:
+    root: info
+    lv.degra.accounting.company: info
+    org.hibernate.SQL: info

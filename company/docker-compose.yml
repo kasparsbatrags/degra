@@ -18,7 +18,7 @@ services:
     ports:
       - "${APP_PORT}:8085"
     volumes:
-      - ../logs:/logs
+      - ./Logs:/app/Logs
     networks:
       - app-network
     restart: unless-stopped
