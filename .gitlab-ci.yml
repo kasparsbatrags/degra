@@ -178,45 +178,45 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
     
     # Direktoriju struktūras izveidošana un .env faila iestatīšana
-    - |
+    - >-
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
-        cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
-        echo \"$ENV_CONTENT\" > .env"
+      cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
+      echo \"$ENV_CONTENT\" > .env"
 
     # docker-compose.yml faila izveide
-    - |
+    - >-
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
-        cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
-        cat > docker-compose.yml << 'EOL'
-        services:
-          $SERVICE_NAME:
-            image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$IMAGE_TAG
-            environment:
-              - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-              - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-              - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-              - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-              - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-              - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-              - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-              - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-              - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-              - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-            ports:
-              - \"\${APP_PORT}:8080\"
-            volumes:
-              - ./Logs:/app/Logs:Z
-            restart: unless-stopped
+      cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
+      cat > docker-compose.yml << 'EOL'
+      services:
+        $SERVICE_NAME:
+          image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$IMAGE_TAG
+          environment:
+            - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+            - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+            - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+            - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+            - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+            - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+            - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+            - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+            - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+            - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+          ports:
+            - \"\${APP_PORT}:8080\"
+          volumes:
+            - ./Logs:/app/Logs:Z
+          restart: unless-stopped
       EOL
       "
     
     # Docker komandu izpilde
-    - |
+    - >-
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
-        cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker-compose pull &&
-        docker-compose up -d
+      cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker-compose pull &&
+      docker-compose up -d
       "
 
 # Automātiska izvietošana testa vidē

@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import lv.degra.accounting.core.company.register.model.CompanyRegister;
+import lv.degra.accounting.core.company.CompanyRegisterMapper;
+import lv.degra.accounting.core.company.register.dto.CompanyRegisterDto;
 import lv.degra.accounting.core.company.register.model.CompanyRegisterRepository;
 
 @Service
@@ -14,8 +15,11 @@ public class CompanyRegisterServiceImpl implements CompanyRegisterService {
 
     private final CompanyRegisterRepository companyRegisterRepository;
 
-    public List<CompanyRegister> findByNameContainingIgnoreCase(String name) {
-        return companyRegisterRepository.findTopByNameContainingIgnoreCase(name);
+    public List<CompanyRegisterDto> findByNameContainingIgnoreCase(String name) {
+        return companyRegisterRepository.findTopByNameContainingIgnoreCase(name)
+				.stream()
+				.map(CompanyRegisterMapper::toDto)
+				.toList();
     }
 
     public boolean existsByRegistrationNumber(String registrationNumber) {

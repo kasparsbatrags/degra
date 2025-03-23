@@ -41,6 +41,7 @@ export default function CompanySearch({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isCompanySelected, setIsCompanySelected] = useState(false);
   
   const inputRef = useRef<TextInput>(null);
   const listRef = useRef<FlatList>(null);
@@ -50,7 +51,8 @@ export default function CompanySearch({
   // Effect for searching with debounce
   useEffect(() => {
     const searchCompaniesAsync = async () => {
-      if (debouncedQuery.length >= 2) {
+      // Only search if no company is selected and query is long enough
+      if (!isCompanySelected && debouncedQuery.length >= 2) {
         setLoading(true);
         setError(null);
         
@@ -74,19 +76,46 @@ export default function CompanySearch({
     };
 
     searchCompaniesAsync();
-  }, [debouncedQuery]);
+  }, [debouncedQuery, isCompanySelected]);
+
+  // Log selection state changes for debugging
+  useEffect(() => {
+    console.log('CompanySearch selection state changed:', { 
+      isCompanySelected, 
+      query, 
+      value 
+    });
+  }, [isCompanySelected, query, value]);
 
   // Sync external value with internal state
   useEffect(() => {
     if (value !== query && value !== undefined) {
       setQuery(value);
+      // If value is empty, reset the selected state
+      if (value === '') {
+        setIsCompanySelected(false);
+      }
     }
   }, [value]);
 
   const handleSelect = useCallback((suggestion: CompanySuggestion) => {
-    onSelect(suggestion.registrationNumber, suggestion.name);
+    // Make sure the registration number is a string, not undefined
+    const regNumber = suggestion.registerNumber || '';
+    
+    // Call the onSelect callback with the registration number and name
+    onSelect(regNumber, suggestion.name);
+    
+    // Update the internal state
     setQuery(suggestion.name);
     setShowSuggestions(false);
+    setIsCompanySelected(true); // Mark that a company has been selected
+    
+    // Log the selection for debugging
+    console.log('Company selected in CompanySearch:', {
+      registrationNumber: regNumber,
+      name: suggestion.name
+    });
+    
     Keyboard.dismiss();
   }, [onSelect]);
 
@@ -95,6 +124,7 @@ export default function CompanySearch({
     setSuggestions([]);
     setShowSuggestions(false);
     setError(null);
+    setIsCompanySelected(false); // Reset selected state when clearing
     inputRef.current?.focus();
   }, []);
 
@@ -123,10 +153,10 @@ export default function CompanySearch({
         selectedIndex === index && styles.selectedSuggestion
       ]}
       onPress={() => handleSelect(item)}
-      accessibilityLabel={`${item.name}, reģistrācijas numurs ${item.registrationNumber}`}
+      accessibilityLabel={`${item.name}, reģistrācijas numurs ${item.registerNumber}`}
       accessibilityRole="button"
     >
-      <Text style={styles.registrationNumber}>{item.registrationNumber}</Text>
+      <Text style={styles.registrationNumber}>{item.registerNumber}</Text>
       <Text style={styles.companyName}>{item.name}</Text>
     </TouchableOpacity>
   ), [handleSelect, selectedIndex]);
@@ -144,7 +174,13 @@ export default function CompanySearch({
           ref={inputRef}
           style={styles.input}
           value={query}
-          onChangeText={setQuery}
+          onChangeText={(text) => {
+            setQuery(text);
+            // If user starts typing, reset the selected state
+            if (isCompanySelected) {
+              setIsCompanySelected(false);
+            }
+          }}
           placeholder={placeholder}
           placeholderTextColor={COLORS.gray}
           onFocus={() => setShowSuggestions(query.length >= 2)}

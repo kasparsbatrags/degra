@@ -70,7 +70,7 @@ export default function RegisterScreen() {
       hasErrors = true;
     }
 
-    if (!formData.organizationRegistrationNumber) {
+    if (!formData.organizationRegistrationNumber || !companyName) {
       newErrors.organizationRegistrationNumber = 'Izvēlieties uzņēmumu';
       hasErrors = true;
     }
@@ -78,10 +78,12 @@ export default function RegisterScreen() {
     if (!formData.password) {
       newErrors.password = 'Ievadiet paroli';
       hasErrors = true;
-    } else if (formData.password.length < 1) {
-      newErrors.password = 'Parolei jābūt vismaz 6 simbolus garai';
-      hasErrors = true;
     }
+	const passwordErrors = validatePassword(formData.password);
+	if (passwordErrors.length > 0) {
+	  newErrors.password = passwordErrors.join('\n');
+	  hasErrors = true;
+	}
 
     if (hasErrors) {
       setFormErrors(newErrors);
@@ -110,7 +112,30 @@ export default function RegisterScreen() {
     }
   };
 
-  const handleLogin = () => {
+	const validatePassword = (password: string): string[] => {
+		const errors: string[] = [];
+
+		if (password.length < 8) {
+			errors.push('Parolei jābūt vismaz 8 simbolus garai');
+		}
+		if (!/[A-Z]/.test(password)) {
+			errors.push('Parolei jāietver vismaz viens lielais burts');
+		}
+		if (!/\d/.test(password)) {
+			errors.push('Parolei jāietver vismaz viens cipars');
+		}
+		if (!/[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\;/]/.test(password)) {
+			errors.push('Parolei jāietver vismaz viens speciālais simbols');
+		}
+		if (errors.length>0) {
+			errors.push('Piemēram: 3.Augusts');
+		}
+		return errors;
+	};
+
+
+
+	const handleLogin = () => {
     router.replace('/(auth)/login');
   };
 

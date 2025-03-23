@@ -91,6 +91,11 @@ export const signIn = async (email: string, password: string) => {
       throw new Error(response.data.message || "Pieteikšanās kļūda");
     }
 
+    if (!response.data.data) {
+      console.error("Login response data is null or undefined:", response.data);
+      throw new Error("Neizdevās saņemt autentifikācijas datus no servera");
+    }
+
     const session = response.data.data;
     const userInfo = decodeJwt(session.access_token);
 
@@ -234,7 +239,7 @@ export const updateFreightStatus = async (id: string, status: string) => {
 };
 
 export interface CompanySuggestion {
-  registrationNumber: string;
+  registerNumber: string;
   name: string;
 }
 
