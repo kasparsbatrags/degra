@@ -170,28 +170,19 @@ company-docker-build:
     - echo "Setting up SSH key..."
     - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
     - chmod 600 /root/.ssh/id_rsa
-    
-    # Check SSH key format
     - echo "Checking SSH key format..."
     - ssh-keygen -l -f /root/.ssh/id_rsa || echo "WARNING: SSH key format may be invalid"
     - ls -la /root/.ssh
     - echo "SSH key setup complete"
-    
-    # Add known hosts to avoid host key verification prompt
     - echo "Adding known hosts..."
     - touch /root/.ssh/known_hosts
     - chmod 600 /root/.ssh/known_hosts
-    
-    # Debug SSH configuration
     - echo "SSH client configuration:"
     - ssh -V
 
   script:
-    # Debug all environment variables
     - echo "Debugging all environment variables:"
     - env | sort
-    
-    # Determine environment from CI_COMMIT_REF_NAME
     - |
       if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
         export ENVIRONMENT="test"
@@ -207,30 +198,18 @@ company-docker-build:
         echo "Unknown branch: $CI_COMMIT_REF_NAME"
         exit 1
       fi
-    
-    # Debug environment variables
     - echo "ENVIRONMENT=$ENVIRONMENT"
-    
-    # Debug the set variables
     - echo "SERVER=$SERVER"
     - echo "SERVER_USER=$SERVER_USER"
-    
-    # Validate variables are set
     - |
       if [ -z "$SERVER" ] || [ -z "$SERVER_USER" ]; then
         echo "ERROR: SERVER or SERVER_USER variables are not set correctly!"
         exit 1
       fi
-
-    # Test SSH connection with verbose output
     - echo "Testing SSH connection..."
     - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "echo SSH connection successful"
-    
-    # Create directory and set up environment
     - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
     - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
-
-    # Create docker-compose.yml file
     - |
       ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
@@ -256,8 +235,6 @@ company-docker-build:
           restart: unless-stopped
       EOL
       "
-
-    # Deploy the service
     - |
       ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
