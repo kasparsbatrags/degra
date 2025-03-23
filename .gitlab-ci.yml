@@ -164,84 +164,66 @@ company-docker-build:
 
 .deploy-template: &deploy-template
   image: docker:20
-  before_script:
-    - apk add --no-cache openssh-client bash openssh
-    - mkdir -p /root/.ssh
-    - echo "Setting up SSH key..."
-    - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
-    - chmod 600 /root/.ssh/id_rsa
-    - echo "Checking SSH key format..."
-    - ssh-keygen -l -f /root/.ssh/id_rsa || echo "WARNING: SSH key format may be invalid"
-    - ls -la /root/.ssh
-    - echo "SSH key setup complete"
-    - echo "Adding known hosts..."
-    - touch /root/.ssh/known_hosts
-    - chmod 600 /root/.ssh/known_hosts
-    - echo "SSH client configuration:"
-    - ssh -V
+  before_script: apk add --no-cache openssh-client bash openssh && mkdir -p /root/.ssh && echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa && ssh-keygen -l -f /root/.ssh/id_rsa || echo "WARNING: SSH key format may be invalid" && touch /root/.ssh/known_hosts && chmod 600 /root/.ssh/known_hosts && ssh -V
 
-  script:
-    - echo "Debugging all environment variables:"
-    - env | sort
-    - |
-      if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
-        export ENVIRONMENT="test"
-        export SERVER="$TEST_SERVER"
-        export SERVER_USER="$TEST_SERVER_USER"
-        echo "Using TEST environment variables"
-      elif [ "$CI_COMMIT_REF_NAME" = "master" ]; then
-        export ENVIRONMENT="prod"
-        export SERVER="$PROD_SERVER"
-        export SERVER_USER="$PROD_SERVER_USER"
-        echo "Using PROD environment variables"
-      else
-        echo "Unknown branch: $CI_COMMIT_REF_NAME"
-        exit 1
-      fi
-    - echo "ENVIRONMENT=$ENVIRONMENT"
-    - echo "SERVER=$SERVER"
-    - echo "SERVER_USER=$SERVER_USER"
-    - |
-      if [ -z "$SERVER" ] || [ -z "$SERVER_USER" ]; then
-        echo "ERROR: SERVER or SERVER_USER variables are not set correctly!"
-        exit 1
-      fi
-    - echo "Testing SSH connection..."
-    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "echo SSH connection successful"
-    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
-    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
-    - |
-      ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
-      cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
-      cat > docker-compose.yml << 'EOL'
-      services:
-        $SERVICE_NAME:
-          image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$IMAGE_TAG
-          environment:
-            - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
-            - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
-            - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
-            - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-            - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
-            - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
-            - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
-            - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
-            - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
-            - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
-          ports:
-            - \"\${APP_PORT}:8080\"
-          volumes:
-            - ./Logs:/app/Logs:Z
-          restart: unless-stopped
-      EOL
-      "
-    - |
-      ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
-      cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
-      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      docker-compose pull &&
-      docker-compose up -d
-      "
+  script: |
+    echo "Debugging all environment variables:" &&
+    env | sort &&
+    if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
+      export ENVIRONMENT="test"
+      export SERVER="$TEST_SERVER"
+      export SERVER_USER="$TEST_SERVER_USER"
+      echo "Using TEST environment variables"
+    elif [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+      export ENVIRONMENT="prod"
+      export SERVER="$PROD_SERVER"
+      export SERVER_USER="$PROD_SERVER_USER"
+      echo "Using PROD environment variables"
+    else
+      echo "Unknown branch: $CI_COMMIT_REF_NAME"
+      exit 1
+    fi &&
+    echo "ENVIRONMENT=$ENVIRONMENT" &&
+    echo "SERVER=$SERVER" &&
+    echo "SERVER_USER=$SERVER_USER" &&
+    if [ -z "$SERVER" ] || [ -z "$SERVER_USER" ]; then
+      echo "ERROR: SERVER or SERVER_USER variables are not set correctly!"
+      exit 1
+    fi &&
+    echo "Testing SSH connection..." &&
+    ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "echo SSH connection successful" &&
+    ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME" &&
+    ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env" &&
+    ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+    cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
+    cat > docker-compose.yml << 'EOL'
+    services:
+      $SERVICE_NAME:
+        image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$IMAGE_TAG
+        environment:
+          - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
+          - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
+          - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
+          - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+          - KEYCLOAK_AUTH_SERVER_URL=\${KEYCLOAK_AUTH_SERVER_URL}
+          - KEYCLOAK_REALM=\${KEYCLOAK_REALM}
+          - KEYCLOAK_RESOURCE=\${KEYCLOAK_RESOURCE}
+          - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+          - SPRING_PROFILES_ACTIVE=\${SPRING_PROFILES_ACTIVE}
+          - APP_SECURITY_ALLOWED_ORIGINS=\${APP_SECURITY_ALLOWED_ORIGINS}
+        ports:
+          - \"\${APP_PORT}:8080\"
+        volumes:
+          - ./Logs:/app/Logs:Z
+        restart: unless-stopped
+    EOL
+    " &&
+    ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+    cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
+    docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+    docker-compose pull &&
+    docker-compose up -d
+    "
 
 .deploy-test-template: &deploy-test-template
   <<: *deploy-template
