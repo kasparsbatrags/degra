@@ -10,6 +10,19 @@ spring:
     hikari:
       maximum-pool-size: 15
 
+keycloak:
+  auth-server-url: https://route.degra.lv
+  realm: freight-tracking-app-realm
+  resource: freight-tracking-client
+  credentials:
+    secret: 3Fv47oFkRuqYh2iZDubDJbapzGgdBbGr
+  connection-timeout: 5000
+  read-timeout: 5000
+  use-resource-role-mappings: true
+  bearer-only: true
+  public-client: false
+
+
 # Logging configuration with relative path
 logging:
   file:
