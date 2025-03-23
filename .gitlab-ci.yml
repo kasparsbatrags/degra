@@ -164,18 +164,21 @@ company-docker-build:
 
 .deploy-template: &deploy-template
   image: docker:20
-  script:
+  before_script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
 
-    # Debug - print variables
-    - echo "SERVER_USER=$SERVER_USER"
-    - echo "SERVER=$SERVER"
-    - echo "ENVIRONMENT=$ENVIRONMENT"
-    - echo "SERVICE_NAME=$SERVICE_NAME"
+  script:
+    - export SERVER_VAR_NAME="$(echo "${ENVIRONMENT^^}_SERVER")"
+    - export USER_VAR_NAME="$(echo "${ENVIRONMENT^^}_SERVER_USER")"
+    - export SERVER="${!SERVER_VAR_NAME}"
+    - export SERVER_USER="${!USER_VAR_NAME}"
 
+    - echo "ENVIRONMENT=$ENVIRONMENT"
+    - echo "SERVER=$SERVER"
+    - echo "SERVER_USER=$SERVER_USER"
 
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
