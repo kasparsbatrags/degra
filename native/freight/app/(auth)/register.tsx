@@ -20,14 +20,71 @@ export default function RegisterScreen() {
     organizationRegistrationNumber: '',
     password: '',
   });
+  const [companyName, setCompanyName] = useState('');
+  const [formErrors, setFormErrors] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    organizationRegistrationNumber: '',
+    password: '',
+  });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
 
+  // Function to validate email format
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
-    const emptyFields = Object.entries(formData).filter(([_, value]) => !value);
-    if (emptyFields.length > 0) {
-      Alert.alert('Kļūda', 'Lūdzu, aizpildiet visus laukus');
+    // Reset all errors
+    setFormErrors({
+      email: '',
+      firstName: '',
+      lastName: '',
+      organizationRegistrationNumber: '',
+      password: '',
+    });
+
+    // Validate each field
+    let hasErrors = false;
+    const newErrors = { ...formErrors };
+
+    if (!formData.email) {
+      newErrors.email = 'Lūdzu, ievadiet e-pastu';
+      hasErrors = true;
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Nepareizs e-pasta formāts. Lūdzu, ievadiet derīgu e-pastu.';
+      hasErrors = true;
+    }
+
+    if (!formData.firstName) {
+      newErrors.firstName = 'Ievadiet vārdu';
+      hasErrors = true;
+    }
+
+    if (!formData.lastName) {
+      newErrors.lastName = 'Ievadiet uzvārdu';
+      hasErrors = true;
+    }
+
+    if (!formData.organizationRegistrationNumber) {
+      newErrors.organizationRegistrationNumber = 'Izvēlieties uzņēmumu';
+      hasErrors = true;
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Ievadiet paroli';
+      hasErrors = true;
+    } else if (formData.password.length < 1) {
+      newErrors.password = 'Parolei jābūt vismaz 6 simbolus garai';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setFormErrors(newErrors);
       return;
     }
 
@@ -62,6 +119,14 @@ export default function RegisterScreen() {
       ...prev,
       [field]: value,
     }));
+    
+    // Clear error when user types
+    if (field in formErrors) {
+      setFormErrors(prev => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
   };
 
   return (
@@ -99,6 +164,7 @@ export default function RegisterScreen() {
               placeholder="Ievadiet e-pastu"
               keyboardType="email-address"
               autoCapitalize="none"
+              error={formErrors.email}
             />
 
             <FormInput
@@ -107,6 +173,7 @@ export default function RegisterScreen() {
               onChangeText={(value) => updateFormData('firstName', value)}
               placeholder="Ievadiet vārdu"
               autoCapitalize="words"
+              error={formErrors.firstName}
             />
 
             <FormInput
@@ -115,14 +182,19 @@ export default function RegisterScreen() {
               onChangeText={(value) => updateFormData('lastName', value)}
               placeholder="Ievadiet uzvārdu"
               autoCapitalize="words"
+              error={formErrors.lastName}
             />
 
             <CompanySearch
               label="Uzņēmuma nosaukums"
-              value={formData.organizationRegistrationNumber}
-              onSelect={(value) =>
-                updateFormData('organizationRegistrationNumber', value)
-              }
+              value={companyName}
+              onSelect={(registrationNumber, name) => {
+                updateFormData('organizationRegistrationNumber', registrationNumber);
+                if (name) {
+                  setCompanyName(name);
+                }
+              }}
+              errorMessage={formErrors.organizationRegistrationNumber}
             />
 
             <FormInput
@@ -131,6 +203,7 @@ export default function RegisterScreen() {
               onChangeText={(value) => updateFormData('password', value)}
               placeholder="Ievadiet paroli"
               secureTextEntry
+              error={formErrors.password}
             />
           <Button
             title="Reģistrēties"
