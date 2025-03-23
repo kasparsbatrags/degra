@@ -171,7 +171,8 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
     
     - |
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+      mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
       echo \"$ENV_CONTENT\" > .env"
 
