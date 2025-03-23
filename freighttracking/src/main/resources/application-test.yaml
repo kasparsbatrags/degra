@@ -3,7 +3,7 @@ server:
 
 app:
   security:
-    allowed-origins: "http://localhost:8081"
+    allowed-origins: "*"
 
 spring:
   config:

@@ -1,0 +1,6 @@
+server:
+  port: 8084
+
+  spring:
+    config:
+      import: optional:classpath:application-shared-${spring.profiles.active}.yaml
