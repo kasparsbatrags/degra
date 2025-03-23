@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: company
   jpa:
     show-sql: false
     open-in-view: false

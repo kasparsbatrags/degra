@@ -13,7 +13,7 @@ spring:
 # Logging configuration with relative path
 logging:
   file:
-    name: Logs/company-dev.log
+    name: Logs/${spring.application.name}-test.log
   level:
     root: info
     lv.degra.accounting.company: info

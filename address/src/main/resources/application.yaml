@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: address
 
 springdoc:
   swagger-ui:
