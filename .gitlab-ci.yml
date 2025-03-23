@@ -171,23 +171,29 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
   script:
-    # Debug environment variables
-    - echo "ENVIRONMENT=$ENVIRONMENT"
+    # Debug all environment variables
+    - echo "Debugging all environment variables:"
+    - env | sort
     
-    # Set SERVER and SERVER_USER based on ENVIRONMENT
+    # Determine environment from CI_COMMIT_REF_NAME
     - |
-      if [ "$ENVIRONMENT" = "test" ]; then
+      if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
+        export ENVIRONMENT="test"
         export SERVER="$TEST_SERVER"
         export SERVER_USER="$TEST_SERVER_USER"
         echo "Using TEST environment variables"
-      elif [ "$ENVIRONMENT" = "prod" ]; then
+      elif [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        export ENVIRONMENT="prod"
         export SERVER="$PROD_SERVER"
         export SERVER_USER="$PROD_SERVER_USER"
         echo "Using PROD environment variables"
       else
-        echo "Unknown ENVIRONMENT: $ENVIRONMENT"
+        echo "Unknown branch: $CI_COMMIT_REF_NAME"
         exit 1
       fi
+    
+    # Debug environment variables
+    - echo "ENVIRONMENT=$ENVIRONMENT"
     
     # Debug the set variables
     - echo "SERVER=$SERVER"
