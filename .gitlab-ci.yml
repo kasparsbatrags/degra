@@ -171,16 +171,20 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
   script:
-    - bash -c '
-        export SERVER_VAR_NAME="${ENVIRONMENT^^}_SERVER"
-        export USER_VAR_NAME="${ENVIRONMENT^^}_SERVER_USER"
-        export SERVER="${!SERVER_VAR_NAME}"
-        export SERVER_USER="${!USER_VAR_NAME}"
+    # Set up environment variables
+    - export SERVER_VAR_NAME="${ENVIRONMENT}_SERVER"
+    - export USER_VAR_NAME="${ENVIRONMENT}_SERVER_USER"
+    - export SERVER_VAR_NAME=$(echo $SERVER_VAR_NAME | tr "[:lower:]" "[:upper:]")
+    - export USER_VAR_NAME=$(echo $USER_VAR_NAME | tr "[:lower:]" "[:upper:]")
     
-        echo "ENVIRONMENT=$ENVIRONMENT"
-        echo "SERVER=$SERVER"
-        echo "SERVER_USER=$SERVER_USER"
-      '
+    # Use eval for indirect variable expansion and export the variables
+    - eval export SERVER=\$${SERVER_VAR_NAME}
+    - eval export SERVER_USER=\$${USER_VAR_NAME}
+    
+    # Debug output
+    - echo "ENVIRONMENT=$ENVIRONMENT"
+    - echo "SERVER=$SERVER"
+    - echo "SERVER_USER=$SERVER_USER"
 
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
