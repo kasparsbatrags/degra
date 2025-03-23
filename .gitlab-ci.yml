@@ -165,10 +165,26 @@ company-docker-build:
 .deploy-template: &deploy-template
   image: docker:20
   before_script:
-    - apk add --no-cache openssh-client bash
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
+    - apk add --no-cache openssh-client bash openssh
+    - mkdir -p /root/.ssh
+    - echo "Setting up SSH key..."
+    - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+    - chmod 600 /root/.ssh/id_rsa
+    
+    # Check SSH key format
+    - echo "Checking SSH key format..."
+    - ssh-keygen -l -f /root/.ssh/id_rsa || echo "WARNING: SSH key format may be invalid"
+    - ls -la /root/.ssh
+    - echo "SSH key setup complete"
+    
+    # Add known hosts to avoid host key verification prompt
+    - echo "Adding known hosts..."
+    - touch /root/.ssh/known_hosts
+    - chmod 600 /root/.ssh/known_hosts
+    
+    # Debug SSH configuration
+    - echo "SSH client configuration:"
+    - ssh -V
 
   script:
     # Debug all environment variables
@@ -206,11 +222,17 @@ company-docker-build:
         exit 1
       fi
 
-    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
-    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
+    # Test SSH connection with verbose output
+    - echo "Testing SSH connection..."
+    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "echo SSH connection successful"
+    
+    # Create directory and set up environment
+    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
+    - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
 
+    # Create docker-compose.yml file
     - |
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+      ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
       cat > docker-compose.yml << 'EOL'
       services:
@@ -235,8 +257,9 @@ company-docker-build:
       EOL
       "
 
+    # Deploy the service
     - |
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+      ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
       docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
       docker-compose pull &&
