@@ -173,6 +173,23 @@ company-docker-build:
   script:
     # Debug environment variables
     - echo "ENVIRONMENT=$ENVIRONMENT"
+    
+    # Set SERVER and SERVER_USER based on ENVIRONMENT
+    - |
+      if [ "$ENVIRONMENT" = "test" ]; then
+        export SERVER="$TEST_SERVER"
+        export SERVER_USER="$TEST_SERVER_USER"
+        echo "Using TEST environment variables"
+      elif [ "$ENVIRONMENT" = "prod" ]; then
+        export SERVER="$PROD_SERVER"
+        export SERVER_USER="$PROD_SERVER_USER"
+        echo "Using PROD environment variables"
+      else
+        echo "Unknown ENVIRONMENT: $ENVIRONMENT"
+        exit 1
+      fi
+    
+    # Debug the set variables
     - echo "SERVER=$SERVER"
     - echo "SERVER_USER=$SERVER_USER"
     
@@ -226,8 +243,6 @@ company-docker-build:
   variables:
     ENVIRONMENT: "test"
     SSH_PRIVATE_KEY: $TEST_SSH_PRIVATE_KEY
-    SERVER_USER: $TEST_SERVER_USER
-    SERVER: $TEST_SERVER
     IMAGE_TAG: $CI_COMMIT_REF_SLUG
   rules:
     - if: '$CI_COMMIT_BRANCH == "test"'
@@ -269,8 +284,6 @@ company-deploy-test:
   variables:
     ENVIRONMENT: "prod"
     SSH_PRIVATE_KEY: $PROD_SSH_PRIVATE_KEY
-    SERVER_USER: $PROD_SERVER_USER
-    SERVER: $PROD_SERVER
     IMAGE_TAG: "latest"
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
