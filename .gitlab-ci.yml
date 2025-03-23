@@ -171,14 +171,16 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
   script:
-    - export SERVER_VAR_NAME="$(echo "${ENVIRONMENT^^}_SERVER")"
-    - export USER_VAR_NAME="$(echo "${ENVIRONMENT^^}_SERVER_USER")"
-    - export SERVER="${!SERVER_VAR_NAME}"
-    - export SERVER_USER="${!USER_VAR_NAME}"
-
-    - echo "ENVIRONMENT=$ENVIRONMENT"
-    - echo "SERVER=$SERVER"
-    - echo "SERVER_USER=$SERVER_USER"
+    - bash -c '
+        export SERVER_VAR_NAME="${ENVIRONMENT^^}_SERVER"
+        export USER_VAR_NAME="${ENVIRONMENT^^}_SERVER_USER"
+        export SERVER="${!SERVER_VAR_NAME}"
+        export SERVER_USER="${!USER_VAR_NAME}"
+    
+        echo "ENVIRONMENT=$ENVIRONMENT"
+        echo "SERVER=$SERVER"
+        echo "SERVER_USER=$SERVER_USER"
+      '
 
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
