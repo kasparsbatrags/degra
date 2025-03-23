@@ -1,6 +1,6 @@
 import {Link, useRouter} from 'expo-router'
 import {useState} from 'react'
-import {Alert, Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
@@ -21,37 +21,62 @@ export default function LoginScreen() {
     password: "",
   });
   const router = useRouter();
-
-  const handleLogin = async () => {
-    setFormErrors({ email: "", password: "" });
-    
-    if (form.email === "" || form.password === "") {
-      setFormErrors({
-        email: form.email === "" ? "Lūdzu, ievadiet e-pastu" : "",
-        password: form.password === "" ? "Lūdzu, ievadiet paroli" : "",
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await signIn(form.email, form.password);
-    } catch (error: any) {
-      if (error.message?.includes("Invalid credentials") || error.message === "Nepareizs e-pasts vai parole") {
-        setFormErrors({
-          email: "",
-          password: "Nepareiza parole. Lūdzu, pārbaudiet un mēģiniet vēlreiz.",
-        });
-      } else {
-        Alert.alert(
-          "Kļūda",
-          error.message || "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
+  
+  // Function to validate email format
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
+
+	const handleLogin = async () => {
+		setFormErrors({ email: "", password: "" });
+
+		const { email, password } = form;
+		let emailError = "";
+		let passwordError = "";
+
+		if (!email) emailError = "Lūdzu, ievadiet e-pastu";
+		if (!password) passwordError = "Lūdzu, ievadiet paroli";
+
+		if (emailError || passwordError) {
+			setFormErrors({ email: emailError, password: passwordError });
+			return;
+		}
+
+		if (!isValidEmail(email)) {
+			setFormErrors({
+				email: "Nepareizs e-pasta formāts. Lūdzu, ievadiet derīgu e-pastu.",
+				password: "",
+			});
+			return;
+		}
+
+		try {
+			setLoading(true);
+			await signIn(email, password);
+		} catch (error: any) {
+			const message = error.message || "";
+
+			if (message.includes("Invalid credentials") || message === "Nepareizs e-pasts vai parole") {
+				setFormErrors({
+					email: "",
+					password: "Nepareiza parole. Lūdzu, pārbaudiet un mēģiniet vēlreiz.",
+				});
+			} else if (message.includes("Invalid email or password")) {
+				setFormErrors({
+					email: "",
+					password: "Nepareizs e-pasts vai parole. Lūdzu, pārbaudiet un mēģiniet vēlreiz.",
+				});
+			} else {
+				setFormErrors({
+					email: "",
+					password: "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz.",
+				});
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
 
   return (
     <SafeAreaView style={styles.container}>
