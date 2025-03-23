@@ -171,20 +171,33 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
   script:
-    # Set up environment variables
-    - export SERVER_VAR_NAME="${ENVIRONMENT}_SERVER"
-    - export USER_VAR_NAME="${ENVIRONMENT}_SERVER_USER"
-    - export SERVER_VAR_NAME=$(echo $SERVER_VAR_NAME | tr "[:lower:]" "[:upper:]")
-    - export USER_VAR_NAME=$(echo $USER_VAR_NAME | tr "[:lower:]" "[:upper:]")
-    
-    # Use eval for indirect variable expansion and export the variables
-    - eval export SERVER=\$${SERVER_VAR_NAME}
-    - eval export SERVER_USER=\$${USER_VAR_NAME}
-    
-    # Debug output
+    # Set up environment variables with more direct approach
     - echo "ENVIRONMENT=$ENVIRONMENT"
+    
+    # For test environment
+    - |
+      if [ "$ENVIRONMENT" = "test" ]; then
+        export SERVER=$TEST_SERVER
+        export SERVER_USER=$TEST_SERVER_USER
+        echo "Using TEST environment variables"
+      fi
+    
+    # For prod environment
+    - |
+      if [ "$ENVIRONMENT" = "prod" ]; then
+        export SERVER=$PROD_SERVER
+        export SERVER_USER=$PROD_SERVER_USER
+        echo "Using PROD environment variables"
+      fi
+    
+    # Validate variables are set
     - echo "SERVER=$SERVER"
     - echo "SERVER_USER=$SERVER_USER"
+    - |
+      if [ -z "$SERVER" ] || [ -z "$SERVER_USER" ]; then
+        echo "ERROR: SERVER or SERVER_USER variables are not set correctly!"
+        exit 1
+      fi
 
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME"
     - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && echo \"$ENV_CONTENT\" > .env"
