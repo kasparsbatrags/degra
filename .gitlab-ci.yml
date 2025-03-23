@@ -15,14 +15,12 @@ variables:
 services:
   - docker:20-dind
 
-# Kopīgais skripts, kas tiks izmantots vairākos darbos
 .maven-setup: &maven-setup
   image: maven:3.9.5-eclipse-temurin-21
   cache:
     paths:
       - .m2/repository
 
-# Qodana koda kvalitātes pārbaude
 qodana:
   stage: test
   image:
@@ -38,7 +36,6 @@ qodana:
     - merge_requests
   when: manual
 
-# Testēšanas darbi
 usermanager-test:
   <<: *maven-setup
   stage: test
@@ -57,7 +54,6 @@ company-test:
     reports:
       junit: company/target/surefire-reports/TEST-*.xml
 
-# SonarCloud integrācija
 sonarcloud-check:
   stage: test
   image: maven:3.9.5-eclipse-temurin-21
@@ -70,8 +66,6 @@ sonarcloud-check:
     - develop
   when: manual
 
-# Būvēšanas darbi
-# Core moduļa būvēšana
 core-build:
   <<: *maven-setup
   stage: build
@@ -168,7 +162,6 @@ company-docker-build:
     - test
     - master
 
-# Kopīgs deploy šablons
 .deploy-template: &deploy-template
   image: docker:20
   script:
@@ -177,14 +170,12 @@ company-docker-build:
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     
-    # Direktoriju struktūras izveidošana un .env faila iestatīšana
-    - >-
+    - |
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME && 
       echo \"$ENV_CONTENT\" > .env"
 
-    # docker-compose.yml faila izveide
-    - >-
+    - |
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
       cat > docker-compose.yml << 'EOL'
@@ -210,8 +201,7 @@ company-docker-build:
       EOL
       "
     
-    # Docker komandu izpilde
-    - >-
+    - |
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
       cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
       docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
@@ -219,9 +209,6 @@ company-docker-build:
       docker-compose up -d
       "
 
-# Automātiska izvietošana testa vidē
-
-# Testa vides deploy šablons
 .deploy-test-template: &deploy-test-template
   <<: *deploy-template
   stage: deploy-test
@@ -237,7 +224,6 @@ company-docker-build:
     - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
       when: never
 
-# Konkrēto servisu deploy darbi testa vidē
 usermanager-deploy-test:
   <<: *deploy-test-template
   needs:
@@ -250,7 +236,7 @@ usermanager-deploy-test:
     - usermanager-docker-build
   environment:
     name: test-usermanager
-    url: https://test.degra.lv/usermanager
+    url: https://test-usermanager.degra.lv
 
 company-deploy-test:
   <<: *deploy-test-template
@@ -264,9 +250,8 @@ company-deploy-test:
     - company-docker-build
   environment:
     name: test-company
-    url: https://test.degra.lv/company
+    url: https://test-company.degra.lv
 
-# Produkcijas vides deploy šablons
 .deploy-prod-template: &deploy-prod-template
   <<: *deploy-template
   stage: deploy-prod
@@ -280,7 +265,6 @@ company-deploy-test:
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
 
-# Konkrēto servisu deploy darbi produkcijas vidē
 usermanager-deploy-prod:
   <<: *deploy-prod-template
   needs:
@@ -293,7 +277,7 @@ usermanager-deploy-prod:
     - usermanager-docker-build
   environment:
     name: production-usermanager
-    url: https://degra.lv/usermanager
+    url: https://usermanager.degra.lv
 
 company-deploy-prod:
   <<: *deploy-prod-template
@@ -307,4 +291,4 @@ company-deploy-prod:
     - company-docker-build
   environment:
     name: production-company
-    url: https://degra.lv/company
+    url: https://company.degra.lv
