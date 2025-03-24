@@ -74,44 +74,51 @@ export default function RegisterScreen() {
       fuelConsumptionNorm: '',
     });
 
-    // Validate each field
-    let hasErrors = false;
+    // Validate basic data fields first
+    let hasBasicErrors = false;
     const newErrors = { ...formErrors };
 
     if (!formData.email) {
       newErrors.email = 'Lūdzu, ievadiet e-pastu';
-      hasErrors = true;
+      hasBasicErrors = true;
     } else if (!isValidEmail(formData.email)) {
       newErrors.email = 'Nepareizs e-pasta formāts. Lūdzu, ievadiet derīgu e-pastu.';
-      hasErrors = true;
+      hasBasicErrors = true;
     }
 
     if (!formData.firstName) {
       newErrors.firstName = 'Ievadiet vārdu';
-      hasErrors = true;
+      hasBasicErrors = true;
     }
 
     if (!formData.lastName) {
       newErrors.lastName = 'Ievadiet uzvārdu';
-      hasErrors = true;
+      hasBasicErrors = true;
     }
 
     if (!formData.organizationRegistrationNumber || !companyName) {
       newErrors.organizationRegistrationNumber = 'Izvēlieties uzņēmumu';
-      hasErrors = true;
+      hasBasicErrors = true;
     }
 
     if (!formData.password) {
       newErrors.password = 'Ievadiet paroli';
-      hasErrors = true;
+      hasBasicErrors = true;
     }
 	const passwordErrors = validatePassword(formData.password);
 	if (passwordErrors.length > 0) {
 	  newErrors.password = passwordErrors.join('\n');
-	  hasErrors = true;
+	  hasBasicErrors = true;
 	}
 
-    // Validate truck data fields
+    // If there are errors in basic data, show them and stay on the basic tab
+    if (hasBasicErrors) {
+      setFormErrors(newErrors);
+      setActiveTab('basic');
+      return;
+    }
+
+    // If basic data is valid, validate truck data fields
     let hasTruckErrors = false;
     
     if (!formData.truckMaker) {
@@ -134,14 +141,10 @@ export default function RegisterScreen() {
       hasTruckErrors = true;
     }
 
-    if (hasErrors || hasTruckErrors) {
+    // If there are errors in truck data, show them and switch to the truck tab
+    if (hasTruckErrors) {
       setFormErrors(newErrors);
-      
-      // If there are truck errors, switch to the truck tab
-      if (hasTruckErrors) {
-        setActiveTab('truck');
-      }
-      
+      setActiveTab('truck');
       return;
     }
 
