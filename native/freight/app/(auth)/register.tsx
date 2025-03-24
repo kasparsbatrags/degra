@@ -1,6 +1,19 @@
 import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
-import {Alert, Dimensions, Image, ImageStyle, Platform, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle,} from 'react-native'
+import {
+	Alert,
+	Dimensions,
+	Image,
+	ImageStyle,
+	Platform,
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TextStyle,
+	View,
+	ViewStyle,
+} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
@@ -31,7 +44,12 @@ export default function RegisterScreen() {
     lastName: '',
     organizationRegistrationNumber: '',
     password: '',
+    truckMaker: '',
+    truckModel: '',
+    truckRegistrationNumber: '',
+    fuelConsumptionNorm: '',
   });
+  const [activeTab, setActiveTab] = useState<'basic' | 'truck'>('basic');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
@@ -50,6 +68,10 @@ export default function RegisterScreen() {
       lastName: '',
       organizationRegistrationNumber: '',
       password: '',
+      truckMaker: '',
+      truckModel: '',
+      truckRegistrationNumber: '',
+      fuelConsumptionNorm: '',
     });
 
     // Validate each field
@@ -89,8 +111,37 @@ export default function RegisterScreen() {
 	  hasErrors = true;
 	}
 
-    if (hasErrors) {
+    // Validate truck data fields
+    let hasTruckErrors = false;
+    
+    if (!formData.truckMaker) {
+      newErrors.truckMaker = 'Ievadiet kravas auto ražotāju';
+      hasTruckErrors = true;
+    }
+    
+    if (!formData.truckModel) {
+      newErrors.truckModel = 'Ievadiet kravas auto modeli';
+      hasTruckErrors = true;
+    }
+    
+    if (!formData.truckRegistrationNumber) {
+      newErrors.truckRegistrationNumber = 'Ievadiet reģistrācijas numuru';
+      hasTruckErrors = true;
+    }
+    
+    if (!formData.fuelConsumptionNorm) {
+      newErrors.fuelConsumptionNorm = 'Ievadiet degvielas patēriņa normu';
+      hasTruckErrors = true;
+    }
+
+    if (hasErrors || hasTruckErrors) {
       setFormErrors(newErrors);
+      
+      // If there are truck errors, switch to the truck tab
+      if (hasTruckErrors) {
+        setActiveTab('truck');
+      }
+      
       return;
     }
 
@@ -183,90 +234,116 @@ export default function RegisterScreen() {
             Izveidojiet jaunu kontu, lai sāktu lietot sistēmu
           </Text>
 
-          <FormInput
-              label="E-pasts"
-              value={formData.email}
-              onChangeText={(value) => {
-                updateFormData('email', value);
-                updateFormData('username', value);
-              }}
-              placeholder="Ievadiet e-pastu"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={formErrors.email}
-            />
+          {/* Tab buttons */}
+          <View style={styles.tabContainer}>
+            <Pressable
+              style={[styles.tabButton, activeTab === 'basic' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('basic')}
+            >
+              <Text style={[styles.tabText, activeTab === 'basic' && styles.tabTextActive]}>Pamatdati</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.tabButton, activeTab === 'truck' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('truck')}
+            >
+              <Text style={[styles.tabText, activeTab === 'truck' && styles.tabTextActive]}>Auto dati</Text>
+            </Pressable>
+          </View>
 
-            <FormInput
-              label="Vārds"
-              value={formData.firstName}
-              onChangeText={(value) => updateFormData('firstName', value)}
-              placeholder="Ievadiet vārdu"
-              autoCapitalize="words"
-              error={formErrors.firstName}
-            />
+          {/* Basic data tab */}
+          {activeTab === 'basic' && (
+            <View style={styles.tabContent}>
+              <FormInput
+                label="E-pasts"
+                value={formData.email}
+                onChangeText={(value) => {
+                  updateFormData('email', value);
+                  updateFormData('username', value);
+                }}
+                placeholder="Ievadiet e-pastu"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={formErrors.email}
+              />
 
-            <FormInput
-              label="Uzvārds"
-              value={formData.lastName}
-              onChangeText={(value) => updateFormData('lastName', value)}
-              placeholder="Ievadiet uzvārdu"
-              autoCapitalize="words"
-              error={formErrors.lastName}
-            />
+              <FormInput
+                label="Vārds"
+                value={formData.firstName}
+                onChangeText={(value) => updateFormData('firstName', value)}
+                placeholder="Ievadiet vārdu"
+                autoCapitalize="words"
+                error={formErrors.firstName}
+              />
 
-            <CompanySearch
-              label="Uzņēmuma nosaukums"
-              value={companyName}
-              onSelect={(registrationNumber, name) => {
-                updateFormData('organizationRegistrationNumber', registrationNumber);
-                if (name) {
-                  setCompanyName(name);
-                }
-              }}
-              errorMessage={formErrors.organizationRegistrationNumber}
-            />
+              <FormInput
+                label="Uzvārds"
+                value={formData.lastName}
+                onChangeText={(value) => updateFormData('lastName', value)}
+                placeholder="Ievadiet uzvārdu"
+                autoCapitalize="words"
+                error={formErrors.lastName}
+              />
 
-            <FormInput
-              label="Parole"
-              value={formData.password}
-              onChangeText={(value) => updateFormData('password', value)}
-              placeholder="Ievadiet paroli"
-              secureTextEntry
-              error={formErrors.password}
-            />
+              <CompanySearch
+                label="Uzņēmuma nosaukums"
+                value={companyName}
+                onSelect={(registrationNumber, name) => {
+                  updateFormData('organizationRegistrationNumber', registrationNumber);
+                  if (name) {
+                    setCompanyName(name);
+                  }
+                }}
+                errorMessage={formErrors.organizationRegistrationNumber}
+              />
 
-            <Text style={[styles.subtitle, { marginTop: 20, marginBottom: 10 }]}>
-              Kravas auto informācija (neobligāti)
-            </Text>
+              <FormInput
+                label="Parole"
+                value={formData.password}
+                onChangeText={(value) => updateFormData('password', value)}
+                placeholder="Ievadiet paroli"
+                secureTextEntry
+                error={formErrors.password}
+              />
+            </View>
+          )}
 
-            <FormInput
-              label="Kravas auto ražotājs"
-              value={formData.truckMaker || ''}
-              onChangeText={(value) => updateFormData('truckMaker', value)}
-              placeholder="Ievadiet ražotāju"
-            />
+          {/* Truck data tab */}
+          {activeTab === 'truck' && (
+            <View style={styles.tabContent}>
+              <FormInput
+                label="Kravas auto ražotājs"
+                value={formData.truckMaker}
+                onChangeText={(value) => updateFormData('truckMaker', value)}
+                placeholder="Ievadiet ražotāju"
+                error={formErrors.truckMaker}
+              />
 
-            <FormInput
-              label="Kravas auto modelis"
-              value={formData.truckModel || ''}
-              onChangeText={(value) => updateFormData('truckModel', value)}
-              placeholder="Ievadiet modeli"
-            />
+              <FormInput
+                label="Kravas auto modelis"
+                value={formData.truckModel}
+                onChangeText={(value) => updateFormData('truckModel', value)}
+                placeholder="Ievadiet modeli"
+                error={formErrors.truckModel}
+              />
 
-            <FormInput
-              label="Reģistrācijas numurs"
-              value={formData.truckRegistrationNumber || ''}
-              onChangeText={(value) => updateFormData('truckRegistrationNumber', value)}
-              placeholder="Ievadiet reģistrācijas numuru"
-            />
+              <FormInput
+                label="Reģistrācijas numurs"
+                value={formData.truckRegistrationNumber}
+                onChangeText={(value) => updateFormData('truckRegistrationNumber', value)}
+                placeholder="Ievadiet reģistrācijas numuru"
+                error={formErrors.truckRegistrationNumber}
+              />
 
-            <FormInput
-              label="Degvielas patēriņa norma (l/100km)"
-              value={formData.fuelConsumptionNorm || ''}
-              onChangeText={(value) => updateFormData('fuelConsumptionNorm', value)}
-              placeholder="Ievadiet degvielas patēriņa normu"
-              keyboardType="numeric"
-            />
+              <FormInput
+                label="Degvielas patēriņa norma (l/100km)"
+                value={formData.fuelConsumptionNorm}
+                onChangeText={(value) => updateFormData('fuelConsumptionNorm', value)}
+                placeholder="Ievadiet degvielas patēriņa normu"
+                keyboardType="numeric"
+                error={formErrors.fuelConsumptionNorm}
+              />
+            </View>
+          )}
           <Button
             title="Reģistrēties"
             onPress={handleRegister}
@@ -294,6 +371,12 @@ type Styles = {
   subtitle: TextStyle;
   registerButton: ViewStyle;
   loginButton: ViewStyle;
+  tabContainer: ViewStyle;
+  tabButton: ViewStyle;
+  tabButtonActive: ViewStyle;
+  tabText: TextStyle;
+  tabTextActive: TextStyle;
+  tabContent: ViewStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -346,5 +429,45 @@ const styles = StyleSheet.create<Styles>({
   },
   loginButton: {
     marginTop: 16,
+  },
+  tabContainer: Platform.OS === 'web' ? {
+    flexDirection: 'row',
+    marginBottom: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: COLORS.black200,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  } : {
+    flexDirection: 'row',
+    marginBottom: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: COLORS.black200,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  tabButtonActive: Platform.OS === 'web' ? {
+    backgroundColor: COLORS.secondary,
+  } : {
+    backgroundColor: COLORS.secondary,
+  },
+  tabText: {
+    fontSize: 14,
+    fontFamily: FONT.medium,
+    color: COLORS.gray,
+  },
+  tabTextActive: {
+    color: COLORS.white,
+    fontFamily: FONT.semiBold,
+  },
+  tabContent: {
+    paddingTop: 8,
   },
 });

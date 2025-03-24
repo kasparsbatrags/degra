@@ -13,8 +13,8 @@ export interface UserRegistrationData {
   lastName: string;
   organizationRegistrationNumber: string;
   password: string;
-  truckMaker?: string;
-  truckModel?: string;
-  truckRegistrationNumber?: string;
-  fuelConsumptionNorm?: string;
+  truckMaker: string;
+  truckModel: string;
+  truckRegistrationNumber: string;
+  fuelConsumptionNorm: string;
 }
