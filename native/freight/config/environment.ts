@@ -23,7 +23,7 @@ export const ENV: Config = {
     androidUrl: 'http://10.0.2.2:8080',
     iosUrl: 'http://localhost:8080',
     webUrl: 'http://localhost:8080',
-    companyApiUrl: 'http://localhost:8085',
+    companyApiUrl: 'https://test-company.degra.lv',
     freightTrackingApiUrl: 'http://localhost:8084',
     androidFreightTrackingUrl: 'http://10.0.2.2:8084',
     iosFreightTrackingUrl: 'http://localhost:8084',
@@ -54,7 +54,7 @@ export const getUserManagerApiUrl = (): string => {
       case 'ios':
         return ENV.dev.iosUrl;
       case 'web':
-        return ENV.dev.webUrl;
+        return ENV.dev.userManagerApiUrl;
       default:
         return ENV.dev.userManagerApiUrl;
     }
