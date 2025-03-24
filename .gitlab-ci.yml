@@ -197,18 +197,18 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
     - |      
-      ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER << EOF
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         echo "$TEST_ENV_USERMANAGER" > .env
       EOF
     - |
-      ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/test/usermanager &&
         cat > docker-compose.yml << 'EOL'
         services:
         usermanager:
-          image: $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG
+          image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_REF_SLUG
           environment:
             - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
             - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
@@ -228,8 +228,8 @@ company-docker-build:
       EOL
       "
       - |
-      ssh -o StrictHostKeyChecking=no $TEST_SERVER_USER@$TEST_SERVER "
-        cd /home/dockeruser/degra/test/usermanager &&
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+        cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
         docker-compose up -d
