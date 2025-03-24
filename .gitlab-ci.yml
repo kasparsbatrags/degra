@@ -197,13 +197,13 @@ company-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
     - |      
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER << EOF
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         echo "$TEST_ENV_USERMANAGER" > .env
       EOF
     - |
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cat > docker-compose.yml << 'EOL'
         services:
@@ -228,7 +228,7 @@ company-docker-build:
       EOL
       "
       - |
-      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER "
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
