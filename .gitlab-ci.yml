@@ -164,7 +164,6 @@ company-docker-build:
 
 .deploy-template: &deploy-template
   image: docker:20
-  before_script: apk add --no-cache openssh-client bash openssh && mkdir -p /root/.ssh && echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa && ssh-keygen -l -f /root/.ssh/id_rsa || echo "WARNING: SSH key format may be invalid" && touch /root/.ssh/known_hosts && chmod 600 /root/.ssh/known_hosts && ssh -V
 
   script: |
     echo "Debugging all environment variables:" &&
