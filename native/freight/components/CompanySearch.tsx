@@ -112,7 +112,7 @@ export default function CompanySearch({
     
     // Log the selection for debugging
     console.log('Company selected in CompanySearch:', {
-      registrationNumber: regNumber,
+      registerNumber: regNumber,
       name: suggestion.name
     });
     
@@ -218,7 +218,7 @@ export default function CompanySearch({
                   <FlatList
                     ref={listRef}
                     data={suggestions}
-                    keyExtractor={(item) => item.registrationNumber}
+                    keyExtractor={(item) => item.registerNumber}
                     renderItem={renderSuggestionItem}
                     style={styles.suggestionsList}
                     keyboardShouldPersistTaps="handled"

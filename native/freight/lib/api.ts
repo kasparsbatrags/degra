@@ -2,29 +2,13 @@ import {Buffer} from 'buffer'
 import axiosInstance from '../config/axios'
 import companyAxiosInstance from '../config/companyAxios'
 import {API_ENDPOINTS} from '../config/environment'
+import {UserInfo, UserRegistrationData} from '../types/auth'
 import {clearSession, loadSession, saveSession} from '../utils/sessionUtils'
-
-interface UserRegistrationData {
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  organizationRegistrationNumber: string;
-  password: string;
-}
 
 interface UserLoginResponse {
   access_token: string;
   refresh_token: string;
   expires_in: number;
-}
-
-interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  firstName: string;
-  lastName: string;
 }
 
 export const decodeJwt = (token: string): any | null => {
@@ -57,6 +41,10 @@ export const createUser = async (data: UserRegistrationData) => {
       lastName: data.lastName,
       attributes: {
         organizationRegistrationNumber: data.organizationRegistrationNumber,
+        ...(data.truckMaker && { truckMaker: data.truckMaker }),
+        ...(data.truckModel && { truckModel: data.truckModel }),
+        ...(data.truckRegistrationNumber && { truckRegistrationNumber: data.truckRegistrationNumber }),
+        ...(data.fuelConsumptionNorm && { fuelConsumptionNorm: data.fuelConsumptionNorm }),
       },
       credentials: [
         {

@@ -19,6 +19,10 @@ export default function RegisterScreen() {
     lastName: '',
     organizationRegistrationNumber: '',
     password: '',
+    truckMaker: '',
+    truckModel: '',
+    truckRegistrationNumber: '',
+    fuelConsumptionNorm: '',
   });
   const [companyName, setCompanyName] = useState('');
   const [formErrors, setFormErrors] = useState({
@@ -229,6 +233,39 @@ export default function RegisterScreen() {
               placeholder="Ievadiet paroli"
               secureTextEntry
               error={formErrors.password}
+            />
+
+            <Text style={[styles.subtitle, { marginTop: 20, marginBottom: 10 }]}>
+              Kravas auto informācija (neobligāti)
+            </Text>
+
+            <FormInput
+              label="Kravas auto ražotājs"
+              value={formData.truckMaker || ''}
+              onChangeText={(value) => updateFormData('truckMaker', value)}
+              placeholder="Ievadiet ražotāju"
+            />
+
+            <FormInput
+              label="Kravas auto modelis"
+              value={formData.truckModel || ''}
+              onChangeText={(value) => updateFormData('truckModel', value)}
+              placeholder="Ievadiet modeli"
+            />
+
+            <FormInput
+              label="Reģistrācijas numurs"
+              value={formData.truckRegistrationNumber || ''}
+              onChangeText={(value) => updateFormData('truckRegistrationNumber', value)}
+              placeholder="Ievadiet reģistrācijas numuru"
+            />
+
+            <FormInput
+              label="Degvielas patēriņa norma (l/100km)"
+              value={formData.fuelConsumptionNorm || ''}
+              onChangeText={(value) => updateFormData('fuelConsumptionNorm', value)}
+              placeholder="Ievadiet degvielas patēriņa normu"
+              keyboardType="numeric"
             />
           <Button
             title="Reģistrēties"
