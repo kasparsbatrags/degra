@@ -177,11 +177,10 @@ const styles = StyleSheet.create<Styles>({
     width: CONTAINER_WIDTH.mobile,
   },
   heading: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: FONT.bold,
     color: COLORS.white,
     textAlign: 'center',
-    marginBottom: 24,
   },
   logo: {
     width: 60,
@@ -193,7 +192,7 @@ const styles = StyleSheet.create<Styles>({
     fontFamily: FONT.semiBold,
     color: COLORS.white,
     marginTop: 40,
-    marginBottom: 24,
+    marginBottom: 28,
   },
   loginButton: {
     marginTop: 28,

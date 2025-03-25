@@ -38,6 +38,9 @@ public class SecurityConfig {
     @Value("${keycloak.realm}")
     private String keycloakRealm;
 
+	@Value("${keycloak.auth-server-url}")
+	private String authServerUrl;
+
 	@Value("${spring.profiles.active:}")
 	private String activeProfile;
 
@@ -95,7 +98,8 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withJwkSetUri("https://route.degra.lv/realms/" + keycloakRealm + "/protocol/openid-connect/certs")
+		return NimbusJwtDecoder.withJwkSetUri(
+						authServerUrl+ "/" + keycloakRealm + "/protocol/openid-connect/certs")
 				.build();
 	}
 

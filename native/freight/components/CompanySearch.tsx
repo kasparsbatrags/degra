@@ -4,7 +4,6 @@ import {
 	ActivityIndicator,
 	FlatList,
 	Keyboard,
-	Platform,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -215,20 +214,23 @@ export default function CompanySearch({
             <TouchableWithoutFeedback>
               <View style={styles.suggestionsContainer}>
                 {suggestions.length > 0 ? (
-                  <FlatList
-                    ref={listRef}
-                    data={suggestions}
-                    keyExtractor={(item) => item.registerNumber}
-                    renderItem={renderSuggestionItem}
-                    style={styles.suggestionsList}
-                    keyboardShouldPersistTaps="handled"
-                    windowSize={5}
-                    removeClippedSubviews={Platform.OS !== 'web'}
-                    maxToRenderPerBatch={10}
-                    initialNumToRender={10}
-                    accessibilityRole="list"
-                    accessibilityLabel="Uzņēmumu ieteikumu saraksts"
-                  />
+                  <View style={styles.suggestionsList}>
+                    {suggestions.map((item, index) => (
+                      <TouchableOpacity
+                        key={item.registerNumber}
+                        style={[
+                          styles.suggestionItem,
+                          selectedIndex === index && styles.selectedSuggestion
+                        ]}
+                        onPress={() => handleSelect(item)}
+                        accessibilityLabel={`${item.name}, reģistrācijas numurs ${item.registerNumber}`}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.registrationNumber}>{item.registerNumber}</Text>
+                        <Text style={styles.companyName}>{item.name}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 ) : (
                   <View style={styles.emptyState}>
                     <Text style={styles.emptyStateText}>
@@ -337,6 +339,7 @@ const styles = StyleSheet.create<Styles>({
   },
   suggestionsList: {
     flex: 1,
+    maxHeight: 200,
   },
   suggestionItem: {
     flexDirection: 'row',

@@ -1,6 +1,19 @@
 import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
-import {Alert, Dimensions, ImageStyle, Platform, Pressable, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle,} from 'react-native'
+import {
+	Alert,
+	Dimensions,
+	ImageStyle,
+	KeyboardAvoidingView,
+	Platform,
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TextStyle,
+	View,
+	ViewStyle
+} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
@@ -200,15 +213,22 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View
-          style={[
-            styles.content,
-            {
-              minHeight: Dimensions.get("window").height - 100,
-            },
-          ]}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}
+      >
+        <ScrollView 
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{flexGrow: 1}}
         >
+          <View
+            style={[
+              styles.content,
+              {
+                minHeight: Dimensions.get("window").height - 100,
+              },
+            ]}
+          >
 
           <Text style={styles.title}>
             Reģistrēties
@@ -340,8 +360,9 @@ export default function RegisterScreen() {
             onPress={handleLogin}
             style={styles.loginButton}
           />
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
