@@ -162,7 +162,7 @@ export default function CompanySearch({
   ), [handleSelect, selectedIndex]);
 
   return (
-    <View style={[styles.container, { marginBottom: SPACING.m }]}>
+<View style={[styles.container, { marginBottom: SPACING.m, marginTop: 28 }]}>
       {label && <Text style={styles.label}>{label}</Text>}
       
       <View style={[

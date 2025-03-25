@@ -1,25 +1,11 @@
 import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
-import {
-	Alert,
-	Dimensions,
-	Image,
-	ImageStyle,
-	Platform,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextStyle,
-	View,
-	ViewStyle,
-} from 'react-native'
+import {Alert, Dimensions, ImageStyle, Platform, Pressable, ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle,} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import CompanySearch from '../../components/CompanySearch'
 import FormInput from '../../components/FormInput'
-import {images} from '../../constants/assets'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
 import type {UserRegistrationData} from '../../types/auth'
@@ -224,17 +210,12 @@ export default function RegisterScreen() {
           ]}
         >
 
-          <Image
-            source={images.logo}
-            resizeMode="contain"
-            style={styles.logo}
-          />
           <Text style={styles.title}>
             Reģistrēties
           </Text>
 
           <Text style={styles.subtitle}>
-            Izveidojiet jaunu kontu, lai sāktu lietot sistēmu
+            Izveidojiet jaunu kontu, lai sāktu lietot Kravu uzskaites sistēmu
           </Text>
 
           {/* Tab buttons */}
