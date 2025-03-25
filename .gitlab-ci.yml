@@ -200,7 +200,7 @@ company-docker-build:
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
-        echo "$TEST_ENV_USERMANAGER" > .env
+        echo "$ENV_CONTENT" > .env
       EOF
     - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
