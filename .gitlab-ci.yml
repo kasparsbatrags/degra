@@ -223,7 +223,7 @@ company-docker-build:
             ports:
               - \"\${APP_PORT}:8080\"
             volumes:
-              - ./Logs:/app/Logs
+              - ./Logs:/app/Logs:Z
             restart: unless-stopped
       EOL
       "
