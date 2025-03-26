@@ -26,10 +26,10 @@ interface CompanySearchProps {
   disabled?: boolean;
 }
 
-export default function CompanySearch({ 
-  onSelect, 
-  value = '', 
-  label, 
+export default function CompanySearch({
+  onSelect,
+  value = '',
+  label,
   placeholder = "Sāciet rakstīt...",
   errorMessage,
   disabled = false
@@ -41,10 +41,10 @@ export default function CompanySearch({
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isCompanySelected, setIsCompanySelected] = useState(false);
-  
+
   const inputRef = useRef<TextInput>(null);
   const listRef = useRef<FlatList>(null);
-  
+
   const debouncedQuery = useDebounce(query, 300);
 
   // Effect for searching with debounce
@@ -54,7 +54,7 @@ export default function CompanySearch({
       if (!isCompanySelected && debouncedQuery.length >= 2) {
         setLoading(true);
         setError(null);
-        
+
         try {
           const results = await searchCompanies(debouncedQuery);
           setSuggestions(results);
@@ -79,10 +79,10 @@ export default function CompanySearch({
 
   // Log selection state changes for debugging
   useEffect(() => {
-    console.log('CompanySearch selection state changed:', { 
-      isCompanySelected, 
-      query, 
-      value 
+    console.log('CompanySearch selection state changed:', {
+      isCompanySelected,
+      query,
+      value
     });
   }, [isCompanySelected, query, value]);
 
@@ -100,21 +100,21 @@ export default function CompanySearch({
   const handleSelect = useCallback((suggestion: CompanySuggestion) => {
     // Make sure the registration number is a string, not undefined
     const regNumber = suggestion.registerNumber || '';
-    
+
     // Call the onSelect callback with the registration number and name
     onSelect(regNumber, suggestion.name);
-    
+
     // Update the internal state
     setQuery(suggestion.name);
     setShowSuggestions(false);
     setIsCompanySelected(true); // Mark that a company has been selected
-    
+
     // Log the selection for debugging
     console.log('Company selected in CompanySearch:', {
       registerNumber: regNumber,
       name: suggestion.name
     });
-    
+
     Keyboard.dismiss();
   }, [onSelect]);
 
@@ -129,7 +129,7 @@ export default function CompanySearch({
 
   const handleKeyPress = useCallback((e: any) => {
     if (!showSuggestions || suggestions.length === 0) return;
-    
+
     if (e.nativeEvent.key === 'ArrowDown') {
       setSelectedIndex(prev => Math.min(prev + 1, suggestions.length - 1));
       if (selectedIndex >= 0) {
@@ -163,7 +163,7 @@ export default function CompanySearch({
   return (
 <View style={[styles.container, { marginBottom: SPACING.m, marginTop: 28 }]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      
+
       <View style={[
         styles.inputContainer,
         error && styles.inputError,
@@ -189,11 +189,11 @@ export default function CompanySearch({
           accessibilityHint="Ievadiet vismaz divus simbolus, lai meklētu uzņēmumus"
           accessibilityRole="search"
         />
-        
+
         {loading ? (
           <ActivityIndicator style={styles.loader} color={COLORS.primary} />
         ) : query.length > 0 ? (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleClear}
             style={styles.clearButton}
             accessibilityLabel="Notīrīt meklēšanas lauku"
@@ -204,9 +204,12 @@ export default function CompanySearch({
         ) : null}
       </View>
 
-      {(error || errorMessage) && (
-        <Text style={styles.errorText}>{error || errorMessage}</Text>
-      )}
+	{typeof (error || errorMessage) === 'string' && (error || errorMessage).trim() !== '' && (
+			<Text style={styles.errorText}>
+				{(error || errorMessage).trim()}
+			</Text>
+	)}
+
 
       {showSuggestions && (
         <TouchableWithoutFeedback onPress={() => setShowSuggestions(false)}>

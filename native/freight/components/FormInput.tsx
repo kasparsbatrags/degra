@@ -76,7 +76,9 @@ const FormInput: React.FC<FormInputProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+		{typeof error === 'string' && error.trim() !== '' && (
+				<Text style={styles.errorText}>{error}</Text>
+		)}
     </View>
   );
 };

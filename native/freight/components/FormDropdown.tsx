@@ -240,7 +240,6 @@ const styles = StyleSheet.create({
       border: '1px solid transparent',
       fontFamily: FONT.regular,
       fontSize: WEB_SIZES.medium,
-      outline: 'none',
       cursor: 'pointer',
       textAlign: 'left',
     },
