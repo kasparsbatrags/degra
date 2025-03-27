@@ -175,9 +175,9 @@ company-docker-build:
       export SERVER_USER="$TEST_SERVER_USER"
       echo "Using TEST environment variables"
       elif [ "$CI_COMMIT_REF_NAME" = "master" ]; then
-      export ENVIRONMENT="prod"
-      export SERVER="$PROD_SERVER"
-      export SERVER_USER="$PROD_SERVER_USER"
+      export ENVIRONMENT="production"
+      export SERVER="$PRODUCTION_SERVER"
+      export SERVER_USER="$PRODUCTION_SERVER_USER"
       echo "Using PROD environment variables"
       else
       echo "Unknown branch: $CI_COMMIT_REF_NAME"
@@ -281,7 +281,7 @@ company-deploy-test:
   stage: deploy-prod
   variables:
     ENVIRONMENT: "prod"
-    SSH_PRIVATE_KEY: $PROD_SSH_PRIVATE_KEY
+    SSH_PRIVATE_KEY: $PRODUCTION_SSH_PRIVATE_KEY
     IMAGE_TAG: "latest"
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
@@ -294,7 +294,7 @@ usermanager-deploy-prod:
       optional: true
   variables:
     SERVICE_NAME: "usermanager"
-    ENV_CONTENT: $PROD_ENV_USERMANAGER
+    ENV_CONTENT: $PRODUCTION_ENV_USERMANAGER
   dependencies:
     - usermanager-docker-build
   environment:
@@ -308,7 +308,7 @@ company-deploy-prod:
       optional: true
   variables:
     SERVICE_NAME: "company"
-    ENV_CONTENT: $PROD_ENV_COMPANY
+    ENV_CONTENT: $PRODUCTION_ENV_COMPANY
   dependencies:
     - company-docker-build
   environment:
