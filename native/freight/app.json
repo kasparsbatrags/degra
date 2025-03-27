@@ -17,14 +17,18 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "lv.degra.accounting.freight"
+      "bundleIdentifier": "lv.degra.accounting.freight",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#161622"
       },
-      "package": "lv.degra.accounting.freight"
+      "package": "lv.degra.accounting.freight",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -83,6 +87,9 @@
       "eas": {
         "projectId": "72293d70-af7f-4d98-a6cc-a2fc1394cf08"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/72293d70-af7f-4d98-a6cc-a2fc1394cf08"
     }
   }
 }

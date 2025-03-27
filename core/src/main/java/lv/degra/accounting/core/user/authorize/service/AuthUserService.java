@@ -128,7 +128,7 @@ public class AuthUserService {
 		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put("organizationRegistrationNumber", List.of(userRegistrationDto.getAttributes().get("organizationRegistrationNumber")));
 		user.setAttributes(attributes);
-		user.setRequiredActions(List.of("VERIFY_EMAIL"));
+//		user.setRequiredActions(List.of("VERIFY_EMAIL"));
 		return user;
 	}
 
