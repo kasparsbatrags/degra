@@ -1,5 +1,7 @@
 package lv.degra.accounting.core.user.authorize.service;
 
+import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,6 @@ import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 import lv.degra.accounting.core.truck_user_map.model.TruckUserMapRepository;
 import lv.degra.accounting.core.user.authorize.client.KeycloakProperties;
 import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
-import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 import lv.degra.accounting.core.user.dto.CredentialDto;
 import lv.degra.accounting.core.user.dto.UserManagementDto;
 import lv.degra.accounting.core.user.dto.UserRegistrationDto;
@@ -127,7 +128,7 @@ public class AuthUserService {
 		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put("organizationRegistrationNumber", List.of(userRegistrationDto.getAttributes().get("organizationRegistrationNumber")));
 		user.setAttributes(attributes);
-
+		user.setRequiredActions(List.of("VERIFY_EMAIL"));
 		return user;
 	}
 
@@ -237,7 +238,7 @@ public class AuthUserService {
 				.map(attrs -> (Map<String, List<String>>) attrs.get("attributes"))
 				.map(attrs -> attrs.get("organizationRegistrationNumber"))
 				.filter(list -> !list.isEmpty())
-				.map(list -> Collections.singletonMap("organizationRegistrationNumber", list.get(0)))
+				.map(list -> Collections.singletonMap("organizationRegistrationNumber", list.getFirst()))
 				.orElse(Collections.emptyMap());
 	}
 

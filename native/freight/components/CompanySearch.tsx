@@ -1,3 +1,6 @@
+import {BORDER_RADIUS, COLORS, FONT, SHADOWS, SPACING} from '@/constants/theme'
+import {useDebounce} from '@/hooks/useDebounce'
+import {CompanySuggestion, searchCompanies} from '@/lib/api'
 import {Ionicons} from '@expo/vector-icons'
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {
@@ -13,9 +16,6 @@ import {
 	View,
 	ViewStyle,
 } from 'react-native'
-import {BORDER_RADIUS, COLORS, FONT, SHADOWS, SPACING} from '../constants/theme'
-import {useDebounce} from '../hooks/useDebounce'
-import {CompanySuggestion, searchCompanies} from '../lib/api'
 
 interface CompanySearchProps {
   onSelect: (registrationNumber: string, name?: string) => void;

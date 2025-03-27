@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Krava",
-    "slug": "Kravas uzskaite",
+    "slug": "kravas-uzskaite",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -75,6 +75,14 @@
         "asset": "./assets/fonts/Poppins-Thin.ttf",
         "family": "Poppins-Thin"
       }
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "72293d70-af7f-4d98-a6cc-a2fc1394cf08"
+      }
+    }
   }
 }

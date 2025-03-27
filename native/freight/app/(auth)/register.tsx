@@ -1,3 +1,4 @@
+import {useNetInfo} from '@react-native-community/netinfo'
 import {useRouter} from 'expo-router'
 import React, {useState} from 'react'
 import {
@@ -50,8 +51,13 @@ export default function RegisterScreen() {
   });
   const [activeTab, setActiveTab] = useState<'basic' | 'truck'>('basic');
   const [loading, setLoading] = useState(false);
+  const [generalError, setGeneralError] = useState(''); // Jauns stāvoklis vispārīgai kļūdai
   const { register } = useAuth();
   const router = useRouter();
+  
+  // Pārbaudām tīkla savienojuma statusu
+  const netInfo = useNetInfo();
+  const isConnected = netInfo.isConnected;
 
   // Function to validate email format
   const isValidEmail = (email: string): boolean => {
@@ -149,6 +155,8 @@ export default function RegisterScreen() {
 
     try {
       setLoading(true);
+      // Notīrām vispārīgo kļūdu pirms mēģinājuma
+      setGeneralError('');
       console.log('Attempting registration with data:', formData);
       await register(formData);
       console.log('Registration successful');
@@ -160,10 +168,19 @@ export default function RegisterScreen() {
         response: error.response?.data,
         status: error.response?.status
       });
-      Alert.alert(
-        'Kļūda',
-        error.message || 'Neizdevās reģistrēties. Lūdzu, mēģiniet vēlreiz.'
-      );
+      
+      const errorMessage = error.response?.data?.message === "Username or Email already exists" ||
+                          error.message?.includes("Username or Email already exists")
+                          ? 'E-pasta adrese jau tiek izmantota sistēmā. Lūdzu izmantojiet paroles atgūšanas funkcionalitāti '
+                          : error.message || 'Neizdevās reģistrēties. Lūdzu, mēģiniet vēlreiz.';
+      
+      if (Platform.OS === 'web') {
+        // Web platformai izmantojam stāvokli, lai parādītu kļūdu
+        setGeneralError(errorMessage);
+      } else {
+        // Mobilajām platformām izmantojam Alert
+        Alert.alert('Kļūda', errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -208,6 +225,11 @@ export default function RegisterScreen() {
         ...prev,
         [field]: '',
       }));
+    }
+    
+    // Notīrām vispārīgo kļūdu, kad lietotājs sāk rediģēt formu
+    if (generalError) {
+      setGeneralError('');
     }
   };
 
@@ -297,7 +319,8 @@ export default function RegisterScreen() {
                     setCompanyName(name);
                   }
                 }}
-                errorMessage={formErrors.organizationRegistrationNumber}
+                errorMessage={!isConnected ? "Uzņēmumu meklēšana nav pieejama offline režīmā" : formErrors.organizationRegistrationNumber}
+                disabled={!isConnected}
               />
 
               <FormInput
@@ -348,10 +371,25 @@ export default function RegisterScreen() {
               />
             </View>
           )}
+          {/* Paziņojums par offline režīmu */}
+          {!isConnected && (
+            <Text style={styles.offlineMessage}>
+              Reģistrācija nav pieejama offline režīmā. Lūdzu, pievienojieties internetam, lai reģistrētos.
+            </Text>
+          )}
+
+          {/* Vispārīgā kļūda - parādās tikai web platformā */}
+          {Platform.OS === 'web' && generalError ? (
+            <Text style={styles.errorMessage}>
+              {generalError}
+            </Text>
+          ) : null}
+
           <Button
             title="Reģistrēties"
             onPress={handleRegister}
             loading={loading}
+            disabled={!isConnected || loading}
             style={styles.registerButton}
           />
 
@@ -382,6 +420,8 @@ type Styles = {
   tabText: TextStyle;
   tabTextActive: TextStyle;
   tabContent: ViewStyle;
+  offlineMessage: TextStyle;
+  errorMessage: TextStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -474,5 +514,24 @@ const styles = StyleSheet.create<Styles>({
   },
   tabContent: {
     paddingTop: 8,
+  },
+  offlineMessage: {
+    color: '#FF6B6B', // Sarkana krāsa brīdinājumam
+    fontFamily: FONT.medium,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  errorMessage: {
+    color: '#FF6B6B', // Sarkana krāsa kļūdas paziņojumam
+    fontFamily: FONT.medium,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    padding: 10,
+    backgroundColor: 'rgba(255, 107, 107, 0.1)', // Viegls sarkans fons
+    borderRadius: 8,
   },
 });

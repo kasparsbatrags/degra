@@ -1,0 +1,28 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>lv.degra.accounting.keycloak</groupId>
+  <artifactId>email-verification-listener</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi</artifactId>
+      <version>24.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi-private</artifactId>
+      <version>24.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+	  <dependency>
+		  <groupId>org.keycloak</groupId>
+		  <artifactId>keycloak-core</artifactId>
+		  <version>25.0.3</version>
+		  <scope>compile</scope>
+	  </dependency>
+  </dependencies>
+</project>

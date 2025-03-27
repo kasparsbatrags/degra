@@ -21,6 +21,7 @@
 		<module>company</module>
 		<module>address</module>
 		<module>freighttracking</module>
+		<module>keycloak-email-verification-listener</module>
 	</modules>
 
 	<properties>

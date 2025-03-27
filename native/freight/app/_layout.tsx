@@ -1,11 +1,14 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native'
+import {QueryClientProvider} from '@tanstack/react-query'
 import {useFonts} from 'expo-font'
 import {Stack} from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import {useEffect} from 'react'
 import {useColorScheme} from 'react-native'
+import queryClient from '../config/queryClient'
 import {AuthProvider} from '../context/AuthContext'
+import {setupSyncListener} from '../services/syncService'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -55,14 +58,28 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  // Uzstāda sinhronizācijas klausītāju, kad komponente tiek montēta
+  useEffect(() => {
+    const unsubscribe = setupSyncListener();
+    
+    // Notīra klausītāju, kad komponente tiek nomontēta
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

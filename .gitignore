@@ -37,3 +37,6 @@
 /company-web/.vscode/
 /native/companys/node_modules/
 /usermanager/Logs/usermanager.log
+/keycloak-email-verification-listener/target/classes/META-INF/services/org.keycloak.events.EventListenerProviderFactory
+/keycloak-email-verification-listener/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+/keycloak-email-verification-listener/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

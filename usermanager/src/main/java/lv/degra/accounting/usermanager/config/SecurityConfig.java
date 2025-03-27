@@ -99,7 +99,7 @@ public class SecurityConfig {
 	@Bean
 	public JwtDecoder jwtDecoder() {
 		return NimbusJwtDecoder.withJwkSetUri(
-						authServerUrl+ "/" + keycloakRealm + "/protocol/openid-connect/certs")
+						authServerUrl+ "/realms/" + keycloakRealm + "/protocol/openid-connect/certs")
 				.build();
 	}
 
