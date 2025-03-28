@@ -10,10 +10,22 @@ spring:
     hikari:
       maximum-pool-size: 15
 
+keycloak:
+  auth-server-url: https://route.degra.lv
+  realm: degra-production-realm
+  resource: freight-tracking-client
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+  connection-timeout: 5000
+  read-timeout: 5000
+  use-resource-role-mappings: true
+  bearer-only: true
+  public-client: false
+
 # Logging configuration with relative path
 logging:
   file:
-    name: Logs/production.log
+    name: name: Logs/${spring.application.name}-production.log
   level:
     root: debug
     lv.degra.accounting.company: debug

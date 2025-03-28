@@ -15,7 +15,7 @@ keycloak:
   realm: degra-test-realm
   resource: freight-tracking-client
   credentials:
-    secret: LfJVcO6ArZHzxl0J9YoLj8jdQOYxxiki
+    secret: ${KEYCLOAK_CLIENT_SECRET}
   connection-timeout: 5000
   read-timeout: 5000
   use-resource-role-mappings: true
