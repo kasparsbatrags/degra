@@ -54,6 +54,15 @@ company-test:
     reports:
       junit: company/target/surefire-reports/TEST-*.xml
 
+freighttracking-test:
+  <<: *maven-setup
+  stage: test
+  script:
+    - mvn clean test -pl freighttracking -am
+  artifacts:
+    reports:
+      junit: freighttracking/target/surefire-reports/TEST-*.xml
+
 sonarcloud-check:
   stage: test
   image: maven:3.9.5-eclipse-temurin-21
@@ -139,6 +148,25 @@ company-maven-build:
     - test
     - master
 
+freighttracking-maven-build:
+  <<: *maven-setup
+  stage: build
+  script:
+    - mvn clean package -pl freighttracking -am -DskipTests
+  artifacts:
+    paths:
+      - freighttracking/target/*.jar
+      - core/target/*.jar
+  dependencies:
+    - freighttracking-test
+    - core-build
+  needs:
+    - freighttracking-test
+    - core-build
+  only:
+    - test
+    - master
+
 company-docker-build:
   stage: build
   image: docker:20
@@ -157,6 +185,29 @@ company-docker-build:
       if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
         docker tag $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/company:latest
         docker push $CI_REGISTRY_IMAGE/company:latest
+      fi
+  only:
+    - test
+    - master
+
+freighttracking-docker-build:
+  stage: build
+  image: docker:20
+  needs:
+    - freighttracking-maven-build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/freighttracking:$CI_COMMIT_REF_SLUG -f freighttracking/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/freighttracking:$CI_COMMIT_REF_SLUG
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "test" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/freighttracking:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/freighttracking:test
+        docker push $CI_REGISTRY_IMAGE/freighttracking:test
+      fi
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
+        docker tag $CI_REGISTRY_IMAGE/freighttracking:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/freighttracking:latest
+        docker push $CI_REGISTRY_IMAGE/freighttracking:latest
       fi
   only:
     - test
@@ -277,6 +328,20 @@ company-deploy-test:
     name: test-company
     url: https://test-company.degra.lv
 
+freighttracking-deploy-test:
+  <<: *deploy-test-template
+  needs:
+    - job: freighttracking-docker-build
+      optional: true
+  variables:
+    SERVICE_NAME: "freighttracking"
+    ENV_CONTENT: $TEST_ENV_FREIGHTTRACKING
+  dependencies:
+    - freighttracking-docker-build
+  environment:
+    name: test-freighttracking
+    url: https://test-freighttracking.degra.lv
+
 .deploy-prod-template: &deploy-prod-template
   <<: *deploy-template
   stage: deploy-prod
@@ -315,6 +380,20 @@ company-deploy-prod:
   environment:
     name: production-company
     url: https://company.degra.lv
+
+freighttracking-deploy-prod:
+  <<: *deploy-prod-template
+  needs:
+    - job: freighttracking-docker-build
+      optional: true
+  variables:
+    SERVICE_NAME: "freighttracking"
+    ENV_CONTENT: $PRODUCTION_ENV_FREIGHTTRACKING
+  dependencies:
+    - freighttracking-docker-build
+  environment:
+    name: production-freighttracking
+    url: https://freighttracking.degra.lv
 
 block-invalid-master-merge:
   stage: test
