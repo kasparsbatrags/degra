@@ -196,7 +196,7 @@ company-docker-build:
     - echo "$TEST_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
 
-    - |      
+    - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
@@ -315,3 +315,30 @@ company-deploy-prod:
   environment:
     name: production-company
     url: https://company.degra.lv
+
+block-invalid-master-merge:
+  stage: test
+  image: alpine
+  script:
+    - |
+      echo "Target branch: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      echo "Source branch: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+      if [ "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" = "master" ] && [ "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" != "test" ]; then
+        echo "❌ Merge to master only from 'test'!"
+        exit 1
+      fi
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+
+prevent-illegal-master-push:
+  stage: test
+  image: alpine
+  script:
+    - |
+      echo "🚨 A direct push to master was detected!"
+      echo "Last committer: $(git log -1 --pretty=format:'%an')"
+      echo "If this merge was not made from the 'test' branch, it should be reviewed manually."
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_PIPELINE_SOURCE == "push"'
+      when: always
