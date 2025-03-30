@@ -1,4 +1,0 @@
-spring:
-  liquibase:
-    parameters:
-      file.encoding: UTF-8

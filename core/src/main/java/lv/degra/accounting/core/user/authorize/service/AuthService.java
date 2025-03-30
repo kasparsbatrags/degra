@@ -1,7 +1,5 @@
 package lv.degra.accounting.core.user.authorize.service;
 
-
-
 import static lv.degra.accounting.core.user.authorize.config.UserManagerConstants.BEARER_PREFIX;
 
 import java.time.Instant;
@@ -37,207 +35,198 @@ import lv.degra.accounting.core.user.model.UserRepository;
 @Slf4j
 public class AuthService {
 
-    private final KeycloakTokenClient keycloakTokenClient;
-    private final KeycloakProperties keycloakProperties;
-    private final UserRepository userRepository;
-    private final JwtDecoder jwtDecoder;
-    private final MeterRegistry meterRegistry;
-    private final ObjectMapper objectMapper;
+	private static final String METRIC_AUTH_ATTEMPTS = "auth.attempts";
+	private static final String METRIC_AUTH_FAILURES = "auth.failures";
+	private static final String METRIC_TOKEN_REFRESHES = "auth.token.refreshes";
+	private final KeycloakTokenClient keycloakTokenClient;
+	private final KeycloakProperties keycloakProperties;
+	private final UserRepository userRepository;
+	private final MeterRegistry meterRegistry;
+	private final ObjectMapper objectMapper;
+	private final JwtDecoder jwtDecoder;
 
-    private static final String METRIC_AUTH_ATTEMPTS = "auth.attempts";
-    private static final String METRIC_AUTH_FAILURES = "auth.failures";
-    private static final String METRIC_TOKEN_REFRESHES = "auth.token.refreshes";
+	@Autowired
+	public AuthService(KeycloakTokenClient keycloakTokenClient, KeycloakProperties keycloakProperties, UserRepository userRepository,
+			JwtDecoder jwtDecoder, MeterRegistry meterRegistry) {
+		this.keycloakTokenClient = keycloakTokenClient;
+		this.keycloakProperties = keycloakProperties;
+		this.userRepository = userRepository;
+		this.jwtDecoder = jwtDecoder;
+		this.meterRegistry = meterRegistry;
+		this.objectMapper = new ObjectMapper();
+	}
 
-    @Autowired
-    public AuthService(
-            KeycloakTokenClient keycloakTokenClient,
-            KeycloakProperties keycloakProperties,
-            UserRepository userRepository,
-            JwtDecoder jwtDecoder,
-            MeterRegistry meterRegistry) {
-        this.keycloakTokenClient = keycloakTokenClient;
-        this.keycloakProperties = keycloakProperties;
-        this.userRepository = userRepository;
-        this.jwtDecoder = jwtDecoder;
-        this.meterRegistry = meterRegistry;
-        this.objectMapper = new ObjectMapper();
-    }
+	@Cacheable(value = "keycloakTokens", key = "#root.methodName")
+	public String getAccessToken() {
+		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+		request.add("grant_type", "client_credentials");
+		request.add("client_id", keycloakProperties.getClientId());
+		request.add("client_secret", keycloakProperties.getClientSecret());
 
-    @Cacheable(value = "keycloakTokens", key = "#root.methodName")
-    public String getAccessToken() {
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "client_credentials");
-        request.add("client_id", keycloakProperties.getClientId());
-        request.add("client_secret", keycloakProperties.getClientSecret());
+		try {
+			Map<String, Object> response = keycloakTokenClient.getAccessToken(MediaType.APPLICATION_FORM_URLENCODED_VALUE, request);
+			String token = (String) response.get("access_token");
+			validateToken(token);
+			return token;
+		} catch (Exception e) {
+			log.error("Unable to get access token from Keycloak: {}", e.getMessage());
+			meterRegistry.counter(METRIC_AUTH_FAILURES).increment();
+			throw new KeycloakIntegrationException("Authentication error", "AUTH_ERROR");
+		}
+	}
 
-        try {
-            Map<String, Object> response = keycloakTokenClient.getAccessToken(
-                    MediaType.APPLICATION_FORM_URLENCODED_VALUE, request);
-            String token = (String) response.get("access_token");
-            validateToken(token);
-            return token;
-        } catch (Exception e) {
-            log.error("Unable to get access token from Keycloak: {}", e.getMessage());
-            meterRegistry.counter(METRIC_AUTH_FAILURES).increment();
-            throw new KeycloakIntegrationException("Authentication error", "AUTH_ERROR");
-        }
-    }
+	public Map<String, Object> login(String email, String password) {
+		meterRegistry.counter(METRIC_AUTH_ATTEMPTS).increment();
+		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+		request.add("grant_type", "password");
+		request.add("client_id", keycloakProperties.getClientId());
+		request.add("client_secret", keycloakProperties.getClientSecret());
+		request.add("username", email);
+		request.add("password", password);
 
-    public Map<String, Object> login(String email, String password) {
-        meterRegistry.counter(METRIC_AUTH_ATTEMPTS).increment();
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "password");
-        request.add("client_id", keycloakProperties.getClientId());
-        request.add("client_secret", keycloakProperties.getClientSecret());
-        request.add("username", email);
-        request.add("password", password);
+		Map<String, Object> response = new HashMap<>();
 
-        Map<String, Object> response = new HashMap<>();
+		try {
+			Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(MediaType.APPLICATION_JSON_VALUE, request);
 
-        try {
-            Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
-                    MediaType.APPLICATION_JSON_VALUE, request);
-            
-            String accessToken = tokenResponse.get("access_token").toString();
-            validateToken(accessToken);
-            
-            String sub = extractSub(accessToken);
-            String refreshToken = tokenResponse.get("refresh_token").toString();
+			String accessToken = tokenResponse.get("access_token").toString();
+			validateToken(accessToken);
 
-            saveOrUpdateUser(sub, refreshToken);
+			String sub = extractSub(accessToken);
+			String refreshToken = tokenResponse.get("refresh_token").toString();
 
-            response.put("access_token", accessToken);
-            response.put("expires_in", tokenResponse.get("expires_in"));
-            response.put("token_type", tokenResponse.get("token_type"));
-            return response;
-        } catch (Exception e) {
-            log.error("Failed to authenticate user with email: {}", email, e);
-            meterRegistry.counter(METRIC_AUTH_FAILURES).increment();
-            throw new KeycloakIntegrationException("Invalid credentials", "AUTH_ERROR");
-        }
-    }
+			saveOrUpdateUser(sub, refreshToken);
 
-    @CacheEvict(value = "keycloakTokens", allEntries = true)
-    public void logout(String refreshToken) {
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("client_id", keycloakProperties.getClientId());
-        request.add("client_secret", keycloakProperties.getClientSecret());
-        request.add("refresh_token", refreshToken);
+			response.put("access_token", accessToken);
+			response.put("expires_in", tokenResponse.get("expires_in"));
+			response.put("token_type", tokenResponse.get("token_type"));
+			return response;
+		} catch (Exception e) {
+			log.error("Failed to authenticate user with email: {}", email, e);
+			meterRegistry.counter(METRIC_AUTH_FAILURES).increment();
+			throw new KeycloakIntegrationException("Invalid credentials", "AUTH_ERROR");
+		}
+	}
 
-        try {
-            keycloakTokenClient.logout(MediaType.APPLICATION_FORM_URLENCODED_VALUE, request);
-        } catch (Exception e) {
-            log.error("Failed to logout user", e);
-            throw new KeycloakIntegrationException("Logout failed", "LOGOUT_ERROR");
-        }
-    }
+	@CacheEvict(value = "keycloakTokens", allEntries = true)
+	public void logout(String refreshToken) {
+		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+		request.add("client_id", keycloakProperties.getClientId());
+		request.add("client_secret", keycloakProperties.getClientSecret());
+		request.add("refresh_token", refreshToken);
 
-    @CacheEvict(value = "keycloakTokens", allEntries = true)
-    public Map<String, Object> refreshTokenIfExpired(String bearerToken) {
-        meterRegistry.counter(METRIC_TOKEN_REFRESHES).increment();
-        try {
-            String token = bearerToken.replace(BEARER_PREFIX, "");
-            String userId = getUserIdFromToken(token);
-            
-            User user = userRepository.findByUserId(userId)
-                    .orElseThrow(() -> new KeycloakIntegrationException("User not found", "USER_NOT_FOUND"));
+		try {
+			keycloakTokenClient.logout(MediaType.APPLICATION_FORM_URLENCODED_VALUE, request);
+		} catch (Exception e) {
+			log.error("Failed to logout user", e);
+			throw new KeycloakIntegrationException("Logout failed", "LOGOUT_ERROR");
+		}
+	}
 
-            try {
-                Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(
-                        MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-                        createRefreshRequest(user.getRefreshToken())
-                );
+	@CacheEvict(value = "keycloakTokens", allEntries = true)
+	public Map<String, Object> refreshTokenIfExpired(String bearerToken) {
+		meterRegistry.counter(METRIC_TOKEN_REFRESHES).increment();
+		try {
+			String token = bearerToken.replace(BEARER_PREFIX, "");
+			String userId = getUserIdFromToken(token);
 
-                String newAccessToken = (String) tokenResponse.get("access_token");
-                validateToken(newAccessToken);
+			User user = userRepository.findByUserId(userId)
+					.orElseThrow(() -> new KeycloakIntegrationException("User not found", "USER_NOT_FOUND"));
 
-                if (tokenResponse.containsKey("refresh_token")) {
-                    user.setRefreshToken((String) tokenResponse.get("refresh_token"));
-                    userRepository.save(user);
-                }
+			try {
+				Map<String, Object> tokenResponse = keycloakTokenClient.getAccessToken(MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+						createRefreshRequest(user.getRefreshToken()));
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("access_token", newAccessToken);
-                response.put("expires_in", tokenResponse.get("expires_in"));
-                response.put("token_type", tokenResponse.get("token_type"));
-                return response;
+				String newAccessToken = (String) tokenResponse.get("access_token");
+				validateToken(newAccessToken);
 
-            } catch (Exception e) {
-                log.error("Failed to refresh token, clearing user session: {}", e.getMessage());
+				if (tokenResponse.containsKey("refresh_token")) {
+					user.setRefreshToken((String) tokenResponse.get("refresh_token"));
+					userRepository.save(user);
+				}
 
-                user.setRefreshToken(null);
-                userRepository.save(user);
-                throw new TokenExpiredException("Session expired, please login again");
-            }
+				Map<String, Object> response = new HashMap<>();
+				response.put("access_token", newAccessToken);
+				response.put("expires_in", tokenResponse.get("expires_in"));
+				response.put("token_type", tokenResponse.get("token_type"));
+				return response;
 
-        } catch (Exception e) {
-            log.error("Token refresh failed: {}", e.getMessage());
-            throw new KeycloakIntegrationException("Token refresh failed", "REFRESH_ERROR");
-        }
-    }
+			} catch (Exception e) {
+				log.error("Failed to refresh token, clearing user session: {}", e.getMessage());
 
-    private String getUserIdFromToken(String token) {
-        try {
-            String[] chunks = token.split("\\.");
-            if (chunks.length < 2) {
-                throw new IllegalArgumentException("Invalid JWT token format");
-            }
+				user.setRefreshToken(null);
+				userRepository.save(user);
+				throw new TokenExpiredException("Session expired, please login again");
+			}
 
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String payload = new String(decoder.decode(chunks[1]));
-            Map<String, Object> claims = objectMapper.readValue(payload, new TypeReference<>() {});
-            return (String) claims.get("sub");
-        } catch (Exception e) {
-            log.error("Failed to extract userId from token: {}", e.getMessage());
-            throw new InvalidTokenException("Failed to extract userId from token");
-        }
-    }
+		} catch (Exception e) {
+			log.error("Token refresh failed: {}", e.getMessage());
+			throw new KeycloakIntegrationException("Token refresh failed", "REFRESH_ERROR");
+		}
+	}
 
-    private void validateToken(String token) {
-        try {
-            Jwt jwt = jwtDecoder.decode(token);
-            Instant expiration = jwt.getExpiresAt();
-            if (expiration != null && expiration.isBefore(Instant.now())) {
-                throw new TokenExpiredException("Token has expired");
-            }
-        } catch (TokenExpiredException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Token validation failed: {}", e.getMessage());
-            throw new InvalidTokenException("Invalid token format or signature");
-        }
-    }
+	private String getUserIdFromToken(String token) {
+		try {
+			String[] chunks = token.split("\\.");
+			if (chunks.length < 2) {
+				throw new IllegalArgumentException("Invalid JWT token format");
+			}
 
-    private MultiValueMap<String, String> createRefreshRequest(String refreshToken) {
-        MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-        request.add("grant_type", "refresh_token");
-        request.add("client_id", keycloakProperties.getClientId());
-        request.add("client_secret", keycloakProperties.getClientSecret());
-        request.add("refresh_token", refreshToken);
-        return request;
-    }
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+			String payload = new String(decoder.decode(chunks[1]));
+			Map<String, Object> claims = objectMapper.readValue(payload, new TypeReference<>() {
+			});
+			return (String) claims.get("sub");
+		} catch (Exception e) {
+			log.error("Failed to extract userId from token: {}", e.getMessage());
+			throw new InvalidTokenException("Failed to extract userId from token");
+		}
+	}
 
-    private String extractSub(String accessToken) {
-        try {
-            Jwt jwt = jwtDecoder.decode(accessToken);
-            return jwt.getSubject();
-        } catch (Exception e) {
-            log.error("Failed to extract subject from token: {}", e.getMessage());
-            throw new InvalidTokenException("Failed to extract subject from token");
-        }
-    }
+	private void validateToken(String token) {
+		try {
+			Jwt jwt = jwtDecoder.decode(token);
+			Instant expiration = jwt.getExpiresAt();
+			if (expiration != null && expiration.isBefore(Instant.now())) {
+				throw new TokenExpiredException("Token has expired");
+			}
+		} catch (TokenExpiredException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("Token validation failed: {}", e.getMessage());
+			throw new InvalidTokenException("Invalid token format or signature");
+		}
+	}
 
-    private void saveOrUpdateUser(String userId, String refreshToken) {
-        try {
-            User user = userRepository.findByUserId(userId)
-                    .orElse(new User());
-            user.setUserId(userId);
-            user.setRefreshToken(refreshToken);
-            user.setLastLoginTime(Instant.now());
-            userRepository.save(user);
-        } catch (Exception e) {
-            log.error("Failed to save user information: {}", e.getMessage());
-            throw new UserSaveException("Failed to save user information", "USER_SAVE_ERROR");
-        }
-    }
+	private MultiValueMap<String, String> createRefreshRequest(String refreshToken) {
+		MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+		request.add("grant_type", "refresh_token");
+		request.add("client_id", keycloakProperties.getClientId());
+		request.add("client_secret", keycloakProperties.getClientSecret());
+		request.add("refresh_token", refreshToken);
+		return request;
+	}
+
+	private String extractSub(String accessToken) {
+		try {
+			Jwt jwt = jwtDecoder.decode(accessToken);
+			return jwt.getSubject();
+		} catch (Exception e) {
+			log.error("Failed to extract subject from token: {}", e.getMessage());
+			throw new InvalidTokenException("Failed to extract subject from token");
+		}
+	}
+
+	private void saveOrUpdateUser(String userId, String refreshToken) {
+		try {
+			User user = userRepository.findByUserId(userId).orElse(new User());
+			user.setUserId(userId);
+			user.setRefreshToken(refreshToken);
+			user.setLastLoginTime(Instant.now());
+			userRepository.save(user);
+		} catch (Exception e) {
+			log.error("Failed to save user information: {}", e.getMessage());
+			throw new UserSaveException("Failed to save user information", "USER_SAVE_ERROR");
+		}
+	}
 }

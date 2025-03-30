@@ -1,9 +1,9 @@
 services:
-  company-backend:
-    image: freight-tracking-backend:latest
+  freight-tracking:
+    image: freight-tracking:latest
     build:
       context: ..
-      dockerfile: freight-tracking/Dockerfile
+      dockerfile: freighttracking/Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
@@ -13,6 +13,7 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_RESOURCE=${KEYCLOAK_RESOURCE}
       - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - APP_SECURITY_ALLOWED_ORIGINS=${APP_SECURITY_ALLOWED_ORIGINS}
     ports:

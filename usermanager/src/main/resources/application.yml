@@ -7,13 +7,6 @@ spring:
     hibernate:
       ddl-auto: update
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
-          jwk-set-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/certs
-
 # OpenAPI Configuration
 springdoc:
   api-docs:
@@ -38,5 +31,5 @@ logging:
     name: Logs/usermanager.log
   level:
     root: info
-    lv.degra.accounting.company: info
+    lv.degra.accounting.usermanager: info
     org.hibernate.SQL: info

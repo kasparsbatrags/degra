@@ -2,7 +2,7 @@ import {icons} from '@/constants/assets'
 import {formStyles} from '@/constants/styles'
 import {COLORS, FONT} from '@/constants/theme'
 import React, {useState} from 'react'
-import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
 
 interface FormInputProps {
   label: string;
@@ -18,6 +18,10 @@ interface FormInputProps {
   numberOfLines?: number;
   disabled?: boolean;
   visible?: boolean;
+  // Autocomplete props
+  autocomplete?: string; // Web platform
+  textContentType?: string; // iOS platform
+  autoCompleteType?: string; // Android platform
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -34,6 +38,10 @@ const FormInput: React.FC<FormInputProps> = ({
   numberOfLines = 1,
   disabled = false,
   visible = true,
+  // Autocomplete props
+  autocomplete,
+  textContentType,
+  autoCompleteType,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   
@@ -45,25 +53,58 @@ const FormInput: React.FC<FormInputProps> = ({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={[
-            styles.input,
-            error && styles.inputError,
-            disabled && formStyles.inputDisabled,
-            multiline && { height: numberOfLines * 24 + 24 },
-            secureTextEntry && { paddingRight: 50 }
-          ]}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={COLORS.gray}
-          secureTextEntry={secureTextEntry && !showPassword}
-          autoCapitalize={autoCapitalize}
-          keyboardType={keyboardType}
-          editable={!disabled && editable}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
-        />
+        {Platform.OS === 'web' ? (
+          // For web, use a regular input element with HTML autocomplete
+          <input
+            style={{
+              height: 48,
+              backgroundColor: COLORS.black100,
+              borderRadius: 8,
+              paddingLeft: 16,
+              paddingRight: secureTextEntry ? 50 : 16,
+              fontFamily: FONT.regular,
+              fontSize: 16,
+              color: COLORS.white,
+              width: '100%',
+              border: error ? `1px solid ${COLORS.error}` : 'none',
+              outline: 'none',
+            }}
+            value={value}
+            onChange={(e) => onChangeText(e.target.value)}
+            placeholder={placeholder}
+            type={secureTextEntry && !showPassword ? 'password' : keyboardType === 'email-address' ? 'email' : keyboardType === 'numeric' ? 'number' : 'text'}
+            autoCapitalize={autoCapitalize}
+            disabled={disabled || !editable}
+            autoComplete={autocomplete}
+          />
+        ) : (
+          // For native platforms, use React Native TextInput
+          <TextInput
+            style={[
+              styles.input,
+              error && styles.inputError,
+              disabled && formStyles.inputDisabled,
+              multiline && { height: numberOfLines * 24 + 24 },
+              secureTextEntry && { paddingRight: 50 }
+            ]}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor={COLORS.gray}
+            secureTextEntry={secureTextEntry && !showPassword}
+            autoCapitalize={autoCapitalize}
+            keyboardType={keyboardType}
+            editable={!disabled && editable}
+            multiline={multiline}
+            numberOfLines={numberOfLines}
+            // Apply platform-specific props only if they're provided
+            {...(Platform.OS === 'ios' && textContentType ? 
+              // Cast to any to avoid TypeScript errors
+              { textContentType: textContentType as any } : 
+              autoCompleteType ? { autoCompleteType } : {}
+            )}
+          />
+        )}
         {secureTextEntry && (
           <TouchableOpacity 
             style={styles.eyeIcon}

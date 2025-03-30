@@ -2,36 +2,50 @@ package lv.degra.accounting.usermanager.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import lv.degra.accounting.core.user.authorize.config.JwtTokenProvider;
 import lv.degra.accounting.core.user.authorize.service.AuthService;
 
 class JwtTokenProviderTest {
 
-    private JwtTokenProvider jwtTokenProvider;
+    @Mock
     private JwtDecoder jwtDecoder;
+    
+    @Mock
     private AuthService authService;
+    
+    @InjectMocks
+    private JwtTokenProvider jwtTokenProvider;
 
     @BeforeEach
     void setUp() {
-        jwtDecoder = mock(JwtDecoder.class);
-        authService = mock(AuthService.class);
-        jwtTokenProvider = new JwtTokenProvider(jwtDecoder, authService);
+        MockitoAnnotations.openMocks(this);
+        
+        // No need to mock createJwtDecoder method as it's now injected
+        ReflectionTestUtils.setField(jwtTokenProvider, "jwtDecoder", jwtDecoder);
     }
 
     @Test
@@ -160,5 +174,111 @@ class JwtTokenProviderTest {
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
             () -> jwtTokenProvider.parseToken(token));
+    }
+    
+    @Test
+    void validateToken_ValidToken() {
+        // Arrange
+        String token = "valid.token";
+        Jwt jwt = mock(Jwt.class);
+        Instant futureTime = Instant.now().plusSeconds(3600);
+        
+        when(jwtDecoder.decode(token)).thenReturn(jwt);
+        when(jwt.getExpiresAt()).thenReturn(futureTime);
+        
+        // Act & Assert - no exception should be thrown
+        jwtTokenProvider.validateToken(token);
+        verify(jwtDecoder).decode(token);
+    }
+    
+    @Test
+    void validateToken_ExpiredToken() {
+        // Arrange
+        String token = "expired.token";
+        Jwt jwt = mock(Jwt.class);
+        Instant pastTime = Instant.now().minusSeconds(3600);
+        
+        when(jwtDecoder.decode(token)).thenReturn(jwt);
+        when(jwt.getExpiresAt()).thenReturn(pastTime);
+        
+        // Act & Assert
+        assertThrows(JwtException.class, 
+            () -> jwtTokenProvider.validateToken(token));
+        verify(jwtDecoder).decode(token);
+    }
+    
+    @Test
+    void validateToken_InvalidToken() {
+        // Arrange
+        String token = "invalid.token";
+        
+        when(jwtDecoder.decode(token)).thenThrow(new JwtException("Invalid token"));
+        
+        // Act & Assert
+        assertThrows(JwtException.class, 
+            () -> jwtTokenProvider.validateToken(token));
+        verify(jwtDecoder).decode(token);
+    }
+    
+    @Test
+    void refreshExpiredToken_ValidNonExpiredToken() {
+        // Arrange
+        String token = "valid.token";
+        long futureTime = System.currentTimeMillis() / 1000 + 3600; // 1 hour in the future
+        
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("exp", futureTime);
+        
+        // Mock parseToken to return our claims
+        ReflectionTestUtils.setField(jwtTokenProvider, "objectMapper", new com.fasterxml.jackson.databind.ObjectMapper());
+        
+        // Create a token with future expiration
+        String payload = "{\"exp\":" + futureTime + ",\"sub\":\"user123\"}";
+        String validToken = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
+        
+        // Act
+        Map<String, Object> result = jwtTokenProvider.refreshExpiredToken(validToken);
+        
+        // Assert
+        assertNull(result); // Should return null for non-expired tokens
+        verify(authService, never()).refreshTokenIfExpired(any());
+    }
+    
+    @Test
+    void refreshExpiredToken_ExpiredToken() {
+        // Arrange
+        long pastTime = System.currentTimeMillis() / 1000 - 3600; // 1 hour in the past
+        Map<String, Object> refreshResponse = Map.of(
+            "access_token", "new.token",
+            "expires_in", 3600,
+            "token_type", "bearer"
+        );
+        
+        // Create a token with past expiration
+        String payload = "{\"exp\":" + pastTime + ",\"sub\":\"user123\"}";
+        String expiredToken = "header." + Base64.getUrlEncoder().encodeToString(payload.getBytes()) + ".signature";
+        
+        when(authService.refreshTokenIfExpired(expiredToken)).thenReturn(refreshResponse);
+        
+        // Act
+        Map<String, Object> result = jwtTokenProvider.refreshExpiredToken(expiredToken);
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals("new.token", result.get("access_token"));
+        assertEquals(3600, result.get("expires_in"));
+        assertEquals("bearer", result.get("token_type"));
+        verify(authService).refreshTokenIfExpired(expiredToken);
+    }
+    
+    @Test
+    void refreshExpiredToken_InvalidToken() {
+        // Arrange
+        String invalidToken = "invalid-token";
+        
+        // Act & Assert
+        assertThrows(JwtException.class, 
+            () -> jwtTokenProvider.refreshExpiredToken(invalidToken));
+        verify(authService, never()).refreshTokenIfExpired(any());
     }
 }

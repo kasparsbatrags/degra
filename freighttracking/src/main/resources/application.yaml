@@ -13,5 +13,5 @@ logging:
     name: Logs/freighttracking.log
   level:
     root: info
-    lv.degra.accounting.company: info
+    lv.degra.accounting.freighttracking: info
     org.hibernate.SQL: info

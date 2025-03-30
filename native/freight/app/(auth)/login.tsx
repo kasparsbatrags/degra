@@ -110,6 +110,9 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             error={formErrors.email}
+            autocomplete="email"
+            textContentType="emailAddress"
+            autoCompleteType="email"
           />
 
           <FormInput
@@ -121,6 +124,9 @@ export default function LoginScreen() {
             }}
             secureTextEntry
             error={formErrors.password}
+            autocomplete="current-password"
+            textContentType="password"
+            autoCompleteType="password"
           />
 
           <Button

@@ -10,6 +10,9 @@ spring:
     hikari:
       maximum-pool-size: 15
 
+  config:
+    import: optional:classpath:application-shared.yaml
+
 keycloak:
   auth-server-url: https://route.degra.lv
   realm: degra-test-realm

@@ -8,6 +8,7 @@ import static lv.degra.accounting.core.config.ApiConstants.PATH_USER;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -30,19 +30,16 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Slf4j
-public class SecurityConfig {
+public class UserManagerSecurityConfig {
 
     @Value("${app.security.allowed-origins}")
     private List<String> allowedOrigins;
 
-    @Value("${keycloak.realm}")
-    private String keycloakRealm;
-
-	@Value("${keycloak.auth-server-url}")
-	private String authServerUrl;
-
 	@Value("${spring.profiles.active:}")
 	private String activeProfile;
+	
+	@Autowired
+	private JwtDecoder jwtDecoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -71,7 +68,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+                .jwt(jwt -> jwt.decoder(jwtDecoder))
             )
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -96,11 +93,5 @@ public class SecurityConfig {
         return source;
     }
 
-	@Bean
-	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withJwkSetUri(
-						authServerUrl+ "/realms/" + keycloakRealm + "/protocol/openid-connect/certs")
-				.build();
-	}
 
 }

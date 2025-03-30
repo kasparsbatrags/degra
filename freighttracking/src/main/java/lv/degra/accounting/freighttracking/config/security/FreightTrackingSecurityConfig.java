@@ -108,7 +108,8 @@ public class FreightTrackingSecurityConfig {
 					}
 				}, SecurityContextHolderFilter.class).oauth2ResourceServer(oauth2 -> {
 					log.info("Configuring OAuth2 Resource Server");
-					oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()));
+					oauth2.jwt(jwt -> jwt
+						.jwtAuthenticationConverter(jwtAuthenticationConverter()));
 				}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();

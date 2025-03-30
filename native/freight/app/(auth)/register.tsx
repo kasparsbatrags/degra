@@ -290,6 +290,9 @@ export default function RegisterScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 error={formErrors.email}
+                autocomplete="email"
+                textContentType="emailAddress"
+                autoCompleteType="email"
               />
 
               <FormInput
@@ -299,6 +302,9 @@ export default function RegisterScreen() {
                 placeholder="Ievadiet vārdu"
                 autoCapitalize="words"
                 error={formErrors.firstName}
+                autocomplete="given-name"
+                textContentType="givenName"
+                autoCompleteType="name"
               />
 
               <FormInput
@@ -308,6 +314,9 @@ export default function RegisterScreen() {
                 placeholder="Ievadiet uzvārdu"
                 autoCapitalize="words"
                 error={formErrors.lastName}
+                autocomplete="family-name"
+                textContentType="familyName"
+                autoCompleteType="name"
               />
 
               <CompanySearch
@@ -330,6 +339,9 @@ export default function RegisterScreen() {
                 placeholder="Ievadiet paroli"
                 secureTextEntry
                 error={formErrors.password}
+                autocomplete="new-password"
+                textContentType="newPassword"
+                autoCompleteType="password"
               />
             </View>
           )}
@@ -343,6 +355,7 @@ export default function RegisterScreen() {
                 onChangeText={(value) => updateFormData('truckMaker', value)}
                 placeholder="Ievadiet ražotāju"
                 error={formErrors.truckMaker}
+                autocomplete="organization"
               />
 
               <FormInput
@@ -351,6 +364,7 @@ export default function RegisterScreen() {
                 onChangeText={(value) => updateFormData('truckModel', value)}
                 placeholder="Ievadiet modeli"
                 error={formErrors.truckModel}
+                autocomplete="off"
               />
 
               <FormInput
@@ -359,6 +373,7 @@ export default function RegisterScreen() {
                 onChangeText={(value) => updateFormData('truckRegistrationNumber', value)}
                 placeholder="Ievadiet reģistrācijas numuru"
                 error={formErrors.truckRegistrationNumber}
+                autocomplete="off"
               />
 
               <FormInput
