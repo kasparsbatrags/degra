@@ -45,6 +45,15 @@ usermanager-test:
     reports:
       junit: usermanager/target/surefire-reports/TEST-*.xml
 
+core-test:
+  <<: *maven-setup
+  stage: test
+  script:
+    - mvn clean test -pl core -am
+  artifacts:
+    reports:
+      junit: core/target/surefire-reports/TEST-*.xml
+
 company-test:
   <<: *maven-setup
   stage: test
@@ -87,6 +96,8 @@ core-build:
     - branches
     - test
     - master
+  needs:
+    - core-test
 
 usermanager-maven-build:
   <<: *maven-setup
