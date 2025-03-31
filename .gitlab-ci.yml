@@ -296,9 +296,6 @@ freighttracking-docker-build:
             restart: unless-stopped
             networks:
               - ${ENVIRONMENT}-network
-        networks:
-          ${ENVIRONMENT}-network:
-            name: ${ENVIRONMENT}-network    
       EOL
       "
     - |
