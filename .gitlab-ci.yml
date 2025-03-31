@@ -259,6 +259,11 @@ freighttracking-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
     - |
+      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
+        docker network inspect ${ENVIRONMENT}-network >/dev/null 2>&1 || docker network create ${ENVIRONMENT}-network
+      "
+
+    - |
       ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
