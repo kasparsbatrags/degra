@@ -271,7 +271,6 @@ freighttracking-docker-build:
         services:
           $SERVICE_NAME:
             image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_REF_SLUG
-            container_name: ${ENVIRONMENT}-${SERVICE_NAME}
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
               - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
