@@ -270,6 +270,7 @@ freighttracking-docker-build:
         cat > docker-compose.yml << 'EOL'
         services:
           $SERVICE_NAME:
+            container_name: ${ENVIRONMENT}-$SERVICE_NAME
             image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_REF_SLUG
             environment:
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
@@ -288,6 +289,11 @@ freighttracking-docker-build:
             volumes:
               - ./Logs:/app/Logs:Z
             restart: unless-stopped
+            networks:
+              - ${ENVIRONMENT}-network
+        networks:
+          ${ENVIRONMENT}-network:
+            name: ${ENVIRONMENT}-network    
       EOL
       "
     - |
@@ -295,8 +301,8 @@ freighttracking-docker-build:
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
-        docker-compose down || true &&
-        docker-compose up -d
+        docker-compose -p ${ENVIRONMENT}-$SERVICE_NAME down --remove-orphans || true &&
+        docker-compose -p ${ENVIRONMENT}-$SERVICE_NAME up -d
       "
 
 .deploy-test-template: &deploy-test-template
