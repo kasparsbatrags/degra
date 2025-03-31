@@ -296,7 +296,8 @@ freighttracking-docker-build:
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker-compose pull &&
-        docker-compose -p ${ENVIRONMENT}-${SERVICE_NAME} up -d
+        docker-compose down || true &&
+        docker-compose up -d
       "
 
 .deploy-test-template: &deploy-test-template
