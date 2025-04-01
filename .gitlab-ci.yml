@@ -294,9 +294,9 @@ freighttracking-docker-build:
             volumes:
               - ./Logs:/app/Logs:Z
             restart: unless-stopped
-            networks:
-              ${ENVIRONMENT}-network
-              external: true
+        networks:
+          ${ENVIRONMENT}-network
+            external: true
       EOL
       "
     - |
