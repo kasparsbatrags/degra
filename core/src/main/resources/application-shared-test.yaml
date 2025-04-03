@@ -2,13 +2,18 @@ spring:
   jpa:
     show-sql: false
   datasource:
-    url: jdbc:postgresql://104.248.195.223:5432/degra_test?currentSchema=public
+    url: jdbc:postgresql://localhost:5432/degra_dev?currentSchema=public
     driver-class-name: org.postgresql.Driver
-    username: degra_test
-    password: XHlPqtbx84WZhs6b9it
+    username: postgres
+    password: 1
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
 
   config:
     import: optional:classpath:application-shared.yaml

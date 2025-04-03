@@ -9,6 +9,11 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 15
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
 
   config:
     import: optional:classpath:application-shared.yaml
@@ -32,6 +37,6 @@ logging:
   file:
     name: Logs/${spring.application.name}-dev.log
   level:
-    root: debug
-    lv.degra.accounting.company: debug
-    org.hibernate.SQL: debug
+    root: INFO
+    lv.degra.accounting: INFO
+    org.hibernate.SQL: INFO
