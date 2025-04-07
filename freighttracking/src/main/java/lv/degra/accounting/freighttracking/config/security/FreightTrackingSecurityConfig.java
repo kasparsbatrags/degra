@@ -68,7 +68,8 @@ public class FreightTrackingSecurityConfig {
 					log.info("Disabling CSRF");
 					csrf.disable();
 				}).authorizeHttpRequests(
-						authz -> authz.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						authz -> authz
+								.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_ROUTES + "/**").hasAuthority(USER_ROLE_NAME)
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_TRUCK_OBJECT + "/**").hasAuthority(USER_ROLE_NAME)
 								.requestMatchers(FREIGHT_TRACKING_PATH + ENDPOINT_CARGO_TYPES + "/**").hasAuthority(USER_ROLE_NAME)
@@ -130,6 +131,7 @@ public class FreightTrackingSecurityConfig {
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 		configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.addAllowedHeader("x-platform");
 		configuration.setAllowCredentials(true);
 		configuration.setMaxAge(3600L);
 

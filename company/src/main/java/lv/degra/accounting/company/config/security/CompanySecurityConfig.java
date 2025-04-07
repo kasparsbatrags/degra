@@ -1,4 +1,4 @@
-package lv.degra.accounting.company.config;
+package lv.degra.accounting.company.config.security;
 
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
 
@@ -73,6 +73,7 @@ public class CompanySecurityConfig {
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 		configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.addAllowedHeader("x-platform");
 		configuration.setAllowCredentials(true);
 		configuration.setMaxAge(3600L);
 

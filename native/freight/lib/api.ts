@@ -1,4 +1,4 @@
-import {Buffer} from 'buffer'
+import {jwtDecode} from 'jwt-decode'
 import axiosInstance from '../config/axios'
 import companyAxiosInstance from '../config/companyAxios'
 import {API_ENDPOINTS} from '../config/environment'
@@ -12,19 +12,8 @@ interface UserLoginResponse {
 }
 
 export const decodeJwt = (token: string): any | null => {
-  const atob = (input: string) => Buffer.from(input, "base64").toString("binary");
   try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const decodedPayload = JSON.parse(
-      decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      )
-    );
-    return decodedPayload;
+    return jwtDecode(token);
   } catch (error) {
     console.error("Kļūda, dekodējot JWT tokenu:", error);
     return null;

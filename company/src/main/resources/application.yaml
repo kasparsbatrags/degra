@@ -2,42 +2,8 @@ spring:
   application:
     name: company
   jpa:
-    show-sql: false
-    open-in-view: false
     hibernate:
       ddl-auto: update
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
-          jwk-set-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/certs
-
-keycloak:
-  auth-server-url: https://route.degra.lv
-  realm: freight-tracking-app-realm
-  resource: freight-tracking-client
-  credentials:
-    secret: 3Fv47oFkRuqYh2iZDubDJbapzGgdBbGr
-  connection-timeout: 5000
-  read-timeout: 5000
-  use-resource-role-mappings: true
-  bearer-only: true
-  public-client: false
-
 application:
   company-download-cron: 0 0 2 * * ?
-
-app:
-  security:
-    allowed-origins: "*"
-
-# Logging configuration with relative path
-logging:
-  file:
-    name: Logs/company.log
-  level:
-    root: info
-    lv.degra.accounting.company: info
-    org.hibernate.SQL: info

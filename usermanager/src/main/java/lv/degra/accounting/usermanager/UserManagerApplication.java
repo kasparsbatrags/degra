@@ -11,16 +11,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import lv.degra.accounting.core.company.register.service.CompanyRegisterImportServiceImpl;
 
+@SpringBootApplication
 @EnableConfigurationProperties
 @EnableFeignClients(basePackages = "lv.degra.accounting.core.user.authorize.client")
-@SpringBootApplication
-@ComponentScan(basePackages = { "lv.degra.accounting.core", "lv.degra.accounting.usermanager" },
-		excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-				classes = { lv.degra.accounting.core.system.files.FileServiceImpl.class,
-						lv.degra.accounting.core.address.register.service.AddressRegisterServiceImpl.class,
-						CompanyRegisterImportServiceImpl.class}))
-@EnableJpaRepositories(basePackages = { "lv.degra.accounting.core" })
+@ComponentScan(basePackages = { "lv.degra.accounting.core", "lv.degra.accounting.usermanager" })
 @EntityScan(basePackages = { "lv.degra.accounting.core" })
+@EnableJpaRepositories(basePackages = "lv.degra.accounting.core")
 public class UserManagerApplication {
 
 	public static void main(String[] args) {

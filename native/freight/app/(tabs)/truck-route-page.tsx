@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
 	content: Platform.OS === 'web' ? {
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
 	} : {
-		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: CONTAINER_WIDTH.mobile,
+		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: CONTAINER_WIDTH.mobile, alignSelf: 'center' as const,
 	}, 
 	title: {
 		fontSize: 24, fontFamily: FONT.semiBold, color: COLORS.white, marginBottom: 24,

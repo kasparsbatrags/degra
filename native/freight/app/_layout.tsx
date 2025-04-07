@@ -5,10 +5,11 @@ import {useFonts} from 'expo-font'
 import {Stack} from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import {useEffect} from 'react'
-import {useColorScheme} from 'react-native'
+import {useColorScheme, View} from 'react-native'
 import queryClient from '../config/queryClient'
 import {AuthProvider} from '../context/AuthContext'
 import {setupSyncListener} from '../services/syncService'
+import EnvironmentIndicator from '../components/EnvironmentIndicator'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -74,10 +75,13 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
+          <View style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+            <EnvironmentIndicator />
+          </View>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

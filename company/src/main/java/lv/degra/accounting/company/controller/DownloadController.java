@@ -1,4 +1,4 @@
-package lv.degra.accounting.company.controllers;
+package lv.degra.accounting.company.controller;
 
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_COMPANY;
 import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_IMPORT;

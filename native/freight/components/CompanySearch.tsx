@@ -161,7 +161,7 @@ export default function CompanySearch({
   ), [handleSelect, selectedIndex]);
 
   return (
-<View style={[styles.container, { marginBottom: SPACING.m, marginTop: 28 }]}>
+<View style={[styles.container, { marginBottom: SPACING.s, marginTop: SPACING.m }]}>
       {label && <Text style={styles.label}>{label}</Text>}
 
       <View style={[
@@ -204,12 +204,11 @@ export default function CompanySearch({
         ) : null}
       </View>
 
-	{typeof (error || errorMessage) === 'string' && (error || errorMessage).trim() !== '' && (
+	{typeof (error || errorMessage) === 'string' && (error || errorMessage)?.trim() !== '' && (
 			<Text style={styles.errorText}>
-				{(error || errorMessage).trim()}
+				{(error || errorMessage)?.trim()}
 			</Text>
 	)}
-
 
       {showSuggestions && (
         <TouchableWithoutFeedback onPress={() => setShowSuggestions(false)}>

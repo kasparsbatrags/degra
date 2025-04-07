@@ -37,6 +37,8 @@ logging:
   file:
     name: Logs/${spring.application.name}-dev.log
   level:
-    root: INFO
-    lv.degra.accounting: INFO
-    org.hibernate.SQL: INFO
+    root: DEBUG
+    lv.degra.accounting: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

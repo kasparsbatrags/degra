@@ -1,6 +1,10 @@
-server:
-  port: 8085
-
 spring:
   config:
     import: optional:classpath:application-shared-${spring.profiles.active}.yaml
+
+server:
+  port: 8085
+
+app:
+  security:
+    allowed-origins: "http://localhost:8081"

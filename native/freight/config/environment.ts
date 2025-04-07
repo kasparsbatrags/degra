@@ -1,83 +1,134 @@
-import {Platform} from 'react-native'
+import {
+  isAndroid, 
+  isDevelopment, 
+  isIOS, 
+  isWeb, 
+  platformSpecific, 
+  getEnvironment,
+  Environment as EnvType
+} from '../utils/platformUtils'
 
+/**
+ * Vides konfigurācija
+ */
 interface Environment {
+  // API URLs
   userManagerApiUrl: string;
-  androidUrl: string;
-  iosUrl: string;
-  webUrl: string;
   companyApiUrl: string;
   freightTrackingApiUrl: string;
-  androidFreightTrackingUrl: string;
-  iosFreightTrackingUrl: string;
-  webFreightTrackingUrl: string;
+  
+  // Citi konfigurācijas parametri
+  apiTimeout: number;
+  cacheTime: number;
+  maxRetries: number;
 }
 
-interface Config {
-  dev: Environment;
-  prod: Environment;
-}
+/**
+ * Izstrādes vides konfigurācija
+ */
+const devEnvironment: Environment = {
+  userManagerApiUrl: platformSpecific({
+    web: 'http://localhost:8080',
+    ios: 'http://localhost:8080',
+    android: 'http://10.0.2.2:8080',
+    default: 'http://localhost:8080'
+  }),
+  companyApiUrl:  platformSpecific({
+	  web: 'http://localhost:8085',
+	  ios: 'http://localhost:8085',
+	  android: 'http://10.0.2.2:8085',
+	  default: 'http://localhost:8085'
+  }),
 
-export const ENV: Config = {
-  dev: {
-    userManagerApiUrl: 'http://localhost:8080',
-    androidUrl: 'http://10.0.2.2:8080',
-    iosUrl: 'http://localhost:8080',
-    webUrl: 'http://localhost:8080',
-    companyApiUrl: 'https://test-company.degra.lv',
-    freightTrackingApiUrl: 'http://localhost:8084',
-    androidFreightTrackingUrl: 'http://10.0.2.2:8084',
-    iosFreightTrackingUrl: 'http://localhost:8084',
-    webFreightTrackingUrl: 'http://localhost:8084'
-  },
-  prod: {
-    userManagerApiUrl: 'https://api.degra.lv',
-    androidUrl: 'https://api.degra.lv',
-    iosUrl: 'https://api.degra.lv',
-    webUrl: 'https://api.degra.lv',
-    companyApiUrl: 'https://company-api.degra.lv',
-    freightTrackingApiUrl: 'https://freight-tracking-api.degra.lv',
-    androidFreightTrackingUrl: 'https://freight-tracking-api.degra.lv',
-    iosFreightTrackingUrl: 'https://freight-tracking-api.degra.lv',
-    webFreightTrackingUrl: 'https://freight-tracking-api.degra.lv'
+  freightTrackingApiUrl: platformSpecific({
+    web: 'http://localhost:8084',
+    ios: 'http://localhost:8084',
+    android: 'http://10.0.2.2:8084',
+    default: 'http://localhost:8084'
+  }),
+  apiTimeout: 15000,
+  cacheTime: 1000 * 60 * 60, // 1 stunda
+  maxRetries: 3
+};
+
+/**
+ * Testa vides konfigurācija
+ */
+const testEnvironment: Environment = {
+  userManagerApiUrl: 'https://test-usermanager.degra.lv',
+  companyApiUrl: 'https://test-company.degra.lv',
+  freightTrackingApiUrl: 'https://test-freight-tracking.degra.lv',
+  apiTimeout: 12000,
+  cacheTime: 1000 * 60 * 45, // 45 minūtes
+  maxRetries: 3
+};
+
+/**
+ * Produkcijas vides konfigurācija
+ */
+const prodEnvironment: Environment = {
+  userManagerApiUrl: 'https://api.degra.lv',
+  companyApiUrl: 'https://company.degra.lv',
+  freightTrackingApiUrl: 'https://freight-tracking-api.degra.lv',
+  apiTimeout: 10000,
+  cacheTime: 1000 * 60 * 30, // 30 minūtes
+  maxRetries: 2
+};
+
+/**
+ * Aktīvā vides konfigurācija
+ */
+export const ENV: Environment = (() => {
+  const env = getEnvironment();
+  switch (env) {
+    case 'development':
+      return devEnvironment;
+    case 'test':
+      return testEnvironment;
+    case 'production':
+    default:
+      return prodEnvironment;
   }
-};
+})();
 
-export const getCompanyApiUrl = (): string => {
-  return __DEV__ ? ENV.dev.companyApiUrl : ENV.prod.companyApiUrl;
-};
+/**
+ * Iegūst pašreizējās vides nosaukumu
+ */
+export const getCurrentEnvironmentName = (): EnvType => getEnvironment();
 
-export const getUserManagerApiUrl = (): string => {
-  if (__DEV__) {
-    switch (Platform.OS) {
-      case 'android':
-        return ENV.dev.androidUrl;
-      case 'ios':
-        return ENV.dev.iosUrl;
-      case 'web':
-        return ENV.dev.userManagerApiUrl;
-      default:
-        return ENV.dev.userManagerApiUrl;
-    }
-  }
-  return ENV.prod.userManagerApiUrl;
-};
+/**
+ * Iegūst Company API URL
+ */
+export const getCompanyApiUrl = (): string => ENV.companyApiUrl;
 
-export const getFreightTrackingApiUrl = (): string => {
-  if (__DEV__) {
-    switch (Platform.OS) {
-      case 'android':
-        return ENV.dev.androidFreightTrackingUrl;
-      case 'ios':
-        return ENV.dev.iosFreightTrackingUrl;
-      case 'web':
-        return ENV.dev.webFreightTrackingUrl;
-      default:
-        return ENV.dev.freightTrackingApiUrl;
-    }
-  }
-  return ENV.prod.freightTrackingApiUrl;
-};
+/**
+ * Iegūst User Manager API URL
+ */
+export const getUserManagerApiUrl = (): string => ENV.userManagerApiUrl;
 
+/**
+ * Iegūst Freight Tracking API URL
+ */
+export const getFreightTrackingApiUrl = (): string => ENV.freightTrackingApiUrl;
+
+/**
+ * Iegūst API timeout vērtību
+ */
+export const getApiTimeout = (): number => ENV.apiTimeout;
+
+/**
+ * Iegūst kešošanas laiku
+ */
+export const getCacheTime = (): number => ENV.cacheTime;
+
+/**
+ * Iegūst maksimālo mēģinājumu skaitu
+ */
+export const getMaxRetries = (): number => ENV.maxRetries;
+
+/**
+ * API endpointu definīcijas
+ */
 export const API_ENDPOINTS = {
   AUTH: {
     REGISTER: '/api/user/register',

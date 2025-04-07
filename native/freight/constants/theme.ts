@@ -99,6 +99,6 @@ export const CONTAINER_WIDTH: {
   mobile: DimensionValue;
   web: number;
 } = {
-  mobile: "100%",
+  mobile: "90%",
   web: 400,
 };

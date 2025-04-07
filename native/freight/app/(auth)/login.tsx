@@ -181,6 +181,7 @@ const styles = StyleSheet.create<Styles>({
     paddingHorizontal: 16,
     marginVertical: 24,
     width: CONTAINER_WIDTH.mobile,
+	alignSelf: 'center' as const,
   },
   heading: {
     fontSize: 32,

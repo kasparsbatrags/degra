@@ -85,6 +85,7 @@ public class UserManagerSecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.addAllowedHeader("x-platform");
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

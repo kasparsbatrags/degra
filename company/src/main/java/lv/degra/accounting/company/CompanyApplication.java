@@ -21,6 +21,7 @@ public class CompanyApplication {
 
     private final CompanyRegisterImportService companyRegisterImportService;
 
+
     public CompanyApplication(CompanyRegisterImportService companyRegisterImportService) {
         this.companyRegisterImportService = companyRegisterImportService;
     }

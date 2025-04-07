@@ -73,6 +73,7 @@ const styles = StyleSheet.create<Styles>({
     flex: 1,
     width: CONTAINER_WIDTH.mobile,
     padding: 24,
+	alignSelf: 'center' as const,
   },
   title: {
     fontSize: 24,

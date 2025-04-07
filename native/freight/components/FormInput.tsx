@@ -61,11 +61,11 @@ const FormInput: React.FC<FormInputProps> = ({
               backgroundColor: COLORS.black100,
               borderRadius: 8,
               paddingLeft: 16,
-              paddingRight: secureTextEntry ? 50 : 16,
+			  paddingRight: secureTextEntry && Platform.OS !== 'web' ? 50 : 16,
               fontFamily: FONT.regular,
               fontSize: 16,
               color: COLORS.white,
-              width: '100%',
+              width: '90%',
               border: error ? `1px solid ${COLORS.error}` : 'none',
               outline: 'none',
             }}
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   container: {
     marginBottom: 16,
-    marginTop: 28,
+    marginTop: 8,
   },
   label: {
     fontFamily: FONT.medium,
