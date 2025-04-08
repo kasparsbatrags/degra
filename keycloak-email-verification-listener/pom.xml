@@ -30,5 +30,18 @@
 		  <version>26.1.4</version>
 		  <scope>compile</scope>
 	  </dependency>
+		<!-- Override vulnerable dependency with safe version -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.5</version>
+		</dependency>
+
+		<!-- Override commons-codec vulnerable version -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.16.0</version>
+		</dependency>
   </dependencies>
 </project>
