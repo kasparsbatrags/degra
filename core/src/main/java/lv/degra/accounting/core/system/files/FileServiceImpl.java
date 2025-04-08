@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,50 +20,33 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.client.RestTemplate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lv.degra.accounting.core.system.files.exception.DeleteFileException;
-import lv.degra.accounting.core.system.files.exception.DeleteFolderException;
-import lv.degra.accounting.core.system.files.exception.DownloadFileException;
-import lv.degra.accounting.core.system.files.exception.ExtractZipFileException;
-import lv.degra.accounting.core.system.files.exception.SaveFileException;
+import lv.degra.accounting.core.system.files.exception.*;
+
 import net.lingala.zip4j.exception.ZipException;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
 	private static final String ZIP_EXTENSION = ".zip";
 	private static final String TEMP_DIRECTORY_PREFIX = "extracted_zip";
-	private final ZipFileFactory zipFileFactory;
-	private RestTemplate restTemplate;
 
-	public FileServiceImpl(ZipFileFactory zipFileFactory, RestTemplate restTemplate) {
-		this.zipFileFactory = zipFileFactory;
-		this.restTemplate = restTemplate;
-	}
-	
-	/**
-	 * Creates a new RestTemplate if it's null.
-	 * This ensures we don't get NullPointerException when restTemplate is not injected.
-	 * 
-	 * @return The existing or newly created RestTemplate
-	 */
-	private RestTemplate getRestTemplate() {
-		if (restTemplate == null) {
-			restTemplate = new RestTemplate();
-		}
-		return restTemplate;
-	}
+	private final ZipFileFactory zipFileFactory;
+	private final RestTemplate restTemplate;
 
 	@Override
 	public byte[] downloadFileByUrl(String fileUrl) {
 		try {
-			HttpHeaders headers = createHttpHeaders();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
+
 			HttpEntity<String> entity = new HttpEntity<>(headers);
+			ResponseEntity<byte[]> response = restTemplate.exchange(fileUrl, HttpMethod.GET, entity, byte[].class);
 
-			ResponseEntity<byte[]> response = getRestTemplate().exchange(fileUrl, HttpMethod.GET, entity, byte[].class);
-
-			return response.getBody() != null ? response.getBody() : new byte[] {};
+			return response.getBody() != null ? response.getBody() : ArrayUtils.EMPTY_BYTE_ARRAY;
 		} catch (Exception e) {
 			log.error("Failed to download file from URL: {}", fileUrl, e);
 			throw new DownloadFileException("Error downloading file from URL: " + fileUrl, e);
@@ -74,7 +58,7 @@ public class FileServiceImpl implements FileService {
 		Path path = Paths.get(localFilePath);
 		if (Files.notExists(path)) {
 			log.warn("File does not exist: {}", localFilePath);
-			return new byte[] {};
+			return ArrayUtils.EMPTY_BYTE_ARRAY;
 		}
 
 		try {
@@ -82,31 +66,29 @@ public class FileServiceImpl implements FileService {
 			return Files.readAllBytes(path);
 		} catch (IOException e) {
 			log.error("Error reading file locally: {}", localFilePath, e);
-			return new byte[] {};
+			return ArrayUtils.EMPTY_BYTE_ARRAY;
 		}
 	}
 
 	@Override
-	public String unzipFileInFolder(byte[] content) throws ExtractZipFileException {
+	public String unzipFileInFolder(byte[] content) {
 		Path zipPath = createTempZipFile(content);
+		Path targetDir = getTempDirectoryPath();
+
 		try {
-			// Create the target directory if it doesn't exist
-			Path targetDir = getTempDirectoryPath();
 			Files.createDirectories(targetDir);
-			
 			zipFileFactory.createZipFile(zipPath.toString()).extractAll(targetDir.toString());
 			return zipPath.getParent().toString();
 		} catch (ZipException e) {
 			log.error("Error extracting ZIP file: {}", zipPath, e);
-			throw new ExtractZipFileException("Failed to extract ZIP file: " + e.getMessage());
+			throw new ExtractZipFileException("Failed to extract ZIP file: " + e.getMessage(), e);
 		} catch (IOException e) {
 			log.error("Error creating directory for ZIP extraction: {}", getTempDirectoryPath(), e);
-			throw new ExtractZipFileException("Failed to create directory for ZIP extraction: " + e.getMessage());
+			throw new ExtractZipFileException("Failed to create directory for ZIP extraction: " + e.getMessage(), e);
 		} finally {
 			try {
 				cleanUpFile(zipPath);
 			} catch (DeleteFileException e) {
-				// Log but don't rethrow as this is cleanup code
 				log.warn("Failed to clean up temporary ZIP file: {}", zipPath, e);
 			}
 		}
@@ -115,7 +97,6 @@ public class FileServiceImpl implements FileService {
 	@Override
 	public void saveFileInFolder(byte[] content, Path filePath) {
 		try {
-			// Check if parent directory exists
 			if (filePath.getParent() != null) {
 				Files.createDirectories(filePath.getParent());
 			}
@@ -132,10 +113,8 @@ public class FileServiceImpl implements FileService {
 			log.warn("Attempted to delete a null path");
 			return;
 		}
-		
+
 		try {
-			// The deleteIfExists method already handles the case when the file doesn't exist
-			// so we don't need to check existence separately
 			Files.deleteIfExists(path);
 		} catch (IOException e) {
 			log.error("Failed to delete file: {}", path, e);
@@ -149,14 +128,12 @@ public class FileServiceImpl implements FileService {
 			log.warn("Attempted to delete a null directory path");
 			return;
 		}
-		
+
 		try {
-			// Log a warning if the directory doesn't exist, but still attempt to delete
-			// This ensures the test can mock FileSystemUtils.deleteRecursively to throw an IOException
 			if (!Files.exists(path) || !Files.isDirectory(path)) {
 				log.warn("Directory does not exist or is not a directory: {}", path);
 			}
-			
+
 			FileSystemUtils.deleteRecursively(path);
 		} catch (IOException e) {
 			log.error("Failed to delete directory: {}", path, e);
@@ -173,21 +150,17 @@ public class FileServiceImpl implements FileService {
 
 	private Path createTempZipFile(byte[] content) {
 		try {
-			String zipFileName = randomAlphanumeric(8) + ZIP_EXTENSION;
 			Path tempDir = getTempDirectoryPath();
 			Files.createDirectories(tempDir);
-			Path zipPath = Paths.get(tempDir.toString(), zipFileName);
+
+			String zipFileName = randomAlphanumeric(8) + ZIP_EXTENSION;
+			Path zipPath = tempDir.resolve(zipFileName);
+
 			saveFileInFolder(content, zipPath);
 			return zipPath;
 		} catch (IOException e) {
 			log.error("Failed to create temporary directory for ZIP file", e);
 			throw new SaveFileException("Error creating temporary directory for ZIP file", e);
 		}
-	}
-
-	private HttpHeaders createHttpHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
-		return headers;
 	}
 }

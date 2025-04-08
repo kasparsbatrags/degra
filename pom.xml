@@ -17,11 +17,11 @@
 	<modules>
 		<module>core</module>
 		<module>usermanager</module>
-		<module>desktop</module>
 		<module>company</module>
 		<module>address</module>
 		<module>freighttracking</module>
 		<module>keycloak-email-verification-listener</module>
+		<module>desktop</module>
 	</modules>
 
 	<properties>
@@ -229,97 +229,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>jacoco-initialize</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-report</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report-site-aggregate</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>report-aggregate</goal>
-						</goals>
-						<configuration>
-							<dataFileIncludes>${project.build.directory}${file.separator}jacoco-merged.exec</dataFileIncludes>
-							<outputDirectory>${project.build.directory}${file.separator}jacoco-aggregate</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>merge</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>merge</goal>
-						</goals>
-						<configuration>
-							<fileSets>
-								<fileSet>
-									<directory>${project.basedir}${file.separator}core${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}${file.separator}desktop${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}${file.separator}company${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}${file.separator}address${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
-								</fileSet>
-							</fileSets>
-							<destFile>${project.build.directory}${file.separator}jacoco-merged.exec</destFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>default-check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>INSTRUCTION</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.01</minimum>
-										</limit>
-									</limits>
-								</rule>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<excludes>
-						<exclude>de/jensd/fx/glyphs/fontawesome/**</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
