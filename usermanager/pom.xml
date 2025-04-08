@@ -57,14 +57,14 @@
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-admin-client</artifactId>
-			<version>25.0.3</version>
+			<version>26.0.4</version>
 		</dependency>
 
 		<!-- Keycloak Core -->
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-core</artifactId>
-			<version>25.0.3</version>
+			<version>26.1.4</version>
 		</dependency>
 
 		<!-- Keycloak Spring Boot Adapter -->

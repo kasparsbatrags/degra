@@ -27,7 +27,7 @@
 	<properties>
 		<jacoco.version>0.8.12</jacoco.version>
 		<java.version>21</java.version>
-		<javafx.version>21</javafx.version>
+		<javafx.version>21.0.4</javafx.version>
 		<spring.version>3.4.3</spring.version>
 		<postgres.version>42.7.1</postgres.version>
 		<sonar.coverage.jacoco.xmlReportPaths>

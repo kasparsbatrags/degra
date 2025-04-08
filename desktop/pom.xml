@@ -28,30 +28,34 @@
 			<artifactId>hibernate-envers</artifactId>
 			<version>6.5.3.Final</version>
 		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-fxml</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-		</dependency>
+
+		<!-- JavaFX bez classifier -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-base</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-graphics</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
@@ -67,11 +71,8 @@
 			<artifactId>ikonli-materialdesign-pack</artifactId>
 			<version>12.3.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-swing</artifactId>
-			<version>21.0.4</version>
-		</dependency>
+
+		<!-- Testēšanas atkarības -->
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
@@ -93,6 +94,17 @@
 
 	<build>
 		<plugins>
+			<!-- JavaFX Maven Plugin -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>lv.degra.desktop.MainApp</mainClass>
+				</configuration>
+			</plugin>
+
+			<!-- Esošais JaCoCo -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -100,23 +112,17 @@
 				<executions>
 					<execution>
 						<id>jacoco-initialize</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
+						<goals><goal>prepare-agent</goal></goals>
 					</execution>
 					<execution>
 						<id>jacoco-report</id>
 						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
+						<goals><goal>report</goal></goals>
 					</execution>
 					<execution>
 						<id>report-site-aggregate</id>
 						<phase>verify</phase>
-						<goals>
-							<goal>report-aggregate</goal>
-						</goals>
+						<goals><goal>report-aggregate</goal></goals>
 						<configuration>
 							<dataFileIncludes>${project.build.directory}${file.separator}jacoco-merged.exec</dataFileIncludes>
 							<outputDirectory>${project.build.directory}${file.separator}jacoco-aggregate</outputDirectory>
@@ -128,34 +134,24 @@
 					<execution>
 						<id>merge</id>
 						<phase>verify</phase>
-						<goals>
-							<goal>merge</goal>
-						</goals>
+						<goals><goal>merge</goal></goals>
 						<configuration>
 							<fileSets>
 								<fileSet>
 									<directory>${project.basedir}${file.separator}core${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
+									<includes><include>jacoco.exec</include></includes>
 								</fileSet>
 								<fileSet>
 									<directory>${project.basedir}${file.separator}desktop${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
+									<includes><include>jacoco.exec</include></includes>
 								</fileSet>
 								<fileSet>
 									<directory>${project.basedir}${file.separator}company${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
+									<includes><include>jacoco.exec</include></includes>
 								</fileSet>
 								<fileSet>
 									<directory>${project.basedir}${file.separator}address${file.separator}target</directory>
-									<includes>
-										<include>jacoco.exec</include>
-									</includes>
+									<includes><include>jacoco.exec</include></includes>
 								</fileSet>
 							</fileSets>
 							<destFile>${project.build.directory}${file.separator}jacoco-merged.exec</destFile>
@@ -163,9 +159,7 @@
 					</execution>
 					<execution>
 						<id>default-check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
+						<goals><goal>check</goal></goals>
 						<configuration>
 							<rules>
 								<rule>
