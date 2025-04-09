@@ -229,7 +229,7 @@ freight-web-build:
   image: node:20
   script:
     - cd native/freight
-    - npm ci
+    - npm ci --legacy-peer-deps
     - npm run web -- --no-dev --minify
     - npx expo export:web
   artifacts:
