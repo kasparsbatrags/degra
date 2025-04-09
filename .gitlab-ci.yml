@@ -561,6 +561,7 @@ freighttracking-deploy-prod:
 
 freight-web-deploy-test:
   <<: *deploy-web-test-template
+  stage: deploy-test
   needs:
     - job: freight-web-docker-build
       optional: true
@@ -575,6 +576,7 @@ freight-web-deploy-test:
 
 freight-web-deploy-prod:
   <<: *deploy-web-prod-template
+  stage: deploy-prod
   needs:
     - job: freight-web-docker-build
       optional: true
