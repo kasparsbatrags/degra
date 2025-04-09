@@ -4,14 +4,14 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .
 
 # Build the web application
 RUN npm run web -- --no-dev --minify
-RUN npx expo export:web
+RUN npx expo export --platform web --output-dir web-build
 
 # Production stage
 FROM nginx:alpine

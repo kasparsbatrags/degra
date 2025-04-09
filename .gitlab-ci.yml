@@ -231,7 +231,7 @@ freight-web-build:
     - cd native/freight
     - npm ci --legacy-peer-deps
     - npm run web -- --no-dev --minify
-    - npx expo export:web
+    - npx expo export --platform web --output-dir web-build
   artifacts:
     paths:
       - native/freight/web-build/
