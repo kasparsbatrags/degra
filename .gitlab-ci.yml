@@ -227,10 +227,14 @@ freighttracking-docker-build:
 freight-web-build:
   stage: build
   image: node:20
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-freight-node-modules
+    paths:
+      - native/freight/node_modules/
   script:
     - cd native/freight
     - npm ci --legacy-peer-deps
-    - npm run web -- --no-dev --minify
+    # Skip the "npm run web" command as it starts a server that waits for connections
     - npx expo export --platform web --output-dir web-build
   artifacts:
     paths:

@@ -9,8 +9,8 @@ RUN npm ci --legacy-peer-deps
 # Copy the rest of the application
 COPY . .
 
-# Build the web application
-RUN npm run web -- --no-dev --minify
+# Build the web application - skip npm run web as it starts a server
+# that waits for connections, which doesn't make sense in a build environment
 RUN npx expo export --platform web --output-dir web-build
 
 # Production stage
