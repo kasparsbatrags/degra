@@ -584,7 +584,6 @@ freight-web-deploy-test:
 
 freight-web-deploy-prod:
   <<: *deploy-web-prod-template
-  stage: deploy-prod
   variables:
     SERVICE_NAME: "freight-web"
     ENV_CONTENT: $PRODUCTION_ENV_FREIGHT_WEB
