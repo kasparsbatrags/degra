@@ -550,9 +550,6 @@ freighttracking-deploy-prod:
 .deploy-web-test-template: &deploy-web-test-template
   <<: *deploy-web-template
   stage: deploy-test
-  needs:
-    - job: freight-web-docker-build
-      optional: true
   variables:
     ENVIRONMENT: "test"
     SSH_PRIVATE_KEY: $TEST_SSH_PRIVATE_KEY
