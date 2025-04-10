@@ -55,9 +55,9 @@ const devEnvironment: Environment = {
  * Testa vides konfigurācija
  */
 const testEnvironment: Environment = {
-  userManagerApiUrl: 'https://test-usermanager.degra.lv',
-  companyApiUrl: 'https://test-company.degra.lv',
-  freightTrackingApiUrl: 'https://test-freight-tracking.degra.lv',
+  userManagerApiUrl: 'https://test-krava.degra.lv',
+  companyApiUrl: 'https://test-krava.degra.lv',
+  freightTrackingApiUrl: 'https://test-krava.degra.lv',
   apiTimeout: 12000,
   cacheTime: 1000 * 60 * 45, // 45 minūtes
   maxRetries: 3
@@ -67,9 +67,9 @@ const testEnvironment: Environment = {
  * Produkcijas vides konfigurācija
  */
 const prodEnvironment: Environment = {
-  userManagerApiUrl: 'https://api.degra.lv',
-  companyApiUrl: 'https://company.degra.lv',
-  freightTrackingApiUrl: 'https://freight-tracking-api.degra.lv',
+  userManagerApiUrl: 'https://krava.degra.lv',
+  companyApiUrl: 'https://krava.degra.lv',
+  freightTrackingApiUrl: 'https://krava.degra.lv',
   apiTimeout: 10000,
   cacheTime: 1000 * 60 * 30, // 30 minūtes
   maxRetries: 2
