@@ -338,7 +338,18 @@ freight-web-docker-build:
             restart: unless-stopped
             networks:
               - ${ENVIRONMENT}-network
-            
+      EOL
+      if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
+        cat >> docker-compose.yml << 'EOL'
+          mem_limit: 512m
+          mem_reservation: 256m
+          memswap_limit: 768m
+          cpu_shares: 128
+          cpus: 0.25
+          oom_score_adj: 500
+      EOL
+      fi
+      cat >> docker-compose.yml << 'EOL'
         networks:
           ${ENVIRONMENT}-network:
             external: true
