@@ -573,10 +573,6 @@ freighttracking-deploy-prod:
 
 freight-web-deploy-test:
   <<: *deploy-web-test-template
-  stage: deploy-test
-  needs:
-    - job: freight-web-docker-build
-      optional: true
   variables:
     SERVICE_NAME: "freight-web"
     ENV_CONTENT: $TEST_ENV_FREIGHT_WEB
@@ -589,9 +585,6 @@ freight-web-deploy-test:
 freight-web-deploy-prod:
   <<: *deploy-web-prod-template
   stage: deploy-prod
-  needs:
-    - job: freight-web-docker-build
-      optional: true
   variables:
     SERVICE_NAME: "freight-web"
     ENV_CONTENT: $PRODUCTION_ENV_FREIGHT_WEB
