@@ -1,5 +1,4 @@
 stages:
-  - .pre
   - test
   - build
   - deploy-test
@@ -13,125 +12,9 @@ variables:
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
   GIT_DEPTH: "0"
-  # Default values for module change detection
-  CORE_CHANGES: "false"
-  USERMANAGER_CHANGES: "false"
-  COMPANY_CHANGES: "false"
-  FREIGHTTRACKING_CHANGES: "false"
-  ADDRESS_CHANGES: "false"
-  FREIGHT_WEB_CHANGES: "false"
-  COMPANY_WEB_CHANGES: "false"
 
 services:
   - docker:20-dind
-
-# Job to detect which modules have changes
-detect-changes:
-  stage: .pre
-  image: alpine:latest
-  script:
-    - apk add --no-cache git
-    - |
-      # For merge requests, compare with the target branch
-      if [[ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]]; then
-        echo "Checking changes in merge request from $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME to $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
-        git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-        DIFF_REF="origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
-      else
-        # For direct pushes, use the before/after commit SHAs
-        echo "Checking changes in push to $CI_COMMIT_REF_NAME"
-        if [[ -n "$CI_COMMIT_BEFORE_SHA" && "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]]; then
-          DIFF_REF="$CI_COMMIT_BEFORE_SHA"
-        else
-          # If this is a new branch, compare with the first parent commit
-          DIFF_REF="$CI_COMMIT_SHA~1"
-          if ! git rev-parse --verify $DIFF_REF >/dev/null 2>&1; then
-            echo "First commit in the repository, marking all modules as changed"
-            echo "CORE_CHANGES=true" >> changes.env
-            echo "USERMANAGER_CHANGES=true" >> changes.env
-            echo "COMPANY_CHANGES=true" >> changes.env
-            echo "FREIGHTTRACKING_CHANGES=true" >> changes.env
-            echo "ADDRESS_CHANGES=true" >> changes.env
-            echo "FREIGHT_WEB_CHANGES=true" >> changes.env
-            echo "COMPANY_WEB_CHANGES=true" >> changes.env
-            cat changes.env
-            exit 0
-          fi
-        fi
-      fi
-      
-      # Detect changes in each module
-      echo "Detecting changes in modules..."
-      
-      # Check for changes in pom.xml at the root level
-      if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -Eq "^pom.xml$|^.gitlab-ci.yml$"; then
-        echo "Root pom.xml or .gitlab-ci.yml changed, marking all Maven modules as changed"
-        echo "CORE_CHANGES=true" >> changes.env
-        echo "USERMANAGER_CHANGES=true" >> changes.env
-        echo "COMPANY_CHANGES=true" >> changes.env
-        echo "FREIGHTTRACKING_CHANGES=true" >> changes.env
-        echo "ADDRESS_CHANGES=true" >> changes.env
-      else
-        # Check for changes in each module
-        if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^core/"; then
-          echo "Changes detected in core module"
-          echo "CORE_CHANGES=true" >> changes.env
-          # Core is a dependency for other modules, so mark them as changed too
-          echo "USERMANAGER_CHANGES=true" >> changes.env
-          echo "COMPANY_CHANGES=true" >> changes.env
-          echo "FREIGHTTRACKING_CHANGES=true" >> changes.env
-          echo "ADDRESS_CHANGES=true" >> changes.env
-        fi
-        
-        if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^usermanager/"; then
-          echo "Changes detected in usermanager module"
-          echo "USERMANAGER_CHANGES=true" >> changes.env
-        fi
-        
-        if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^company/"; then
-          echo "Changes detected in company module"
-          echo "COMPANY_CHANGES=true" >> changes.env
-        fi
-        
-        if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^freighttracking/"; then
-          echo "Changes detected in freighttracking module"
-          echo "FREIGHTTRACKING_CHANGES=true" >> changes.env
-        fi
-        
-        if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^address/"; then
-          echo "Changes detected in address module"
-          echo "ADDRESS_CHANGES=true" >> changes.env
-        fi
-      fi
-      
-      # Check for changes in frontend modules
-      if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^native/freight/"; then
-        echo "Changes detected in freight web module"
-        echo "FREIGHT_WEB_CHANGES=true" >> changes.env
-      fi
-      
-      if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^company-web/"; then
-        echo "Changes detected in company web module"
-        echo "COMPANY_WEB_CHANGES=true" >> changes.env
-      fi
-      
-      # If no changes.env file was created or it's empty, create it with default values
-      if [ ! -f changes.env ] || [ ! -s changes.env ]; then
-        echo "No specific module changes detected, using default values"
-        echo "CORE_CHANGES=false" >> changes.env
-        echo "USERMANAGER_CHANGES=false" >> changes.env
-        echo "COMPANY_CHANGES=false" >> changes.env
-        echo "FREIGHTTRACKING_CHANGES=false" >> changes.env
-        echo "ADDRESS_CHANGES=false" >> changes.env
-        echo "FREIGHT_WEB_CHANGES=false" >> changes.env
-        echo "COMPANY_WEB_CHANGES=false" >> changes.env
-      fi
-      
-      echo "Module change detection complete:"
-      cat changes.env
-  artifacts:
-    reports:
-      dotenv: changes.env
 
 .maven-setup: &maven-setup
   image: maven:3.9.5-eclipse-temurin-21
@@ -139,18 +22,20 @@ detect-changes:
     paths:
       - .m2/repository
 
-#qodana:
-#  stage: test
-#  image:
-#    name: jetbrains/qodana-jvm
-#    entrypoint: [""]
-#  variables:
-#    QODANA_TOKEN: $qodana_token
-#  script:
-#    - qodana --save-report --results-dir=$CI_PROJECT_DIR/.qodana
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "merge_request_event"'
-#      when: manual
+qodana:
+  stage: test
+  image:
+    name: jetbrains/qodana-jvm
+    entrypoint: [""]
+  variables:
+    QODANA_TOKEN: $qodana_token
+  script:
+    - qodana --save-report --results-dir=$CI_PROJECT_DIR/.qodana
+  only:
+    - master
+    - main
+    - merge_requests
+  when: manual
 
 usermanager-test:
   <<: *maven-setup
@@ -160,12 +45,6 @@ usermanager-test:
   artifacts:
     reports:
       junit: usermanager/target/surefire-reports/TEST-*.xml
-  rules:
-    - if: '$USERMANAGER_CHANGES == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - usermanager/**/*
-        - core/**/*
 
 core-test:
   <<: *maven-setup
@@ -175,11 +54,6 @@ core-test:
   artifacts:
     reports:
       junit: core/target/surefire-reports/TEST-*.xml
-  rules:
-    - if: '$CORE_CHANGES == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - core/**/*
 
 company-test:
   <<: *maven-setup
@@ -189,12 +63,6 @@ company-test:
   artifacts:
     reports:
       junit: company/target/surefire-reports/TEST-*.xml
-  rules:
-    - if: '$COMPANY_CHANGES == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - company/**/*
-        - core/**/*
 
 freighttracking-test:
   <<: *maven-setup
@@ -204,21 +72,18 @@ freighttracking-test:
   artifacts:
     reports:
       junit: freighttracking/target/surefire-reports/TEST-*.xml
-  rules:
-    - if: '$FREIGHTTRACKING_CHANGES == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - freighttracking/**/*
-        - core/**/*
 
-#sonarcloud-check:
-#  stage: test
-#  image: maven:3.9.5-eclipse-temurin-21
-#  script:
-#    - mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop" || $CI_PIPELINE_SOURCE == "merge_request_event"'
-#      when: manual
+sonarcloud-check:
+  stage: test
+  image: maven:3.9.5-eclipse-temurin-21
+  script:
+    - mvn verify sonar:sonar -Dsonar.projectKey=kaspars.batrags_degra -Djavafx.version=17
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
+  when: manual
 
 core-build:
   <<: *maven-setup
@@ -228,8 +93,10 @@ core-build:
   artifacts:
     paths:
       - core/target/*.jar
-  rules:
-    - if: '$CORE_CHANGES == "true" && ($CI_COMMIT_BRANCH || $CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - branches
+    - test
+    - master
   needs:
     - core-test
 
@@ -247,8 +114,9 @@ usermanager-maven-build:
   needs:
     - usermanager-test
     - core-build
-  rules:
-    - if: '$USERMANAGER_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 usermanager-docker-build:
   stage: build
@@ -269,8 +137,9 @@ usermanager-docker-build:
         docker tag $CI_REGISTRY_IMAGE/usermanager:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/usermanager:latest
         docker push $CI_REGISTRY_IMAGE/usermanager:latest
       fi
-  rules:
-    - if: '$USERMANAGER_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 company-maven-build:
   <<: *maven-setup
@@ -287,8 +156,9 @@ company-maven-build:
   needs:
     - company-test
     - core-build
-  rules:
-    - if: '$COMPANY_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 freighttracking-maven-build:
   <<: *maven-setup
@@ -305,8 +175,9 @@ freighttracking-maven-build:
   needs:
     - freighttracking-test
     - core-build
-  rules:
-    - if: '$FREIGHTTRACKING_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 company-docker-build:
   stage: build
@@ -327,8 +198,9 @@ company-docker-build:
         docker tag $CI_REGISTRY_IMAGE/company:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/company:latest
         docker push $CI_REGISTRY_IMAGE/company:latest
       fi
-  rules:
-    - if: '$COMPANY_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 freighttracking-docker-build:
   stage: build
@@ -349,8 +221,9 @@ freighttracking-docker-build:
         docker tag $CI_REGISTRY_IMAGE/freighttracking:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/freighttracking:latest
         docker push $CI_REGISTRY_IMAGE/freighttracking:latest
       fi
-  rules:
-    - if: '$FREIGHTTRACKING_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 freight-web-build:
   stage: build
@@ -367,8 +240,9 @@ freight-web-build:
   artifacts:
     paths:
       - native/freight/web-build/
-  rules:
-    - if: '$FREIGHT_WEB_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 freight-web-docker-build:
   stage: build
@@ -389,8 +263,9 @@ freight-web-docker-build:
         docker tag $CI_REGISTRY_IMAGE/freight-web:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/freight-web:latest
         docker push $CI_REGISTRY_IMAGE/freight-web:latest
       fi
-  rules:
-    - if: '$FREIGHT_WEB_CHANGES == "true" && ($CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "master")'
+  only:
+    - test
+    - master
 
 .deploy-template: &deploy-template
   image: docker:20
@@ -517,11 +392,6 @@ usermanager-deploy-test:
   environment:
     name: test-usermanager
     url: https://test-usermanager.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test" && $USERMANAGER_CHANGES == "true"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
-      when: never
 
 company-deploy-test:
   <<: *deploy-test-template
@@ -536,11 +406,6 @@ company-deploy-test:
   environment:
     name: test-company
     url: https://test-company.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test" && $COMPANY_CHANGES == "true"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
-      when: never
 
 freighttracking-deploy-test:
   <<: *deploy-test-template
@@ -555,11 +420,6 @@ freighttracking-deploy-test:
   environment:
     name: test-freighttracking
     url: https://test-freighttracking.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test" && $FREIGHTTRACKING_CHANGES == "true"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
-      when: never
 
 .deploy-prod-template: &deploy-prod-template
   <<: *deploy-template
@@ -585,9 +445,6 @@ usermanager-deploy-prod:
   environment:
     name: production-usermanager
     url: https://usermanager.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $USERMANAGER_CHANGES == "true"'
-      when: manual
 
 company-deploy-prod:
   <<: *deploy-prod-template
@@ -602,9 +459,6 @@ company-deploy-prod:
   environment:
     name: production-company
     url: https://company.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $COMPANY_CHANGES == "true"'
-      when: manual
 
 freighttracking-deploy-prod:
   <<: *deploy-prod-template
@@ -619,9 +473,6 @@ freighttracking-deploy-prod:
   environment:
     name: production-freighttracking
     url: https://freighttracking.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $FREIGHTTRACKING_CHANGES == "true"'
-      when: manual
 
 # Custom template for web applications
 .deploy-web-template: &deploy-web-template
@@ -731,11 +582,6 @@ freight-web-deploy-test:
   environment:
     name: test-freight-web
     url: https://test-freight.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "test" && $FREIGHT_WEB_CHANGES == "true"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH != "test" && $CI_COMMIT_BRANCH != "master"'
-      when: never
 
 freight-web-deploy-prod:
   <<: *deploy-web-prod-template
@@ -747,9 +593,6 @@ freight-web-deploy-prod:
   environment:
     name: production-freight-web
     url: https://freight.degra.lv
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $FREIGHT_WEB_CHANGES == "true"'
-      when: manual
 
 block-invalid-master-merge:
   stage: test
