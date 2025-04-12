@@ -302,6 +302,9 @@ freight-web-docker-build:
     - chmod 600 ~/.ssh/id_rsa
 
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         docker network inspect ${ENVIRONMENT}-network >/dev/null 2>&1 || docker network create ${ENVIRONMENT}-network
       "
