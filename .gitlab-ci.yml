@@ -64,8 +64,8 @@ detect-changes:
       echo "Detecting changes in modules..."
       
       # Check for changes in pom.xml at the root level
-      if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -q "^pom.xml$"; then
-        echo "Root pom.xml changed, marking all Maven modules as changed"
+      if git diff --name-only $DIFF_REF $CI_COMMIT_SHA | grep -Eq "^pom.xml$|^.gitlab-ci.yml$"; then
+        echo "Root pom.xml or .gitlab-ci.yml changed, marking all Maven modules as changed"
         echo "CORE_CHANGES=true" >> changes.env
         echo "USERMANAGER_CHANGES=true" >> changes.env
         echo "COMPANY_CHANGES=true" >> changes.env
