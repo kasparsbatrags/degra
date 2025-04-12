@@ -13,4 +13,4 @@ app:
 springdoc:
   server:
     test:
-      url: https://test-usermanager.degra.lv
+      url: https://test-krava.degra.lv

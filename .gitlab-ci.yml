@@ -307,6 +307,9 @@ freight-web-docker-build:
       "
 
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
@@ -358,6 +361,9 @@ freight-web-docker-build:
       EOL
       "
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
@@ -510,17 +516,26 @@ freighttracking-deploy-prod:
     - chmod 600 ~/.ssh/id_rsa
 
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         docker network inspect ${ENVIRONMENT}-network >/dev/null 2>&1 || docker network create ${ENVIRONMENT}-network
       "
 
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER << EOF
         mkdir -p /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         echo "$ENV_CONTENT" > .env
       EOF
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         cat > docker-compose.yml << 'EOL'
@@ -540,6 +555,9 @@ freighttracking-deploy-prod:
       EOL
       "
     - |
+      echo "🔍 Checking connection..."
+      ping -c 4 $SERVER || true
+      nc -zv $SERVER $SSH_SERVER_PORT || true
       ssh -p $SSH_SERVER_PORT -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER "
         cd /home/dockeruser/degra/$ENVIRONMENT/$SERVICE_NAME &&
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
