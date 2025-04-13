@@ -19,8 +19,8 @@ FROM nginx:alpine
 # Copy the built files to nginx
 COPY --from=build /app/web-build /usr/share/nginx/html
 
-# Copy a custom nginx configuration if needed
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy a custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
