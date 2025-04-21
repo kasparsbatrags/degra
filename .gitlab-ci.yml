@@ -327,6 +327,7 @@ freight-web-docker-build:
             container_name: ${ENVIRONMENT}-$SERVICE_NAME
             image: $CI_REGISTRY_IMAGE/$SERVICE_NAME:$CI_COMMIT_REF_SLUG
             environment:
+              - JAVA_OPTS=${JAVA_OPTS}
               - SPRING_DATASOURCE_URL=\${SPRING_DATASOURCE_URL}
               - SPRING_DATASOURCE_USERNAME=\${POSTGRES_USER}
               - SPRING_DATASOURCE_PASSWORD=\${POSTGRES_PASSWORD}
