@@ -145,15 +145,7 @@ export const isDevelopment = __DEV__;
  * @returns Pašreizējā vide (development, test, production)
  */
 export const getEnvironment = (): Environment => {
-  if (__DEV__) return 'development';
-  
-  // Testa vides noteikšana
-  // Šeit var pievienot loģiku testa vides noteikšanai
-  // Piemēram, balstoties uz URL vai konfigurācijas mainīgo
-  const isTestEnv = process.env.REACT_APP_ENV === 'test' || 
-                    (typeof window !== 'undefined' && window.location.hostname.includes('test-'));
-  
-  return isTestEnv ? 'test' : 'production';
+	return process.env.APP_ENV as Environment || 'production';
 };
 
 /**
