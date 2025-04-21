@@ -347,17 +347,6 @@ freight-web-docker-build:
             networks:
               - ${ENVIRONMENT}-network
       EOL
-      if [ "$CI_COMMIT_REF_NAME" = "test" ]; then
-        cat >> docker-compose.yml << 'EOL'
-            deploy:
-              resources:
-                limits:
-                  memory: 512m
-                  cpus: '0.25'
-                reservations:
-                  memory: 256m
-      EOL
-      fi
       cat >> docker-compose.yml << 'EOL'
         networks:
           ${ENVIRONMENT}-network:
