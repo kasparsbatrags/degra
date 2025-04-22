@@ -97,8 +97,7 @@ npx expo export:web
 
 #### iOS/Android
 ```
-eas build --platform ios
-eas build --platform android
+npx eas build -p android --profile preview 
 ```
 
 ## Best Practices
