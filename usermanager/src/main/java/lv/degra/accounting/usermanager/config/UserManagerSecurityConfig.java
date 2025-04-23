@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -35,9 +36,6 @@ public class UserManagerSecurityConfig {
     @Value("${app.security.allowed-origins}")
     private List<String> allowedOrigins;
 
-	@Value("${spring.profiles.active:}")
-	private String activeProfile;
-	
 	@Autowired
 	private JwtDecoder jwtDecoder;
 
@@ -45,11 +43,7 @@ public class UserManagerSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(PATH_USER + "/**")
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> {
-					if (!"production".equalsIgnoreCase(activeProfile)) {
-						csrf.disable();
-					}
-				})
+				.csrf(AbstractHttpConfigurer::disable)
             .headers(headers -> headers
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 .referrerPolicy(referrer -> referrer
@@ -83,11 +77,13 @@ public class UserManagerSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-platform"));
         configuration.setExposedHeaders(List.of("Authorization"));
-		configuration.addAllowedHeader("x-platform");
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+
+		log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
+		allowedOrigins.forEach(origin -> log.info("CORS origin allowed: {}", origin));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
