@@ -43,7 +43,9 @@ public class UserManagerSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(PATH_USER + "/**")
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(AbstractHttpConfigurer::disable)
+				.csrf(csrf -> {
+						csrf.disable();
+				})
             .headers(headers -> headers
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 .referrerPolicy(referrer -> referrer
