@@ -145,7 +145,15 @@ export const isDevelopment = __DEV__;
  * @returns Pašreizējā vide (development, test, production)
  */
 export const getEnvironment = (): Environment => {
-	return process.env.APP_ENV as Environment || 'production';
+  // Pārbaudam, vai esam web vidē un vai APP_ENV ir definēts window objektā
+  if (isWeb && typeof window !== 'undefined' && (window as any).APP_ENV) {
+    console.log('Using APP_ENV from window:', (window as any).APP_ENV);
+    return (window as any).APP_ENV as Environment;
+  }
+  
+  // Ja neesam web vidē vai window.APP_ENV nav definēts, izmantojam process.env
+  console.log('Using APP_ENV from process.env:', process.env.APP_ENV);
+  return process.env.APP_ENV as Environment || 'production';
 };
 
 /**

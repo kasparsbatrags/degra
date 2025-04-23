@@ -8,6 +8,11 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>%WEB_TITLE%</title>
+    <script>
+      // Set APP_ENV in the window object so it's accessible to the application
+      window.APP_ENV = 'test';
+      console.log('Set window.APP_ENV to:', window.APP_ENV);
+    </script>
     <style>
       *, *::before, *::after {
         box-sizing: border-box;
