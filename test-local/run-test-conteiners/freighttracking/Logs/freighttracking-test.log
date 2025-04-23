@@ -1,0 +1,237 @@
+2025-04-23T01:17:21.858Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-10] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [MGLNDD_104.248.195.223_80980x0a...]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:409) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:270) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.36.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2025-04-23T03:10:30.426Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-23T03:10:30.593Z  INFO 1 --- [freighttracking] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-04-23T03:10:31.259Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T03:10:31.489Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-04-23T03:10:31.572Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-04-23T03:10:36.288Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Starting FreightTrackingApplication v1.0 using Java 21.0.6 with PID 1 (/app/app.jar started by root in /app)
+2025-04-23T03:10:36.297Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : The following 1 profile is active: "test"
+2025-04-23T03:10:38.907Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-23T03:10:39.232Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 292 ms. Found 30 JPA repository interfaces.
+2025-04-23T03:10:40.953Z  INFO 1 --- [freighttracking] [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f5d9a96f-678a-3b1e-850d-c13ca06ab6de
+2025-04-23T03:10:41.314Z  WARN 1 --- [freighttracking] [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [annotationActionEndpointMapping] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2025-04-23T03:10:41.459Z  INFO 1 --- [freighttracking] [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2025-04-23T03:10:42.882Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-04-23T03:10:42.948Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-04-23T03:10:42.949Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-04-23T03:10:43.039Z  INFO 1 --- [freighttracking] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-04-23T03:10:43.040Z  INFO 1 --- [freighttracking] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 6576 ms
+2025-04-23T03:10:44.559Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-04-23T03:10:44.968Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@184bb873
+2025-04-23T03:10:44.971Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-04-23T03:10:45.218Z  INFO 1 --- [freighttracking] [main] liquibase.database                       : Set default schema name to public
+2025-04-23T03:10:46.547Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T03:10:46.969Z  INFO 1 --- [freighttracking] [main] liquibase.ui                             : Database is up to date, no changesets to execute
+2025-04-23T03:10:46.973Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T03:10:47.012Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : UPDATE SUMMARY
+2025-04-23T03:10:47.012Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Run:                          0
+2025-04-23T03:10:47.013Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Previously run:             214
+2025-04-23T03:10:47.013Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Filtered out:                 0
+2025-04-23T03:10:47.013Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : -------------------------------
+2025-04-23T03:10:47.014Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Total change sets:          214
+2025-04-23T03:10:47.016Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Update summary generated
+2025-04-23T03:10:47.018Z  INFO 1 --- [freighttracking] [main] liquibase.command                        : Command execution complete
+2025-04-23T03:10:47.284Z  INFO 1 --- [freighttracking] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-23T03:10:47.397Z  INFO 1 --- [freighttracking] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.8.Final
+2025-04-23T03:10:47.463Z  INFO 1 --- [freighttracking] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-04-23T03:10:47.629Z  INFO 1 --- [freighttracking] [main] o.h.e.boot.internal.EnversServiceImpl    : Envers integration enabled? : true
+2025-04-23T03:10:48.346Z  INFO 1 --- [freighttracking] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-23T03:10:48.492Z  INFO 1 --- [freighttracking] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-04-23T03:10:49.462Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route.model.TruckRoute
+2025-04-23T03:10:49.465Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.company.type.model.CompanyType
+2025-04-23T03:10:49.466Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_cargo_type_map.model.TruckRouteCargoTypeMap
+2025-04-23T03:10:49.467Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.cargo_type.model.CargoType
+2025-04-23T03:10:49.467Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.exchange.model.CurrencyExchangeRate
+2025-04-23T03:10:49.468Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.model.Document
+2025-04-23T03:10:49.473Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer_account.model.CustomerAccount
+2025-04-23T03:10:49.474Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck.model.Truck
+2025-04-23T03:10:49.475Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.chart.model.AccountCodeChart
+2025-04-23T03:10:49.476Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_page.model.TruckRoutePage
+2025-04-23T03:10:49.477Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.address.model.Address
+2025-04-23T03:10:49.478Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_object.model.TruckObject
+2025-04-23T03:10:49.479Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.posted.model.AccountPosted
+2025-04-23T03:10:49.480Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.bank.model.Bank
+2025-04-23T03:10:49.480Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.currency.model.Currency
+2025-04-23T03:10:49.481Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_user_map.model.TruckUserMap
+2025-04-23T03:10:49.481Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.bill.model.UnitType
+2025-04-23T03:10:49.482Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer.model.Customer
+2025-04-23T03:10:52.644Z  INFO 1 --- [freighttracking] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-23T03:10:57.673Z  INFO 1 --- [freighttracking] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T03:10:58.324Z  INFO 1 --- [freighttracking] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-23T03:11:05.779Z  INFO 1 --- [freighttracking] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-04-23T03:11:05.844Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Configuring CORS with allowed origins: [https://test-krava.degra.lv]
+2025-04-23T03:11:05.849Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Disabling CSRF for non-production environment
+2025-04-23T03:11:07.669Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-04-23T03:11:07.699Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Started FreightTrackingApplication in 33.021 seconds (process running for 34.646)
+2025-04-23T03:52:40.305Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-23T03:52:40.306Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-04-23T03:52:40.309Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-04-23T03:52:40.386Z  WARN 1 --- [freighttracking] [http-nio-8080-exec-1] l.d.a.c.e.GlobalExceptionHandler         : Endpoint not found: uri=/. Trace ID: 729187cc-0f01-43a2-8181-5730c85c7990
+2025-04-23T04:39:55.101Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-23T04:39:55.107Z  INFO 1 --- [freighttracking] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-04-23T04:39:55.129Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T04:39:55.132Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-04-23T04:39:55.141Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-04-23T04:39:59.945Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Starting FreightTrackingApplication v1.0 using Java 21.0.6 with PID 1 (/app/app.jar started by root in /app)
+2025-04-23T04:39:59.955Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : The following 1 profile is active: "test"
+2025-04-23T04:40:05.712Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-23T04:40:06.243Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 486 ms. Found 30 JPA repository interfaces.
+2025-04-23T04:40:09.618Z  INFO 1 --- [freighttracking] [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f5d9a96f-678a-3b1e-850d-c13ca06ab6de
+2025-04-23T04:40:10.158Z  WARN 1 --- [freighttracking] [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [annotationActionEndpointMapping] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2025-04-23T04:40:10.328Z  INFO 1 --- [freighttracking] [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2025-04-23T04:40:11.773Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-04-23T04:40:11.804Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-04-23T04:40:11.804Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-04-23T04:40:11.897Z  INFO 1 --- [freighttracking] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-04-23T04:40:11.898Z  INFO 1 --- [freighttracking] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 11429 ms
+2025-04-23T04:40:13.192Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-04-23T04:40:13.619Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5cf80dfb
+2025-04-23T04:40:13.623Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-04-23T04:40:13.868Z  INFO 1 --- [freighttracking] [main] liquibase.database                       : Set default schema name to public
+2025-04-23T04:40:15.067Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T04:40:15.441Z  INFO 1 --- [freighttracking] [main] liquibase.ui                             : Database is up to date, no changesets to execute
+2025-04-23T04:40:15.445Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T04:40:15.490Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : UPDATE SUMMARY
+2025-04-23T04:40:15.494Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Run:                          0
+2025-04-23T04:40:15.494Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Previously run:             214
+2025-04-23T04:40:15.495Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Filtered out:                 0
+2025-04-23T04:40:15.495Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : -------------------------------
+2025-04-23T04:40:15.495Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Total change sets:          214
+2025-04-23T04:40:15.497Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Update summary generated
+2025-04-23T04:40:15.499Z  INFO 1 --- [freighttracking] [main] liquibase.command                        : Command execution complete
+2025-04-23T04:40:15.782Z  INFO 1 --- [freighttracking] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-23T04:40:15.933Z  INFO 1 --- [freighttracking] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.8.Final
+2025-04-23T04:40:16.016Z  INFO 1 --- [freighttracking] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-04-23T04:40:16.247Z  INFO 1 --- [freighttracking] [main] o.h.e.boot.internal.EnversServiceImpl    : Envers integration enabled? : true
+2025-04-23T04:40:16.860Z  INFO 1 --- [freighttracking] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-23T04:40:16.998Z  INFO 1 --- [freighttracking] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-04-23T04:40:17.841Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route.model.TruckRoute
+2025-04-23T04:40:17.845Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.company.type.model.CompanyType
+2025-04-23T04:40:17.846Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_cargo_type_map.model.TruckRouteCargoTypeMap
+2025-04-23T04:40:17.846Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.cargo_type.model.CargoType
+2025-04-23T04:40:17.847Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.exchange.model.CurrencyExchangeRate
+2025-04-23T04:40:17.847Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.model.Document
+2025-04-23T04:40:17.852Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer_account.model.CustomerAccount
+2025-04-23T04:40:17.853Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck.model.Truck
+2025-04-23T04:40:17.853Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.chart.model.AccountCodeChart
+2025-04-23T04:40:17.854Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_page.model.TruckRoutePage
+2025-04-23T04:40:17.854Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.address.model.Address
+2025-04-23T04:40:17.855Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_object.model.TruckObject
+2025-04-23T04:40:17.856Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.posted.model.AccountPosted
+2025-04-23T04:40:17.856Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.bank.model.Bank
+2025-04-23T04:40:17.857Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.currency.model.Currency
+2025-04-23T04:40:17.857Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_user_map.model.TruckUserMap
+2025-04-23T04:40:17.858Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.bill.model.UnitType
+2025-04-23T04:40:17.858Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer.model.Customer
+2025-04-23T04:40:20.589Z  INFO 1 --- [freighttracking] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-23T04:40:24.686Z  INFO 1 --- [freighttracking] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T04:40:25.263Z  INFO 1 --- [freighttracking] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-23T04:40:31.914Z  INFO 1 --- [freighttracking] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-04-23T04:40:31.987Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Configuring CORS with allowed origins: [https://test-krava.degra.lv]
+2025-04-23T04:40:31.992Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Disabling CSRF for non-production environment
+2025-04-23T04:40:33.704Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-04-23T04:40:33.733Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Started FreightTrackingApplication in 35.863 seconds (process running for 37.691)
+2025-04-23T05:01:45.532Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-23T05:01:45.563Z  INFO 1 --- [freighttracking] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-04-23T05:01:45.619Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T05:01:45.625Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-04-23T05:01:45.640Z  INFO 1 --- [freighttracking] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-04-23T05:01:51.912Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Starting FreightTrackingApplication v1.0 using Java 21.0.6 with PID 1 (/app/app.jar started by root in /app)
+2025-04-23T05:01:51.925Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : The following 1 profile is active: "test"
+2025-04-23T05:01:56.284Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-23T05:01:56.617Z  INFO 1 --- [freighttracking] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 309 ms. Found 30 JPA repository interfaces.
+2025-04-23T05:01:58.498Z  INFO 1 --- [freighttracking] [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f5d9a96f-678a-3b1e-850d-c13ca06ab6de
+2025-04-23T05:01:58.892Z  WARN 1 --- [freighttracking] [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [annotationActionEndpointMapping] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2025-04-23T05:01:58.997Z  INFO 1 --- [freighttracking] [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2025-04-23T05:02:00.312Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-04-23T05:02:00.462Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-04-23T05:02:00.462Z  INFO 1 --- [freighttracking] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-04-23T05:02:00.543Z  INFO 1 --- [freighttracking] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-04-23T05:02:00.544Z  INFO 1 --- [freighttracking] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 8269 ms
+2025-04-23T05:02:02.401Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-04-23T05:02:03.111Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@184bb873
+2025-04-23T05:02:03.117Z  INFO 1 --- [freighttracking] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-04-23T05:02:03.632Z  INFO 1 --- [freighttracking] [main] liquibase.database                       : Set default schema name to public
+2025-04-23T05:02:05.240Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T05:02:05.693Z  INFO 1 --- [freighttracking] [main] liquibase.ui                             : Database is up to date, no changesets to execute
+2025-04-23T05:02:05.697Z  INFO 1 --- [freighttracking] [main] liquibase.changelog                      : Reading from public.databasechangelog
+2025-04-23T05:02:05.733Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : UPDATE SUMMARY
+2025-04-23T05:02:05.734Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Run:                          0
+2025-04-23T05:02:05.734Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Previously run:             214
+2025-04-23T05:02:05.735Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Filtered out:                 0
+2025-04-23T05:02:05.735Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : -------------------------------
+2025-04-23T05:02:05.735Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Total change sets:          214
+2025-04-23T05:02:05.737Z  INFO 1 --- [freighttracking] [main] liquibase.util                           : Update summary generated
+2025-04-23T05:02:05.739Z  INFO 1 --- [freighttracking] [main] liquibase.command                        : Command execution complete
+2025-04-23T05:02:06.034Z  INFO 1 --- [freighttracking] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-23T05:02:06.204Z  INFO 1 --- [freighttracking] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.8.Final
+2025-04-23T05:02:06.297Z  INFO 1 --- [freighttracking] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-04-23T05:02:06.518Z  INFO 1 --- [freighttracking] [main] o.h.e.boot.internal.EnversServiceImpl    : Envers integration enabled? : true
+2025-04-23T05:02:07.262Z  INFO 1 --- [freighttracking] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-23T05:02:07.433Z  INFO 1 --- [freighttracking] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-04-23T05:02:08.393Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route.model.TruckRoute
+2025-04-23T05:02:08.397Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.company.type.model.CompanyType
+2025-04-23T05:02:08.398Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_cargo_type_map.model.TruckRouteCargoTypeMap
+2025-04-23T05:02:08.398Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.cargo_type.model.CargoType
+2025-04-23T05:02:08.399Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.exchange.model.CurrencyExchangeRate
+2025-04-23T05:02:08.400Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.model.Document
+2025-04-23T05:02:08.405Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer_account.model.CustomerAccount
+2025-04-23T05:02:08.406Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck.model.Truck
+2025-04-23T05:02:08.407Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.chart.model.AccountCodeChart
+2025-04-23T05:02:08.408Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_route_page.model.TruckRoutePage
+2025-04-23T05:02:08.408Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.address.model.Address
+2025-04-23T05:02:08.409Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_object.model.TruckObject
+2025-04-23T05:02:08.410Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.account.posted.model.AccountPosted
+2025-04-23T05:02:08.411Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.bank.model.Bank
+2025-04-23T05:02:08.411Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.currency.model.Currency
+2025-04-23T05:02:08.412Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.truck_user_map.model.TruckUserMap
+2025-04-23T05:02:08.412Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.document.bill.model.UnitType
+2025-04-23T05:02:08.413Z  INFO 1 --- [freighttracking] [main] o.h.e.c.i.m.AuditMetadataGenerator       : Adding properties for entity: lv.degra.accounting.core.customer.model.Customer
+2025-04-23T05:02:11.548Z  INFO 1 --- [freighttracking] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-23T05:02:15.862Z  INFO 1 --- [freighttracking] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-23T05:02:16.497Z  INFO 1 --- [freighttracking] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-23T05:02:23.599Z  INFO 1 --- [freighttracking] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-04-23T05:02:23.682Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Configuring CORS with allowed origins: [https://test-krava.degra.lv]
+2025-04-23T05:02:23.688Z  INFO 1 --- [freighttracking] [main] .d.a.f.c.s.FreightTrackingSecurityConfig : Disabling CSRF for non-production environment
+2025-04-23T05:02:25.617Z  INFO 1 --- [freighttracking] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-04-23T05:02:25.654Z  INFO 1 --- [freighttracking] [main] l.d.a.f.FreightTrackingApplication       : Started FreightTrackingApplication in 36.0 seconds (process running for 38.816)
+2025-04-23T05:37:20.672Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-23T05:37:20.674Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-04-23T05:37:20.678Z  INFO 1 --- [freighttracking] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-04-23T05:37:20.809Z  WARN 1 --- [freighttracking] [http-nio-8080-exec-1] l.d.a.c.e.GlobalExceptionHandler         : Endpoint not found: uri=/stats. Trace ID: 9bc25c4c-ca2e-4b8c-9f6b-ece0c9c08b81
+2025-04-23T14:40:39.864Z  WARN 1 --- [freighttracking] [http-nio-8080-exec-3] l.d.a.c.e.GlobalExceptionHandler         : Endpoint not found: uri=/. Trace ID: 3ea790b8-2246-49dd-a5f1-ec1bad1855ef

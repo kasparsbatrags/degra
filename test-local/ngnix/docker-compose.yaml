@@ -1,0 +1,26 @@
+
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port
+      - '81:81' # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+    environment:
+      # Postgres parameters:
+      DB_POSTGRES_HOST: '192.168.88.254'
+      DB_POSTGRES_PORT: '5432'
+      DB_POSTGRES_USER: 'ngnix'
+      DB_POSTGRES_PASSWORD: 'ngnix'
+      DB_POSTGRES_NAME: 'ngnix'
+      # Uncomment this if IPv6 is not enabled on your host
+      DISABLE_IPV6: 'true'
+    volumes:
+      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/etc/letsencrypt:/etc/letsencrypt:rw
+      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/ngnix/var/log/nginx:/data/logs:z
+      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/root/nginx-ui/:/data:Z
+      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/root/nginx-ui/blacklist.conf:/etc/nginx/blacklist.conf

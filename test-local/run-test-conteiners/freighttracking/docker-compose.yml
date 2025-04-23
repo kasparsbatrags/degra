@@ -1,0 +1,27 @@
+  services:
+    freighttracking:
+      container_name: test-freighttracking
+      image: registry.gitlab.com/kaspars.batrags/degra/freighttracking:test
+      environment:
+        - JAVA_OPTS=
+        - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+        - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+        - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+        - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+        - KEYCLOAK_AUTH_SERVER_URL=${KEYCLOAK_AUTH_SERVER_URL}
+        - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+        - KEYCLOAK_RESOURCE=${KEYCLOAK_RESOURCE}
+        - KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET}
+        - KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS=true
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+        - APP_SECURITY_ALLOWED_ORIGINS=${APP_SECURITY_ALLOWED_ORIGINS}
+      ports:
+        - "${APP_PORT}:8080"
+      volumes:
+        - ./Logs:/app/Logs:Z
+      restart: unless-stopped
+      networks:
+        - test-network
+  networks:
+    test-network:
+      external: true

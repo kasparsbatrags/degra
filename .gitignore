@@ -68,3 +68,7 @@
 /native/freight/test-build/assets/assets/images/thumbnail.f223b098a5203f599c2ce3b599ff7b48.png
 /native/freight/test-build/index.html
 /native/freight/test-build/metadata.json
+/test-local/ngnix/ngnix/var/log/nginx/fallback_access.log
+/test-local/ngnix/ngnix/var/log/nginx/fallback_error.log
+/test-local/ngnix/ngnix/var/log/nginx/proxy-host-1_access.log
+/test-local/ngnix/ngnix/var/log/nginx/proxy-host-1_error.log

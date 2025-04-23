@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  maven-runner:
+    entrypoint: ["mvn", "clean", "test", "-pl", "company", "-am"]
+
+  docker-builder:
+    entrypoint: ["sh", "-c", "docker build -t degra/company:local -f company/Dockerfile ."]

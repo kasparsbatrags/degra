@@ -1,0 +1,13 @@
+  services:
+    freight-web:
+      container_name: test-freight-web
+      image: registry.gitlab.com/kaspars.batrags/degra/freight-web:test
+      ports:
+        - "${APP_PORT}:80"
+      restart: unless-stopped
+      networks:
+        - test-network
+      
+  networks:
+    test-network:
+      external: true
