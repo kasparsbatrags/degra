@@ -1,38 +1,36 @@
-version: "3.8"
-
 services:
-  postgres:
-    image: postgres:15
-    container_name: degra-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: degra_dev
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+#  postgres:
+#    image: postgres:15
+#    container_name: degra-postgres
+#    restart: unless-stopped
+#    environment:
+#      POSTGRES_DB: degra_dev
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 1
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD", "pg_isready", "-U", "postgres"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
 
   maven-runner:
     image: maven:3.9.5-eclipse-temurin-21
     container_name: maven-ci-runner
-    depends_on:
-      postgres:
-        condition: service_healthy
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
     working_dir: /usr/src/app
     volumes:
-      - .:/usr/src/app
+      - ../:/usr/src/app
       - maven-cache:/root/.m2
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/degra_dev
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 1
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/degra_dev
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 1
 
   docker-builder:
     image: docker:20

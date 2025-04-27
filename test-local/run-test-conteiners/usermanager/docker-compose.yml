@@ -20,8 +20,3 @@
       volumes:
         - ./Logs:/app/Logs:Z
       restart: unless-stopped
-      networks:
-        - test-network
-  networks:
-    test-network:
-      external: true

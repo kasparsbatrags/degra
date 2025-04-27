@@ -1,0 +1,88 @@
+# ------------------------------------------------------------
+# test-krava.degra.lv
+# ------------------------------------------------------------
+
+
+
+map $scheme $hsts_header {
+    https   "max-age=63072000; preload";
+}
+
+server {
+  set $forward_scheme http;
+  set $server         "192.168.88.254";
+  set $port           8099;
+
+  listen 80;
+#listen [::]:80;
+  listen 443;
+
+
+  server_name test-krava.degra.lv;
+http2 off;
+
+
+
+
+
+  # Let's Encrypt SSL
+  include conf.d/include/letsencrypt-acme-challenge.conf;
+  include conf.d/include/ssl-cache.conf;
+  include conf.d/include/ssl-ciphers.conf;
+  ssl_certificate /etc/letsencrypt/live/npm-4/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/npm-4/privkey.pem;
+
+
+
+
+
+
+  access_log /data/logs/proxy-host-4_access.log proxy;
+  error_log /data/logs/proxy-host-4_error.log warn;
+
+
+
+  location /api/user {
+    
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Scheme $scheme;
+    proxy_set_header X-Forwarded-Proto  $scheme;
+    proxy_set_header X-Forwarded-For    $remote_addr;
+    proxy_set_header X-Real-IP		$remote_addr;
+
+    proxy_pass       http://192.168.88.254:8096;
+
+    
+
+    
+    
+    
+    
+
+
+    
+  }
+
+
+
+
+
+  location / {
+
+
+
+
+
+
+        proxy_intercept_errors on;
+		error_page 404 = /index.html;
+
+    # Proxy!
+    include conf.d/include/proxy.conf;
+  }
+
+
+  # Custom
+  include /data/nginx/custom/server_proxy[.]conf;
+}

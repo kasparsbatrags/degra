@@ -130,6 +130,8 @@ export function platformFont({
   });
 }
 
+import Constants from 'expo-constants';
+
 /**
  * Vides tipi
  */
@@ -141,19 +143,29 @@ export type Environment = 'development' | 'test' | 'production';
 export const isDevelopment = __DEV__;
 
 /**
+ * Iegūst vides mainīgos no expo-constants vai window.APP_ENV (tīmekļa vidē)
+ */
+const getEnvConfig = () => {
+  const config = Constants.expoConfig?.extra || {};
+  
+  // Tīmekļa vidē pārbaudām, vai ir pieejams window.APP_ENV
+  if (isWeb && typeof window !== 'undefined' && window.APP_ENV) {
+    // Ja APP_ENV nav iestatīts config objektā, bet ir pieejams window.APP_ENV, izmantojam to
+    if (!config.APP_ENV) {
+      return { ...config, APP_ENV: window.APP_ENV };
+    }
+  }
+  
+  return config;
+};
+
+/**
  * Nosaka pašreizējo vidi
  * @returns Pašreizējā vide (development, test, production)
  */
 export const getEnvironment = (): Environment => {
-  // Pārbaudam, vai esam web vidē un vai APP_ENV ir definēts window objektā
-  if (isWeb && typeof window !== 'undefined' && (window as any).APP_ENV) {
-    console.log('Using APP_ENV from window:', (window as any).APP_ENV);
-    return (window as any).APP_ENV as Environment;
-  }
-  
-  // Ja neesam web vidē vai window.APP_ENV nav definēts, izmantojam process.env
-  console.log('Using APP_ENV from process.env:', process.env.APP_ENV);
-  return process.env.APP_ENV as Environment || 'production';
+  const config = getEnvConfig();
+  return (config.APP_ENV as Environment) || 'production';
 };
 
 /**

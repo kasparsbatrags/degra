@@ -9,26 +9,26 @@
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
-	  "env": {
-		"APP_ENV": "test"
-	  }
+      "env": {
+        "ENVFILE": ".env.development"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
-	  "env": {
-	 	"APP_ENV": "test"
-	  }
+      "env": {
+        "ENVFILE": ".env.test"
+      }
     },
     "production": {
       "android": {
         "buildType": "apk"
       },
-	  "env": {
-		"APP_ENV": "production"
-	  }
+      "env": {
+        "ENVFILE": ".env.production"
+      }
     }
   },
   "submit": {

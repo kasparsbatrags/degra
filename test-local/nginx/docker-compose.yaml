@@ -20,7 +20,5 @@ services:
       # Uncomment this if IPv6 is not enabled on your host
       DISABLE_IPV6: 'true'
     volumes:
-      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/etc/letsencrypt:/etc/letsencrypt:rw
-      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/ngnix/var/log/nginx:/data/logs:z
-      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/root/nginx-ui/:/data:Z
-      - C:/Users/Kaspars/Desktop/degra/test-local/ngnix/root/nginx-ui/blacklist.conf:/etc/nginx/blacklist.conf
+      - C:/Users/Kaspars/Desktop/degra/test-local/nginx/etc/letsencrypt:/etc/letsencrypt
+      - C:/Users/Kaspars/Desktop/degra/test-local/nginx/data/:/data:rw

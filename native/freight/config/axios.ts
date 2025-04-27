@@ -89,8 +89,9 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           }
           
           // Mēģinām atjaunot tokenu
+          const userManagerUrl = getUserManagerApiUrl();
           const response = await axios.post(
-            `${getUserManagerApiUrl()}${API_ENDPOINTS.AUTH.REFRESH}`,
+            `${userManagerUrl}${API_ENDPOINTS.AUTH.REFRESH}`,
             {},
             {
               headers: {

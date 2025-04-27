@@ -1,0 +1,7 @@
+services:
+  maven-runner:
+    image: node:20-alpine
+    entrypoint: ["sh", "-c", "cd native/freight && npm ci --legacy-peer-deps && npx expo export --platform web --output-dir web-build"]
+
+  docker-builder:
+    entrypoint: ["sh", "-c", "docker build -t degra/freight-web:local -f native/freight/Dockerfile --build-arg APP_ENV=test native/freight"]
