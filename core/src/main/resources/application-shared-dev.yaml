@@ -20,7 +20,7 @@ spring:
 
 
 keycloak:
-  auth-server-url: https://route.degra.lv
+  auth-server-url: https://app.degra.lv
   realm: freight-tracking-app-realm
   resource: freight-tracking-client
   credentials:

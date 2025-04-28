@@ -19,7 +19,7 @@ spring:
     import: optional:classpath:application-shared.yaml
 
 keycloak:
-  auth-server-url: https://route.degra.lv
+  auth-server-url: https://app.degra.lv
   realm: degra-test-realm
   resource: freight-tracking-client
   credentials:
