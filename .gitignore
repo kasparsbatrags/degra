@@ -72,3 +72,6 @@
 /test-local/ngnix/ngnix/var/log/nginx/fallback_error.log
 /test-local/ngnix/ngnix/var/log/nginx/proxy-host-1_access.log
 /test-local/ngnix/ngnix/var/log/nginx/proxy-host-1_error.log
+/test-local/nginx/data/logs/proxy-host-5_access.log
+/test-local/nginx/data/logs/proxy-host-5_error.log
+/test-local/run-test-conteiners/usermanager/Logs/usermanager-test.log.2025-04-27.0.gz
