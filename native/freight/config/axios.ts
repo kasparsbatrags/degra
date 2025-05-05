@@ -3,10 +3,23 @@ import {decodeJwt} from '../lib/api'
 import {isSessionActive, clearSession, loadSession, saveSession} from '../utils/sessionUtils'
 import {isDevelopment, platformSpecific} from '../utils/platformUtils'
 import {API_ENDPOINTS, getApiTimeout, getMaxRetries, getUserManagerApiUrl} from './environment'
+import {router} from 'expo-router'
+import {Platform} from 'react-native'
 
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
+
+// Funkcija, kas novirza uz login lapu
+const redirectToLogin = () => {
+  // Izmantojam setTimeout, lai izvairītos no problēmām ar React rendering ciklu
+  setTimeout(() => {
+    // Tikai web platformā veicam automātisku redirektu
+    if (Platform.OS === 'web') {
+      router.replace('/(auth)/login');
+    }
+  }, 100);
+};
 
 /**
  * Izveido un konfigurē axios instanci
@@ -82,9 +95,10 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           // Mēģinām atjaunot tokenu
           const { accessToken, user } = await loadSession();
           
-          // Ja nav tokena, notīrām sesiju un atgriežam kļūdu
+          // Ja nav tokena, notīrām sesiju, novirzām uz login lapu un atgriežam kļūdu
           if (!accessToken) {
             await clearSession();
+            redirectToLogin();
             return Promise.reject(error);
           }
           
@@ -118,9 +132,18 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          // Ja neizdevās atjaunot tokenu, notīrām sesiju
+          // Ja neizdevās atjaunot tokenu, notīrām sesiju un novirzām uz login lapu
           await clearSession();
+          redirectToLogin();
         }
+      }
+      
+      // Ja saņemam 401 un tas nav login pieprasījums, novirzām uz login lapu
+      if (error.response?.status === 401 && 
+          originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN) {
+        // Notīrām sesiju un novirzām uz login lapu
+        await clearSession();
+        redirectToLogin();
       }
       
       // Apstrādājam tīkla kļūdas

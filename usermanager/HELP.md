@@ -21,7 +21,7 @@ If you encounter a 401 Unauthorized error when registering users, especially in 
 
 #### Solution:
 
-1. Log in to the Keycloak admin console at https://route.degra.lv
+1. Log in to the Keycloak admin console at https://app.degra.lv
 2. Select the "degra-test-realm" realm
 3. Go to "Clients" → "freight-tracking-client"
 4. Click on the "Service Account Roles" tab
@@ -39,9 +39,9 @@ This will give the service account the necessary permissions to create users in 
 The configuration in your application-test.yaml should match:
 ```yaml
 keycloak:
-  auth-server-url: https://route.degra.lv
+  auth-server-url: https://app.degra.lv
   realm: degra-test-realm
   resource: freight-tracking-client
   credentials:
-    secret: LfJVcO6ArZHzxl0J9YoLj8jdQOYxxiki
+    secret: LfJVcO6ArZHzxl0J9dsdjdQOYxxiki
 ```

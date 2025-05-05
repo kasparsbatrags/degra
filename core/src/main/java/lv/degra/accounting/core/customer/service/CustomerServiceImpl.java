@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 import lv.degra.accounting.core.customer.model.Customer;
 import lv.degra.accounting.core.customer.model.CustomerRepository;
-import lv.degra.accounting.core.system.DataFetchService;
+import lv.degra.accounting.core.system.DataFetcher;
 
 @Service
-public class CustomerServiceImpl implements CustomerService, DataFetchService<Customer> {
+public class CustomerServiceImpl implements CustomerService, DataFetcher<Customer> {
 
 	private final CustomerRepository customerRepository;
 

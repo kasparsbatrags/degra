@@ -7,7 +7,8 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ApiError {
+public class
+ApiError {
 	LocalDateTime timestamp;
 	int status;
 	String error;

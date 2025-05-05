@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -33,64 +32,49 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserManagerSecurityConfig {
 
-    @Value("${app.security.allowed-origins}")
-    private List<String> allowedOrigins;
+	@Value("${app.security.allowed-origins}")
+	private List<String> allowedOrigins;
 
 	@Autowired
 	private JwtDecoder jwtDecoder;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(PATH_USER + "/**")
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> {
-						csrf.disable();
-				})
-            .headers(headers -> headers
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                .referrerPolicy(referrer -> referrer
-                    .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                .contentSecurityPolicy(csp -> csp
-                    .policyDirectives("default-src 'self'; frame-ancestors 'none'; permissions-policy: camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=(self)"))
-            )
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
-                .requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll()
-                .requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**").permitAll()
-                // Allow Swagger UI and OpenAPI resources
-                .requestMatchers("/v3/api-docs/**").permitAll()
-                .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/swagger-ui.html").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.decoder(jwtDecoder))
-            )
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher(PATH_USER + "/**").cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> {
+					csrf.disable();
+				}).headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+						.referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+						.contentSecurityPolicy(csp -> csp.policyDirectives(
+								"default-src 'self'; frame-ancestors 'none'; permissions-policy: camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=(self)")))
+				.authorizeHttpRequests(authz -> authz.requestMatchers(PATH_USER + ENDPOINT_LOGIN).permitAll()
+						.requestMatchers(PATH_USER + ENDPOINT_REGISTER).permitAll().requestMatchers(PATH_USER + ENDPOINT_PUBLIC + "**")
+						.permitAll()
+						// Allow Swagger UI and OpenAPI resources
+						.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui/**").permitAll()
+						.requestMatchers("/swagger-ui.html").permitAll().anyRequest().authenticated())
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder)))
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(allowedOrigins);
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-platform"));
-        configuration.setExposedHeaders(List.of("Authorization"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+		configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
 
 		log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
 		allowedOrigins.forEach(origin -> log.info("CORS origin allowed: {}", origin));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
 }

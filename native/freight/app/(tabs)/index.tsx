@@ -2,10 +2,12 @@ import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState} from 'react'
-import {ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, Text, TextStyle, View, ViewStyle, RefreshControl} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {isConnected} from '@/utils/networkUtils'
 
 interface TruckRoutePage {
 	id: number;
@@ -32,21 +34,74 @@ export default function HomeScreen() {
 	const [routes, setRoutes] = useState<TruckRoutePage[]>([])
 	const [loading, setLoading] = useState(true)
 	const [buttonText, setButtonText] = useState('Starts')
+	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
+	
+	// Konstante lokālās datubāzes atslēgai
+	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
 
 	const checkLastRouteStatus = useCallback(async () => {
+		// Iestatām ielādes stāvokli
+		setStatusCheckLoading(true)
+		
+		// Notīrām iepriekšējo kļūdas ziņojumu
+		setErrorMessage(null)
+		
 		try {
-			await freightAxiosInstance.get('/api/freight-tracking/truck-routes/last-active')
-			setButtonText('FINIŠS')
-		} catch (error: any) {
-			if (error.response?.status === 404) {
-				setButtonText('STARTS')
+			// Pārbaudām, vai ierīce ir pieslēgta internetam
+			const connected = await isConnected()
+			
+			if (connected) {
+				// Ja ir savienojums, mēģinām iegūt datus no servera
+				try {
+					await freightAxiosInstance.get('/truck-routes/last-active')
+					setButtonText('FINIŠS')
+					
+					// Saglabājam statusu lokālajā datubāzē
+					await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
+				} catch (error: any) {
+					if (error.response?.status === 404) {
+						setButtonText('STARTS')
+						
+						// Saglabājam statusu lokālajā datubāzē
+						await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
+					} else if (!error.response) {
+						// Ja nav atbildes no servera, mēģinām iegūt statusu no lokālās datubāzes
+						const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
+						
+						if (localStatus) {
+							// Ja ir lokāli saglabāts statuss, izmantojam to
+							setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+						} else {
+							// Ja nav lokāli saglabāta statusa, parādām kļūdas ziņojumu
+							setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
+						}
+					}
+				}
+			} else {
+				// Ja nav savienojuma, mēģinām iegūt statusu no lokālās datubāzes
+				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
+				
+				if (localStatus) {
+					// Ja ir lokāli saglabāts statuss, izmantojam to
+					setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+				} else {
+					// Ja nav lokāli saglabāta statusa, parādām kļūdas ziņojumu
+					setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
+				}
 			}
+		} catch (error) {
+			console.error('Error checking route status:', error)
+			setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
+		} finally {
+			// Atiestatām ielādes stāvokli
+			setStatusCheckLoading(false)
 		}
 	}, [])
 
 	const fetchRoutes = async () => {
 		try {
-			const response = await freightAxiosInstance.get<TruckRoutePage[]>('/api/freight-tracking/route-pages')
+			const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
 			setRoutes(response.data.map(route => ({...route, activeTab: 'basic' as const})))
 		} catch (error) {
 			console.error('Failed to fetch routes:', error)
@@ -73,8 +128,31 @@ export default function HomeScreen() {
 					title={buttonText}
 					onPress={() => router.push('/truck-route')}
 					style={styles.startTripButton}
+					disabled={errorMessage !== null || statusCheckLoading}
+					loading={statusCheckLoading}
 			/>
+			{errorMessage && (
+				<View style={styles.errorContainer}>
+					<Text style={styles.errorText}>{errorMessage}</Text>
+					<Button 
+						title="Pārbaudīt"
+						onPress={checkLastRouteStatus}
+						style={styles.refreshButton}
+						loading={statusCheckLoading}
+					/>
+				</View>
+			)}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
+					refreshControl={
+						<RefreshControl
+							refreshing={loading}
+							onRefresh={() => {
+								setLoading(true);
+								fetchRoutes();
+								checkLastRouteStatus();
+							}}
+						/>
+					}
 					data={routes}
 					keyExtractor={(item) => item.id.toString()}
 					style={styles.list}
@@ -244,9 +322,33 @@ type Styles = {
 	tabTextActive: TextStyle;
 	tabContent: ViewStyle;
 	highlightedText: TextStyle;
+	errorContainer: ViewStyle;
+	errorText: TextStyle;
+	refreshButton: ViewStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
+	refreshButton: {
+		marginTop: 12,
+		backgroundColor: COLORS.secondary,
+		borderRadius: 8,
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+	},
+	errorContainer: {
+		backgroundColor: 'rgba(255, 0, 0, 0.1)',
+		borderRadius: 8,
+		padding: 12,
+		marginTop: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 0, 0, 0.3)',
+	},
+	errorText: {
+		fontSize: 14,
+		fontFamily: FONT.medium,
+		color: '#FF6B6B',
+		textAlign: 'center',
+	},
 	routeCardPressed: {
 		opacity: 0.7,
 		transform: [{scale: 0.98}],

@@ -2,6 +2,6 @@ package lv.degra.accounting.core.system;
 
 import java.util.List;
 
-public interface DataFetchService<T> {
+public interface DataFetcher<T> {
 	List<T> getSuggestions(String searchText);
 }

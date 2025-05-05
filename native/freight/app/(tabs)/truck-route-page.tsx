@@ -78,7 +78,7 @@ export default function TruckRoutePageScreen() {
 
 	const fetchRouteDetails = async () => {
 		try {
-			const response = await freightAxios.get(`/api/freight-tracking/route-pages/${id}`)
+			const response = await freightAxios.get(`/route-pages/${id}`)
 			const routeData = response.data
 
 			setForm({
@@ -101,7 +101,7 @@ export default function TruckRoutePageScreen() {
 		try {
 			setPagination(prev => ({ ...prev, loading: true }));
 			const response = await freightAxios.get(
-				`/api/freight-tracking/truck-routes/by-page/${id}`,
+				`/truck-routes/by-page/${id}`,
 				{ params: { page, size: pagination.size } }
 			);
 			
@@ -149,9 +149,9 @@ export default function TruckRoutePageScreen() {
 				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
 			}
 			if (id) {
-				await freightAxios.put(`/api/freight-tracking/route-pages/${id}`, payload)
+				await freightAxios.put(`/route-pages/${id}`, payload)
 			} else {
-				await freightAxios.post('/api/freight-tracking/route-pages', payload)
+				await freightAxios.post('/route-pages', payload)
 			}
 			router.push('/(tabs)')
 		} catch (error) {
@@ -204,7 +204,7 @@ export default function TruckRoutePageScreen() {
 										value={form.truck}
 										onSelect={(value) => setForm(prevForm => ({...prevForm, truck: value}))}
 										placeholder="Izvēlieties"
-										endpoint="/api/freight-tracking/trucks"
+										endpoint="/trucks"
 										disabled={!isEditMode}
 										// error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
 								/>

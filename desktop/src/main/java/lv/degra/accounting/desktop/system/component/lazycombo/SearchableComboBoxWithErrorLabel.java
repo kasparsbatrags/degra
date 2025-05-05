@@ -9,7 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.Getter;
 import lombok.Setter;
-import lv.degra.accounting.core.system.DataFetchService;
+import lv.degra.accounting.core.system.DataFetcher;
 
 @Component
 public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<T> {
@@ -19,7 +19,7 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 	private int minSearchCharCount = 3;
 	private boolean blockAutoLoadData = false;
 	@Setter
-	private DataFetchService<T> dataFetchService;
+	private DataFetcher<T> dataFetcher;
 
 	public SearchableComboBoxWithErrorLabel() {
 		super();
@@ -84,14 +84,14 @@ public class SearchableComboBoxWithErrorLabel<T> extends ComboBoxWithErrorLabel<
 	}
 
 	private void loadData(String searchText) {
-		if (dataFetchService != null) {
+		if (dataFetcher != null) {
 			this.setItems(fetchDataFromService(searchText));
 			this.show();
 		}
 	}
 
 	private ObservableList<T> fetchDataFromService(String searchText) {
-		return FXCollections.observableArrayList(dataFetchService.getSuggestions(searchText));
+		return FXCollections.observableArrayList(dataFetcher.getSuggestions(searchText));
 	}
 
 }

@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from 'react'
 import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/api'
 import type {UserInfo, UserRegistrationData} from '../types/auth'
 import {clearSession, saveSession} from '../utils/sessionUtils'
+import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '../utils/sessionTimeoutHandler'
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -36,6 +37,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (currentUser) {
             setUser(currentUser);
             setIsAuthenticated(true);
+            
+            // Uzsākam sesijas noilguma pārbaudi, kad lietotājs ir autentificēts
+            startSessionTimeoutCheck();
           }
           setLoading(false);
         }
@@ -51,6 +55,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mountedRef.current = false;
+      
+      // Apturām sesijas noilguma pārbaudi, kad komponente tiek nomontēta
+      stopSessionTimeoutCheck();
     };
   }, []);
 
@@ -61,6 +68,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (mountedRef.current) {
         setUser(user);
         setIsAuthenticated(true);
+        
+        // Uzsākam sesijas noilguma pārbaudi pēc pieteikšanās
+        startSessionTimeoutCheck();
       }
     } catch (error) {
       console.error("Sign in error:", error);
@@ -72,6 +82,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await apiSignOut();
       await clearSession();
+      
+      // Apturām sesijas noilguma pārbaudi pēc izrakstīšanās
+      stopSessionTimeoutCheck();
+      
       if (mountedRef.current) {
         setUser(null);
         setIsAuthenticated(false);

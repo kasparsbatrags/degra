@@ -40,7 +40,7 @@ import javafx.util.StringConverter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lv.degra.accounting.core.account.chart.service.AccountCodeChartService;
-import lv.degra.accounting.core.system.DataFetchService;
+import lv.degra.accounting.core.system.DataFetcher;
 import lv.degra.accounting.core.system.component.TableViewInfo;
 import lv.degra.accounting.core.system.exception.IllegalDataArgumentException;
 import lv.degra.accounting.desktop.system.alert.AlertAsk;
@@ -172,7 +172,7 @@ public class DynamicTableView<T> extends TableView<T> implements ApplicationCont
 				Object dataFetchService = getDataService(field);
 				if (dataFetchService instanceof AccountCodeChartService) {
 					comboBox.setMinSearchCharCount(MIN_ACCOUNT_CODE_SEARCH_SYMBOL_COUNT);
-					comboBox.setDataFetchService((DataFetchService<T>) dataFetchService);
+					comboBox.setDataFetcher((DataFetcher<T>) dataFetchService);
 					comboBox.setConverter(
 							(StringConverter<T>) new AccountCodeChartStringConverter((AccountCodeChartService) dataFetchService));
 				}

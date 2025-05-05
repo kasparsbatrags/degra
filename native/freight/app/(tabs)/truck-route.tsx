@@ -139,7 +139,7 @@ export default function TruckRouteScreen() {
 			timeoutId = setTimeout(async () => {
 				try {
 					const formattedDate = format(date, 'yyyy-MM-dd')
-					const response = await freightAxios.get<TruckRoutePage>(`/api/freight-tracking/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
+					const response = await freightAxios.get<TruckRoutePage>(`/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
 					if (response.data) {
 						console.log('Route page exists:', response.data)
 						setExistingRoutePage(response.data)
@@ -163,7 +163,7 @@ export default function TruckRouteScreen() {
 		setIsLoading(true)
 		const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
 			try {
-				const response = await freightAxios.get<Page<TruckRouteDto>>('/api/freight-tracking/truck-routes?pageSize=1')
+				const response = await freightAxios.get<Page<TruckRouteDto>>('/truck-routes?pageSize=1')
 				return response.data.content[0] || null
 			} catch (error) {
 				console.error('Failed to fetch last finished route:', error)
@@ -175,7 +175,7 @@ export default function TruckRouteScreen() {
 			try {
 				// Get last route and populate form
 				try {
-					const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/api/freight-tracking/truck-routes/last-active')
+					const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/truck-routes/last-active')
 					const lastRoute = lastRouteResponse.data
 					setIsRouteFinish(true)
 
@@ -211,7 +211,7 @@ export default function TruckRouteScreen() {
 					const lastFinishedRoute = await getLastFinishedRoute()
 
 					try {
-						const response = await freightAxios.get('/api/freight-tracking/trucks')
+						const response = await freightAxios.get('/trucks')
 						if (response.data && response.data.length > 0) {
 							const defaultTruck = response.data[0].id.toString()
 							const currentDate = new Date()
@@ -276,10 +276,10 @@ export default function TruckRouteScreen() {
 
 			if (isItRouteFinish) {
 				// For finished routes, use PUT to update
-				await freightAxios.put('/api/freight-tracking/truck-routes', payload)
+				await freightAxios.put('/truck-routes', payload)
 			} else {
 				// For new routes, use POST to create
-				await freightAxios.post('/api/freight-tracking/truck-routes', payload)
+				await freightAxios.post('/truck-routes', payload)
 			}
 			router.push('/(tabs)')
 		} catch (error) {
@@ -315,7 +315,7 @@ export default function TruckRouteScreen() {
 									value={form.routePageTruck}
 									onSelect={(value) => setForm({...form, routePageTruck: value})}
 									placeholder="Izvēlieties"
-									endpoint="/api/freight-tracking/trucks"
+									endpoint="/trucks"
 									disabled={isItRouteFinish}
 									error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
 							/>
@@ -419,7 +419,7 @@ export default function TruckRouteScreen() {
 						value={form.outTruckObject}
 						onSelect={(value) => setForm({...form, outTruckObject: value})}
 						placeholder="Izvēlieties sākuma punktu"
-						endpoint="api/freight-tracking/objects"
+						endpoint="/objects"
 						disabled={isItRouteFinish}
 						error={!form.outTruckObject ? 'Ievadiet datus!' : undefined}
 				/>
@@ -429,7 +429,7 @@ export default function TruckRouteScreen() {
 						value={form.inTruckObject}
 						onSelect={(value) => setForm({...form, inTruckObject: value})}
 						placeholder="Ievadiet galamērķi"
-						endpoint="api/freight-tracking/objects"
+						endpoint="/objects"
 						filterValue={form.outTruckObject}
 						error={isItRouteFinish && !form.inTruckObject ? 'Ievadiet datus!' : undefined}
 				/>
@@ -480,7 +480,7 @@ export default function TruckRouteScreen() {
 							value={form.cargoType}
 							onSelect={(value) => setForm({...form, cargoType: value})}
 							placeholder=" Izvēlieties"
-							endpoint="api/freight-tracking/cargo-types"
+							endpoint="api/freight/cargo-types"
 					/>
 
 					<FormInput
@@ -496,7 +496,7 @@ export default function TruckRouteScreen() {
 							value={form.unitType}
 							onSelect={(value) => setForm({...form, unitType: value})}
 							placeholder="Izvēlieties mērvienību"
-							endpoint="/api/freight-tracking/unit-types"
+							endpoint="/unit-types"
 					/>
 				</>)}
 

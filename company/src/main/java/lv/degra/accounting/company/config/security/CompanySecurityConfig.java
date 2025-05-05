@@ -32,9 +32,6 @@ public class CompanySecurityConfig {
 	@Value("${app.security.allowed-origins}")
 	private List<String> allowedOrigins;
 
-	@Value("${spring.profiles.active:}")
-	private String activeProfile;
-	
 	@Autowired
 	private JwtDecoder jwtDecoder;
 
@@ -43,9 +40,7 @@ public class CompanySecurityConfig {
 		http.securityMatcher(ENDPOINT_COMPANY + "/**")
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> {
-					if (!"production".equalsIgnoreCase(activeProfile)) {
 						csrf.disable();
-					}
 				})
 				.headers(headers -> headers
 						.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
@@ -68,7 +63,6 @@ public class CompanySecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
 		CorsConfiguration configuration = new CorsConfiguration();
-		// Use allowedOriginPatterns to avoid IllegalArgumentException with allowCredentials(true)
 		configuration.setAllowedOriginPatterns(allowedOrigins);
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));

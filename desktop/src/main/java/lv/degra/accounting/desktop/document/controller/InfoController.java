@@ -201,9 +201,9 @@ public class InfoController extends DocumentControllerComponent {
 		setFieldFormat(sumTotalField.getTextField(), SUM_FORMAT_REGEX);
 		setFieldFormat(sumTotalInCurrencyField.getTextField(), SUM_FORMAT_REGEX);
 
-		publisherCombo.setDataFetchService(customerService);
+		publisherCombo.setDataFetcher(customerService);
 		publisherCombo.setConverter(new CustomerStringConverter(customerService));
-		receiverCombo.setDataFetchService(customerService);
+		receiverCombo.setDataFetcher(customerService);
 		receiverCombo.setConverter(new CustomerStringConverter(customerService));
 		addValidationControl(documentSubTypeCombo, Objects::nonNull, FIELD_REQUIRED_MESSAGE);
 	}

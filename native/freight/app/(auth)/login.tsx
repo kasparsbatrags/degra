@@ -70,7 +70,7 @@ export default function LoginScreen() {
 			} else {
 				setFormErrors({
 					email: "",
-					password: "Neizdevās pieslēgties. Lūdzu, mēģiniet vēlreiz.",
+					password: "Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!",
 				});
 			}
 		} finally {
@@ -97,9 +97,11 @@ export default function LoginScreen() {
           />
 
 			<Text style={styles.heading}>
-				Kravu uzskaites sistēma
+				Krava
 			</Text>
-
+			<Text style={styles.titleCenter}>
+				Auto izmantošanas uzskaites sistēma
+			</Text>
           <FormInput
             label="E-pasts"
             value={form.email}
@@ -156,6 +158,7 @@ type Styles = {
   heading: TextStyle;
   logo: ImageStyle;
   title: TextStyle;
+  titleCenter: TextStyle;
   loginButton: ViewStyle;
   registerContainer: ViewStyle;
   registerText: TextStyle;
@@ -201,6 +204,14 @@ const styles = StyleSheet.create<Styles>({
     marginTop: 40,
     marginBottom: 28,
   },
+	titleCenter: {
+		fontSize: 24,
+		fontFamily: FONT.semiBold,
+		color: COLORS.white,
+		marginTop: 5,
+		marginBottom: 28,
+		textAlign: 'center',
+	},
   loginButton: {
     marginTop: 28,
   },

@@ -1,6 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as SecureStore from 'expo-secure-store'
 import {Platform} from 'react-native'
+import Constants from 'expo-constants'
+
+// Importējam secure-ls bibliotēku (tikai web platformai)
+let SecureLS: any = null;
+if (Platform.OS === 'web') {
+  // Dinamiski importējam secure-ls, jo tā ir tikai web bibliotēka
+  try {
+    SecureLS = require('secure-ls');
+  } catch (error) {
+    console.error('Failed to load secure-ls:', error);
+  }
+}
 
 // Definējam storage interface, lai nodrošinātu vienotu API
 interface Storage {
@@ -9,30 +21,100 @@ interface Storage {
   deleteItemAsync: (key: string) => Promise<void>;
 }
 
-// Web platformas storage implementācija
+// Iegūstam šifrēšanas atslēgu no vides mainīgajiem
+const getEncryptionKey = (): string => {
+  const defaultKey = 'default-encryption-key';
+  return Constants.expoConfig?.extra?.ENCRYPTION_KEY || defaultKey;
+};
+
+// Web platformas storage implementācija ar šifrēšanu
 const webStorage: Storage = {
   setItemAsync: async (key: string, value: string) => {
     try {
-      localStorage.setItem(key, value);
+      if (SecureLS) {
+        // Inicializējam SecureLS ar konfigurāciju
+        const secureLS = new SecureLS({
+          encodingType: 'aes',
+          isCompression: false,
+          encryptionSecret: getEncryptionKey()
+        });
+        
+        // Saglabājam datus
+        secureLS.set(key, value);
+      } else {
+        // Fallback uz parasto localStorage, ja secure-ls nav pieejams
+        localStorage.setItem(key, value);
+      }
     } catch (error) {
-      console.error('Error saving to localStorage:', error);
-      throw error;
+      console.error('Error saving to encrypted localStorage:', error);
+      // Mēģinām fallback uz parasto localStorage
+      try {
+        localStorage.setItem(key, value);
+      } catch (fallbackError) {
+        console.error('Fallback to localStorage also failed:', fallbackError);
+        throw error;
+      }
     }
   },
   getItemAsync: async (key: string) => {
     try {
-      return localStorage.getItem(key);
+      if (SecureLS) {
+        // Inicializējam SecureLS ar konfigurāciju
+        const secureLS = new SecureLS({
+          encodingType: 'aes',
+          isCompression: false,
+          encryptionSecret: getEncryptionKey()
+        });
+        
+        // Mēģinām iegūt datus
+        const value = secureLS.get(key);
+        return value !== undefined ? value : null;
+      } else {
+        // Fallback uz parasto localStorage, ja secure-ls nav pieejams
+        return localStorage.getItem(key);
+      }
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
-      throw error;
+      console.error('Error reading from encrypted localStorage:', error);
+      // Mēģinām fallback uz parasto localStorage
+      try {
+        return localStorage.getItem(key);
+      } catch (fallbackError) {
+        console.error('Fallback to localStorage also failed:', fallbackError);
+        // Ja atšifrēšana neizdodas, atgriežam null un notīrām iespējami bojātos datus
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {
+          // Ignorējam kļūdu, ja nevaram notīrīt localStorage
+        }
+        return null;
+      }
     }
   },
   deleteItemAsync: async (key: string) => {
     try {
-      localStorage.removeItem(key);
+      if (SecureLS) {
+        // Inicializējam SecureLS ar konfigurāciju
+        const secureLS = new SecureLS({
+          encodingType: 'aes',
+          isCompression: false,
+          encryptionSecret: getEncryptionKey()
+        });
+        
+        // Dzēšam datus
+        secureLS.remove(key);
+      } else {
+        // Fallback uz parasto localStorage, ja secure-ls nav pieejams
+        localStorage.removeItem(key);
+      }
     } catch (error) {
       console.error('Error removing from localStorage:', error);
-      throw error;
+      // Mēģinām fallback uz parasto localStorage
+      try {
+        localStorage.removeItem(key);
+      } catch (fallbackError) {
+        console.error('Fallback to localStorage also failed:', fallbackError);
+        throw error;
+      }
     }
   }
 };
