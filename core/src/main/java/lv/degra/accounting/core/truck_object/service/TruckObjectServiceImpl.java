@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.truck_object.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,22 @@ public class TruckObjectServiceImpl implements TruckObjectService {
 
 	public List<TruckObjectDto> getTruckObjectListDto() {
 		return getTruckObjectList().stream().map(freightMapper::toDto).toList();
+	}
+
+	public TruckObjectDto saveTruckObject(TruckObjectDto truckObjectDto) {
+		TruckObject truckObject = freightMapper.toEntity(truckObjectDto);
+		truckObject = truckObjectRepository.save(truckObject);
+		return freightMapper.toDto(truckObject);
+	}
+
+	public List<TruckObjectDto> findSimilarObjects(String name) {
+		return truckObjectRepository.findSimilarByName(name).stream()
+				.map(freightMapper::toDto)
+				.collect(Collectors.toList());
+	}
+
+	public boolean existsByNameIgnoreCase(String name) {
+		return truckObjectRepository.existsByNameIgnoreCase(name);
 	}
 
 }

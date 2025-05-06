@@ -9,4 +9,10 @@ public interface TruckObjectService {
 	List<TruckObject> getTruckObjectList();
 
 	List<TruckObjectDto> getTruckObjectListDto();
+	
+    TruckObjectDto saveTruckObject(TruckObjectDto truckObjectDto);
+    
+    List<TruckObjectDto> findSimilarObjects(String name);
+    
+    boolean existsByNameIgnoreCase(String name);
 }

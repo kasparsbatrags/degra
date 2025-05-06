@@ -56,3 +56,10 @@ databaseChangeLog:
                   name: name
                   value: 'Object3'
 
+  - changeSet:
+      id: SetTruckObjectSequenceToMax
+      author: Kaspars Batrags
+      changes:
+        - sql:
+            sql: |
+              SELECT setval('truck_object_id_seq', (SELECT MAX(id) FROM truck_object));
