@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Pressable, Text, StyleSheet, Platform } from 'react-native';
 import FormDropdown from './FormDropdown';
 import { COLORS, FONT, SHADOWS } from '@/constants/theme';
@@ -19,18 +19,43 @@ interface FormDropdownWithAddButtonProps {
 
 const FormDropdownWithAddButton: React.FC<FormDropdownWithAddButtonProps> = ({
 	onAddPress,
+	objectName,
+	value,
 	...dropdownProps
 }) => {
+	// Keep track of the selected value for this specific dropdown
+	const [selectedValue, setSelectedValue] = useState<string>(value || '');
+
+	// Update the internal state when the parent value changes
+	useEffect(() => {
+		if (value !== selectedValue) {
+			setSelectedValue(value);
+		}
+	}, [value]);
+
+	// Handle selection and propagate to parent
+	const handleSelect = (newValue: string) => {
+		setSelectedValue(newValue);
+		dropdownProps.onSelect(newValue);
+	};
+
 	return (
 			<View style={styles.container}>
 				<View style={styles.dropdownContainer}>
 					<View style={{ flex: 1, marginRight: 8 }}>
-						<FormDropdown {...dropdownProps} objectName={dropdownProps.objectName} />
+						<FormDropdown
+								{...dropdownProps}
+								value={selectedValue}
+								onSelect={handleSelect}
+								objectName={objectName}
+						/>
 					</View>
 					<Pressable
+							disabled={dropdownProps.disabled}
 							style={({ pressed }) => [
 								styles.addButton,
-								pressed && styles.addButtonPressed
+								pressed && !dropdownProps.disabled && styles.addButtonPressed,
+								dropdownProps.disabled && { opacity: 0.5 }
 							]}
 							onPress={onAddPress}
 					>

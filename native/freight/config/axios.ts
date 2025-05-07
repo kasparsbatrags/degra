@@ -6,20 +6,42 @@ import {API_ENDPOINTS, getApiTimeout, getMaxRetries, getUserManagerApiUrl} from 
 import {router} from 'expo-router'
 import {Platform} from 'react-native'
 
+// Flag to track if a redirect is already in progress
+let isRedirectingToLogin = false;
+
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
 // Funkcija, kas novirza uz login lapu
 const redirectToLogin = () => {
+  // Pārbaudam, vai jau notiek pārvirzīšana, lai izvairītos no vairākkārtējiem redirectiem
+  if (isRedirectingToLogin) {
+    return; // Ja jau notiek pārvirzīšana, tad izejam no funkcijas
+  }
+  
+  // Iestatām karogu, ka notiek pārvirzīšana
+  isRedirectingToLogin = true;
+  
   // Izmantojam setTimeout, lai izvairītos no problēmām ar React rendering ciklu
   setTimeout(() => {
     // Tikai web platformā veicam automātisku redirektu
     if (Platform.OS === 'web') {
       router.replace('/(auth)/login');
+      
+      // Atiestatām karogu pēc nelielas aiztures, lai izvairītos no vairākkārtējiem redirectiem
+      setTimeout(() => {
+        isRedirectingToLogin = false;
+      }, 2000); // 2 sekunžu aizture, lai izvairītos no vairākkārtējiem redirectiem
+    } else {
+      // Ja nav web platforma, uzreiz atiestatām karogu
+      isRedirectingToLogin = false;
     }
   }, 100);
 };
+
+// Eksportējam funkciju, lai to varētu izmantot arī no citiem moduļiem
+export { redirectToLogin, isRedirectingToLogin };
 
 /**
  * Izveido un konfigurē axios instanci
@@ -86,7 +108,8 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
       // Ja saņemam 401 un tas nav login pieprasījums, mēģinām atjaunot tokenu
       if (error.response?.status === 401 && 
           originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN &&
-          !originalRequest?._retry) {
+          !originalRequest?._retry &&
+          !isRedirectingToLogin) { // Pārbaudam vai jau nenotiek pārvirzīšana
         
         try {
           // Atzīmējam, ka šis pieprasījums jau ir mēģināts atkārtot
@@ -140,7 +163,8 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
       
       // Ja saņemam 401 un tas nav login pieprasījums, novirzām uz login lapu
       if (error.response?.status === 401 && 
-          originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN) {
+          originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN &&
+          !isRedirectingToLogin) { // Pārbaudam vai jau nenotiek pārvirzīšana
         // Notīrām sesiju un novirzām uz login lapu
         await clearSession();
         redirectToLogin();

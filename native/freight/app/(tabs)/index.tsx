@@ -8,6 +8,8 @@ import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {isConnected} from '@/utils/networkUtils'
+import {isSessionActive} from '@/utils/sessionUtils'
+import {isRedirectingToLogin} from '@/config/axios'
 
 interface TruckRoutePage {
 	id: number;
@@ -39,6 +41,18 @@ export default function HomeScreen() {
 	
 	// Konstante lokālās datubāzes atslēgai
 	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
+	
+	// Pārbaudam sesijas statusu, kad komponente tiek ielādēta
+	useEffect(() => {
+		const checkSession = async () => {
+			const sessionActive = await isSessionActive();
+			if (!sessionActive && !isRedirectingToLogin) {
+				router.replace('/(auth)/login');
+			}
+		};
+		
+		checkSession();
+	}, [router]);
 
 	const checkLastRouteStatus = useCallback(async () => {
 		// Iestatām ielādes stāvokli
@@ -47,7 +61,22 @@ export default function HomeScreen() {
 		// Notīrām iepriekšējo kļūdas ziņojumu
 		setErrorMessage(null)
 		
+		// Pārbaudam, vai jau nenotiek pārvirzīšana uz login lapu
+		if (isRedirectingToLogin) {
+			setStatusCheckLoading(false)
+			return
+		}
+		
 		try {
+			// Pārbaudām, vai sesija ir aktīva
+			const sessionActive = await isSessionActive()
+			if (!sessionActive) {
+				// Ja sesija nav aktīva, pārvirzām uz login lapu
+				router.replace('/(auth)/login')
+				setStatusCheckLoading(false)
+				return
+			}
+			
 			// Pārbaudām, vai ierīce ir pieslēgta internetam
 			const connected = await isConnected()
 			
@@ -90,7 +119,7 @@ export default function HomeScreen() {
 					setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 				}
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error checking route status:', error)
 			setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 		} finally {
@@ -101,10 +130,28 @@ export default function HomeScreen() {
 
 	const fetchRoutes = async () => {
 		try {
+			// Pārbaudam, vai sesija ir aktīva un vai jau nenotiek pārvirzīšana uz login lapu
+			if (isRedirectingToLogin) {
+				setLoading(false)
+				return
+			}
+			
+			const sessionActive = await isSessionActive()
+			if (!sessionActive) {
+				// Ja sesija nav aktīva, pārvirzām uz login lapu
+				router.replace('/(auth)/login')
+				setLoading(false)
+				return
+			}
+			
 			const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
 			setRoutes(response.data.map(route => ({...route, activeTab: 'basic' as const})))
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to fetch routes:', error)
+			// Ja kļūda ir saistīta ar tīkla problēmām, parādām kļūdas ziņojumu
+			if (!error.response) {
+				setErrorMessage("Neizdevās ielādēt datus - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
+			}
 		} finally {
 			setLoading(false)
 		}
@@ -112,9 +159,12 @@ export default function HomeScreen() {
 
 	// Fetch data when screen comes into focus
 	useFocusEffect(React.useCallback(() => {
-		setLoading(true)
-		fetchRoutes()
-		checkLastRouteStatus()
+		// Pārbaudam, vai jau nenotiek pārvirzīšana uz login lapu
+		if (!isRedirectingToLogin) {
+			setLoading(true)
+			fetchRoutes()
+			checkLastRouteStatus()
+		}
 	}, []))
 
 	// Initial fetch
