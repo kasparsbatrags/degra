@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import {isConnected} from '@/utils/networkUtils'
 import {isSessionActive} from '@/utils/sessionUtils'
 import {isRedirectingToLogin} from '@/config/axios'
+import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 
 interface TruckRoutePage {
 	id: number;
@@ -53,6 +54,20 @@ export default function HomeScreen() {
 		
 		checkSession();
 	}, [router]);
+	
+	// Uzsākam periodisku sesijas pārbaudi (tikai web platformai)
+	useEffect(() => {
+		// Pārbaudam, vai esam web platformā
+		if (Platform.OS === 'web') {
+			// Uzsākam sesijas pārbaudi
+			startSessionTimeoutCheck();
+			
+			// Apturām sesijas pārbaudi, kad komponente tiek noņemta
+			return () => {
+				stopSessionTimeoutCheck();
+			};
+		}
+	}, []);
 
 	const checkLastRouteStatus = useCallback(async () => {
 		// Iestatām ielādes stāvokli
