@@ -22,7 +22,7 @@ export default function AddTruckObjectScreen() {
 	const [showSimilarModal, setShowSimilarModal] = useState(false);
 	const [originalObject, setOriginalObject] = useState<TruckObject | null>(null);
 
-	const { setNewTruckObject } = useObjectStore();
+	const { setNewTruckObject, updateTruckRouteForm } = useObjectStore();
 
 	const handleSubmit = async () => {
 		if (!objectName.trim()) {
@@ -49,27 +49,29 @@ export default function AddTruckObjectScreen() {
 
 				// Ja objekts tika pievienots no truck-route ekrāna, atgriežamies ar jauno objekta ID un nosaukumu
 				if (type && response.data.id) {
-					setNewTruckObject({ id: response.data.id.toString(), name: objectName.trim(), type: type as 'inTruckObject' | 'outTruckObject' });
-					// Atgriežamies uz iepriekšējo ekrānu ar jauno objekta ID un nosaukumu
-					console.log('Navigating back with params:', {
-						type,
-						id: response.data.id.toString(),
-						name: objectName.trim(),
-						paramName: `${type}Name`
+					// Saglabājam jaunā objekta informāciju store
+					setNewTruckObject({ 
+						id: response.data.id.toString(), 
+						name: objectName.trim(), 
+						type: type as 'inTruckObject' | 'outTruckObject' 
 					});
-
-					const params = {
-						[type]: response.data.id.toString(),
-						[`${type}Name`]: objectName.trim(), // Add the object name as a parameter
-						newObject: 'true'
-					};
-
-					console.log('Final params object:', params);
-
-					router.replace({
-						pathname: "/(tabs)/truck-route",
-						params
-					});
+					
+					// Atjauninām arī truck-route formas datus
+					if (type === 'outTruckObject') {
+						updateTruckRouteForm({
+							outTruckObject: response.data.id.toString(),
+							outTruckObjectName: objectName.trim()
+						});
+					} else if (type === 'inTruckObject') {
+						updateTruckRouteForm({
+							inTruckObject: response.data.id.toString(),
+							inTruckObjectName: objectName.trim()
+						});
+					}
+					
+					// Atgriežamies uz iepriekšējo ekrānu
+					console.log('Navigating back with updated store data');
+					router.back();
 				} else {
 					// Vienkārši atgriežamies atpakaļ
 					router.back();
@@ -97,27 +99,29 @@ export default function AddTruckObjectScreen() {
 
 			// Ja objekts tika pievienots no truck-route ekrāna, atgriežamies ar jauno objekta ID un nosaukumu
 			if (type && savedObject.data.id) {
-				// Atgriežamies uz iepriekšējo ekrānu ar jauno objekta ID un nosaukumu
-				console.log('Navigating back with params (force create):', {
-					type,
-					id: savedObject.data.id.toString(),
-					name: originalObject?.name || '',
-					paramName: `${type}Name`
+				// Saglabājam jaunā objekta informāciju store
+				setNewTruckObject({ 
+					id: savedObject.data.id.toString(), 
+					name: originalObject?.name || '', 
+					type: type as 'inTruckObject' | 'outTruckObject' 
 				});
-
-				const params = {
-					id: undefined,
-					[type]: savedObject.data.id.toString(),
-					[`${type}Name`]: originalObject?.name || '', // Add the object name as a parameter
-					newObject: 'true'
-				};
-
-				console.log('Final params object (force create):', params);
-
-				router.navigate({
-					pathname: "/(tabs)/truck-route",
-					params
-				});
+				
+				// Atjauninām arī truck-route formas datus
+				if (type === 'outTruckObject') {
+					updateTruckRouteForm({
+						outTruckObject: savedObject.data.id.toString(),
+						outTruckObjectName: originalObject?.name || ''
+					});
+				} else if (type === 'inTruckObject') {
+					updateTruckRouteForm({
+						inTruckObject: savedObject.data.id.toString(),
+						inTruckObjectName: originalObject?.name || ''
+					});
+				}
+				
+				// Atgriežamies uz iepriekšējo ekrānu
+				console.log('Navigating back with updated store data (force create)');
+				router.back();
 			} else {
 				// Vienkārši atgriežamies atpakaļ
 				router.back();

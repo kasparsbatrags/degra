@@ -146,7 +146,56 @@ export default function TruckRouteScreen() {
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	const { newTruckObject, clearNewTruckObject } = useObjectStore();
+	const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
+
+	// Inicializē formu no truckRouteForm, kad komponente tiek montēta
+	useEffect(() => {
+		// Ja ir saglabāti dati store, izmantojam tos
+		if (truckRouteForm.outTruckObject && !selectedOutTruckObject) {
+			console.log('Initializing outTruckObject from store:', truckRouteForm.outTruckObject);
+			setSelectedOutTruckObject(truckRouteForm.outTruckObject);
+			setForm(prev => ({
+				...prev,
+				outTruckObject: truckRouteForm.outTruckObject
+			}));
+			
+			if (truckRouteForm.outTruckObjectName) {
+				setOutTruckObjectDetails({ 
+					id: parseInt(truckRouteForm.outTruckObject), 
+					name: truckRouteForm.outTruckObjectName 
+				});
+			}
+		}
+		
+		if (truckRouteForm.inTruckObject && !selectedInTruckObject) {
+			console.log('Initializing inTruckObject from store:', truckRouteForm.inTruckObject);
+			setSelectedInTruckObject(truckRouteForm.inTruckObject);
+			setForm(prev => ({
+				...prev,
+				inTruckObject: truckRouteForm.inTruckObject
+			}));
+			
+			if (truckRouteForm.inTruckObjectName) {
+				setInTruckObjectDetails({ 
+					id: parseInt(truckRouteForm.inTruckObject), 
+					name: truckRouteForm.inTruckObjectName 
+				});
+			}
+		}
+	}, []);
+
+	// Atjaunina store, kad mainās vērtības
+	useEffect(() => {
+		// Atjauninām store, kad mainās vērtības
+		if (selectedOutTruckObject || selectedInTruckObject) {
+			updateTruckRouteForm({
+				outTruckObject: selectedOutTruckObject,
+				outTruckObjectName: outTruckObjectDetails?.name || '',
+				inTruckObject: selectedInTruckObject,
+				inTruckObjectName: inTruckObjectDetails?.name || ''
+			});
+		}
+	}, [selectedOutTruckObject, selectedInTruckObject, outTruckObjectDetails, inTruckObjectDetails, updateTruckRouteForm]);
 
 	useEffect(() => {
 		if (newTruckObject) {
@@ -157,14 +206,26 @@ export default function TruckRouteScreen() {
 				setSelectedInTruckObject(newTruckObject.id);
 				setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
 				setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+				
+				// Atjauninām arī store
+				updateTruckRouteForm({
+					inTruckObject: newTruckObject.id,
+					inTruckObjectName: newTruckObject.name
+				});
 			} else if (newTruckObject.type === 'outTruckObject') {
 				setSelectedOutTruckObject(newTruckObject.id);
 				setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
 				setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+				
+				// Atjauninām arī store
+				updateTruckRouteForm({
+					outTruckObject: newTruckObject.id,
+					outTruckObjectName: newTruckObject.name
+				});
 			}
 			clearNewTruckObject();
 		}
-	}, [newTruckObject]);
+	}, [newTruckObject, updateTruckRouteForm]);
 
 
 	// Function to fetch objects list
@@ -226,11 +287,11 @@ export default function TruckRouteScreen() {
 			console.log('New object detected, refreshing dropdowns...');
 			setRefreshDropdowns(prev => prev + 1);
 
-			// Saglabā iepriekšējo outTruckObject, ja nav atkārtoti padots
-			if (params.outTruckObject) {
-				const objectId = params.outTruckObject;
-				const objectName = params.outTruckObjectName || '';
-				console.log('Setting outTruckObject ID:', objectId, 'Name:', objectName);
+			// Izmantojam datus no store, nevis no params
+			if (truckRouteForm.outTruckObject) {
+				const objectId = truckRouteForm.outTruckObject;
+				const objectName = truckRouteForm.outTruckObjectName || '';
+				console.log('Setting outTruckObject from store ID:', objectId, 'Name:', objectName);
 
 				setSelectedOutTruckObject(objectId);
 				setForm(prev => ({
@@ -244,19 +305,12 @@ export default function TruckRouteScreen() {
 					if (!exists) return [...prev, { id: objectId, name: objectName }];
 					return prev;
 				});
-			} else if (selectedOutTruckObject || form.outTruckObject) {
-				// Atjauno iepriekšējo outTruckObject vērtību
-				const previous = selectedOutTruckObject || form.outTruckObject;
-				setForm(prev => ({
-					...prev,
-					outTruckObject: previous
-				}));
 			}
 
-			if (params.inTruckObject) {
-				const objectId = params.inTruckObject;
-				const objectName = params.inTruckObjectName || '';
-				console.log('Setting inTruckObject ID:', objectId, 'Name:', objectName);
+			if (truckRouteForm.inTruckObject) {
+				const objectId = truckRouteForm.inTruckObject;
+				const objectName = truckRouteForm.inTruckObjectName || '';
+				console.log('Setting inTruckObject from store ID:', objectId, 'Name:', objectName);
 
 				setSelectedInTruckObject(objectId);
 				setForm(prev => ({
@@ -274,7 +328,7 @@ export default function TruckRouteScreen() {
 
 			fetchObjectsList();
 		}
-	}, [params.outTruckObject, params.inTruckObject, params.outTruckObjectName, params.inTruckObjectName, params.newObject, fetchObjectsList]);
+	}, [params.newObject, truckRouteForm, fetchObjectsList]);
 
 	React.useEffect(() => {
 		// Skip initialization if we're handling a new object
