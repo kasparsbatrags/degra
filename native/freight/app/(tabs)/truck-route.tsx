@@ -3,7 +3,8 @@ import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
+import { useObjectStore } from '@/hooks/useObjectStore';
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
@@ -100,7 +101,9 @@ interface FormState {
 }
 
 export default function TruckRouteScreen() {
-	const params = useLocalSearchParams<{ 
+	console.log("🚚 TruckRouteScreen mounted");
+
+	const params = useLocalSearchParams<{
 		id: string;
 		outTruckObject?: string;
 		inTruckObject?: string;
@@ -109,7 +112,7 @@ export default function TruckRouteScreen() {
 		newObject?: string;
 	}>();
 	const {id} = params;
-	const [isLoading, setIsLoading] = useState(!!id)
+	const [isLoading, setIsLoading] = useState(() => !params?.newObject && !!id)
 	const {user} = useAuth()
 	const [hasCargo, setHasCargo] = useState(false)
 	const [showRoutePageError, setShowRoutePageError] = useState(false)
@@ -142,6 +145,27 @@ export default function TruckRouteScreen() {
 	})
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	const { newTruckObject, clearNewTruckObject } = useObjectStore();
+
+	useEffect(() => {
+		if (newTruckObject) {
+			console.log('🧠 Rehydrating form from zustand:', newTruckObject);
+			setRefreshDropdowns(prev => prev + 1);
+
+			if (newTruckObject.type === 'inTruckObject') {
+				setSelectedInTruckObject(newTruckObject.id);
+				setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
+				setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+			} else if (newTruckObject.type === 'outTruckObject') {
+				setSelectedOutTruckObject(newTruckObject.id);
+				setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
+				setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+			}
+			clearNewTruckObject();
+		}
+	}, [newTruckObject]);
+
 
 	// Function to fetch objects list
 	const fetchObjectsList = React.useCallback(async () => {
@@ -202,7 +226,7 @@ export default function TruckRouteScreen() {
 			console.log('New object detected, refreshing dropdowns...');
 			setRefreshDropdowns(prev => prev + 1);
 
-			// Handle outTruckObject
+			// Saglabā iepriekšējo outTruckObject, ja nav atkārtoti padots
 			if (params.outTruckObject) {
 				const objectId = params.outTruckObject;
 				const objectName = params.outTruckObjectName || '';
@@ -217,16 +241,18 @@ export default function TruckRouteScreen() {
 
 				setObjectsList(prev => {
 					const exists = prev.some(obj => obj.id === objectId);
-					if (!exists) {
-						console.log('Adding new object to objectsList:', { id: objectId, name: objectName });
-						return [...prev, { id: objectId, name: objectName }];
-					}
+					if (!exists) return [...prev, { id: objectId, name: objectName }];
 					return prev;
 				});
-				fetchObjectsList();
+			} else if (selectedOutTruckObject || form.outTruckObject) {
+				// Atjauno iepriekšējo outTruckObject vērtību
+				const previous = selectedOutTruckObject || form.outTruckObject;
+				setForm(prev => ({
+					...prev,
+					outTruckObject: previous
+				}));
 			}
 
-			// Handle inTruckObject
 			if (params.inTruckObject) {
 				const objectId = params.inTruckObject;
 				const objectName = params.inTruckObjectName || '';
@@ -241,14 +267,12 @@ export default function TruckRouteScreen() {
 
 				setObjectsList(prev => {
 					const exists = prev.some(obj => obj.id === objectId);
-					if (!exists) {
-						console.log('Adding new object to objectsList:', { id: objectId, name: objectName });
-						return [...prev, { id: objectId, name: objectName }];
-					}
+					if (!exists) return [...prev, { id: objectId, name: objectName }];
 					return prev;
 				});
-				fetchObjectsList();
 			}
+
+			fetchObjectsList();
 		}
 	}, [params.outTruckObject, params.inTruckObject, params.outTruckObjectName, params.inTruckObjectName, params.newObject, fetchObjectsList]);
 
@@ -258,7 +282,7 @@ export default function TruckRouteScreen() {
 			setIsLoading(false);
 			return;
 		}
-		
+
 		setIsLoading(true)
 		const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
 			try {
@@ -287,11 +311,11 @@ export default function TruckRouteScreen() {
 
 					const outTruckObjectId = lastRoute.outTruckObject?.id?.toString() || '';
 					const inTruckObjectId = lastRoute.inTruckObject?.id?.toString() || '';
-					
+
 					// Set the selected object state variables
 					setSelectedOutTruckObject(outTruckObjectId);
 					setSelectedInTruckObject(inTruckObjectId);
-					
+
 					// Set the form state
 					setForm({
 						id: lastRoute.id?.toString() || '',
@@ -311,7 +335,7 @@ export default function TruckRouteScreen() {
 						fuelReceived: lastRoute.fuelReceived?.toString() || '',
 						notes: '',  // Not provided in the response
 					})
-					
+
 					// Set the object details
 					if (lastRoute.outTruckObject) {
 						console.log('00000000000000000000');
@@ -678,73 +702,73 @@ export default function TruckRouteScreen() {
 const styles = StyleSheet.create({
 	webContainer: Platform.OS === 'web' ? {
 		width: '100%', maxWidth: CONTAINER_WIDTH.web, alignSelf: 'center',
-	} : {}, 
+	} : {},
 	topContainer: {
 		marginBottom: 0,
-	}, 
+	},
 	truckField: {
 		flex: 1, marginTop: -4,
-	}, 
+	},
 	explanatoryText: Platform.OS === 'web' ? {
-		...commonStyles.text, 
-		backgroundColor: COLORS.black100, 
-		padding: 16, 
-		borderRadius: 8, 
-		marginBottom: 16, 
+		...commonStyles.text,
+		backgroundColor: COLORS.black100,
+		padding: 16,
+		borderRadius: 8,
+		marginBottom: 16,
 		textAlign: 'center',
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.05)',
 		...SHADOWS.small,
 	} : {
-		...commonStyles.text, 
-		backgroundColor: COLORS.black100, 
-		padding: 16, 
-		borderRadius: 8, 
-		marginBottom: 16, 
+		...commonStyles.text,
+		backgroundColor: COLORS.black100,
+		padding: 16,
+		borderRadius: 8,
+		marginBottom: 16,
 		textAlign: 'center',
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.15)',
 		...SHADOWS.medium,
-	}, 
+	},
 	buttonContainer: {
 		justifyContent: 'space-between', gap: 16, marginTop: 24,
-	}, 
+	},
 	backButton: Platform.OS === 'web' ? {
-		flex: 1, 
+		flex: 1,
 		backgroundColor: COLORS.black100,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.05)',
 		...SHADOWS.small,
 	} : {
-		flex: 1, 
+		flex: 1,
 		backgroundColor: COLORS.black100,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.15)',
 		...SHADOWS.medium,
-	}, 
+	},
 	submitButton: Platform.OS === 'web' ? {
 		flex: 1,
 		...SHADOWS.small,
 	} : {
 		flex: 1,
 		...SHADOWS.medium,
-	}, 
+	},
 	errorBorder: Platform.OS === 'web' ? {
-		padding: 16, 
-		borderWidth: 2, 
-		borderColor: 'rgb(255, 156, 1)', 
+		padding: 16,
+		borderWidth: 2,
+		borderColor: 'rgb(255, 156, 1)',
 		borderRadius: 8,
 		...SHADOWS.small,
 	} : {
-		padding: 16, 
-		borderWidth: 2, 
-		borderColor: 'rgb(255, 156, 1)', 
+		padding: 16,
+		borderWidth: 2,
+		borderColor: 'rgb(255, 156, 1)',
 		borderRadius: 8,
 		...SHADOWS.medium,
-	}, 
+	},
 	atStartContainer: {
 		width: '100%', gap: 16,
-	}, 
+	},
 	inputWrapper: {
 		flex: 1
 	}
