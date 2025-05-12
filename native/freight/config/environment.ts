@@ -2,19 +2,19 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { Environment as EnvType } from '../utils/platformUtils';
 
-// Iegūst vides mainīgos no expo-constants vai window.APP_ENV (tīmekļa vidē)
+// Get environment variables from expo-constants or window.APP_ENV (in web environment)
 const Config = Constants.expoConfig?.extra || {};
 
-// Tīmekļa vidē pārbaudām, vai ir pieejams window.APP_ENV
+// In web environment, check if window.APP_ENV is available
 if (typeof window !== 'undefined' && window.APP_ENV) {
-  // Ja APP_ENV nav iestatīts Config objektā, bet ir pieejams window.APP_ENV, izmantojam to
+  // If APP_ENV is not set in Config object, but window.APP_ENV is available, use it
   if (!Config.APP_ENV) {
     Config.APP_ENV = window.APP_ENV;
   }
 }
 
 /**
- * Vides konfigurācija
+ * Environment configuration
  */
 interface Environment {
   // API URLs
@@ -25,14 +25,14 @@ interface Environment {
     freightTracking: string;
   };
   
-  // Citi konfigurācijas parametri
+  // Other configuration parameters
   apiTimeout: number;
   cacheTime: number;
   maxRetries: number;
 }
 
 /**
- * Platformai specifiskie URL
+ * Platform-specific URLs
  */
 const getPlatformSpecificUrl = (url: string): string => {
     if (Platform.OS === 'android' && url.includes('localhost')) {
@@ -42,7 +42,7 @@ const getPlatformSpecificUrl = (url: string): string => {
 };
 
 /**
- * Aktīvā vides konfigurācija
+ * Active environment configuration
  */
 export const ENV: Environment = {
   apiBaseUrl: getPlatformSpecificUrl(Config.API_BASE_URL || 'https://krava.degra.lv'),
@@ -57,43 +57,43 @@ export const ENV: Environment = {
 };
 
 /**
- * Iegūst pašreizējās vides nosaukumu
+ * Gets current environment name
  */
 export const getCurrentEnvironmentName = (): EnvType => 
   (Config.APP_ENV as EnvType) || 'production';
 
 /**
- * Iegūst Company API URL
+ * Gets Company API URL
  */
 export const getCompanyApiUrl = (): string => `${ENV.apiBaseUrl}${ENV.apiPaths.company}`;
 
 /**
- * Iegūst User Manager API URL
+ * Gets User Manager API URL
  */
 export const getUserManagerApiUrl = (): string => `${ENV.apiBaseUrl}${ENV.apiPaths.userManager}`;
 
 /**
- * Iegūst Freight Tracking API URL
+ * Gets Freight Tracking API URL
  */
 export const getFreightTrackingApiUrl = (): string => `${ENV.apiBaseUrl}${ENV.apiPaths.freightTracking}`;
 
 /**
- * Iegūst API timeout vērtību
+ * Gets API timeout value
  */
 export const getApiTimeout = (): number => ENV.apiTimeout;
 
 /**
- * Iegūst kešošanas laiku
+ * Gets cache time
  */
 export const getCacheTime = (): number => ENV.cacheTime;
 
 /**
- * Iegūst maksimālo mēģinājumu skaitu
+ * Gets maximum retry count
  */
 export const getMaxRetries = (): number => ENV.maxRetries;
 
 /**
- * API endpointu definīcijas
+ * API endpoint definitions
  */
 export const API_ENDPOINTS = {
   AUTH: {

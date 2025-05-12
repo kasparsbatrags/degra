@@ -148,9 +148,9 @@ export default function TruckRouteScreen() {
 
 	const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
 
-	// Inicializē formu no truckRouteForm, kad komponente tiek montēta
+	// Initialize form from truckRouteForm when component is mounted
 	useEffect(() => {
-		// Ja ir saglabāti dati store, izmantojam tos
+		// If there is saved data in store, use it
 		if (truckRouteForm.outTruckObject && !selectedOutTruckObject) {
 			console.log('Initializing outTruckObject from store:', truckRouteForm.outTruckObject);
 			setSelectedOutTruckObject(truckRouteForm.outTruckObject);
@@ -184,9 +184,9 @@ export default function TruckRouteScreen() {
 		}
 	}, []);
 
-	// Atjaunina store, kad mainās vērtības
+	// Update store when values change
 	useEffect(() => {
-		// Atjauninām store, kad mainās vērtības
+		// Update store when values change
 		if (selectedOutTruckObject || selectedInTruckObject) {
 			updateTruckRouteForm({
 				outTruckObject: selectedOutTruckObject,
@@ -207,7 +207,7 @@ export default function TruckRouteScreen() {
 				setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
 				setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
 				
-				// Atjauninām arī store
+				// Also update store
 				updateTruckRouteForm({
 					inTruckObject: newTruckObject.id,
 					inTruckObjectName: newTruckObject.name
@@ -217,7 +217,7 @@ export default function TruckRouteScreen() {
 				setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
 				setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
 				
-				// Atjauninām arī store
+				// Also update store
 				updateTruckRouteForm({
 					outTruckObject: newTruckObject.id,
 					outTruckObjectName: newTruckObject.name
@@ -287,7 +287,7 @@ export default function TruckRouteScreen() {
 			console.log('New object detected, refreshing dropdowns...');
 			setRefreshDropdowns(prev => prev + 1);
 
-			// Izmantojam datus no store, nevis no params
+			// Use data from store, not from params
 			if (truckRouteForm.outTruckObject) {
 				const objectId = truckRouteForm.outTruckObject;
 				const objectName = truckRouteForm.outTruckObjectName || '';
@@ -674,7 +674,7 @@ export default function TruckRouteScreen() {
 						label="Odometrs finišā"
 						value={form.odometerAtFinish}
 						onChangeText={(text) => {
-							// Atļauj tikai ciparus
+							// Allow only numbers
 							if (/^\d*$/.test(text)) {
 								setForm({...form, odometerAtFinish: text})
 							}

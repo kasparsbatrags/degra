@@ -23,19 +23,19 @@ export const isConnected = async (): Promise<boolean> => {
 export const hasStrongConnection = async (): Promise<boolean> => {
   const state = await NetInfo.fetch();
   
-  // Web platformai vienmēr atgriežam true, jo nav iespējams precīzi noteikt savienojuma stiprumu
+  // For web platform, always return true, as it's not possible to accurately determine connection strength
   if (isWeb) {
     return !!state.isConnected;
   }
   
-  // Mobilajām platformām pārbaudam savienojuma tipu
+  // For mobile platforms, check connection type
   if (state.type === 'wifi' || state.type === 'ethernet') {
     return true;
   }
   
-  // Mobilajiem datiem pārbaudam stiprumu
+  // For mobile data, check strength
   if (state.type === 'cellular') {
-    // Ja ir 4G vai labāks, uzskatām par stipru savienojumu
+    // If it's 4G or better, consider it a strong connection
     if (state.details?.cellularGeneration && ['4g', '5g'].includes(state.details.cellularGeneration)) {
       return true;
     }
@@ -52,13 +52,13 @@ export const useNetworkState = () => {
   const [networkState, setNetworkState] = useState<NetInfoState | null>(null);
   
   useEffect(() => {
-    // Sākotnējā stāvokļa iegūšana
+    // Get initial state
     NetInfo.fetch().then(setNetworkState);
     
-    // Uzstāda klausītāju izmaiņām
+    // Set up listener for changes
     const unsubscribe = NetInfo.addEventListener(setNetworkState);
     
-    // Notīra klausītāju, kad komponents tiek noņemts
+    // Clear listener when component is unmounted
     return () => unsubscribe();
   }, []);
   
@@ -67,17 +67,17 @@ export const useNetworkState = () => {
   const isCellular = networkState?.type === 'cellular';
   const isInternetReachable = networkState?.isInternetReachable === true;
   
-  // Nosaka, vai savienojums ir pietiekami labs lielu datu ielādei
+  // Determines if the connection is good enough for loading large data
   const isStrongConnection = useCallback(() => {
     if (!isConnected) return false;
     
-    // Web platformai vienmēr atgriežam true, ja ir savienojums
+    // For web platform, always return true if there is a connection
     if (isWeb) return true;
     
-    // WiFi parasti ir labs savienojums
+    // WiFi is usually a good connection
     if (isWifi) return true;
     
-    // Mobilajiem datiem pārbaudam stiprumu
+    // For mobile data, check strength
     if (isCellular) {
       const generation = networkState?.details?.cellularGeneration;
       return generation === '4g' || generation === '5g';
@@ -119,46 +119,46 @@ export const throttleNetworkRequest = async <T>(
     priorityLevel = 'medium',
   } = options;
   
-  // Pārbaudam savienojuma kvalitāti
+  // Check connection quality
   const hasConnection = await isConnected();
   const strongConnection = await hasStrongConnection();
   
-  // Ja nav savienojuma, uzreiz atgriežam kļūdu
+  // If there's no connection, return error immediately
   if (!hasConnection) {
     throw new Error('No internet connection');
   }
   
-  // Ja ir zema prioritāte un vājš savienojums, palielinām timeout
+  // If priority is low and connection is weak, increase timeout
   let actualTimeout = timeout;
   if (priorityLevel === 'low' && !strongConnection) {
     actualTimeout = timeout * 2;
   }
   
-  // Mēģinām izpildīt pieprasījumu
+  // Try to execute the request
   let lastError: Error | null = null;
   for (let attempt = 0; attempt < retryCount; attempt++) {
     try {
-      // Izveidojam promise ar timeout
+      // Create promise with timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), actualTimeout);
       });
       
-      // Izpildām pieprasījumu ar timeout
+      // Execute request with timeout
       return await Promise.race([callback(), timeoutPromise]) as T;
     } catch (error) {
       lastError = error as Error;
       
-      // Ja ir pēdējais mēģinājums, atgriežam kļūdu
+      // If it's the last attempt, return error
       if (attempt === retryCount - 1) {
         throw lastError;
       }
       
-      // Gaidām pirms nākamā mēģinājuma
+      // Wait before next attempt
       await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
     }
   }
   
-  // Ja nonākam šeit, atgriežam pēdējo kļūdu
+  // If we get here, return the last error
   throw lastError || new Error('Unknown error');
 };
 
@@ -167,11 +167,11 @@ export const throttleNetworkRequest = async <T>(
  * @returns Boolean indicating if the app is in offline mode
  */
 export const isOfflineMode = async (): Promise<boolean> => {
-  // Pārbaudam, vai ir savienojums
+  // Check if there is a connection
   const connected = await isConnected();
   if (!connected) return true;
   
-  // Pārbaudam, vai ir pieejams internets
+  // Check if internet is available
   const state = await NetInfo.fetch();
   return state.isInternetReachable === false;
 };

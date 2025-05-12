@@ -1,8 +1,8 @@
 /**
- * Globālo tipu deklarācijas
+ * Global type declarations
  */
 
-// Paplašina Window tipu ar APP_ENV īpašību
+// Extends Window type with APP_ENV property
 interface Window {
   APP_ENV?: string;
 }

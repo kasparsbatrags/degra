@@ -13,43 +13,43 @@ interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-// Funkcija, kas novirza uz login lapu
+// Function that redirects to login page
 const redirectToLogin = () => {
-  // Pārbaudam, vai jau notiek pārvirzīšana, lai izvairītos no vairākkārtējiem redirectiem
+  // Check if redirection is already in progress to avoid multiple redirects
   if (isRedirectingToLogin) {
-    return; // Ja jau notiek pārvirzīšana, tad izejam no funkcijas
+    return; // If redirection is already in progress, exit the function
   }
   
-  // Iestatām karogu, ka notiek pārvirzīšana
+  // Set flag that redirection is in progress
   isRedirectingToLogin = true;
   
-  // Izmantojam setTimeout, lai izvairītos no problēmām ar React rendering ciklu
+  // Use setTimeout to avoid problems with React rendering cycle
   setTimeout(() => {
-    // Tikai web platformā veicam automātisku redirektu
+    // Only perform automatic redirect on web platform
     if (Platform.OS === 'web') {
       router.replace('/(auth)/login');
       
-      // Atiestatām karogu pēc nelielas aiztures, lai izvairītos no vairākkārtējiem redirectiem
+      // Reset flag after a short delay to avoid multiple redirects
       setTimeout(() => {
         isRedirectingToLogin = false;
-      }, 2000); // 2 sekunžu aizture, lai izvairītos no vairākkārtējiem redirectiem
+      }, 2000); // 2 second delay to avoid multiple redirects
     } else {
-      // Ja nav web platforma, uzreiz atiestatām karogu
+      // If not web platform, reset flag immediately
       isRedirectingToLogin = false;
     }
   }, 100);
 };
 
-// Eksportējam funkciju, lai to varētu izmantot arī no citiem moduļiem
+// Export function so it can be used from other modules
 export { redirectToLogin, isRedirectingToLogin };
 
 /**
- * Izveido un konfigurē axios instanci
- * @param baseURL API bāzes URL
- * @returns Konfigurēta axios instance
+ * Creates and configures axios instance
+ * @param baseURL API base URL
+ * @returns Configured axios instance
  */
 const createAxiosInstance = (baseURL: string): AxiosInstance => {
-  // Platformai specifiski headeri
+  // Platform-specific headers
   const platformHeaders = platformSpecific({
     web: {
       'X-Platform': 'web',
@@ -63,7 +63,7 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
     default: {}
   });
   
-  // Izveido axios instanci ar bāzes konfigurāciju
+  // Create axios instance with base configuration
   const instance = axios.create({
     baseURL,
     timeout: getApiTimeout(),
@@ -74,11 +74,11 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
     },
   });
   
-  // Pievieno interceptoru pieprasījumiem
+  // Add interceptor for requests
   instance.interceptors.request.use(
     async (config) => {
       try {
-        // Pārbaudam, vai sesija ir aktīva
+        // Check if session is active
         const isActive = await isSessionActive();
         
         if (isActive) {
@@ -91,7 +91,7 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
         return config;
       } catch (error) {
         console.error('Error in request interceptor:', error);
-        return config; // Turpinām ar pieprasījumu pat ja ir kļūda
+        return config; // Continue with request even if there's an error
       }
     },
     (error) => {
@@ -99,33 +99,33 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
     }
   );
   
-  // Pievieno interceptoru atbildēm
+  // Add interceptor for responses
   instance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as CustomInternalAxiosRequestConfig;
       
-      // Ja saņemam 401 un tas nav login pieprasījums, mēģinām atjaunot tokenu
+      // If we receive 401 and it's not a login request, try to refresh token
       if (error.response?.status === 401 && 
           originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN &&
           !originalRequest?._retry &&
-          !isRedirectingToLogin) { // Pārbaudam vai jau nenotiek pārvirzīšana
+          !isRedirectingToLogin) { // Check if redirection is already in progress
         
         try {
-          // Atzīmējam, ka šis pieprasījums jau ir mēģināts atkārtot
+          // Mark that this request has already been retried
           originalRequest._retry = true;
           
-          // Mēģinām atjaunot tokenu
+          // Try to refresh token
           const { accessToken, user } = await loadSession();
           
-          // Ja nav tokena, notīrām sesiju, novirzām uz login lapu un atgriežam kļūdu
+          // If there's no token, clear session, redirect to login page and return error
           if (!accessToken) {
             await clearSession();
             redirectToLogin();
             return Promise.reject(error);
           }
           
-          // Mēģinām atjaunot tokenu
+          // Try to refresh token
           const userManagerUrl = getUserManagerApiUrl();
           const response = await axios.post(
             `${userManagerUrl}${API_ENDPOINTS.AUTH.REFRESH}`,
@@ -141,36 +141,36 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
             const newToken = response.data.access_token;
             const expiresIn = response.data.expires_in || 3600;
             
-            // Dekodējam jauno tokenu, lai iegūtu lietotāja informāciju
+            // Decode new token to get user information
             const userInfo = decodeJwt(newToken);
             
-            // Saglabājam jauno tokenu
+            // Save new token
             await saveSession(newToken, expiresIn, user);
             
-            // Atjaunojam oriģinālo pieprasījumu ar jauno tokenu
+            // Update original request with new token
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             
-            // Atkārtojam oriģinālo pieprasījumu
+            // Retry original request
             return axios(originalRequest);
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          // Ja neizdevās atjaunot tokenu, notīrām sesiju un novirzām uz login lapu
+          // If token refresh failed, clear session and redirect to login page
           await clearSession();
           redirectToLogin();
         }
       }
       
-      // Ja saņemam 401 un tas nav login pieprasījums, novirzām uz login lapu
+      // If we receive 401 and it's not a login request, redirect to login page
       if (error.response?.status === 401 && 
           originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN &&
-          !isRedirectingToLogin) { // Pārbaudam vai jau nenotiek pārvirzīšana
-        // Notīrām sesiju un novirzām uz login lapu
+          !isRedirectingToLogin) { // Check if redirection is already in progress
+        // Clear session and redirect to login page
         await clearSession();
         redirectToLogin();
       }
       
-      // Apstrādājam tīkla kļūdas
+      // Handle network errors
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
         console.error('Request timeout:', error);
       } else if (!error.response) {
@@ -184,14 +184,14 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
   return instance;
 };
 
-// Izstrādes vidē atslēdzam SSL verifikāciju
+// Disable SSL verification in development environment
 if (isDevelopment) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 }
 
-// Izveido un eksportē axios instanci
+// Create and export axios instance
 const axiosInstance = createAxiosInstance(getUserManagerApiUrl());
 export default axiosInstance;
 
-// Eksportējam arī funkciju, lai varētu izveidot citas instances
+// Also export function to create other instances
 export { createAxiosInstance };

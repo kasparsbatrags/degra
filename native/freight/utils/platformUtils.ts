@@ -133,7 +133,7 @@ export function platformFont({
 import Constants from 'expo-constants';
 
 /**
- * Vides tipi
+ * Environment types
  */
 export type Environment = 'development' | 'test' | 'production';
 
@@ -143,14 +143,14 @@ export type Environment = 'development' | 'test' | 'production';
 export const isDevelopment = __DEV__;
 
 /**
- * Iegūst vides mainīgos no expo-constants vai window.APP_ENV (tīmekļa vidē)
+ * Gets environment variables from expo-constants or window.APP_ENV (in web environment)
  */
 const getEnvConfig = () => {
   const config = Constants.expoConfig?.extra || {};
   
-  // Tīmekļa vidē pārbaudām, vai ir pieejams window.APP_ENV
+  // In web environment, check if window.APP_ENV is available
   if (isWeb && typeof window !== 'undefined' && window.APP_ENV) {
-    // Ja APP_ENV nav iestatīts config objektā, bet ir pieejams window.APP_ENV, izmantojam to
+    // If APP_ENV is not set in config object, but window.APP_ENV is available, use it
     if (!config.APP_ENV) {
       return { ...config, APP_ENV: window.APP_ENV };
     }
@@ -160,8 +160,8 @@ const getEnvConfig = () => {
 };
 
 /**
- * Nosaka pašreizējo vidi
- * @returns Pašreizējā vide (development, test, production)
+ * Determines the current environment
+ * @returns Current environment (development, test, production)
  */
 export const getEnvironment = (): Environment => {
   const config = getEnvConfig();
@@ -169,11 +169,11 @@ export const getEnvironment = (): Environment => {
 };
 
 /**
- * Pārbauda, vai pašreizējā vide ir testa vide
+ * Checks if the current environment is test environment
  */
 export const isTestEnvironment = (): boolean => getEnvironment() === 'test';
 
 /**
- * Pārbauda, vai pašreizējā vide ir produkcijas vide
+ * Checks if the current environment is production environment
  */
 export const isProductionEnvironment = (): boolean => getEnvironment() === 'production';

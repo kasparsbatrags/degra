@@ -40,10 +40,10 @@ export default function HomeScreen() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 	
-	// Konstante lokālās datubāzes atslēgai
+	// Constant for local database key
 	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
 	
-	// Pārbaudam sesijas statusu, kad komponente tiek ielādēta
+	// Check session status when component is loaded
 	useEffect(() => {
 		const checkSession = async () => {
 			const sessionActive = await isSessionActive();
@@ -55,82 +55,79 @@ export default function HomeScreen() {
 		checkSession();
 	}, [router]);
 	
-	// Uzsākam periodisku sesijas pārbaudi (tikai web platformai)
+	// Start periodic session check for all platforms
 	useEffect(() => {
-		// Pārbaudam, vai esam web platformā
-		if (Platform.OS === 'web') {
-			// Uzsākam sesijas pārbaudi
-			startSessionTimeoutCheck();
-			
-			// Apturām sesijas pārbaudi, kad komponente tiek noņemta
-			return () => {
-				stopSessionTimeoutCheck();
-			};
-		}
+		// Start session check
+		startSessionTimeoutCheck();
+		
+		// Stop session check when component is unmounted
+		return () => {
+			stopSessionTimeoutCheck();
+		};
 	}, []);
 
 	const checkLastRouteStatus = useCallback(async () => {
-		// Iestatām ielādes stāvokli
+		// Set loading state
 		setStatusCheckLoading(true)
 		
-		// Notīrām iepriekšējo kļūdas ziņojumu
+		// Clear previous error message
 		setErrorMessage(null)
 		
-		// Pārbaudam, vai jau nenotiek pārvirzīšana uz login lapu
+		// Check if redirection to login page is already in progress
 		if (isRedirectingToLogin) {
 			setStatusCheckLoading(false)
 			return
 		}
 		
 		try {
-			// Pārbaudām, vai sesija ir aktīva
+			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				// Ja sesija nav aktīva, pārvirzām uz login lapu
+				// If session is not active, redirect to login page
 				router.replace('/(auth)/login')
 				setStatusCheckLoading(false)
 				return
 			}
 			
-			// Pārbaudām, vai ierīce ir pieslēgta internetam
+			// Check if device is connected to the internet
 			const connected = await isConnected()
 			
 			if (connected) {
-				// Ja ir savienojums, mēģinām iegūt datus no servera
+				// If there is a connection, try to get data from server
 				try {
 					await freightAxiosInstance.get('/truck-routes/last-active')
 					setButtonText('FINIŠS')
 					
-					// Saglabājam statusu lokālajā datubāzē
+					// Save status in local database
 					await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
 				} catch (error: any) {
 					if (error.response?.status === 404) {
 						setButtonText('STARTS')
 						
-						// Saglabājam statusu lokālajā datubāzē
+						// Save status in local database
 						await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
 					} else if (!error.response) {
-						// Ja nav atbildes no servera, mēģinām iegūt statusu no lokālās datubāzes
+						// If there is no response from server, try to get status from local database
 						const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
 						
 						if (localStatus) {
-							// Ja ir lokāli saglabāts statuss, izmantojam to
+							// If there is a locally saved status, use it
 							setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
 						} else {
-							// Ja nav lokāli saglabāta statusa, parādām kļūdas ziņojumu
+							// If there is no locally saved status, show error message
 							setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 						}
 					}
 				}
 			} else {
-				// Ja nav savienojuma, mēģinām iegūt statusu no lokālās datubāzes
+				// If there is no connection, try to get status from local database
 				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
 				
 				if (localStatus) {
-					// Ja ir lokāli saglabāts statuss, izmantojam to
+					// If there is a locally saved status, use it
 					setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
 				} else {
-					// Ja nav lokāli saglabāta statusa, parādām kļūdas ziņojumu
+					// If there is no locally saved status, show error message
 					setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 				}
 			}
@@ -138,14 +135,14 @@ export default function HomeScreen() {
 			console.error('Error checking route status:', error)
 			setErrorMessage("Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 		} finally {
-			// Atiestatām ielādes stāvokli
+			// Reset loading state
 			setStatusCheckLoading(false)
 		}
 	}, [])
 
 	const fetchRoutes = async () => {
 		try {
-			// Pārbaudam, vai sesija ir aktīva un vai jau nenotiek pārvirzīšana uz login lapu
+			// Check if session is active and if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				setLoading(false)
 				return
@@ -153,7 +150,7 @@ export default function HomeScreen() {
 			
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				// Ja sesija nav aktīva, pārvirzām uz login lapu
+				// If session is not active, redirect to login page
 				router.replace('/(auth)/login')
 				setLoading(false)
 				return
@@ -163,7 +160,7 @@ export default function HomeScreen() {
 			setRoutes(response.data.map(route => ({...route, activeTab: 'basic' as const})))
 		} catch (error: any) {
 			console.error('Failed to fetch routes:', error)
-			// Ja kļūda ir saistīta ar tīkla problēmām, parādām kļūdas ziņojumu
+			// If error is related to network problems, show error message
 			if (!error.response) {
 				setErrorMessage("Neizdevās ielādēt datus - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!")
 			}
@@ -174,7 +171,7 @@ export default function HomeScreen() {
 
 	// Fetch data when screen comes into focus
 	useFocusEffect(React.useCallback(() => {
-		// Pārbaudam, vai jau nenotiek pārvirzīšana uz login lapu
+		// Check if redirection to login page is already in progress
 		if (!isRedirectingToLogin) {
 			setLoading(true)
 			fetchRoutes()

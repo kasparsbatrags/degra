@@ -22,7 +22,7 @@ interface ObjectState {
 	resetTruckRouteForm: () => void;
 }
 
-// Sākotnējais stāvoklis formai
+// Initial state for the form
 const initialTruckRouteForm: TruckRouteForm = {
 	outTruckObject: '',
 	outTruckObjectName: '',

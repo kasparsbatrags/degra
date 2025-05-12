@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(currentUser);
             setIsAuthenticated(true);
             
-            // Uzsākam sesijas noilguma pārbaudi, kad lietotājs ir autentificēts
+            // Start session timeout check when user is authenticated
             startSessionTimeoutCheck();
           }
           setLoading(false);
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       mountedRef.current = false;
       
-      // Apturām sesijas noilguma pārbaudi, kad komponente tiek nomontēta
+      // Stop session timeout check when component is unmounted
       stopSessionTimeoutCheck();
     };
   }, []);
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(user);
         setIsAuthenticated(true);
         
-        // Uzsākam sesijas noilguma pārbaudi pēc pieteikšanās
+        // Start session timeout check after login
         startSessionTimeoutCheck();
       }
     } catch (error) {
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await apiSignOut();
       await clearSession();
       
-      // Apturām sesijas noilguma pārbaudi pēc izrakstīšanās
+      // Stop session timeout check after logout
       stopSessionTimeoutCheck();
       
       if (mountedRef.current) {
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleRegister = async (data: UserRegistrationData) => {
     try {
       await createUser(data);
-      // Automātiski piesakāmies pēc reģistrācijas
+      // Automatically login after registration
       if (mountedRef.current) {
         await handleSignIn(data.email, data.password);
       }

@@ -1,6 +1,6 @@
 import {getFreightTrackingApiUrl} from './environment'
 import {createAxiosInstance} from './axios'
 
-// Izveido un eksportē freight axios instanci
+// Create and export freight axios instance
 const freightAxiosInstance = createAxiosInstance(getFreightTrackingApiUrl());
 export default freightAxiosInstance;

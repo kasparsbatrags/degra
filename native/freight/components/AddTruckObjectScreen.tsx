@@ -38,25 +38,25 @@ export default function AddTruckObjectScreen() {
 				name: objectName.trim()
 			});
 
-			// Ja atbilde satur brīdinājumu par līdzīgiem objektiem
+			// If response contains warning about similar objects
 			if (response.data.warning && response.data.similarObjects) {
 				setSimilarObjects(response.data.similarObjects);
 				setOriginalObject(response.data.originalObject);
 				setShowSimilarModal(true);
 			} else {
-				// Veiksmīgi pievienots objekts
+				// Successfully added object
 				setObjectName('');
 
-				// Ja objekts tika pievienots no truck-route ekrāna, atgriežamies ar jauno objekta ID un nosaukumu
+				// If object was added from truck-route screen, return with new object ID and name
 				if (type && response.data.id) {
-					// Saglabājam jaunā objekta informāciju store
+					// Save new object information in store
 					setNewTruckObject({ 
 						id: response.data.id.toString(), 
 						name: objectName.trim(), 
 						type: type as 'inTruckObject' | 'outTruckObject' 
 					});
 					
-					// Atjauninām arī truck-route formas datus
+					// Also update truck-route form data
 					if (type === 'outTruckObject') {
 						updateTruckRouteForm({
 							outTruckObject: response.data.id.toString(),
@@ -69,11 +69,11 @@ export default function AddTruckObjectScreen() {
 						});
 					}
 					
-					// Atgriežamies uz iepriekšējo ekrānu
+					// Return to previous screen
 					console.log('Navigating back with updated store data');
 					router.back();
 				} else {
-					// Vienkārši atgriežamies atpakaļ
+					// Simply return back
 					router.back();
 				}
 			}
@@ -97,16 +97,16 @@ export default function AddTruckObjectScreen() {
 			setShowSimilarModal(false);
 			setObjectName('');
 
-			// Ja objekts tika pievienots no truck-route ekrāna, atgriežamies ar jauno objekta ID un nosaukumu
+			// If object was added from truck-route screen, return with new object ID and name
 			if (type && savedObject.data.id) {
-				// Saglabājam jaunā objekta informāciju store
+				// Save new object information in store
 				setNewTruckObject({ 
 					id: savedObject.data.id.toString(), 
 					name: originalObject?.name || '', 
 					type: type as 'inTruckObject' | 'outTruckObject' 
 				});
 				
-				// Atjauninām arī truck-route formas datus
+				// Also update truck-route form data
 				if (type === 'outTruckObject') {
 					updateTruckRouteForm({
 						outTruckObject: savedObject.data.id.toString(),
@@ -119,11 +119,11 @@ export default function AddTruckObjectScreen() {
 					});
 				}
 				
-				// Atgriežamies uz iepriekšējo ekrānu
+				// Return to previous screen
 				console.log('Navigating back with updated store data (force create)');
 				router.back();
 			} else {
-				// Vienkārši atgriežamies atpakaļ
+				// Simply return back
 				router.back();
 			}
 		} catch (error) {
@@ -153,7 +153,7 @@ export default function AddTruckObjectScreen() {
 						loading={isSubmitting}
 				/>
 
-				{/* Modālais logs līdzīgu objektu parādīšanai */}
+				{/* Modal window for displaying similar objects */}
 				<Modal
 						visible={showSimilarModal}
 						transparent={true}
