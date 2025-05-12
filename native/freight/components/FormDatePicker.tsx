@@ -14,9 +14,9 @@ interface FormDatePickerProps {
   disabled?: boolean
 }
 
-export default function FormDatePicker({ 
-  label, 
-  value, 
+export default function FormDatePicker({
+  label,
+  value,
   onChange,
   error,
   showError,
@@ -26,17 +26,18 @@ export default function FormDatePicker({
 
   return (
     <View style={[
-      formStyles.inputContainer, 
-      { 
-        flex: 1, 
-        height: Platform.select({ web: 80, default: 80 }), 
-        marginBottom: Platform.select({ web: 4, default: 1 }), 
-        marginTop: Platform.select({ web: 24, default: 24 }) 
+      formStyles.inputContainer,
+      {
+        flex: 1,
+        height: Platform.select({ web: 96, default: 96 }),
+		justifyContent: 'flex-start',
+        marginBottom: Platform.select({ web: 4, default: 1 }),
+        marginTop: Platform.select({ web: 24, default: 24 })
       }
     ]}>
       <Text style={[
         formStyles.label,
-        { 
+        {
           fontSize: Platform.select({ web: 14, default: 16 }),
           marginBottom: Platform.select({ web: 6, default: 4 })
         }
@@ -45,7 +46,7 @@ export default function FormDatePicker({
         style={[
           formStyles.dateButton,
           {
-            height: Platform.select({ web: 40, default: 48 }),
+            height: Platform.select({ web: 48, default: 48 }),
             paddingVertical: Platform.select({ web: 8, default: 12 }),
             paddingHorizontal: Platform.select({ web: 12, default: 12 })
           },
@@ -63,9 +64,9 @@ export default function FormDatePicker({
         </Text>
       </TouchableOpacity>
       {error && showError && <Text style={[
-        formStyles.errorText, 
-        { 
-          fontSize: Platform.select({ web: 12, default: 14 }), 
+        formStyles.errorText,
+        {
+          fontSize: Platform.select({ web: 12, default: 14 }),
           marginTop: Platform.select({ web: 4, default: 4 })
         }
       ]}>{error}</Text>}

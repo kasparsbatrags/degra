@@ -3,6 +3,7 @@ import {formStyles} from '@/constants/styles'
 import {COLORS, FONT} from '@/constants/theme'
 import React, {useState} from 'react'
 import {Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {handleUserActivity, ACTIVITY_LEVELS} from '../utils/userActivityTracker'
 
 interface FormInputProps {
   label: string;
@@ -65,12 +66,15 @@ const FormInput: React.FC<FormInputProps> = ({
               fontFamily: FONT.regular,
               fontSize: 16,
               color: COLORS.white,
-              width: '90%',
               border: error ? `1px solid ${COLORS.error}` : 'none',
               outline: 'none',
             }}
             value={value}
-            onChange={(e) => onChangeText(e.target.value)}
+            onChange={(e) => {
+              // Call handleUserActivity when user inputs text
+              handleUserActivity(ACTIVITY_LEVELS.HIGH);
+              onChangeText(e.target.value);
+            }}
             placeholder={placeholder}
             type={secureTextEntry && !showPassword ? 'password' : keyboardType === 'email-address' ? 'email' : keyboardType === 'numeric' ? 'number' : 'text'}
             autoCapitalize={autoCapitalize}
@@ -88,7 +92,11 @@ const FormInput: React.FC<FormInputProps> = ({
               secureTextEntry && { paddingRight: 50 }
             ]}
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={(text) => {
+              // Call handleUserActivity when user inputs text
+              handleUserActivity(ACTIVITY_LEVELS.HIGH);
+              onChangeText(text);
+            }}
             placeholder={placeholder}
             placeholderTextColor={COLORS.gray}
             secureTextEntry={secureTextEntry && !showPassword}
