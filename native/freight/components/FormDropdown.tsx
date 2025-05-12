@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import freightAxiosInstance from '../config/freightAxios';
-import { COLORS, FONT } from '../constants/theme';
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import freightAxiosInstance from '@/config/freightAxios';
+import { COLORS, FONT } from '@/constants/theme';
+import { handleUserActivity, ACTIVITY_LEVELS } from '@/utils/userActivityTracker';
 
 interface Option {
 	id: string;
@@ -100,6 +101,8 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 
 	// Handle selection with local state update
 	const handleSelect = (optionId: string) => {
+		// Call handleUserActivity when user selects an option
+		handleUserActivity(ACTIVITY_LEVELS.HIGH);
 		setLocalValue(optionId);
 		onSelect(optionId);
 		setIsOpen(false);

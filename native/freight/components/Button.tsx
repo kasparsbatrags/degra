@@ -1,7 +1,8 @@
 import React from 'react'
 import {ActivityIndicator, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle,} from 'react-native'
 import * as Animatable from 'react-native-animatable'
-import {COLORS, FONT} from '../constants/theme'
+import {COLORS, FONT} from '@/constants/theme'
+import {handleUserActivity, ACTIVITY_LEVELS} from '@/utils/userActivityTracker'
 
 interface ButtonProps {
   onPress: () => void;
@@ -48,6 +49,13 @@ const Button: React.FC<ButtonProps> = ({
     <Text style={textStyles}>{title}</Text>
   );
 
+  // Handle button press with user activity tracking
+  const handlePress = () => {
+    // Call handleUserActivity when user clicks a button
+    handleUserActivity(ACTIVITY_LEVELS.HIGH);
+    onPress();
+  };
+
   if (animate) {
     const AnimatedButton = Animatable.createAnimatableComponent(TouchableOpacity);
     return (
@@ -56,7 +64,7 @@ const Button: React.FC<ButtonProps> = ({
         iterationCount="infinite"
         duration={1000}
         style={buttonStyles}
-        onPress={onPress}
+        onPress={handlePress}
         disabled={disabled || loading}
         activeOpacity={0.8}
       >
@@ -68,7 +76,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <TouchableOpacity
       style={buttonStyles}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
       activeOpacity={0.8}
     >

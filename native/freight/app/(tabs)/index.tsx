@@ -9,7 +9,7 @@ import freightAxiosInstance from '../../config/freightAxios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {isConnected} from '@/utils/networkUtils'
 import {isSessionActive} from '@/utils/sessionUtils'
-import {isRedirectingToLogin} from '@/config/axios'
+import {isRedirectingToLogin, redirectToLogin} from '@/config/axios'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 
 interface TruckRoutePage {
@@ -48,12 +48,14 @@ export default function HomeScreen() {
 		const checkSession = async () => {
 			const sessionActive = await isSessionActive();
 			if (!sessionActive && !isRedirectingToLogin) {
-				router.replace('/(auth)/login');
+				// Use the shared redirectToLogin function from axios.ts
+				// This will handle redirection properly for both web and mobile
+				redirectToLogin();
 			}
 		};
 		
 		checkSession();
-	}, [router]);
+	}, []);
 	
 	// Start periodic session check for all platforms
 	useEffect(() => {
@@ -83,8 +85,8 @@ export default function HomeScreen() {
 			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				// If session is not active, redirect to login page
-				router.replace('/(auth)/login')
+				// If session is not active, redirect to login page using the shared function
+				redirectToLogin();
 				setStatusCheckLoading(false)
 				return
 			}
@@ -150,8 +152,8 @@ export default function HomeScreen() {
 			
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				// If session is not active, redirect to login page
-				router.replace('/(auth)/login')
+				// If session is not active, redirect to login page using the shared function
+				redirectToLogin();
 				setLoading(false)
 				return
 			}

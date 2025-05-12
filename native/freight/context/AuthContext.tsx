@@ -1,8 +1,9 @@
 import React, {createContext, useContext, useEffect, useState} from 'react'
 import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/api'
-import type {UserInfo, UserRegistrationData} from '../types/auth'
-import {clearSession, saveSession} from '../utils/sessionUtils'
-import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '../utils/sessionTimeoutHandler'
+import type {UserInfo, UserRegistrationData} from '@/types/auth'
+import {clearSession, saveSession} from '@/utils/sessionUtils'
+import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
+import {initUserActivityTracking} from '@/utils/userActivityTracker'
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -60,10 +61,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       stopSessionTimeoutCheck();
     };
   }, []);
+  
+  // Initialize user activity tracking
+  useEffect(() => {
+    // Only initialize activity tracking when user is authenticated
+    if (isAuthenticated) {
+      // Initialize user activity tracking
+      const cleanupActivityTracking = initUserActivityTracking();
+      
+      return () => {
+        // Remove activity tracking when component is unmounted
+        cleanupActivityTracking();
+      };
+    }
+  }, [isAuthenticated]);
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      const { accessToken, refreshToken, expiresIn, user } = await signIn(email, password);
+      const { accessToken, expiresIn, user } = await signIn(email, password);
       await saveSession(accessToken, expiresIn, user);
       if (mountedRef.current) {
         setUser(user);

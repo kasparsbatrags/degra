@@ -3,10 +3,12 @@ import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useObjectStore } from '@/hooks/useObjectStore';
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import {isSessionActive} from '@/utils/sessionUtils'
+import {isRedirectingToLogin} from '@/config/axios'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormDatePicker from '../../components/FormDatePicker'
@@ -101,7 +103,17 @@ interface FormState {
 }
 
 export default function TruckRouteScreen() {
-	console.log("🚚 TruckRouteScreen mounted");
+	// Check session status when component is loaded
+	useEffect(() => {
+		const checkSession = async () => {
+			const sessionActive = await isSessionActive();
+			if (!sessionActive && !isRedirectingToLogin) {
+				router.replace('/(auth)/login');
+			}
+		};
+
+		checkSession();
+	}, [router]);
 
 	const params = useLocalSearchParams<{
 		id: string;
@@ -148,37 +160,34 @@ export default function TruckRouteScreen() {
 
 	const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
 
-	// Initialize form from truckRouteForm when component is mounted
 	useEffect(() => {
 		// If there is saved data in store, use it
 		if (truckRouteForm.outTruckObject && !selectedOutTruckObject) {
-			console.log('Initializing outTruckObject from store:', truckRouteForm.outTruckObject);
 			setSelectedOutTruckObject(truckRouteForm.outTruckObject);
 			setForm(prev => ({
 				...prev,
 				outTruckObject: truckRouteForm.outTruckObject
 			}));
-			
+
 			if (truckRouteForm.outTruckObjectName) {
-				setOutTruckObjectDetails({ 
-					id: parseInt(truckRouteForm.outTruckObject), 
-					name: truckRouteForm.outTruckObjectName 
+				setOutTruckObjectDetails({
+					id: parseInt(truckRouteForm.outTruckObject),
+					name: truckRouteForm.outTruckObjectName
 				});
 			}
 		}
-		
+
 		if (truckRouteForm.inTruckObject && !selectedInTruckObject) {
-			console.log('Initializing inTruckObject from store:', truckRouteForm.inTruckObject);
 			setSelectedInTruckObject(truckRouteForm.inTruckObject);
 			setForm(prev => ({
 				...prev,
 				inTruckObject: truckRouteForm.inTruckObject
 			}));
-			
+
 			if (truckRouteForm.inTruckObjectName) {
-				setInTruckObjectDetails({ 
-					id: parseInt(truckRouteForm.inTruckObject), 
-					name: truckRouteForm.inTruckObjectName 
+				setInTruckObjectDetails({
+					id: parseInt(truckRouteForm.inTruckObject),
+					name: truckRouteForm.inTruckObjectName
 				});
 			}
 		}
@@ -199,14 +208,13 @@ export default function TruckRouteScreen() {
 
 	useEffect(() => {
 		if (newTruckObject) {
-			console.log('🧠 Rehydrating form from zustand:', newTruckObject);
 			setRefreshDropdowns(prev => prev + 1);
 
 			if (newTruckObject.type === 'inTruckObject') {
 				setSelectedInTruckObject(newTruckObject.id);
 				setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
 				setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
-				
+
 				// Also update store
 				updateTruckRouteForm({
 					inTruckObject: newTruckObject.id,
@@ -216,7 +224,7 @@ export default function TruckRouteScreen() {
 				setSelectedOutTruckObject(newTruckObject.id);
 				setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
 				setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
-				
+
 				// Also update store
 				updateTruckRouteForm({
 					outTruckObject: newTruckObject.id,
@@ -231,7 +239,6 @@ export default function TruckRouteScreen() {
 	// Function to fetch objects list
 	const fetchObjectsList = React.useCallback(async () => {
 		try {
-			console.log('Fetching objects list...');
 			const response = await freightAxios.get('/objects');
 			if (Array.isArray(response.data)) {
 				const formattedOptions = response.data.map(item => ({
@@ -239,7 +246,6 @@ export default function TruckRouteScreen() {
 					name: String(item.name || item.title || item.label || item)
 				}));
 				setObjectsList(formattedOptions);
-				console.log('Objects list fetched successfully:', formattedOptions);
 			}
 		} catch (error) {
 			console.error('Failed to fetch objects list:', error);
@@ -265,13 +271,11 @@ export default function TruckRouteScreen() {
 					const formattedDate = format(date, 'yyyy-MM-dd')
 					const response = await freightAxios.get<TruckRoutePage>(`/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`)
 					if (response.data) {
-						console.log('Route page exists:', response.data)
 						setExistingRoutePage(response.data)
 						setShowRoutePageError(false)
 					}
 				} catch (error: any) {
 					if (error.response?.status === 404) {
-						console.log('Route page does not exist')
 						setExistingRoutePage(null)
 						setShowRoutePageError(true)
 					} else {
@@ -284,14 +288,12 @@ export default function TruckRouteScreen() {
 
 	useEffect(() => {
 		if (params.newObject === 'true') {
-			console.log('New object detected, refreshing dropdowns...');
 			setRefreshDropdowns(prev => prev + 1);
 
 			// Use data from store, not from params
 			if (truckRouteForm.outTruckObject) {
 				const objectId = truckRouteForm.outTruckObject;
 				const objectName = truckRouteForm.outTruckObjectName || '';
-				console.log('Setting outTruckObject from store ID:', objectId, 'Name:', objectName);
 
 				setSelectedOutTruckObject(objectId);
 				setForm(prev => ({
@@ -310,7 +312,6 @@ export default function TruckRouteScreen() {
 			if (truckRouteForm.inTruckObject) {
 				const objectId = truckRouteForm.inTruckObject;
 				const objectName = truckRouteForm.inTruckObjectName || '';
-				console.log('Setting inTruckObject from store ID:', objectId, 'Name:', objectName);
 
 				setSelectedInTruckObject(objectId);
 				setForm(prev => ({
@@ -392,16 +393,13 @@ export default function TruckRouteScreen() {
 
 					// Set the object details
 					if (lastRoute.outTruckObject) {
-						console.log('00000000000000000000');
 						setOutTruckObjectDetails(lastRoute.outTruckObject);
 					}
 					if (lastRoute.inTruckObject) {
-						console.log('00000000000000000000-1');
 						setInTruckObjectDetails(lastRoute.inTruckObject);
 					}
 				} catch (error: any) {
 					if (error.response?.status === 404) {
-						console.log('111111111111111111111111111');
 						setIsRouteFinish(false)
 						// If no last route exists, get default truck
 						// Get last finished route for odometer value
@@ -415,9 +413,7 @@ export default function TruckRouteScreen() {
 								const outTruckObjectId = lastFinishedRoute?.outTruckObject?.id?.toString() || '';
 
 								// Set the selected object state variables
-								console.log('111111111111111111111111111outTruckObjectId: ', outTruckObjectId);
 								setSelectedOutTruckObject(outTruckObjectId);
-								console.log('222222222222222222222222222outTruckObjectId: ', outTruckObjectId);
 
 
 								// Set the form state
@@ -432,7 +428,6 @@ export default function TruckRouteScreen() {
 
 								// Set the object details
 								if (lastFinishedRoute?.outTruckObject) {
-									console.log('111111111111111111111111111-1');
 									setOutTruckObjectDetails(lastFinishedRoute.outTruckObject);
 								}
 							}
@@ -635,7 +630,6 @@ export default function TruckRouteScreen() {
 						label="Sākuma punkts"
 						value={selectedOutTruckObject || form.outTruckObject} // Use direct state variable first
 						onSelect={(value) => {
-							console.log('outTruckObject selected:', value);
 							setSelectedOutTruckObject(value); // Update direct state
 							setForm(prev => ({...prev, outTruckObject: value})); // Update form state using functional update
 						}}
@@ -655,7 +649,6 @@ export default function TruckRouteScreen() {
 						label="Galamērķis"
 						value={selectedInTruckObject || form.inTruckObject} // Use direct state variable first
 						onSelect={(value) => {
-							console.log('inTruckObject selected:', value);
 							setSelectedInTruckObject(value); // Update direct state
 							setForm(prev => ({...prev, inTruckObject: value})); // Update form state using functional update
 						}}
@@ -761,7 +754,7 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	truckField: {
-		flex: 1, marginTop: -4,
+		flex: 1, marginTop: 24,
 	},
 	explanatoryText: Platform.OS === 'web' ? {
 		...commonStyles.text,
@@ -824,6 +817,7 @@ const styles = StyleSheet.create({
 		width: '100%', gap: 16,
 	},
 	inputWrapper: {
-		flex: 1
+		flex: 1,
+		minWidth: '48%' ,
 	}
 })

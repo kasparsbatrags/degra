@@ -1,5 +1,5 @@
 import { isSessionActive, loadSession } from './sessionUtils';
-import { redirectToLogin, isRedirectingToLogin } from '../config/axios';
+import { redirectToLogin, isRedirectingToLogin } from '@/config/axios';
 import { Platform, AppState, AppStateStatus } from 'react-native';
 
 // Minimum and maximum interval (ms)

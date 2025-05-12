@@ -4,6 +4,7 @@ import {format} from 'date-fns'
 import {lv} from 'date-fns/locale'
 import React, {useState} from 'react'
 import {Modal, Platform, Pressable, Text, TouchableOpacity, View} from 'react-native'
+import {handleUserActivity, ACTIVITY_LEVELS} from '@/utils/userActivityTracker'
 
 interface FormDatePickerProps {
   label: string
@@ -161,6 +162,8 @@ export default function FormDatePicker({
                           isToday && formStyles.todayDay
                         ]}
                         onPress={() => {
+                          // Call handleUserActivity when user selects a date
+                          handleUserActivity(ACTIVITY_LEVELS.HIGH);
                           onChange(date)
                           setShowDatePicker(false)
                         }}

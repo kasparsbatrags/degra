@@ -1,9 +1,8 @@
 import axios, {AxiosError, AxiosInstance, InternalAxiosRequestConfig} from 'axios'
-import {decodeJwt} from '../lib/api'
-import {isSessionActive, clearSession, loadSession, saveSession} from '../utils/sessionUtils'
-import {isDevelopment, platformSpecific} from '../utils/platformUtils'
-import {API_ENDPOINTS, getApiTimeout, getMaxRetries, getUserManagerApiUrl} from './environment'
-import {router} from 'expo-router'
+import {isSessionActive, clearSession, loadSession, saveSession} from '@/utils/sessionUtils'
+import {isDevelopment, platformSpecific} from '@/utils/platformUtils'
+import {API_ENDPOINTS, getApiTimeout, getUserManagerApiUrl} from './environment'
+import {router as expoRouter} from 'expo-router'
 import {Platform} from 'react-native'
 
 // Flag to track if a redirect is already in progress
@@ -25,18 +24,19 @@ const redirectToLogin = () => {
   
   // Use setTimeout to avoid problems with React rendering cycle
   setTimeout(() => {
-    // Only perform automatic redirect on web platform
+    // For web platform, use direct window.location for more reliable navigation
     if (Platform.OS === 'web') {
-      router.replace('/(auth)/login');
-      
-      // Reset flag after a short delay to avoid multiple redirects
-      setTimeout(() => {
-        isRedirectingToLogin = false;
-      }, 2000); // 2 second delay to avoid multiple redirects
+      console.log('Redirecting to login page using window.location');
+      window.location.href = '/(auth)/login';
     } else {
-      // If not web platform, reset flag immediately
-      isRedirectingToLogin = false;
+      // For mobile platforms, use expo-router
+      expoRouter.replace('/(auth)/login');
     }
+    
+    // Reset flag after a short delay to avoid multiple redirects
+    setTimeout(() => {
+      isRedirectingToLogin = false;
+    }, 2000); // 2 second delay to avoid multiple redirects
   }, 100);
 };
 
@@ -140,9 +140,6 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           if (response.data && response.data.access_token) {
             const newToken = response.data.access_token;
             const expiresIn = response.data.expires_in || 3600;
-            
-            // Decode new token to get user information
-            const userInfo = decodeJwt(newToken);
             
             // Save new token
             await saveSession(newToken, expiresIn, user);
