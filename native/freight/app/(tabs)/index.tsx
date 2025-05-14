@@ -70,7 +70,7 @@ export default function HomeScreen() {
 
 	const checkLastRouteStatus = useCallback(async () => {
 		// Set loading state
-		setStatusCheckLoading(true)
+		//setStatusCheckLoading(true)
 
 		// Clear previous error message
 		setErrorMessage(null)
