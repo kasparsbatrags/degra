@@ -5,7 +5,7 @@ import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useState, useEffect} from 'react'
 import { useObjectStore } from '@/hooks/useObjectStore';
-import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity} from 'react-native'
+import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity, Pressable} from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -112,19 +112,35 @@ interface TabNavigationProps {
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, setActiveTab }) => {
 	return (
 		<View style={styles.tabContainer}>
-			<TouchableOpacity 
-				style={[styles.tab, activeTab === 0 && styles.activeTab]} 
+			<Pressable
+				style={[styles.tabButton, activeTab === 0 && styles.tabButtonActive]}
 				onPress={() => setActiveTab(0)}
 			>
-				<MaterialIcons name="info" size={20} color={activeTab === 0 ? COLORS.secondary : COLORS.white} />
-			</TouchableOpacity>
+				{Platform.OS === 'web' ? (
+					<Text style={[styles.tabText, activeTab === 0 && styles.tabTextActive]}>Info</Text>
+				) : (
+					<MaterialIcons 
+						name="info" 
+						size={24} 
+						color={activeTab === 0 ? COLORS.white : COLORS.gray} 
+					/>
+				)}
+			</Pressable>
 			
-			<TouchableOpacity 
-				style={[styles.tab, activeTab === 1 && styles.activeTab]} 
+			<Pressable
+				style={[styles.tabButton, activeTab === 1 && styles.tabButtonActive]}
 				onPress={() => setActiveTab(1)}
 			>
-				<MaterialIcons name="more-horiz" size={20} color={activeTab === 1 ? COLORS.secondary : COLORS.white} />
-			</TouchableOpacity>
+				{Platform.OS === 'web' ? (
+					<Text style={[styles.tabText, activeTab === 1 && styles.tabTextActive]}>Papildus</Text>
+				) : (
+					<MaterialIcons 
+						name="more-horiz" 
+						size={24} 
+						color={activeTab === 1 ? COLORS.white : COLORS.gray} 
+					/>
+				)}
+			</Pressable>
 		</View>
 	);
 };
@@ -623,7 +639,7 @@ export default function TruckRouteScreen() {
 				{/* Tab saturs */}
 				{activeTab === 0 ? (
 					// Info tab - aktīvie lauki
-					<>
+					<View style={[styles.tabContentContainer, styles.infoTabContent]}>
 						{isItRouteFinish ? (
 							// Kad isItRouteFinish=true, Info tabā rāda odometru finišā un saņemto degvielu
 							<>
@@ -741,10 +757,10 @@ export default function TruckRouteScreen() {
 								</View>
 							</>
 						)}
-					</>
+					</View>
 				) : (
 					// Papildus tab - neaktīvie lauki vai papildus informācija
-					<>
+					<View style={[styles.tabContentContainer, styles.additionalTabContent]}>
 						{isItRouteFinish ? (
 							// Kad isItRouteFinish=true, Papildus tabā rāda neaktīvos laukus
 							<>
@@ -901,7 +917,7 @@ export default function TruckRouteScreen() {
 								)}
 							</>
 						)}
-					</>
+					</View>
 				)}
 
 				<View style={[commonStyles.row, styles.buttonContainer]}>
@@ -996,36 +1012,62 @@ const styles = StyleSheet.create({
 		minWidth: '48%' ,
 	},
 	// Tab navigācijas stili
-	tabContainer: {
+	tabContainer: Platform.OS === 'web' ? {
 		flexDirection: 'row',
 		marginBottom: 16,
 		borderRadius: 8,
 		overflow: 'hidden',
-		backgroundColor: COLORS.black100,
-		...Platform.select({
-			web: SHADOWS.small,
-			default: SHADOWS.medium,
-		}),
-	},
-	tab: {
-		flex: 1,
+		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.08)',
+	} : {
 		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		paddingVertical: 12,
-		gap: 8,
+		marginBottom: 16,
+		borderRadius: 8,
+		overflow: 'hidden',
+		backgroundColor: COLORS.black200,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
 	},
-	activeTab: {
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
-		borderBottomWidth: 2,
-		borderBottomColor: COLORS.secondary,
+	tabButton: {
+		flex: 1, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center',
+	},
+	tabButtonActive: Platform.OS === 'web' ? {
+		backgroundColor: COLORS.secondary, ...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.secondary, ...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	tabText: {
-		...commonStyles.text,
-		fontSize: 14,
+		fontSize: 14, color: COLORS.gray,
 	},
-	activeTabText: {
-		color: COLORS.secondary,
-		fontWeight: '500',
+	tabTextActive: {
+		color: COLORS.white, fontWeight: '600',
+	},
+	// Tab satura stili
+	tabContentContainer: Platform.OS === 'web' ? {
+		backgroundColor: COLORS.primary, // Tumšāks fons nekā ievadlaukiem
+		borderRadius: 8,
+		padding: 16,
+		marginBottom: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		backgroundColor: COLORS.primary, // Tumšāks fons nekā ievadlaukiem
+		borderRadius: 8,
+		padding: 16,
+		marginBottom: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	},
+	infoTabContent: {
+		borderLeftWidth: 3,
+		borderLeftColor: COLORS.secondary,
+	},
+	additionalTabContent: {
+		backgroundColor: '#131320', // Nedaudz gaišāks nekā primary, bet tumšāks nekā ievadlauki
+		borderLeftWidth: 3,
+		borderLeftColor: COLORS.gray,
 	},
 })
