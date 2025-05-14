@@ -26,10 +26,10 @@ const redirectToLogin = () => {
   setTimeout(() => {
     // For web platform, use direct window.location for more reliable navigation
     if (Platform.OS === 'web') {
-      window.location.href = '/(auth)/login';
+      window.location.href = '/login';
     } else {
       // For mobile platforms, use expo-router
-      expoRouter.replace('/(auth)/login');
+      expoRouter.replace('/login');
     }
     
     // Reset flag after a short delay to avoid multiple redirects
