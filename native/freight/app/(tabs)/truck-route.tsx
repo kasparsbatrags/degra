@@ -6,7 +6,7 @@ import {router, useLocalSearchParams} from 'expo-router'
 import React, {useState, useEffect} from 'react'
 import { useObjectStore } from '@/hooks/useObjectStore';
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity} from 'react-native'
-import {FontAwesome, MaterialIcons} from '@expo/vector-icons'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import {isSessionActive} from '@/utils/sessionUtils'
 import {isRedirectingToLogin} from '@/config/axios'
@@ -116,7 +116,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, setActiveTab }
 				style={[styles.tab, activeTab === 0 && styles.activeTab]} 
 				onPress={() => setActiveTab(0)}
 			>
-				<FontAwesome name="info-circle" size={20} color={activeTab === 0 ? COLORS.secondary : COLORS.white} />
+				<MaterialIcons name="info" size={20} color={activeTab === 0 ? COLORS.secondary : COLORS.white} />
 			</TouchableOpacity>
 			
 			<TouchableOpacity 
