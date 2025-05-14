@@ -516,7 +516,7 @@ export default function TruckRouteScreen() {
 				<View id="top" style={[styles.topContainer]}>
 					<View style={commonStyles.row}>
 						<FormDatePicker
-								label="Brauciena datums"
+								label="Datums"
 								value={form.routeDate}
 								onChange={(date) => setForm({...form, routeDate: date})}
 								// disabled={isItRouteFinish}
