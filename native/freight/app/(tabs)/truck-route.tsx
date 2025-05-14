@@ -1014,28 +1014,34 @@ const styles = StyleSheet.create({
 	// Tab navigācijas stili
 	tabContainer: Platform.OS === 'web' ? {
 		flexDirection: 'row',
-		marginBottom: 16,
-		borderRadius: 8,
+		marginBottom: 0, // Noņemta atstarpe starp tab un saturu
+		borderTopLeftRadius: 8,
+		borderTopRightRadius: 8,
 		overflow: 'hidden',
 		backgroundColor: COLORS.black200,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.08)',
+		borderBottomWidth: 0, // Noņemta apakšējā robeža
 	} : {
 		flexDirection: 'row',
-		marginBottom: 16,
-		borderRadius: 8,
+		marginBottom: 0, // Noņemta atstarpe starp tab un saturu
+		borderTopLeftRadius: 8,
+		borderTopRightRadius: 8,
 		overflow: 'hidden',
 		backgroundColor: COLORS.black200,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
+		borderBottomWidth: 0, // Noņemta apakšējā robeža
 	},
 	tabButton: {
 		flex: 1, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center',
 	},
 	tabButtonActive: Platform.OS === 'web' ? {
-		backgroundColor: COLORS.secondary, ...SHADOWS.small,
+		backgroundColor: COLORS.secondary, // Atgriezamies pie oriģinālās krāsas
+		...SHADOWS.small,
 	} : {
-		backgroundColor: COLORS.secondary, ...SHADOWS.medium, // Using medium shadows for better visibility on mobile
+		backgroundColor: COLORS.secondary, // Atgriezamies pie oriģinālās krāsas
+		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
 	},
 	tabText: {
 		fontSize: 14, color: COLORS.gray,
@@ -1046,18 +1052,22 @@ const styles = StyleSheet.create({
 	// Tab satura stili
 	tabContentContainer: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.primary, // Tumšāks fons nekā ievadlaukiem
-		borderRadius: 8,
+		borderBottomLeftRadius: 8, // Tikai apakšējie stūri ir noapaļoti
+		borderBottomRightRadius: 8,
 		padding: 16,
 		marginBottom: 16,
 		borderWidth: 1,
+		borderTopWidth: 0, // Noņemta augšējā robeža, lai savienotu ar tab
 		borderColor: 'rgba(255, 255, 255, 0.05)',
 		...SHADOWS.small,
 	} : {
 		backgroundColor: COLORS.primary, // Tumšāks fons nekā ievadlaukiem
-		borderRadius: 8,
+		borderBottomLeftRadius: 8, // Tikai apakšējie stūri ir noapaļoti
+		borderBottomRightRadius: 8,
 		padding: 16,
 		marginBottom: 16,
 		borderWidth: 1,
+		borderTopWidth: 0, // Noņemta augšējā robeža, lai savienotu ar tab
 		borderColor: 'rgba(255, 255, 255, 0.15)',
 		...SHADOWS.medium,
 	},
