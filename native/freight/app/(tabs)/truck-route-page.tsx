@@ -213,7 +213,7 @@ export default function TruckRoutePageScreen() {
 
 						<View style={commonStyles.row}>
 							<FormDatePicker
-									label="Sākuma datums"
+									label="Sākums"
 									value={form.dateFrom}
 									onChange={(date) => setForm(prevForm => ({...prevForm, dateFrom: date}))}
 									error="Lauks ir obligāts"
@@ -221,7 +221,7 @@ export default function TruckRoutePageScreen() {
 									disabled={!isEditMode}
 							/>
 							<FormDatePicker
-									label="Beigu datums"
+									label="Beigas"
 									value={form.dateTo}
 									onChange={(date) => setForm(prevForm => ({...prevForm, dateTo: date}))}
 									error="Lauks ir obligāts"

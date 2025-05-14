@@ -108,7 +108,7 @@ export default function TruckRouteScreen() {
 		const checkSession = async () => {
 			const sessionActive = await isSessionActive();
 			if (!sessionActive && !isRedirectingToLogin) {
-				router.replace('/(auth)/login');
+				router.replace('/login');
 			}
 		};
 
@@ -542,14 +542,14 @@ export default function TruckRouteScreen() {
 
 						<View style={commonStyles.row}>
 							<FormDatePicker
-									label="Sākuma datums"
+									label="Sākums"
 									value={form.dateFrom}
 									onChange={(date) => setForm({...form, dateFrom: date})}
 									error="Lauks ir obligāts"
 									showError={showRoutePageError && !form.dateFrom}
 							/>
 							<FormDatePicker
-									label="Beigu datums"
+									label="Beigas"
 									value={form.dateTo}
 									onChange={(date) => setForm({...form, dateTo: date})}
 									error="Lauks ir obligāts"
