@@ -2,8 +2,9 @@ import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {format} from 'date-fns'
-import {router, useLocalSearchParams} from 'expo-router'
-import React, {useState, useEffect} from 'react'
+import {router, useLocalSearchParams, useNavigation} from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import React, {useState, useEffect, useLayoutEffect} from 'react'
 import { useObjectStore } from '@/hooks/useObjectStore';
 import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity, Pressable} from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
@@ -165,6 +166,7 @@ export default function TruckRouteScreen() {
 		outTruckObjectName?: string;
 		inTruckObjectName?: string;
 		newObject?: string;
+		isRouteActive?: string;
 	}>();
 	const {id} = params;
 	const [isLoading, setIsLoading] = useState(() => !params?.newObject && !!id)
@@ -201,8 +203,41 @@ export default function TruckRouteScreen() {
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [activeTab, setActiveTab] = useState(0)
+	const navigation = useNavigation();
 
 	const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
+
+	// Konstante AsyncStorage atslēgai - tāda pati kā index.tsx failā
+	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus';
+
+	// Iestatīt sākotnējo virsrakstu, balstoties uz saglabāto statusu AsyncStorage
+	useLayoutEffect(() => {
+		const getInitialTitle = async () => {
+			try {
+				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY);
+				const initialIsRouteActive = localStatus === 'active';
+				
+				navigation.setOptions({
+					title: initialIsRouteActive ? 'Beigt braucienu' : 'Sākt braucienu'
+				});
+			} catch (error) {
+				console.error('Failed to get route status from AsyncStorage:', error);
+				// Noklusējuma gadījumā izmantojam isItRouteFinish vērtību
+				navigation.setOptions({
+					title: isItRouteFinish ? 'Beigt braucienu' : 'Sākt braucienu'
+				});
+			}
+		};
+		
+		getInitialTitle();
+	}, [navigation]);
+
+	// Atjaunināt virsrakstu, kad mainās isItRouteFinish vērtība
+	useEffect(() => {
+		navigation.setOptions({
+			title: isItRouteFinish ? 'Beigt braucienu' : 'Sākt braucienu'
+		});
+	}, [isItRouteFinish, navigation]);
 
 	useEffect(() => {
 		// If there is saved data in store, use it
@@ -566,17 +601,6 @@ export default function TruckRouteScreen() {
 								onChange={(date) => setForm({...form, routeDate: date})}
 								// disabled={isItRouteFinish}
 						/>
-						<View style={styles.truckField}>
-							<FormDropdown
-									label="Auto"
-									value={form.routePageTruck}
-									onSelect={(value) => setForm({...form, routePageTruck: value})}
-									placeholder="Izvēlieties"
-									endpoint="/trucks"
-									disabled={isItRouteFinish}
-									error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
-							/>
-						</View>
 					</View>
 
 					{showRoutePageError && (<View style={[styles.topContainer, showRoutePageError && styles.errorBorder]}>
@@ -617,7 +641,7 @@ export default function TruckRouteScreen() {
 						/>
 
 						<FormInput
-								label="Odometrs startā"
+								label="Odometrs"
 								value={form.odometerAtStart}
 								onChangeText={(text) => {
 									// Allow only numbers
@@ -662,7 +686,7 @@ export default function TruckRouteScreen() {
 								/>
 
 								<FormInput
-										label="Odometrs finišā"
+										label="Odometrs"
 										value={form.odometerAtFinish}
 										onChangeText={(text) => {
 											// Allow only numbers
@@ -691,10 +715,22 @@ export default function TruckRouteScreen() {
 						) : (
 							// Kad isItRouteFinish=false, Info tabā rāda aktīvos laukus
 							<>
+								<View style={styles.truckField}>
+									<FormDropdown
+											label="Auto"
+											value={form.routePageTruck}
+											onSelect={(value) => setForm({...form, routePageTruck: value})}
+											placeholder="Izvēlieties"
+											endpoint="/trucks"
+											disabled={isItRouteFinish}
+											error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
+									/>
+								</View>
+								
 								<View id="atStart" style={[commonStyles.row, styles.atStartContainer]}>
 									<View style={styles.inputWrapper}>
 										<FormInput
-												label="Odometrs startā"
+												label="Odometrs"
 												value={form.odometerAtStart}
 												onChangeText={(text) => {
 													// Allow only numbers
@@ -782,10 +818,22 @@ export default function TruckRouteScreen() {
 						{isItRouteFinish ? (
 							// Kad isItRouteFinish=true, Papildus tabā rāda neaktīvos laukus
 							<>
+								<View style={styles.truckField}>
+									<FormDropdown
+											label="Auto"
+											value={form.routePageTruck}
+											onSelect={(value) => setForm({...form, routePageTruck: value})}
+											placeholder="Izvēlieties"
+											endpoint="/trucks"
+											disabled={true}
+											error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
+									/>
+								</View>
+								
 								<View id="atStart" style={[commonStyles.row, styles.atStartContainer]}>
 									<View style={styles.inputWrapper}>
 										<FormInput
-												label="Odometrs startā"
+												label="Odometrs"
 												value={form.odometerAtStart}
 												onChangeText={(text) => {
 													// Allow only numbers
@@ -949,7 +997,7 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	truckField: {
-		flex: 1, marginTop: 24,
+		flex: 1,
 	},
 	explanatoryText: Platform.OS === 'web' ? {
 		...commonStyles.text,
