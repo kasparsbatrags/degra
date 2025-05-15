@@ -148,7 +148,6 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 
 const styles = StyleSheet.create({
 	container: {
-		marginBottom: 16,
 		height: 96,
 	},
 	label: { fontFamily: FONT.medium, fontSize: 16, color: COLORS.white, marginBottom: 4 },
