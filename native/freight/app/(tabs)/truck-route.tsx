@@ -643,6 +643,24 @@ export default function TruckRouteScreen() {
 						{isItRouteFinish ? (
 							// Kad isItRouteFinish=true, Info tabā rāda odometru finišā un saņemto degvielu
 							<>
+								<FormDropdownWithAddButton
+										label="Galamērķis"
+										value={selectedInTruckObject || form.inTruckObject}
+										onSelect={(value) => {
+											setSelectedInTruckObject(value);
+											setForm(prev => ({...prev, inTruckObject: value}));
+										}}
+										placeholder="Ievadiet galamērķi"
+										endpoint="/objects"
+										error={isItRouteFinish && !selectedInTruckObject && !form.inTruckObject ? 'Ievadiet datus!' : undefined}
+										forceRefresh={refreshDropdowns}
+										objectName={inTruckObjectDetails?.name || params.inTruckObjectName || ''}
+										onAddPress={() => router.push({
+											pathname: '/add-truck-object',
+											params: { type: 'inTruckObject' }
+										})}
+								/>
+
 								<FormInput
 										label="Odometrs finišā"
 										value={form.odometerAtFinish}
@@ -815,20 +833,6 @@ export default function TruckRouteScreen() {
 										onAddPress={() => {}} // Tukša funkcija, jo disabled=true
 								/>
 
-								<FormDropdownWithAddButton
-										label="Galamērķis"
-										value={selectedInTruckObject || form.inTruckObject}
-										onSelect={(value) => {
-											setSelectedInTruckObject(value);
-											setForm(prev => ({...prev, inTruckObject: value}));
-										}}
-										placeholder="Ievadiet galamērķi"
-										endpoint="/objects"
-										disabled={true}
-										forceRefresh={refreshDropdowns}
-										objectName={inTruckObjectDetails?.name || params.inTruckObjectName || ''}
-										onAddPress={() => {}} // Tukša funkcija, jo disabled=true
-								/>
 
 								{hasCargo && (
 									<>
