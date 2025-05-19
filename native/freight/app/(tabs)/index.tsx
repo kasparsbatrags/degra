@@ -34,6 +34,10 @@ interface TruckRoutePage {
 export default function HomeScreen() {
 	const {user} = useAuth()
 	const router = useRouter()
+	if (!user && !isRedirectingToLogin) {
+		redirectToLogin()
+		return null
+	}
 	const [routes, setRoutes] = useState<TruckRoutePage[]>([])
 	const [loading, setLoading] = useState(true)
 	const [buttonText, setButtonText] = useState('Starts')
@@ -51,6 +55,7 @@ export default function HomeScreen() {
 				// Use the shared redirectToLogin function from axios.ts
 				// This will handle redirection properly for both web and mobile
 				redirectToLogin()
+				return
 			}
 		}
 

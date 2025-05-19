@@ -272,7 +272,6 @@ export const clearSession = async () => {
 export const isSessionActive = async (): Promise<boolean> => {
   try {
     const { accessToken, expiresAt } = await loadSession();
-	console.log(!!accessToken && (expiresAt ? expiresAt > Date.now() : true));
     return !!accessToken && (expiresAt ? expiresAt > Date.now() : true);
   } catch (error) {
     console.error("Error checking session:", error);
