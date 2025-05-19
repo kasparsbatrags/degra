@@ -79,6 +79,12 @@ export default function TabLayout() {
 					  title: 'Maršruta lapa',
 				  }}
 		  />
+        <Stack.Screen
+          name="offline-data"
+          options={{
+            title: 'Nesinhronizētie dati',
+          }}
+        />
       </Stack>
     </>
   );

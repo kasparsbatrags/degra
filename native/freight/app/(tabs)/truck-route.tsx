@@ -6,7 +6,9 @@ import {router, useLocalSearchParams, useNavigation} from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, {useState, useEffect, useLayoutEffect} from 'react'
 import { useObjectStore } from '@/hooks/useObjectStore';
-import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity, Pressable} from 'react-native'
+import { useTruckRoute } from '@/hooks/useTruckRoute';
+import { useNetworkState } from '@/utils/networkUtils';
+import {ActivityIndicator, Platform, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity, Pressable, Alert} from 'react-native'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -204,6 +206,8 @@ export default function TruckRouteScreen() {
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [activeTab, setActiveTab] = useState(0)
 	const navigation = useNavigation();
+	const { isConnected } = useNetworkState();
+	const { startRoute, endRoute } = useTruckRoute();
 
 	const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
 
@@ -569,15 +573,46 @@ export default function TruckRouteScreen() {
 			}
 
 			if (isItRouteFinish) {
-				await freightAxios.put('/truck-routes', payload)
+				// Izmantojam endRoute hook funkciju
+				await endRoute.mutateAsync(payload);
+				
+				// Parādām paziņojumu, ja nav savienojuma
+				if (!isConnected) {
+					Alert.alert(
+						"Offline režīms",
+						"Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
+						[{ text: "OK" }]
+					);
+				}
 			} else {
-				await freightAxios.post('/truck-routes', payload)
+				// Izmantojam startRoute hook funkciju
+				await startRoute.mutateAsync(payload);
+				
+				// Parādām paziņojumu, ja nav savienojuma
+				if (!isConnected) {
+					Alert.alert(
+						"Offline režīms",
+						"Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
+						[{ text: "OK" }]
+					);
+				}
 			}
-			router.push('/(tabs)')
+			
+			// Saglabājam brauciena statusu lokāli
+			await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, isItRouteFinish ? 'inactive' : 'active');
+			
+			router.push('/(tabs)');
 		} catch (error) {
-			console.error('Failed to submit form:', error)
+			console.error('Failed to submit form:', error);
+			
+			// Parādām kļūdas paziņojumu
+			Alert.alert(
+				"Kļūda",
+				"Neizdevās saglabāt brauciena datus. Lūdzu, mēģiniet vēlreiz.",
+				[{ text: "OK" }]
+			);
 		} finally {
-			setIsSubmitting(false)
+			setIsSubmitting(false);
 		}
 	};
 

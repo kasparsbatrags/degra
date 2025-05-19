@@ -9,7 +9,9 @@ import {useColorScheme, View} from 'react-native'
 import queryClient from '../config/queryClient'
 import {AuthProvider} from '../context/AuthContext'
 import {setupSyncListener} from '../services/syncService'
+import {setupTruckRouteSyncListener} from '../services/truckRouteSyncService'
 import EnvironmentIndicator from '../components/EnvironmentIndicator'
+import OfflineIndicator from '../components/OfflineIndicator'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -59,14 +61,21 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
-  // Uzstāda sinhronizācijas klausītāju, kad komponente tiek montēta
+  // Uzstāda sinhronizācijas klausītājus, kad komponente tiek montēta
   useEffect(() => {
-    const unsubscribe = setupSyncListener();
+    // Uzstāda vispārīgo sinhronizācijas klausītāju
+    const unsubscribeSync = setupSyncListener();
     
-    // Notīra klausītāju, kad komponente tiek nomontēta
+    // Uzstāda braucienu sinhronizācijas klausītāju
+    const unsubscribeTruckRouteSync = setupTruckRouteSyncListener();
+    
+    // Notīra klausītājus, kad komponente tiek nomontēta
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
+      if (unsubscribeSync) {
+        unsubscribeSync();
+      }
+      if (unsubscribeTruckRouteSync) {
+        unsubscribeTruckRouteSync();
       }
     };
   }, []);
@@ -81,6 +90,7 @@ function RootLayoutNav() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             </Stack>
             <EnvironmentIndicator />
+            <OfflineIndicator />
           </View>
         </AuthProvider>
       </QueryClientProvider>

@@ -14,7 +14,7 @@ export default function Menu({ visible, onClose }: MenuProps) {
   const router = useRouter();
   const { signOut } = useAuth();
 
-  const handleNavigation = (route: '/' | '/profile' | '/truck-route' | 'logout') => {
+  const handleNavigation = (route: '/' | '/profile' | '/truck-route' | '/offline-data' | 'logout') => {
     if (route === 'logout') {
       signOut();
       return;
@@ -53,6 +53,14 @@ export default function Menu({ visible, onClose }: MenuProps) {
           >
             <FontAwesome name="user" size={20} color={COLORS.white} style={styles.menuIcon} />
             <Text style={styles.menuText}>Profils</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => handleNavigation('/offline-data')}
+          >
+            <FontAwesome name="cloud-upload" size={20} color={COLORS.white} style={styles.menuIcon} />
+            <Text style={styles.menuText}>Nesinhronizētie dati</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
