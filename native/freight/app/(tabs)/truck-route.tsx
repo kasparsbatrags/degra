@@ -16,8 +16,8 @@ import {isRedirectingToLogin} from '@/config/axios'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormDatePicker from '../../components/FormDatePicker'
-import FormDropdown from '../../components/FormDropdown'
-import FormDropdownWithAddButton from '../../components/FormDropdownWithAddButton'
+import ImprovedFormDropdown from '../../components/ImprovedFormDropdown'
+import ImprovedFormDropdownWithAddButton from '../../components/ImprovedFormDropdownWithAddButton'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 
@@ -702,10 +702,10 @@ export default function TruckRouteScreen() {
 						{isItRouteFinish ? (
 							// Kad isItRouteFinish=true, Info tabā rāda odometru finišā un saņemto degvielu
 							<>
-								<FormDropdownWithAddButton
+								<ImprovedFormDropdownWithAddButton
 										label="Galamērķis"
 										value={selectedInTruckObject || form.inTruckObject}
-										onSelect={(value) => {
+										onSelect={(value: string) => {
 											setSelectedInTruckObject(value);
 											setForm(prev => ({...prev, inTruckObject: value}));
 										}}
@@ -751,10 +751,10 @@ export default function TruckRouteScreen() {
 							// Kad isItRouteFinish=false, Info tabā rāda aktīvos laukus
 							<>
 								<View style={styles.truckField}>
-									<FormDropdown
+									<ImprovedFormDropdown
 											label="Auto"
 											value={form.routePageTruck}
-											onSelect={(value) => setForm({...form, routePageTruck: value})}
+											onSelect={(value: string) => setForm({...form, routePageTruck: value})}
 											placeholder="Izvēlieties"
 											endpoint="/trucks"
 											disabled={isItRouteFinish}
@@ -799,10 +799,10 @@ export default function TruckRouteScreen() {
 									</View>
 								</View>
 
-								<FormDropdownWithAddButton
+								<ImprovedFormDropdownWithAddButton
 										label="Sākuma punkts"
 										value={selectedOutTruckObject || form.outTruckObject}
-										onSelect={(value) => {
+										onSelect={(value: string) => {
 											setSelectedOutTruckObject(value);
 											setForm(prev => ({...prev, outTruckObject: value}));
 										}}
@@ -817,10 +817,10 @@ export default function TruckRouteScreen() {
 										objectName={outTruckObjectDetails?.name}
 								/>
 
-								<FormDropdownWithAddButton
+								<ImprovedFormDropdownWithAddButton
 										label="Galamērķis"
 										value={selectedInTruckObject || form.inTruckObject}
-										onSelect={(value) => {
+										onSelect={(value: string) => {
 											setSelectedInTruckObject(value);
 											setForm(prev => ({...prev, inTruckObject: value}));
 										}}
@@ -854,10 +854,10 @@ export default function TruckRouteScreen() {
 							// Kad isItRouteFinish=true, Papildus tabā rāda neaktīvos laukus
 							<>
 								<View style={styles.truckField}>
-									<FormDropdown
+									<ImprovedFormDropdown
 											label="Auto"
 											value={form.routePageTruck}
-											onSelect={(value) => setForm({...form, routePageTruck: value})}
+											onSelect={(value: string) => setForm({...form, routePageTruck: value})}
 											placeholder="Izvēlieties"
 											endpoint="/trucks"
 											disabled={true}
@@ -901,10 +901,10 @@ export default function TruckRouteScreen() {
 									</View>
 								</View>
 
-								<FormDropdownWithAddButton
+								<ImprovedFormDropdownWithAddButton
 										label="Sākuma punkts"
 										value={selectedOutTruckObject || form.outTruckObject}
-										onSelect={(value) => {
+										onSelect={(value: string) => {
 											setSelectedOutTruckObject(value);
 											setForm(prev => ({...prev, outTruckObject: value}));
 										}}
@@ -930,10 +930,10 @@ export default function TruckRouteScreen() {
 											/>
 										</View>
 
-										<FormDropdown
+										<ImprovedFormDropdown
 												label="Kravas tips"
 												value={form.cargoType}
-												onSelect={(value) => setForm({...form, cargoType: value})}
+												onSelect={(value: string) => setForm({...form, cargoType: value})}
 												placeholder=" Izvēlieties"
 												endpoint="api/freight/cargo-types"
 												disabled={true}
@@ -948,10 +948,10 @@ export default function TruckRouteScreen() {
 												disabled={true}
 										/>
 
-										<FormDropdown
+										<ImprovedFormDropdown
 												label="Mērvienība"
 												value={form.unitType}
-												onSelect={(value) => setForm({...form, unitType: value})}
+												onSelect={(value: string) => setForm({...form, unitType: value})}
 												placeholder="Izvēlieties mērvienību"
 												endpoint="/unit-types"
 												disabled={true}
@@ -977,10 +977,10 @@ export default function TruckRouteScreen() {
 
 								{hasCargo && (
 									<>
-										<FormDropdown
+										<ImprovedFormDropdown
 												label="Kravas tips"
 												value={form.cargoType}
-												onSelect={(value) => setForm({...form, cargoType: value})}
+												onSelect={(value: string) => setForm({...form, cargoType: value})}
 												placeholder=" Izvēlieties"
 												endpoint="api/freight/cargo-types"
 										/>
@@ -993,10 +993,10 @@ export default function TruckRouteScreen() {
 												keyboardType="numeric"
 										/>
 
-										<FormDropdown
+										<ImprovedFormDropdown
 												label="Mērvienība"
 												value={form.unitType}
-												onSelect={(value) => setForm({...form, unitType: value})}
+												onSelect={(value: string) => setForm({...form, unitType: value})}
 												placeholder="Izvēlieties mērvienību"
 												endpoint="/unit-types"
 										/>

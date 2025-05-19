@@ -1,5 +1,5 @@
 import FormDatePicker from '@/components/FormDatePicker'
-import FormDropdown from '@/components/FormDropdown'
+import ImprovedFormDropdown from '@/components/ImprovedFormDropdown'
 import Pagination from '@/components/Pagination'
 import {commonStyles, formStyles} from '@/constants/styles'
 import {format} from 'date-fns'
@@ -199,10 +199,10 @@ export default function TruckRoutePageScreen() {
 					<>
 						<View style={styles.inputWrapper}>
 							<View style={[formStyles.inputContainer, styles.truckField]}>
-								<FormDropdown
+								<ImprovedFormDropdown
 										label="Auto"
 										value={form.truck}
-										onSelect={(value) => setForm(prevForm => ({...prevForm, truck: value}))}
+										onSelect={(value: string) => setForm(prevForm => ({...prevForm, truck: value}))}
 										placeholder="Izvēlieties"
 										endpoint="/trucks"
 										disabled={!isEditMode}
