@@ -37,6 +37,9 @@ interface FormDropdownProps {
   forceRefresh?: number;
   objectName?: string;
   externalOptions?: Option[];
+  showAddButton?: boolean;
+  onAddPress?: () => void;
+  addButtonLabel?: string;
 }
 
 // Definēt stāvokļa tipu un sākotnējo stāvokli
@@ -110,6 +113,9 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
   forceRefresh = 0,
   objectName,
   externalOptions,
+  showAddButton = false,
+  onAddPress,
+  addButtonLabel = '',
 }) => {
   // Izmantot useReducer stāvokļa pārvaldībai
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -275,40 +281,68 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       
-      <Pressable
-        style={[
-          styles.input,
-          error && styles.inputError,
-          disabled && styles.inputDisabled
-        ]}
-        onPress={toggleDropdown}
-        accessible={true}
-        accessibilityLabel={`Izvēlieties ${label}`}
-        accessibilityHint="Atver izvēlni ar opcijām"
-        accessibilityRole="button"
-        accessibilityState={{ disabled }}
-      >
-        <Text 
+      <View style={styles.inputContainer}>
+        <Pressable
           style={[
-            styles.inputText,
-            !displayOption && styles.placeholder
+            styles.input,
+            showAddButton && styles.inputWithButton,
+            error && styles.inputError,
+            disabled && styles.inputDisabled
           ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
+          onPress={toggleDropdown}
+          accessible={true}
+          accessibilityLabel={`Izvēlieties ${label}`}
+          accessibilityHint="Atver izvēlni ar opcijām"
+          accessibilityRole="button"
+          accessibilityState={{ disabled }}
         >
-          {displayOption 
-            ? displayOption.name 
-            : (state.loading ? 'Ielādē...' : placeholder)}
-        </Text>
+          <Text 
+            style={[
+              styles.inputText,
+              !displayOption && styles.placeholder
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {displayOption 
+              ? displayOption.name 
+              : (state.loading ? 'Ielādē...' : placeholder)}
+          </Text>
+          
+          <Animated.View style={iconStyle}>
+            <Ionicons 
+              name="chevron-down" 
+              size={24} 
+              color={COLORS.white} 
+            />
+          </Animated.View>
+        </Pressable>
         
-        <Animated.View style={iconStyle}>
-          <Ionicons 
-            name="chevron-down" 
-            size={24} 
-            color={COLORS.white} 
-          />
-        </Animated.View>
-      </Pressable>
+        {showAddButton && onAddPress && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.addButton,
+              pressed && styles.addButtonPressed,
+              disabled && styles.addButtonDisabled
+            ]}
+            onPress={() => {
+              handleUserActivity(ACTIVITY_LEVELS.HIGH);
+              onAddPress();
+            }}
+            disabled={disabled}
+            accessible={true}
+            accessibilityLabel={addButtonLabel}
+            accessibilityRole="button"
+            accessibilityHint="Atver formu, lai pievienotu jaunu ierakstu"
+            accessibilityState={{ disabled }}
+          >
+            <Ionicons name="add" size={24} color={COLORS.white} />
+            {addButtonLabel && (
+              <Text style={styles.addButtonText}>{addButtonLabel}</Text>
+            )}
+          </Pressable>
+        )}
+      </View>
       
       {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -374,6 +408,10 @@ const styles = StyleSheet.create({
     color: COLORS.white, 
     marginBottom: 4 
   },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   input: {
     height: 48,
     backgroundColor: COLORS.black100,
@@ -382,6 +420,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
+    flex: 1,
+  },
+  inputWithButton: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  addButton: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 8,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
+  },
+  addButtonPressed: {
+    opacity: 0.8,
+    backgroundColor: COLORS.secondary200,
+  },
+  addButtonDisabled: {
+    opacity: 0.5,
+  },
+  addButtonText: {
+    color: COLORS.white,
+    fontFamily: FONT.medium,
+    fontSize: 16,
+    marginLeft: 8,
   },
   inputText: { 
     fontFamily: FONT.regular, 
