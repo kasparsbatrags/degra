@@ -8,7 +8,8 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { 
@@ -499,12 +500,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   optionsContent: { 
-    padding: 8 
+    padding: 8
   },
   option: { 
-    padding: 16, 
+    padding: Platform.OS === 'web' ? 10 : 16,
     borderRadius: 8,
-    marginVertical: 2,
+    marginVertical: Platform.OS === 'web' ? 2 : 6,
   },
   optionPressed: { 
     backgroundColor: COLORS.black100 

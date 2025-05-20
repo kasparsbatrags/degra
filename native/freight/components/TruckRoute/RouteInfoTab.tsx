@@ -30,7 +30,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
         return (
             <View style={[styles.tabContentContainer, styles.infoTabContent]}>
                 <ImprovedFormDropdownWithAddButton
-                    label="Galamērķis"
+                    label="Ierados"
                     value={selectedInTruckObject || form.inTruckObject}
                     onSelect={(value: string) => {
                         setSelectedInTruckObject(value);
