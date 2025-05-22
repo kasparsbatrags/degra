@@ -55,6 +55,7 @@ const checkSession = async () => {
   // If session is no longer active, redirect to login page
   if (!active) {
     // Use the shared redirectToLogin function from axios.ts
+    // redirectToLogin funkcija jau pārbauda, vai lietotājs atrodas login lapā
     redirectToLogin();
     return;
   }

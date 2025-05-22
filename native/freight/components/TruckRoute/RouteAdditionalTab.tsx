@@ -74,7 +74,7 @@ const RouteAdditionalTab: React.FC<RouteAdditionalTabProps> = ({
                 </View>
 
                 <ImprovedFormDropdownWithAddButton
-                    label="Sākuma punkts"
+                    label="Starts"
                     value={selectedOutTruckObject || form.outTruckObject}
                     onSelect={(value: string) => {
                         setSelectedOutTruckObject(value);

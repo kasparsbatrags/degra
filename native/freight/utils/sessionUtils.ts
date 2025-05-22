@@ -240,7 +240,9 @@ export const loadSession = async () => {
         accessToken: null,
         user: null,
       };
-    }
+    } else {
+		console.warn("Session expired at: " + new Date(session.expiresAt).toLocaleString() + "");
+	}
     
     return {
       accessToken: session.accessToken,

@@ -1,9 +1,10 @@
 import React, {createContext, useContext, useEffect, useState} from 'react'
 import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/api'
 import type {UserInfo, UserRegistrationData} from '@/types/auth'
-import {clearSession, saveSession} from '@/utils/sessionUtils'
+import {clearSession, saveSession, isSessionActive} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {initUserActivityTracking} from '@/utils/userActivityTracker'
+import {isConnected} from '@/utils/networkUtils'
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -12,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   register: (data: UserRegistrationData) => Promise<void>;
+  resetAuthState: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -124,6 +126,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Funkcija, lai atiestatītu autentifikācijas stāvokli
+  // Šī funkcija tikai atjaunina AuthContext stāvokli, bet neveic pārvirzīšanu
+  // Pārvirzīšanu veic AuthLayout, kad isAuthenticated kļūst false
+  const resetAuthState = () => {
+    if (mountedRef.current) {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
+  // Periodiski pārbaudīt sesijas statusu
+  useEffect(() => {
+    const checkSessionStatus = async () => {
+      try {
+        // Pārbaudīt, vai ierīce ir online režīmā
+        const online = await isConnected();
+        
+        // Pārbaudīt sesijas statusu tikai tad, ja ierīce ir online režīmā
+        if (online && isAuthenticated) {
+          const sessionActive = await isSessionActive();
+          if (!sessionActive) {
+            // Ja sesija nav aktīva, bet lietotājs joprojām ir autentificēts kontekstā
+            // Atjaunināt konteksta stāvokli
+            resetAuthState();
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session status:", error);
+      }
+    };
+    
+    // Pārbaudīt sesijas statusu periodiski
+    const interval = setInterval(checkSessionStatus, 30000); // Pārbaudīt ik pēc 30 sekundēm
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isAuthenticated]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -133,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn: handleSignIn,
         signOut: handleSignOut,
         register: handleRegister,
+        resetAuthState,
       }}
     >
       {children}

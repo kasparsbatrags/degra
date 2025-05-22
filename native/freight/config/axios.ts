@@ -4,6 +4,8 @@ import {isDevelopment, platformSpecific} from '@/utils/platformUtils'
 import {API_ENDPOINTS, getApiTimeout, getUserManagerApiUrl} from './environment'
 import {router as expoRouter} from 'expo-router'
 import {Platform} from 'react-native'
+import NetInfo from '@react-native-community/netinfo'
+import {isConnected} from '@/utils/networkUtils'
 
 // Flag to track if a redirect is already in progress
 let isRedirectingToLogin = false;
@@ -13,30 +15,84 @@ interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // Function that redirects to login page
-const redirectToLogin = () => {
+const redirectToLogin = async () => {
   // Check if redirection is already in progress to avoid multiple redirects
   if (isRedirectingToLogin) {
     return; // If redirection is already in progress, exit the function
   }
   
+  // Pārbaudīt, vai lietotājs jau atrodas login lapā
+  // Web platformai varam pārbaudīt URL
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    const currentPath = window.location.pathname;
+    // Ja URL jau satur "login", neveikt pārvirzīšanu
+    if (currentPath.includes('login')) {
+      return;
+    }
+  }
+  
   // Set flag that redirection is in progress
   isRedirectingToLogin = true;
   
-  // Use setTimeout to avoid problems with React rendering cycle
-  setTimeout(() => {
-    // For web platform, use direct window.location for more reliable navigation
-    if (Platform.OS === 'web') {
-      window.location.href = '/login';
-    } else {
-      // For mobile platforms, use expo-router
-      expoRouter.replace('/login');
+  try {
+    // Pārbaudīt, vai ierīce ir online režīmā
+    const online = await isConnected();
+    
+    // Ja ierīce ir offline režīmā, tikai parādīt brīdinājumu un neveikt pārvirzīšanu
+    if (!online) {
+      console.warn('Sesija ir beigusies, bet ierīce ir offline režīmā. Pārvirzīšana notiks, kad būs pieejams internets.');
+      
+      // Uzstādīt klausītāju, lai pārvirzītu, kad ierīce atkal būs online režīmā
+      const unsubscribe = NetInfo.addEventListener(state => {
+        if (state.isConnected) {
+          // Notīrīt sesiju un pārvirzīt
+          clearSession().then(() => {
+            // Piezīme: AuthContext stāvoklis tiks atjaunināts automātiski, 
+            // jo AuthContext.tsx failā ir pievienota periodiska sesijas statusa pārbaude
+            
+            // Pārvirzīt uz pieteikšanās lapu
+            if (Platform.OS === 'web') {
+              window.location.href = '/login';
+            } else {
+              expoRouter.replace('/login');
+            }
+          });
+          
+          // Noņemt klausītāju
+          unsubscribe();
+        }
+      });
+      
+      // Atiestatīt karogu
+      isRedirectingToLogin = false;
+      return;
     }
     
-    // Reset flag after a short delay to avoid multiple redirects
+    // Ja ierīce ir online režīmā, notīrīt sesiju un pārvirzīt
+    await clearSession();
+    
+    // Piezīme: AuthContext stāvoklis tiks atjaunināts automātiski, 
+    // jo AuthContext.tsx failā ir pievienota periodiska sesijas statusa pārbaude
+    
+    // Use setTimeout to avoid problems with React rendering cycle
     setTimeout(() => {
-      isRedirectingToLogin = false;
-    }, 2000); // 2 second delay to avoid multiple redirects
-  }, 100);
+      // For web platform, use direct window.location for more reliable navigation
+      if (Platform.OS === 'web') {
+        window.location.href = '/login';
+      } else {
+        // For mobile platforms, use expo-router
+        expoRouter.replace('/login');
+      }
+      
+      // Reset flag after a short delay to avoid multiple redirects
+      setTimeout(() => {
+        isRedirectingToLogin = false;
+      }, 2000); // 2 second delay to avoid multiple redirects
+    }, 100);
+  } catch (error) {
+    console.error('Kļūda pārvirzot uz pieteikšanās lapu:', error);
+    isRedirectingToLogin = false;
+  }
 };
 
 // Export function so it can be used from other modules

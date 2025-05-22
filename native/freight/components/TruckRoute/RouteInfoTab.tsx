@@ -130,7 +130,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
             </View>
 
             <ImprovedFormDropdownWithAddButton
-                label="Sākuma punkts"
+                label="Starts"
                 value={selectedOutTruckObject || form.outTruckObject}
                 onSelect={(value: string) => {
                     setSelectedOutTruckObject(value);
@@ -148,7 +148,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
             />
 
             <ImprovedFormDropdownWithAddButton
-                label="Galamērķis"
+                label="Finišs"
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
                     setSelectedInTruckObject(value);
