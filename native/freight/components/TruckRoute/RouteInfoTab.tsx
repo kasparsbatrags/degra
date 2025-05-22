@@ -112,7 +112,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
 
                 <View style={styles.inputWrapper}>
                     <FormInput
-                        label="Degviela startā"
+                        label="Degvielas atlikums"
                         value={form.fuelBalanceAtStart}
                         onChangeText={(text) => {
                             // Allow only numbers
@@ -130,7 +130,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
             </View>
 
             <ImprovedFormDropdownWithAddButton
-                label="Starts"
+                label="Starts no..."
                 value={selectedOutTruckObject || form.outTruckObject}
                 onSelect={(value: string) => {
                     setSelectedOutTruckObject(value);
@@ -148,7 +148,7 @@ const RouteInfoTab: React.FC<RouteInfoTabProps> = ({
             />
 
             <ImprovedFormDropdownWithAddButton
-                label="Finišs"
+                label="Finišs..."
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
                     setSelectedInTruckObject(value);

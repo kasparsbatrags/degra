@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, ScrollView, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,9 +10,9 @@ import { isRedirectingToLogin } from '@/config/axios';
 import BackButton from '../../components/BackButton';
 import Button from '../../components/Button';
 import TabNavigation from './TabNavigation';
-import RouteInfoTab from './RouteInfoTab';
-import RouteAdditionalTab from './RouteAdditionalTab';
-import RouteTopSection from './RouteTopSection';
+import RouteBasicTab from './RouteBasicTab';
+import RouteOdometerTab from './RouteOdometerTab';
+import RouteFuelTab from './RouteFuelTab';
 import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
 import { styles } from './styles';
 
@@ -27,7 +27,7 @@ export default function TruckRouteScreen() {
         isRouteActive?: string;
     }>();
     
-    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState<'basic' | 'odometer' | 'fuel'>('basic');
     const navigation = useNavigation();
     const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus';
     
@@ -48,7 +48,7 @@ export default function TruckRouteScreen() {
         form,
         setForm,
         isSubmitting,
-        handleSubmit
+        handleSubmit: originalHandleSubmit
     } = useTruckRouteForm(params);
     
     // Check session status when component is loaded
@@ -91,6 +91,40 @@ export default function TruckRouteScreen() {
         });
     }, [isItRouteFinish, navigation]);
     
+    // Validācijas funkcija, kas pārbauda obligātos laukus un pārslēdz uz atbilstošo tabu, ja kāds lauks nav aizpildīts
+    const validateForm = () => {
+        // Pārbaudīt basic tab laukus
+        if (!form.routePageTruck || !form.outTruckObject) {
+            setActiveTab('basic');
+            return false;
+        }
+        
+        // Pārbaudīt odometer tab laukus
+        if (!form.odometerAtStart || (isItRouteFinish && !form.odometerAtFinish)) {
+            setActiveTab('odometer');
+            return false;
+        }
+        
+        // Pārbaudīt fuel tab laukus
+        if (!form.fuelBalanceAtStart) {
+            setActiveTab('fuel');
+            return false;
+        }
+        
+        return true;
+    };
+
+    // Jauna handleSubmit funkcija, kas veic validāciju
+    const handleSubmit = async () => {
+        if (!validateForm()) {
+            Alert.alert("Kļūda", "Lūdzu, aizpildiet visus obligātos laukus.");
+            return;
+        }
+        
+        // Turpināt ar oriģinālo saglabāšanas funkciju
+        await originalHandleSubmit();
+    };
+    
     if (isLoading) {
         return (
             <SafeAreaView style={commonStyles.container}>
@@ -101,54 +135,36 @@ export default function TruckRouteScreen() {
         );
     }
     
+    // Kopējie props, ko padot visām tab komponentēm
+    const tabProps = {
+        isItRouteFinish,
+        form,
+        setForm,
+        hasCargo,
+        setHasCargo,
+        showRoutePageError,
+        selectedOutTruckObject,
+        selectedInTruckObject,
+        setSelectedOutTruckObject,
+        setSelectedInTruckObject,
+        outTruckObjectDetails,
+        inTruckObjectDetails,
+        refreshDropdowns,
+        router,
+        params
+    };
+    
     return (
         <SafeAreaView style={commonStyles.safeArea}>
             <ScrollView>
                 <View style={[commonStyles.content, styles.webContainer]}>
-                    {/* Augšējā daļa - vienmēr redzama */}
-                    <RouteTopSection 
-                        form={form}
-                        setForm={setForm}
-                        showRoutePageError={showRoutePageError}
-                    />
-                    
                     {/* Tab navigācija */}
                     <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
                     
                     {/* Tab saturs */}
-                    {activeTab === 0 ? (
-                        <RouteInfoTab
-                            isItRouteFinish={isItRouteFinish}
-                            form={form}
-                            setForm={setForm}
-                            hasCargo={hasCargo}
-                            setHasCargo={setHasCargo}
-                            showRoutePageError={showRoutePageError}
-                            selectedOutTruckObject={selectedOutTruckObject}
-                            selectedInTruckObject={selectedInTruckObject}
-                            setSelectedOutTruckObject={setSelectedOutTruckObject}
-                            setSelectedInTruckObject={setSelectedInTruckObject}
-                            outTruckObjectDetails={outTruckObjectDetails}
-                            inTruckObjectDetails={inTruckObjectDetails}
-                            refreshDropdowns={refreshDropdowns}
-                            router={router}
-                            params={params}
-                        />
-                    ) : (
-                        <RouteAdditionalTab
-                            isItRouteFinish={isItRouteFinish}
-                            form={form}
-                            setForm={setForm}
-                            hasCargo={hasCargo}
-                            setHasCargo={setHasCargo}
-                            selectedOutTruckObject={selectedOutTruckObject}
-                            selectedInTruckObject={selectedInTruckObject}
-                            setSelectedOutTruckObject={setSelectedOutTruckObject}
-                            setSelectedInTruckObject={setSelectedInTruckObject}
-                            outTruckObjectDetails={outTruckObjectDetails}
-                            refreshDropdowns={refreshDropdowns}
-                        />
-                    )}
+                    {activeTab === 'basic' && <RouteBasicTab {...tabProps} />}
+                    {activeTab === 'odometer' && <RouteOdometerTab {...tabProps} />}
+                    {activeTab === 'fuel' && <RouteFuelTab {...tabProps} />}
                     
                     <View style={[commonStyles.row, styles.buttonContainer]}>
                         <BackButton

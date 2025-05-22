@@ -257,7 +257,7 @@ export const formStyles = StyleSheet.create({
     marginBottom: spacing.s,
   },
   weekDayText: {
-    width: '14.28%',
+    width:  Platform.OS === 'web' ? '14.28%' : '6%',
     textAlign: 'center',
     color: COLORS.white,
     marginBottom: spacing.s,
@@ -299,7 +299,7 @@ export const formStyles = StyleSheet.create({
     fontFamily: FONT.bold,
   },
   todayDayText: {
-    color: COLORS.secondary,
+    color: COLORS.white,
     fontFamily: FONT.medium,
   },
 });

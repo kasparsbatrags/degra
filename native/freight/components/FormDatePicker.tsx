@@ -7,187 +7,187 @@ import {Modal, Platform, Pressable, Text, TouchableOpacity, View} from 'react-na
 import {handleUserActivity, ACTIVITY_LEVELS} from '@/utils/userActivityTracker'
 
 interface FormDatePickerProps {
-  label: string
-  value: Date
-  onChange: (date: Date) => void
-  error?: string
-  showError?: boolean
-  disabled?: boolean
+	label: string
+	value: Date
+	onChange: (date: Date) => void
+	error?: string
+	showError?: boolean
+	disabled?: boolean
 }
 
 export default function FormDatePicker({
-  label,
-  value,
-  onChange,
-  error,
-  showError,
-  disabled
+	label,
+	value,
+	onChange,
+	error,
+	showError,
+	disabled
 }: FormDatePickerProps) {
-  const [showDatePicker, setShowDatePicker] = useState(false)
+	const [showDatePicker, setShowDatePicker] = useState(false)
 
-  return (
-    <View style={[
-      formStyles.inputContainer,
-      {
-        flex: 1,
-        height: Platform.select({ web: 96, default: 96 }),
-		justifyContent: 'flex-start',
-        marginBottom: Platform.select({ web: 4, default: 1 }),
-        marginTop: Platform.select({ web: 24, default: 0 })
-      }
-    ]}>
-      <Text style={[
-        formStyles.label,
-        {
-          fontSize: Platform.select({ web: 14, default: 16 }),
-          marginBottom: Platform.select({ web: 6, default: 4 })
-        }
-      ]}>{label}</Text>
-      <TouchableOpacity
-        style={[
-          formStyles.dateButton,
-          {
-            height: Platform.select({ web: 48, default: 48 }),
-            paddingVertical: Platform.select({ web: 8, default: 12 }),
-            paddingHorizontal: Platform.select({ web: 12, default: 12 })
-          },
-          showError && formStyles.inputError,
-          disabled && formStyles.inputDisabled
-        ]}
-        onPress={() => !disabled && setShowDatePicker(true)}
-        disabled={disabled}
-      >
-        <Text style={[
-          formStyles.dateText,
-          { fontSize: Platform.select({ web: 14, default: 16 }) }
-        ]}>
-          {format(value, 'dd.MM.yyyy', {locale: lv})}
-        </Text>
-      </TouchableOpacity>
-      {error && showError && <Text style={[
-        formStyles.errorText,
-        {
-          fontSize: Platform.select({ web: 12, default: 14 }),
-          marginTop: Platform.select({ web: 4, default: 4 })
-        }
-      ]}>{error}</Text>}
+	const weekDayInitials = ['P', 'O', 'T', 'C', 'P', 'S', 'Sv'] // Pirmdiena - Svētdiena
 
-      {showDatePicker && (
-        <Modal
-          transparent={true}
-          visible={showDatePicker}
-          animationType="fade"
-          onRequestClose={() => setShowDatePicker(false)}
-        >
-          <Pressable
-            style={formStyles.modalOverlay}
-            onPress={() => setShowDatePicker(false)}
-          >
-            <Pressable
-              style={[
-                formStyles.modalContent,
-                Platform.select({
-                  web: { width: WEB_DATE_PICKER.modalWidth }
-                })
-              ]}
-              onPress={(e) => e.stopPropagation()}
-            >
-              <View style={formStyles.calendarHeader}>
-                <TouchableOpacity
-                  style={formStyles.monthButton}
-                  onPress={() => {
-                    const newDate = new Date(value)
-                    newDate.setMonth(newDate.getMonth() - 1)
-                    onChange(newDate)
-                  }}
-                >
-                  <Text style={formStyles.monthButtonText}>←</Text>
-                </TouchableOpacity>
-                <Text style={formStyles.monthYearText}>
-                  {format(value, 'MMMM yyyy', {locale: lv})}
-                </Text>
-                <TouchableOpacity
-                  style={formStyles.monthButton}
-                  onPress={() => {
-                    const newDate = new Date(value)
-                    newDate.setMonth(newDate.getMonth() + 1)
-                    onChange(newDate)
-                  }}
-                >
-                  <Text style={formStyles.monthButtonText}>→</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={formStyles.weekDaysRow}>
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <Text key={i} style={formStyles.weekDayText}>
-                    {format(new Date(2024, 0, i + 1), 'EEE', {locale: lv})}
-                  </Text>
-                ))}
-              </View>
-              <View style={formStyles.daysGrid}>
-                {(() => {
-                  const year = value.getFullYear()
-                  const month = value.getMonth()
-                  const firstDay = new Date(year, month, 1)
-                  const lastDay = new Date(year, month + 1, 0)
-                  const startingDay = firstDay.getDay()
-                  const totalDays = lastDay.getDate()
+	return (
+			<View style={[
+				formStyles.inputContainer,
+				{
+					flex: 1,
+					height: Platform.select({ web: 96, default: 96 }),
+					justifyContent: 'flex-start',
+					marginBottom: Platform.select({ web: 4, default: 1 }),
+					marginTop: Platform.select({ web: 24, default: 0 })
+				}
+			]}>
+				<Text style={[
+					formStyles.label,
+					{
+						fontSize: Platform.select({ web: 14, default: 16 }),
+						marginBottom: Platform.select({ web: 6, default: 4 })
+					}
+				]}>{label}</Text>
+				<TouchableOpacity
+						style={[
+							formStyles.dateButton,
+							{
+								height: Platform.select({ web: 48, default: 48 }),
+								paddingVertical: Platform.select({ web: 8, default: 12 }),
+								paddingHorizontal: Platform.select({ web: 12, default: 12 })
+							},
+							showError && formStyles.inputError,
+							disabled && formStyles.inputDisabled
+						]}
+						onPress={() => !disabled && setShowDatePicker(true)}
+						disabled={disabled}
+				>
+					<Text style={[
+						formStyles.dateText,
+						{ fontSize: Platform.select({ web: 14, default: 16 }) }
+					]}>
+						{format(value, 'dd.MM.yyyy', {locale: lv})}
+					</Text>
+				</TouchableOpacity>
+				{error && showError && <Text style={[
+					formStyles.errorText,
+					{
+						fontSize: Platform.select({ web: 12, default: 14 }),
+						marginTop: Platform.select({ web: 4, default: 4 })
+					}
+				]}>{error}</Text>}
 
-                  const days = []
-                  // Add empty spaces for days before the first day of the month
-                  for (let i = 0; i < startingDay; i++) {
-                    days.push(<View key={`empty-${i}`} style={[
-                      formStyles.dayButton,
-                      Platform.select({
-                        web: { width: WEB_DATE_PICKER.dayButtonSize, height: WEB_DATE_PICKER.dayButtonSize }
-                      })
-                    ]} />)
-                  }
+				{showDatePicker && (
+						<Modal
+								transparent={true}
+								visible={showDatePicker}
+								animationType="fade"
+								onRequestClose={() => setShowDatePicker(false)}
+						>
+							<Pressable
+									style={formStyles.modalOverlay}
+									onPress={() => setShowDatePicker(false)}
+							>
+								<Pressable
+										style={[
+											formStyles.modalContent,
+											Platform.select({
+												web: { width: WEB_DATE_PICKER.modalWidth }
+											})
+										]}
+										onPress={(e) => e.stopPropagation()}
+								>
+									<View style={formStyles.calendarHeader}>
+										<TouchableOpacity
+												style={formStyles.monthButton}
+												onPress={() => {
+													const newDate = new Date(value)
+													newDate.setMonth(newDate.getMonth() - 1)
+													onChange(newDate)
+												}}
+										>
+											<Text style={formStyles.monthButtonText}>←</Text>
+										</TouchableOpacity>
+										<Text style={formStyles.monthYearText}>
+											{format(value, 'MMMM yyyy', {locale: lv})}
+										</Text>
+										<TouchableOpacity
+												style={formStyles.monthButton}
+												onPress={() => {
+													const newDate = new Date(value)
+													newDate.setMonth(newDate.getMonth() + 1)
+													onChange(newDate)
+												}}
+										>
+											<Text style={formStyles.monthButtonText}>→</Text>
+										</TouchableOpacity>
+									</View>
 
-                  // Add the days of the month
-                  for (let i = 1; i <= totalDays; i++) {
-                    const date = new Date(year, month, i)
-                    const isSelected = date.toDateString() === value.toDateString()
-                    const isToday = date.toDateString() === new Date().toDateString()
+									<View style={formStyles.weekDaysRow}>
+										{weekDayInitials.map((day, i) => (
+												<Text key={i} style={formStyles.weekDayText}>{day}</Text>
+										))}
+									</View>
 
-                    days.push(
-                      <Pressable
-                        key={i}
-                        style={[
-                          formStyles.dayButton,
-                          Platform.select({
-                            web: { width: WEB_DATE_PICKER.dayButtonSize, height: WEB_DATE_PICKER.dayButtonSize }
-                          }),
-                          isSelected && formStyles.selectedDay,
-                          isToday && formStyles.todayDay
-                        ]}
-                        onPress={() => {
-                          // Call handleUserActivity when user selects a date
-                          handleUserActivity(ACTIVITY_LEVELS.HIGH);
-                          onChange(date)
-                          setShowDatePicker(false)
-                        }}
-                      >
-                        <Text
-                          style={[
-                            formStyles.dayText,
-                            isSelected && formStyles.selectedDayText,
-                            isToday && formStyles.todayDayText
-                          ]}
-                        >
-                          {i}
-                        </Text>
-                      </Pressable>
-                    )
-                  }
+									<View style={formStyles.daysGrid}>
+										{(() => {
+											const year = value.getFullYear()
+											const month = value.getMonth()
+											const firstDay = new Date(year, month, 1)
+											const lastDay = new Date(year, month + 1, 0)
+											const jsDay = firstDay.getDay()
+											const startingDay = (jsDay + 6) % 7
+											const totalDays = lastDay.getDate()
 
-                  return days
-                })()}
-              </View>
-            </Pressable>
-          </Pressable>
-        </Modal>
-      )}
-    </View>
-  )
+											const days = []
+											for (let i = 0; i < startingDay; i++) {
+												days.push(<View key={`empty-${i}`} style={[
+													formStyles.dayButton,
+													Platform.select({
+														web: { width: WEB_DATE_PICKER.dayButtonSize, height: WEB_DATE_PICKER.dayButtonSize }
+													})
+												]} />)
+											}
+
+											for (let i = 1; i <= totalDays; i++) {
+												const date = new Date(year, month, i)
+												const isSelected = date.toDateString() === value.toDateString()
+												const isToday = date.toDateString() === new Date().toDateString()
+
+												days.push(
+														<Pressable
+																key={i}
+																style={[
+																	formStyles.dayButton,
+																	Platform.select({
+																		web: { width: WEB_DATE_PICKER.dayButtonSize, height: WEB_DATE_PICKER.dayButtonSize }
+																	}),
+																	isSelected && formStyles.selectedDay,
+																	isToday && formStyles.todayDay
+																]}
+																onPress={() => {
+																	handleUserActivity(ACTIVITY_LEVELS.HIGH);
+																	onChange(date)
+																	setShowDatePicker(false)
+																}}
+														>
+															<Text
+																	style={[
+																		formStyles.dayText,
+																		isSelected && formStyles.selectedDayText,
+																		isToday && formStyles.todayDayText
+																	]}
+															>
+																{i}
+															</Text>
+														</Pressable>
+												)
+											}
+
+											return days
+										})()}
+									</View>
+								</Pressable>
+							</Pressable>
+						</Modal>
+				)}
+			</View>
+	)
 }

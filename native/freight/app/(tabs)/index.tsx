@@ -4,6 +4,7 @@ import {useAuth} from '@/context/AuthContext'
 import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState} from 'react'
@@ -11,7 +12,6 @@ import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleS
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 interface TruckRoutePage {
 	id: number;
@@ -48,7 +48,7 @@ export default function HomeScreen() {
 		const checkSession = async () => {
 			const sessionActive = await isSessionActive()
 			console.log(sessionActive)
-			if (!sessionActive ) {
+			if (!sessionActive) {
 				// Use the shared redirectToLogin function from axios.ts
 				// This will handle redirection properly for both web and mobile
 				redirectToLogin()
@@ -163,10 +163,12 @@ export default function HomeScreen() {
 			const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
 			setRoutes(response.data.map(route => ({...route, activeTab: 'basic' as const})))
 		} catch (error: any) {
-			console.error('Failed to fetch routes:', error)
-			// If error is related to network problems, show error message
-			if (!error.response) {
-				setErrorMessage('Neizdevās ielādēt datus - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
+			if (error.response?.status != 404) {
+				console.error('Failed to fetch routes:2', error)
+				// If error is related to network problems, show error message
+				if (!error.response) {
+					setErrorMessage('Neizdevās ielādēt datus - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
+				}
 			}
 		} finally {
 			setLoading(false)
@@ -198,14 +200,14 @@ export default function HomeScreen() {
 					loading={statusCheckLoading}
 			/>
 			{errorMessage && (<View style={styles.errorContainer}>
-						<Text style={styles.errorText}>{errorMessage}</Text>
-						<Button
-								title="Pārbaudīt"
-								onPress={checkLastRouteStatus}
-								style={styles.refreshButton}
-								loading={statusCheckLoading}
-						/>
-					</View>)}
+				<Text style={styles.errorText}>{errorMessage}</Text>
+				<Button
+						title="Pārbaudīt"
+						onPress={checkLastRouteStatus}
+						style={styles.refreshButton}
+						loading={statusCheckLoading}
+				/>
+			</View>)}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					refreshControl={<RefreshControl
 							refreshing={loading}
@@ -219,146 +221,131 @@ export default function HomeScreen() {
 					keyExtractor={(item) => item.id.toString()}
 					style={styles.list}
 					renderItem={({item}) => (<Pressable
-									style={({pressed}) => [styles.routeCard, pressed && styles.routeCardPressed]}
-									onPress={() => router.push({
-										pathname: '/(tabs)/truck-route-page', params: {id: item.id}
-									})}
-							>
-								<View style={styles.routeInfo}>
-									{/* Tab buttons */}
-									<View style={styles.tabContainer}>
-										<Pressable
-												style={[styles.tabButton, item.activeTab === 'basic' && styles.tabButtonActive]}
-												onPress={() => {
-													const newRoutes = routes.map(route => route.id === item.id ? {
-														...route,
-														activeTab: 'basic' as const
-													} : route)
-													setRoutes(newRoutes)
-												}}
-										>
-											{Platform.OS === 'web' ? (
-												<Text style={[styles.tabText, item.activeTab === 'basic' && styles.tabTextActive]}>Pamatinfo</Text>
-											) : (
-												<MaterialIcons 
-													name="info" 
-													size={24} 
-													color={item.activeTab === 'basic' ? COLORS.white : COLORS.gray} 
-												/>
-											)}
-										</Pressable>
-										<Pressable
-												style={[styles.tabButton, item.activeTab === 'odometer' && styles.tabButtonActive]}
-												onPress={() => {
-													const newRoutes = routes.map(route => route.id === item.id ? {
-														...route,
-														activeTab: 'odometer' as const
-													} : route)
-													setRoutes(newRoutes)
-												}}
-										>
-											{Platform.OS === 'web' ? (
-												<Text style={[styles.tabText, item.activeTab === 'odometer' && styles.tabTextActive]}>Odometrs</Text>
-											) : (
-												<MaterialIcons 
-													name="speed" 
-													size={24} 
-													color={item.activeTab === 'odometer' ? COLORS.white : COLORS.gray} 
-												/>
-											)}
-										</Pressable>
-										<Pressable
-												style={[styles.tabButton, item.activeTab === 'fuel' && styles.tabButtonActive]}
-												onPress={() => {
-													const newRoutes = routes.map(route => route.id === item.id ? {
-														...route,
-														activeTab: 'fuel' as const
-													} : route)
-													setRoutes(newRoutes)
-												}}
-										>
-											{Platform.OS === 'web' ? (
-												<Text style={[styles.tabText, item.activeTab === 'fuel' && styles.tabTextActive]}>Degviela</Text>
-											) : (
-												<MaterialIcons 
-													name="local-gas-station" 
-													size={24} 
-													color={item.activeTab === 'fuel' ? COLORS.white : COLORS.gray} 
-												/>
-											)}
-										</Pressable>
-									</View>
+							style={({pressed}) => [styles.routeCard, pressed && styles.routeCardPressed]}
+							onPress={() => router.push({
+								pathname: '/(tabs)/truck-route-page', params: {id: item.id}
+							})}
+					>
+						<View style={styles.routeInfo}>
+							{/* Tab buttons */}
+							<View style={styles.tabContainer}>
+								<Pressable
+										style={[styles.tabButton, item.activeTab === 'basic' && styles.tabButtonActive]}
+										onPress={() => {
+											const newRoutes = routes.map(route => route.id === item.id ? {
+												...route, activeTab: 'basic' as const
+											} : route)
+											setRoutes(newRoutes)
+										}}
+								>
+									{Platform.OS === 'web' ? (
+											<Text style={[styles.tabText, item.activeTab === 'basic' && styles.tabTextActive]}>Pamatinfo</Text>) : (
+											<MaterialIcons
+													name="info"
+													size={24}
+													color={item.activeTab === 'basic' ? COLORS.white : COLORS.gray}
+											/>)}
+								</Pressable>
+								<Pressable
+										style={[styles.tabButton, item.activeTab === 'odometer' && styles.tabButtonActive]}
+										onPress={() => {
+											const newRoutes = routes.map(route => route.id === item.id ? {
+												...route, activeTab: 'odometer' as const
+											} : route)
+											setRoutes(newRoutes)
+										}}
+								>
+									{Platform.OS === 'web' ? (
+											<Text style={[styles.tabText, item.activeTab === 'odometer' && styles.tabTextActive]}>Odometrs</Text>) : (
+											<MaterialIcons
+													name="speed"
+													size={24}
+													color={item.activeTab === 'odometer' ? COLORS.white : COLORS.gray}
+											/>)}
+								</Pressable>
+								<Pressable
+										style={[styles.tabButton, item.activeTab === 'fuel' && styles.tabButtonActive]}
+										onPress={() => {
+											const newRoutes = routes.map(route => route.id === item.id ? {
+												...route, activeTab: 'fuel' as const
+											} : route)
+											setRoutes(newRoutes)
+										}}
+								>
+									{Platform.OS === 'web' ? (
+											<Text style={[styles.tabText, item.activeTab === 'fuel' && styles.tabTextActive]}>Degviela</Text>) : (
+											<MaterialIcons
+													name="local-gas-station"
+													size={24}
+													color={item.activeTab === 'fuel' ? COLORS.white : COLORS.gray}
+											/>)}
+								</Pressable>
+							</View>
 
-									{/* Tab content */}
-									{item.activeTab === 'basic' && (
-										<View style={[styles.tabContentContainer, styles.basicTabContent]}>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Periods:</Text>
-												<Text style={styles.routeText}>
-													{new Date(item.dateFrom).toLocaleDateString('lv-LV', {
-														day: '2-digit', month: '2-digit', year: 'numeric'
-													})} - {new Date(item.dateTo).toLocaleDateString('lv-LV', {
+							{/* Tab content */}
+							{item.activeTab === 'basic' && (<View style={[styles.tabContentContainer, styles.basicTabContent]}>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Periods:</Text>
+											<Text style={styles.routeText}>
+												{new Date(item.dateFrom).toLocaleDateString('lv-LV', {
 													day: '2-digit', month: '2-digit', year: 'numeric'
-												})}
-												</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Auto:</Text>
-												<Text style={styles.routeText}>{item.truckRegistrationNumber}</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Vadītājs:</Text>
-												<Text style={styles.routeText}>
-													{[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
-												</Text>
-											</View>
+												})} - {new Date(item.dateTo).toLocaleDateString('lv-LV', {
+												day: '2-digit', month: '2-digit', year: 'numeric'
+											})}
+											</Text>
 										</View>
-									)}
-
-									{item.activeTab === 'odometer' && (
-										<View style={[styles.tabContentContainer, styles.odometerTabContent]}>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Startā:</Text>
-												<Text style={styles.routeText}>{item.odometerAtRouteStart?.toLocaleString() ?? '0'} km</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Distance:</Text>
-												<Text style={[styles.routeText, styles.highlightedText]}>{item.computedTotalRoutesLength?.toLocaleString() ?? '0'} km</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Finišā:</Text>
-												<Text style={[styles.routeText, styles.routeText]}>{item.odometerAtRouteFinish?.toLocaleString() ?? '0'} km</Text>
-											</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Auto:</Text>
+											<Text style={styles.routeText}>{item.truckRegistrationNumber}</Text>
 										</View>
-									)}
-
-									{item.activeTab === 'fuel' && (
-										<View style={[styles.tabContentContainer, styles.fuelTabContent]}>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Norma:</Text>
-												<Text style={styles.routeText}>{item.fuelConsumptionNorm} L/100 Km</Text>
-											</View>
-
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Sākumā:</Text>
-												<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Saņemta:</Text>
-												<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelReceivedOnRoutes ?? '0'} L</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Patērēta:</Text>
-												<Text style={[styles.routeText, styles.highlightedText]}>{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
-											</View>
-											<View style={styles.routeRow}>
-												<Text style={styles.routeLabelInline}>Beigās:</Text>
-												<Text style={styles.routeText}>{item.fuelBalanceAtRoutesFinish ?? '0'} L</Text>
-											</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Vadītājs:</Text>
+											<Text style={styles.routeText}>
+												{[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
+											</Text>
 										</View>
-									)}
-								</View>
-							</Pressable>)}
+									</View>)}
+
+							{item.activeTab === 'odometer' && (<View style={[styles.tabContentContainer, styles.odometerTabContent]}>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Startā:</Text>
+											<Text style={styles.routeText}>{item.odometerAtRouteStart?.toLocaleString() ?? '0'} km</Text>
+										</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Distance:</Text>
+											<Text style={[styles.routeText, styles.highlightedText]}>{item.computedTotalRoutesLength?.toLocaleString() ?? '0'} km</Text>
+										</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Finišā:</Text>
+											<Text style={[styles.routeText, styles.routeText]}>{item.odometerAtRouteFinish?.toLocaleString() ?? '0'} km</Text>
+										</View>
+									</View>)}
+
+							{item.activeTab === 'fuel' && (<View style={[styles.tabContentContainer, styles.fuelTabContent]}>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Norma:</Text>
+											<Text style={styles.routeText}>{item.fuelConsumptionNorm} L/100 Km</Text>
+										</View>
+
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Sākumā:</Text>
+											<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
+										</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Saņemta:</Text>
+											<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelReceivedOnRoutes ?? '0'} L</Text>
+										</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Patērēta:</Text>
+											<Text style={[styles.routeText, styles.highlightedText]}>{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
+										</View>
+										<View style={styles.routeRow}>
+											<Text style={styles.routeLabelInline}>Beigās:</Text>
+											<Text style={styles.routeText}>{item.fuelBalanceAtRoutesFinish ?? '0'} L</Text>
+										</View>
+									</View>)}
+						</View>
+					</Pressable>)}
 					ListEmptyComponent={() => (<View style={styles.emptyContainer}>
 						<Text style={styles.emptyText}>Nav pieejamu maršrutu lapu</Text>
 					</View>)}
@@ -412,28 +399,22 @@ type Styles = {
 const styles = StyleSheet.create<Styles>({
 	refreshButton: {
 		marginTop: 12, backgroundColor: COLORS.secondary, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 16,
-	}, 
-	errorContainer: {
+	}, errorContainer: {
 		backgroundColor: 'rgba(255, 0, 0, 0.1)',
 		borderRadius: 8,
 		padding: 12,
 		marginTop: 16,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 0, 0, 0.3)',
-	}, 
-	errorText: {
+	}, errorText: {
 		fontSize: 14, fontFamily: FONT.medium, color: '#FF6B6B', textAlign: 'center',
-	}, 
-	routeCardPressed: {
+	}, routeCardPressed: {
 		opacity: 0.7, transform: [{scale: 0.98}],
-	}, 
-	list: {
+	}, list: {
 		marginTop: 16,
-	}, 
-	loader: {
+	}, loader: {
 		marginTop: 24,
-	}, 
-	routeCard: Platform.OS === 'web' ? {
+	}, routeCard: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
@@ -448,33 +429,24 @@ const styles = StyleSheet.create<Styles>({
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
 		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	routeInfo: {
+	}, routeInfo: {
 		marginBottom: 8,
-	}, 
-	routeRow: {
+	}, routeRow: {
 		flexDirection: 'row', alignItems: 'center', marginBottom: 8,
-	}, 
-	routeLabel: {
+	}, routeLabel: {
 		fontSize: 14, fontFamily: FONT.medium, color: COLORS.gray, marginBottom: 4,
-	}, 
-	routeLabelInline: {
+	}, routeLabelInline: {
 		fontSize: 14, fontFamily: FONT.medium, color: COLORS.gray, marginRight: 8, flex: 0.33, // 1/3 of the width
-	}, 
-	routeText: {
+	}, routeText: {
 		fontSize: 16, fontFamily: FONT.semiBold, color: COLORS.white, flex: 0.67, // 2/3 of the width
 		textAlign: 'right',
-	}, 
-	emptyContainer: {
+	}, emptyContainer: {
 		alignItems: 'center', marginTop: 24,
-	}, 
-	emptyText: {
+	}, emptyText: {
 		fontSize: 16, fontFamily: FONT.regular, color: COLORS.gray,
-	}, 
-	container: {
+	}, container: {
 		flex: 1, backgroundColor: COLORS.primary,
-	}, 
-	content: Platform.OS === 'web' ? {
+	}, content: Platform.OS === 'web' ? {
 		flex: 1,
 		paddingHorizontal: 16,
 		marginVertical: 24,
@@ -483,20 +455,15 @@ const styles = StyleSheet.create<Styles>({
 		alignSelf: 'center' as const,
 	} : {
 		flex: 1, paddingHorizontal: 16, marginVertical: 24, width: CONTAINER_WIDTH.mobile, alignSelf: 'center' as const,
-	}, 
-	heading: {
+	}, heading: {
 		fontSize: 32, fontFamily: FONT.bold, color: COLORS.white, textAlign: 'center', marginBottom: 40,
-	}, 
-	title: {
+	}, title: {
 		fontSize: 24, fontFamily: FONT.semiBold, color: COLORS.white, marginBottom: 8,
-	}, 
-	subtitle: {
+	}, subtitle: {
 		fontSize: 16, fontFamily: FONT.regular, color: COLORS.gray, marginBottom: 24,
-	}, 
-	statsContainer: {
+	}, statsContainer: {
 		flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24,
-	}, 
-	statCard: Platform.OS === 'web' ? {
+	}, statCard: Platform.OS === 'web' ? {
 		flex: 1,
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
@@ -515,14 +482,11 @@ const styles = StyleSheet.create<Styles>({
 		borderWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
 		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	statNumber: {
+	}, statNumber: {
 		fontSize: 24, fontFamily: FONT.bold, color: COLORS.secondary, marginBottom: 4,
-	}, 
-	statLabel: {
+	}, statLabel: {
 		fontSize: 14, fontFamily: FONT.regular, color: COLORS.gray, textAlign: 'center',
-	}, 
-	infoContainer: Platform.OS === 'web' ? {
+	}, infoContainer: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.black100,
 		borderRadius: 8,
 		padding: 16,
@@ -531,25 +495,20 @@ const styles = StyleSheet.create<Styles>({
 	} : {
 		backgroundColor: COLORS.black100, borderRadius: 8, padding: 16, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
 		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	infoText: {
+	}, infoText: {
 		fontSize: 14, fontFamily: FONT.regular, color: COLORS.gray, lineHeight: 20,
-	}, 
-	startTripButton: Platform.OS === 'web' ? {
+	}, startTripButton: Platform.OS === 'web' ? {
 		marginTop: 24,
 	} : {
 		marginTop: 24, ...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	addRouteButton: Platform.OS === 'web' ? {
+	}, addRouteButton: Platform.OS === 'web' ? {
 		marginTop: 16, backgroundColor: COLORS.black100, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)', ...SHADOWS.small,
 	} : {
 		marginTop: 16, backgroundColor: COLORS.black100, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)', // Increased opacity for mobile
 		...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	sectionTitle: {
+	}, sectionTitle: {
 		fontSize: 20, fontFamily: FONT.semiBold, color: COLORS.white, marginTop: 32, marginBottom: 16,
-	}, 
-	// Updated tab container style to match TruckRoute component
+	}, // Updated tab container style to match TruckRoute component
 	tabContainer: Platform.OS === 'web' ? {
 		flexDirection: 'row',
 		marginBottom: 0, // Changed from 16 to 0
@@ -561,35 +520,25 @@ const styles = StyleSheet.create<Styles>({
 		borderColor: 'rgba(255, 255, 255, 0.08)',
 		borderBottomWidth: 0, // Added to remove bottom border
 	} : {
-		flexDirection: 'row',
-		marginBottom: 0, // Changed from 16 to 0
+		flexDirection: 'row', marginBottom: 0, // Changed from 16 to 0
 		borderTopLeftRadius: 8, // Changed from borderRadius to borderTopLeftRadius
 		borderTopRightRadius: 8, // Added borderTopRightRadius
-		overflow: 'hidden',
-		backgroundColor: COLORS.black200,
-		borderWidth: 1,
-		borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
+		overflow: 'hidden', backgroundColor: COLORS.black200, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)', // Increased opacity for mobile
 		borderBottomWidth: 0, // Added to remove bottom border
-	}, 
-	tabButton: {
+	}, tabButton: {
 		flex: 1, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center',
-	}, 
-	tabButtonActive: Platform.OS === 'web' ? {
+	}, tabButtonActive: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.secondary, ...SHADOWS.small,
 	} : {
 		backgroundColor: COLORS.secondary, ...SHADOWS.medium, // Using medium shadows for better visibility on mobile
-	}, 
-	tabText: {
+	}, tabText: {
 		fontSize: 14, fontFamily: FONT.medium, color: COLORS.gray,
-	}, 
-	tabTextActive: {
+	}, tabTextActive: {
 		color: COLORS.white, fontFamily: FONT.semiBold,
-	}, 
-	// Original tab content style (kept for backward compatibility)
+	}, // Original tab content style (kept for backward compatibility)
 	tabContent: {
 		paddingTop: 8,
-	}, 
-	// New tab content container style to match TruckRoute component
+	}, // New tab content container style to match TruckRoute component
 	tabContentContainer: Platform.OS === 'web' ? {
 		backgroundColor: COLORS.primary,
 		borderBottomLeftRadius: 8,
@@ -598,8 +547,7 @@ const styles = StyleSheet.create<Styles>({
 		marginBottom: 16,
 		borderWidth: 1,
 		borderTopWidth: 0,
-		borderColor: 'rgba(255, 255, 255, 0.05)',
-		...SHADOWS.small,
+		borderColor: 'rgba(255, 255, 255, 0.05)', ...SHADOWS.small,
 	} : {
 		backgroundColor: COLORS.primary,
 		borderBottomLeftRadius: 8,
@@ -608,23 +556,15 @@ const styles = StyleSheet.create<Styles>({
 		marginBottom: 16,
 		borderWidth: 1,
 		borderTopWidth: 0,
-		borderColor: 'rgba(255, 255, 255, 0.15)',
-		...SHADOWS.medium,
-	},
-	// Tab content styles for each tab type
+		borderColor: 'rgba(255, 255, 255, 0.15)', ...SHADOWS.medium,
+	}, // Tab content styles for each tab type
 	basicTabContent: {
-		borderLeftWidth: 3,
-		borderLeftColor: COLORS.secondary,
-	},
-	odometerTabContent: {
-		borderLeftWidth: 3,
-		borderLeftColor: COLORS.highlight,
-	},
-	fuelTabContent: {
-		borderLeftWidth: 3,
-		borderLeftColor: COLORS.gray,
-	},
-	highlightedText: {
+		borderLeftWidth: 3, borderLeftColor: COLORS.secondary,
+	}, odometerTabContent: {
+		borderLeftWidth: 3, borderLeftColor: COLORS.highlight,
+	}, fuelTabContent: {
+		borderLeftWidth: 3, borderLeftColor: COLORS.gray,
+	}, highlightedText: {
 		color: COLORS.highlight, fontFamily: FONT.semiBold,
 	},
 })

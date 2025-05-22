@@ -57,7 +57,7 @@ const RouteAdditionalTab: React.FC<RouteAdditionalTabProps> = ({
 
                     <View style={styles.inputWrapper}>
                         <FormInput
-                            label="Degviela startā"
+                            label="Degvielas atlikums sākumā"
                             value={form.fuelBalanceAtStart}
                             onChangeText={(text) => {
                                 // Allow only numbers
@@ -74,7 +74,7 @@ const RouteAdditionalTab: React.FC<RouteAdditionalTabProps> = ({
                 </View>
 
                 <ImprovedFormDropdownWithAddButton
-                    label="Starts"
+                    label="Starts no..."
                     value={selectedOutTruckObject || form.outTruckObject}
                     onSelect={(value: string) => {
                         setSelectedOutTruckObject(value);

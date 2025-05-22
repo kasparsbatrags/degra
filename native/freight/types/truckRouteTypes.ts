@@ -85,11 +85,12 @@ export interface FormState {
 
 // Tab navigācijas komponente
 export interface TabNavigationProps {
-	activeTab: number;
-	setActiveTab: (tab: number) => void;
+	activeTab: 'basic' | 'odometer' | 'fuel';
+	setActiveTab: (tab: 'basic' | 'odometer' | 'fuel') => void;
 }
 
-export interface RouteInfoTabProps {
+// Bāzes interfeiss visām tab komponentēm
+export interface RouteTabBaseProps {
     isItRouteFinish: boolean;
     form: FormState;
     setForm: React.Dispatch<React.SetStateAction<FormState>>;
@@ -107,19 +108,15 @@ export interface RouteInfoTabProps {
     params?: any;
 }
 
-export interface RouteAdditionalTabProps {
-    isItRouteFinish: boolean;
-    form: FormState;
-    setForm: React.Dispatch<React.SetStateAction<FormState>>;
-    hasCargo: boolean;
-    setHasCargo: React.Dispatch<React.SetStateAction<boolean>>;
-    selectedOutTruckObject: string;
-    selectedInTruckObject: string;
-    setSelectedOutTruckObject: React.Dispatch<React.SetStateAction<string>>;
-    setSelectedInTruckObject: React.Dispatch<React.SetStateAction<string>>;
-    outTruckObjectDetails: TruckObject | null;
-    refreshDropdowns: number;
-}
+export interface RouteBasicTabProps extends RouteTabBaseProps {}
+
+export interface RouteOdometerTabProps extends RouteTabBaseProps {}
+
+export interface RouteFuelTabProps extends RouteTabBaseProps {}
+
+export interface RouteInfoTabProps extends RouteTabBaseProps {}
+
+export interface RouteAdditionalTabProps extends RouteTabBaseProps {}
 
 export interface RouteTopSectionProps {
     form: FormState;

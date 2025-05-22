@@ -9,31 +9,46 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, setActiveTab }
 	return (
 		<View style={styles.tabContainer}>
 			<Pressable
-				style={[styles.tabButton, activeTab === 0 && styles.tabButtonActive]}
-				onPress={() => setActiveTab(0)}
+				style={[styles.tabButton, activeTab === 'basic' && styles.tabButtonActive]}
+				onPress={() => setActiveTab('basic')}
 			>
 				{Platform.OS === 'web' ? (
-					<Text style={[styles.tabText, activeTab === 0 && styles.tabTextActive]}>Info</Text>
+					<Text style={[styles.tabText, activeTab === 'basic' && styles.tabTextActive]}>Pamatinfo</Text>
 				) : (
 					<MaterialIcons 
 						name="info" 
 						size={24} 
-						color={activeTab === 0 ? COLORS.white : COLORS.gray} 
+						color={activeTab === 'basic' ? COLORS.white : COLORS.gray} 
 					/>
 				)}
 			</Pressable>
 			
 			<Pressable
-				style={[styles.tabButton, activeTab === 1 && styles.tabButtonActive]}
-				onPress={() => setActiveTab(1)}
+				style={[styles.tabButton, activeTab === 'odometer' && styles.tabButtonActive]}
+				onPress={() => setActiveTab('odometer')}
 			>
 				{Platform.OS === 'web' ? (
-					<Text style={[styles.tabText, activeTab === 1 && styles.tabTextActive]}>Papildus</Text>
+					<Text style={[styles.tabText, activeTab === 'odometer' && styles.tabTextActive]}>Odometrs</Text>
 				) : (
 					<MaterialIcons 
-						name="more-horiz" 
+						name="speed" 
 						size={24} 
-						color={activeTab === 1 ? COLORS.white : COLORS.gray} 
+						color={activeTab === 'odometer' ? COLORS.white : COLORS.gray} 
+					/>
+				)}
+			</Pressable>
+			
+			<Pressable
+				style={[styles.tabButton, activeTab === 'fuel' && styles.tabButtonActive]}
+				onPress={() => setActiveTab('fuel')}
+			>
+				{Platform.OS === 'web' ? (
+					<Text style={[styles.tabText, activeTab === 'fuel' && styles.tabTextActive]}>Degviela</Text>
+				) : (
+					<MaterialIcons 
+						name="local-gas-station" 
+						size={24} 
+						color={activeTab === 'fuel' ? COLORS.white : COLORS.gray} 
 					/>
 				)}
 			</Pressable>

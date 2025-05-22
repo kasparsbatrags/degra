@@ -146,4 +146,16 @@ export const styles = StyleSheet.create({
 		borderLeftWidth: 3,
 		borderLeftColor: COLORS.gray,
 	},
+	basicTabContent: {
+		borderLeftWidth: 3,
+		borderLeftColor: COLORS.secondary,
+	},
+	odometerTabContent: {
+		borderLeftWidth: 3,
+		borderLeftColor: COLORS.highlight,
+	},
+	fuelTabContent: {
+		borderLeftWidth: 3,
+		borderLeftColor: COLORS.gray,
+	},
 });

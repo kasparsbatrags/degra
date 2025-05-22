@@ -1,3 +1,5 @@
+import BackButton from '@/components/BackButton'
+import {commonStyles} from '@/constants/styles'
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, FlatList, Platform } from 'react-native';
 import { COLORS, CONTAINER_WIDTH, FONT, SHADOWS } from '@/constants/theme';
@@ -144,13 +146,15 @@ export default function AddTruckObjectScreen() {
 						placeholder="Ievadiet objekta nosaukumu"
 						error={error}
 				/>
-
 				<Button
 						title="Pievienot"
 						onPress={handleSubmit}
 						style={styles.submitButton}
 						disabled={isSubmitting || !objectName.trim()}
 						loading={isSubmitting}
+				/>
+				<BackButton
+						onPress={() => router.push('/truck-route')}
 				/>
 
 				{/* Modal window for displaying similar objects */}

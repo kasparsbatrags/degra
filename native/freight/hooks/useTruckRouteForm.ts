@@ -232,8 +232,10 @@ export function useTruckRouteForm(params: any) {
             try {
                 const response = await freightAxios.get<Page<TruckRouteDto>>('/truck-routes?pageSize=1');
                 return response.data.content[0] || null;
-            } catch (error) {
-                console.error('Failed to fetch last finished route:', error);
+            } catch (error: any) {
+				if (error.response?.status != 404) {
+					console.error('Failed to fetch last finished route:', error);
+				}
                 return null;
             }
         };
