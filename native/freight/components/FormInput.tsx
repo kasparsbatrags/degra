@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   container: {
-    marginBottom: 16,
+    marginBottom: 8,
     marginTop: 8,
   },
   label: {

@@ -33,7 +33,7 @@ export default function FormDatePicker({
         height: Platform.select({ web: 96, default: 96 }),
 		justifyContent: 'flex-start',
         marginBottom: Platform.select({ web: 4, default: 1 }),
-        marginTop: Platform.select({ web: 24, default: 24 })
+        marginTop: Platform.select({ web: 24, default: 0 })
       }
     ]}>
       <Text style={[

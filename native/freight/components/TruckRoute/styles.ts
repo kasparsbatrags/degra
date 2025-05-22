@@ -34,7 +34,8 @@ export const styles = StyleSheet.create({
 		...SHADOWS.medium,
 	},
 	buttonContainer: {
-		justifyContent: 'space-between', gap: 16, marginTop: 24,
+		justifyContent: 'space-between', gap: 16,
+		marginTop:  Platform.OS === 'web' ? 24 : 8,
 	},
 	backButton: Platform.OS === 'web' ? {
 		flex: 1,
