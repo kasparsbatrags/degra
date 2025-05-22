@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	truckField: {
+		marginTop: 16 ,
 		flex: 1,
 	},
 	explanatoryText: Platform.OS === 'web' ? {

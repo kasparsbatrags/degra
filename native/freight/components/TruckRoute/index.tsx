@@ -117,11 +117,10 @@ export default function TruckRouteScreen() {
     // Jauna handleSubmit funkcija, kas veic validāciju
     const handleSubmit = async () => {
         if (!validateForm()) {
-            Alert.alert("Kļūda", "Lūdzu, aizpildiet visus obligātos laukus.");
+            // Alert.alert("Kļūda", "Lūdzu, aizpildiet visus obligātos laukus.");
             return;
         }
         
-        // Turpināt ar oriģinālo saglabāšanas funkciju
         await originalHandleSubmit();
     };
     
