@@ -149,10 +149,10 @@ const getEnvConfig = () => {
   const config = Constants.expoConfig?.extra || {};
   
   // In web environment, check if window.APP_ENV is available
-  if (isWeb && typeof window !== 'undefined' && window.APP_ENV) {
+  if (isWeb && typeof window !== 'undefined' && (window as any).APP_ENV) {
     // If APP_ENV is not set in config object, but window.APP_ENV is available, use it
     if (!config.APP_ENV) {
-      return { ...config, APP_ENV: window.APP_ENV };
+      return { ...config, APP_ENV: (window as any).APP_ENV };
     }
   }
   

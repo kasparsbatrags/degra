@@ -10,6 +10,7 @@ import queryClient from '../config/queryClient'
 import {AuthProvider} from '../context/AuthContext'
 import {setupSyncListener} from '../services/syncService'
 import {setupTruckRouteSyncListener} from '../services/truckRouteSyncService'
+import {initializeOfflineService} from '../services/offlineService'
 import EnvironmentIndicator from '../components/EnvironmentIndicator'
 import OfflineIndicator from '../components/OfflineIndicator'
 
@@ -61,8 +62,11 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
-  // Uzstāda sinhronizācijas klausītājus, kad komponente tiek montēta
+  // Uzstāda sinhronizācijas klausītājus un offline servisu, kad komponente tiek montēta
   useEffect(() => {
+    // Inicializē offline servisu
+    initializeOfflineService();
+    
     // Uzstāda vispārīgo sinhronizācijas klausītāju
     const unsubscribeSync = setupSyncListener();
     

@@ -12,8 +12,18 @@ import {isWeb} from './platformUtils'
  * @returns Promise that resolves to a boolean indicating if the device is connected
  */
 export const isConnected = async (): Promise<boolean> => {
-  const state = await NetInfo.fetch();
-  return !!state.isConnected;
+  try {
+    // Timeout pārbaude, lai neblokētu ilgi
+    const timeoutPromise = new Promise<NetInfoState>((_, reject) => {
+      setTimeout(() => reject(new Error('Network check timeout')), 3000);
+    });
+    
+    const state = await Promise.race([NetInfo.fetch(), timeoutPromise]);
+    return !!state.isConnected;
+  } catch (error) {
+    console.warn('Network check failed, assuming offline:', error);
+    return false;
+  }
 };
 
 /**
@@ -21,27 +31,37 @@ export const isConnected = async (): Promise<boolean> => {
  * @returns Promise that resolves to a boolean indicating if the connection is strong
  */
 export const hasStrongConnection = async (): Promise<boolean> => {
-  const state = await NetInfo.fetch();
-  
-  // For web platform, always return true, as it's not possible to accurately determine connection strength
-  if (isWeb) {
-    return !!state.isConnected;
-  }
-  
-  // For mobile platforms, check connection type
-  if (state.type === 'wifi' || state.type === 'ethernet') {
-    return true;
-  }
-  
-  // For mobile data, check strength
-  if (state.type === 'cellular') {
-    // If it's 4G or better, consider it a strong connection
-    if (state.details?.cellularGeneration && ['4g', '5g'].includes(state.details.cellularGeneration)) {
+  try {
+    // Timeout pārbaude, lai neblokētu ilgi
+    const timeoutPromise = new Promise<NetInfoState>((_, reject) => {
+      setTimeout(() => reject(new Error('Network check timeout')), 3000);
+    });
+    
+    const state = await Promise.race([NetInfo.fetch(), timeoutPromise]);
+    
+    // For web platform, always return true, as it's not possible to accurately determine connection strength
+    if (isWeb) {
+      return !!state.isConnected;
+    }
+    
+    // For mobile platforms, check connection type
+    if (state.type === 'wifi' || state.type === 'ethernet') {
       return true;
     }
+    
+    // For mobile data, check strength
+    if (state.type === 'cellular') {
+      // If it's 4G or better, consider it a strong connection
+      if (state.details?.cellularGeneration && ['4g', '5g'].includes(state.details.cellularGeneration)) {
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (error) {
+    console.warn('Strong connection check failed, assuming weak connection:', error);
+    return false;
   }
-  
-  return false;
 };
 
 /**
@@ -167,11 +187,20 @@ export const throttleNetworkRequest = async <T>(
  * @returns Boolean indicating if the app is in offline mode
  */
 export const isOfflineMode = async (): Promise<boolean> => {
-  // Check if there is a connection
-  const connected = await isConnected();
-  if (!connected) return true;
-  
-  // Check if internet is available
-  const state = await NetInfo.fetch();
-  return state.isInternetReachable === false;
+  try {
+    // Check if there is a connection
+    const connected = await isConnected();
+    if (!connected) return true;
+    
+    // Check if internet is available with timeout
+    const timeoutPromise = new Promise<NetInfoState>((_, reject) => {
+      setTimeout(() => reject(new Error('Network check timeout')), 3000);
+    });
+    
+    const state = await Promise.race([NetInfo.fetch(), timeoutPromise]);
+    return state.isInternetReachable === false;
+  } catch (error) {
+    console.warn('Offline mode check failed, assuming offline:', error);
+    return true; // Ja nevar pārbaudīt, pieņem ka ir offline
+  }
 };

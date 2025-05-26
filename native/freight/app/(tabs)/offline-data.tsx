@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles } from '@/constants/styles';
 import { COLORS, CONTAINER_WIDTH, SHADOWS } from '@/constants/theme';
 import { getPendingTruckRoutes, syncTruckRoutes, PendingTruckRoute } from '@/services/truckRouteSyncService';
+import { getPendingMutations, syncPendingMutations, PendingMutation } from '@/services/syncService';
+import { 
+  isOfflineMode, 
+  setForceOfflineMode, 
+  getOfflineConfig, 
+  clearOfflineCache,
+  getCurrentAppInfo 
+} from '@/services/offlineService';
 import { useNetworkState } from '@/utils/networkUtils';
 import Button from '@/components/Button';
 import { format } from 'date-fns';
 import { router } from 'expo-router';
 import BackButton from '@/components/BackButton';
+import OfflineControls from '@/components/OfflineControls';
 
 export default function OfflineDataScreen() {
   const [pendingRoutes, setPendingRoutes] = useState<PendingTruckRoute[]>([]);
@@ -120,6 +129,9 @@ export default function OfflineDataScreen() {
             />
           </>
         )}
+        
+        {/* Offline kontroles */}
+        <OfflineControls />
         
         <View style={styles.buttonContainer}>
           <BackButton
