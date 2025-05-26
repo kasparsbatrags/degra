@@ -32,7 +32,6 @@ export default function FormDatePicker({
 				formStyles.inputContainer,
 				{
 					flex: 1,
-					height: Platform.select({ web: 96, default: 96 }),
 					justifyContent: 'flex-start',
 					marginBottom: Platform.select({ web: 4, default: 1 }),
 					marginTop: Platform.select({ web: 24, default: 0 })

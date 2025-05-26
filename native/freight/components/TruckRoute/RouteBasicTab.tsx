@@ -144,15 +144,15 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 objectName={inTruckObjectDetails?.name || params?.inTruckObjectName || ''}
             />
 
-            <View style={commonStyles.spaceBetween}>
-                <Text style={commonStyles.text}>Ar kravu</Text>
-                <Switch
-                    value={hasCargo}
-                    onValueChange={setHasCargo}
-                    trackColor={{false: COLORS.black100, true: COLORS.secondary}}
-                    thumbColor={COLORS.white}
-                />
-            </View>
+            {/*<View style={commonStyles.spaceBetween}>*/}
+            {/*    <Text style={commonStyles.text}>Ar kravu</Text>*/}
+            {/*    <Switch*/}
+            {/*        value={hasCargo}*/}
+            {/*        onValueChange={setHasCargo}*/}
+            {/*        trackColor={{false: COLORS.black100, true: COLORS.secondary}}*/}
+            {/*        thumbColor={COLORS.white}*/}
+            {/*    />*/}
+            {/*</View>*/}
         </View>
     );
 };

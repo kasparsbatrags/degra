@@ -25,14 +25,9 @@ export const styles = StyleSheet.create({
 		...SHADOWS.small,
 	} : {
 		...commonStyles.text,
-		backgroundColor: COLORS.black100,
-		padding: 16,
 		borderRadius: 8,
 		marginBottom: 16,
 		textAlign: 'center',
-		borderWidth: 1,
-		borderColor: 'rgba(255, 255, 255, 0.15)',
-		...SHADOWS.medium,
 	},
 	buttonContainer: {
 		justifyContent: 'space-between', gap: 16,
