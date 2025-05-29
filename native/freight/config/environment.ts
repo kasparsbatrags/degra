@@ -36,7 +36,6 @@ const getPlatformSpecificUrl = (url: string): string => {
 	if (Platform.OS === 'android' && url.includes('localhost')) {
 		return url.replace('localhost', '10.0.2.2')
 	}
-	console.log(url)
 	return url
 }
 
@@ -44,7 +43,7 @@ const getPlatformSpecificUrl = (url: string): string => {
  * Active environment configuration
  */
 export const ENV: Environment = {
-	apiBaseUrl: getPlatformSpecificUrl(Config.API_BASE_URL || 'http://localhost:8081'),
+	apiBaseUrl: getPlatformSpecificUrl(Config.API_BASE_URL || 'http://localhost:8080'),
 	apiPaths: {
 		userManager: Config.API_PATHS_USER_MANAGER || '/api/user',
 		company: Config.API_PATHS_COMPANY || '/api/companys',
