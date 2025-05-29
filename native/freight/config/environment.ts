@@ -36,6 +36,7 @@ const getPlatformSpecificUrl = (url: string): string => {
 	if (Platform.OS === 'android' && url.includes('localhost')) {
 		return url.replace('localhost', '10.0.2.2')
 	}
+	console.log(url)
 	return url
 }
 
@@ -43,7 +44,7 @@ const getPlatformSpecificUrl = (url: string): string => {
  * Active environment configuration
  */
 export const ENV: Environment = {
-	apiBaseUrl: getPlatformSpecificUrl(Config.API_BASE_URL || 'https://krava.degra.lv'),
+	apiBaseUrl: getPlatformSpecificUrl(Config.API_BASE_URL || 'http://localhost:8081'),
 	apiPaths: {
 		userManager: Config.API_PATHS_USER_MANAGER || '/api/user',
 		company: Config.API_PATHS_COMPANY || '/api/companys',
@@ -57,7 +58,7 @@ export const ENV: Environment = {
 /**
  * Gets current environment name
  */
-export const getCurrentEnvironmentName = (): EnvType => (Config.APP_ENV as EnvType) || 'production'
+export const getCurrentEnvironmentName = (): EnvType => (Config.APP_ENV as EnvType) || 'development'
 
 /**
  * Gets Company API URL

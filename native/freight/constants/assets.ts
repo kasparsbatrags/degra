@@ -8,7 +8,6 @@ export const icons = {
   menu: require('../assets/icons/menu.png'),
   play: require('../assets/icons/play.png'),
   plus: require('../assets/icons/plus.png'),
-  profile: require('../assets/icons/profile.png'),
   rightArrow: require('../assets/icons/right-arrow.png'),
   search: require('../assets/icons/search.png'),
   upload: require('../assets/icons/upload.png'),
@@ -18,8 +17,6 @@ export const images = {
   empty: require('../assets/images/empty.png'),
   logoSmall: require('../assets/images/logo-small.png'),
   logo: require('../assets/images/logo.png'),
-  profile: require('../assets/images/profile.png'),
-  thumbnail: require('../assets/images/thumbnail.png'),
 };
 
 export const fonts = {
