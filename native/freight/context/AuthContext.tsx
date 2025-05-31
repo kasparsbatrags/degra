@@ -1,5 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from 'react'
 import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/api'
+import { saveOfflineCredentials, verifyOfflineCredentials } from '../utils/offlineAuth'
+import NetInfo from '@react-native-community/netinfo';
 import type {UserInfo, UserRegistrationData} from '@/types/auth'
 import {clearSession, saveSession, isSessionActive} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
@@ -79,19 +81,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isAuthenticated]);
 
   const handleSignIn = async (email: string, password: string) => {
-    try {
-      const { accessToken, expiresIn, user } = await signIn(email, password);
-      await saveSession(accessToken, expiresIn, user);
-      if (mountedRef.current) {
-        setUser(user);
-        setIsAuthenticated(true);
-        
-        // Start session timeout check after login
-        startSessionTimeoutCheck();
+    // Pārbauda tīkla statusu
+    const netState = await NetInfo.fetch();
+    if (netState.isConnected) {
+      // Online login
+      try {
+        const { accessToken, expiresIn, user } = await signIn(email, password);
+        await saveSession(accessToken, expiresIn, user);
+        // Saglabā offline akreditācijas datus
+        await saveOfflineCredentials(email, password);
+        if (mountedRef.current) {
+          setUser(user);
+          setIsAuthenticated(true);
+          // Start session timeout check after login
+          startSessionTimeoutCheck();
+        }
+      } catch (error) {
+        console.error("Sign in error:", error);
+        throw error;
       }
-    } catch (error) {
-      console.error("Sign in error:", error);
-      throw error;
+    } else {
+      // Offline login
+      try {
+        const isValid = await verifyOfflineCredentials(email, password);
+        if (!isValid) {
+          throw new Error("Nepareizs e-pasts vai parole (offline režīms)");
+        }
+        // Izveido lokālu sesiju ar fiktīvu accessToken
+        const user = { id: email, name: email, email, firstName: "", lastName: "" };
+        await saveSession("offline-access-token", 3600, user);
+        if (mountedRef.current) {
+          setUser(user);
+          setIsAuthenticated(true);
+          startSessionTimeoutCheck();
+        }
+      } catch (error) {
+        console.error("Offline sign in error:", error);
+        throw error;
+      }
     }
   };
 
