@@ -109,6 +109,8 @@ export const CACHE_KEYS = {
   TRUCKS: 'cached_trucks',
   PROFILE: 'cached_profile',
   ROUTE_PAGES: 'cached_route_pages',
+  ROUTE_PAGE: 'cached_route_page',
+  TRUCK_ROUTES: 'cached_truck_routes',
   
   // Metadata atslēgas
   LAST_SYNC: 'last_sync_timestamp',
