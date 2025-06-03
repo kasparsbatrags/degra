@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native';
 import { COLORS } from '@/constants/theme';
-import AddTruckObjectScreen from '@/components/AddTruckObjectScreen';
+import AddTruckObjectScreenOfflineSimple from '@/components/AddTruckObjectScreenOfflineSimple';
 import { Stack } from 'expo-router';
 
 export default function AddTruckObjectPage() {
@@ -15,7 +15,7 @@ export default function AddTruckObjectPage() {
         },
         headerTintColor: COLORS.white,
       }} />
-      <AddTruckObjectScreen />
+      <AddTruckObjectScreenOfflineSimple />
     </SafeAreaView>
   );
 }

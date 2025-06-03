@@ -8,6 +8,7 @@ import {useEffect} from 'react'
 import {useColorScheme, View} from 'react-native'
 import queryClient from '../config/queryClient'
 import {AuthProvider} from '../context/AuthContext'
+import {OfflineProvider} from '../context/OfflineContext'
 import {setupSyncListener} from '../services/syncService'
 import {setupTruckRouteSyncListener} from '../services/truckRouteSyncService'
 import {initializeOfflineService} from '../services/offlineService'
@@ -87,16 +88,18 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <View style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            </Stack>
-            <EnvironmentIndicator />
-            <OfflineIndicator />
-          </View>
-        </AuthProvider>
+        <OfflineProvider>
+          <AuthProvider>
+            <View style={{ flex: 1 }}>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              </Stack>
+              <EnvironmentIndicator />
+              <OfflineIndicator />
+            </View>
+          </AuthProvider>
+        </OfflineProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

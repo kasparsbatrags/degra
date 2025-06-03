@@ -10,10 +10,10 @@ import { isRedirectingToLogin } from '@/config/axios';
 import BackButton from '../../components/BackButton';
 import Button from '../../components/Button';
 import TabNavigation from './TabNavigation';
-import RouteBasicTab from './RouteBasicTab';
+import RouteBasicTabOffline from './RouteBasicTabOffline';
 import RouteOdometerTab from './RouteOdometerTab';
 import RouteFuelTab from './RouteFuelTab';
-import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
+import { useTruckRouteFormMigrated } from '@/hooks/useTruckRouteFormMigrated';
 import { styles } from './styles';
 
 export default function TruckRouteScreen() {
@@ -49,7 +49,7 @@ export default function TruckRouteScreen() {
         setForm,
         isSubmitting,
         handleSubmit: originalHandleSubmit
-    } = useTruckRouteForm(params);
+    } = useTruckRouteFormMigrated(params);
     
     // Check session status when component is loaded
     useEffect(() => {
@@ -161,7 +161,7 @@ export default function TruckRouteScreen() {
                     <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
                     
                     {/* Tab saturs */}
-                    {activeTab === 'basic' && <RouteBasicTab {...tabProps} />}
+                    {activeTab === 'basic' && <RouteBasicTabOffline {...tabProps} />}
                     {activeTab === 'odometer' && <RouteOdometerTab {...tabProps} />}
                     {activeTab === 'fuel' && <RouteFuelTab {...tabProps} />}
                     

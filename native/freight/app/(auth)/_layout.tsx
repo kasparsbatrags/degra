@@ -4,15 +4,21 @@ import {useAuth} from '../../context/AuthContext'
 export default function AuthLayout() {
   const { isAuthenticated, loading } = useAuth();
 
+  console.log('🔐 AuthLayout render - isAuthenticated:', isAuthenticated, 'loading:', loading);
+
   // Ja lietotājs jau ir autentificēts, novirzām uz galveno ekrānu
   if (isAuthenticated) {
+    console.log('✅ User authenticated, redirecting to tabs...');
     return <Redirect href="/(tabs)" />;
   }
 
-  // Kamēr pārbaudam autentifikācijas statusu, neko nerādām
-  if (loading) {
-    return null;
-  }
+  // Neblokējam auth ekrānu loading laikā, lai saglabātu formas stāvokli
+  // if (loading) {
+  //   console.log('⏳ Auth loading, showing nothing...');
+  //   return null;
+  // }
+
+  console.log('📱 Showing auth screens...');
 
   return (
     <Stack

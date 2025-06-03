@@ -108,32 +108,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isAuthenticated]);
 
   const handleSignIn = async (email: string, password: string) => {
+    console.log('🔐 Starting sign in process for:', email);
+    
     // Pārbauda tīkla statusu
     const netState = await NetInfo.fetch();
+    console.log('🌐 Network state:', netState.isConnected ? 'ONLINE' : 'OFFLINE');
+    
     if (netState.isConnected) {
       // Online login
       try {
+        console.log('📡 Attempting online login...');
         const { accessToken, expiresIn, user } = await signIn(email, password);
+        console.log('✅ Online login successful, saving session...');
+        
         await saveSession(accessToken, expiresIn, user);
+        console.log('💾 Session saved successfully');
+        
         // Saglabā offline akreditācijas datus
         await saveOfflineCredentials(email, password);
+        console.log('🔑 Offline credentials saved');
+        
         if (mountedRef.current) {
+          console.log('🎯 Setting user state and authentication...');
           setUser(user);
           setIsAuthenticated(true);
           // Start session timeout check after login
           startSessionTimeoutCheck();
+          console.log('✨ Login process completed successfully');
+        } else {
+          console.warn('⚠️ Component unmounted during login');
         }
       } catch (error) {
-        console.error("Sign in error:", error);
+        console.error('❌ Online sign in error:', error);
         throw error;
       }
     } else {
       // Offline login
       try {
+        console.log('📴 Attempting offline login...');
         const isValid = await verifyOfflineCredentials(email, password);
         if (!isValid) {
           throw new Error("Nepareizs e-pasts vai parole (offline režīms)");
         }
+        
+        console.log('✅ Offline credentials verified');
         
         // Create user object for offline session
         const user = { id: email, name: email, email, firstName: "", lastName: "" };
@@ -141,15 +159,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Save persistent offline session (never expires)
         await savePersistentOfflineSession(user);
         
-        console.log("Created persistent offline session for:", email);
+        console.log('💾 Created persistent offline session for:', email);
         
         if (mountedRef.current) {
+          console.log('🎯 Setting offline user state and authentication...');
           setUser(user);
           setIsAuthenticated(true);
           startSessionTimeoutCheck();
+          console.log('✨ Offline login process completed successfully');
+        } else {
+          console.warn('⚠️ Component unmounted during offline login');
         }
       } catch (error) {
-        console.error("Offline sign in error:", error);
+        console.error('❌ Offline sign in error:', error);
         throw error;
       }
     }
@@ -207,6 +229,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Periodiski pārbaudīt sesijas statusu
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
     const checkSessionStatus = async () => {
       try {
         // Pārbaudīt, vai ierīce ir online režīmā
@@ -216,6 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (online && isAuthenticated) {
           const sessionActive = await isSessionActive();
           if (!sessionActive) {
+            console.log('Session expired, logging out user');
             // Ja sesija nav aktīva, bet lietotājs joprojām ir autentificēts kontekstā
             // Atjaunināt konteksta stāvokli
             resetAuthState();
@@ -226,13 +251,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     
-    // Pārbaudīt sesijas statusu periodiski
-    const interval = setInterval(checkSessionStatus, 30000); // Pārbaudīt ik pēc 30 sekundēm
+    // Sākt sesijas pārbaudi tikai ja lietotājs ir autentificēts
+    if (isAuthenticated && !loading) {
+      // Pārbaudīt sesijas statusu periodiski
+      interval = setInterval(checkSessionStatus, 30000); // Pārbaudīt ik pēc 30 sekundēm
+    }
     
     return () => {
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loading]); // Pievienots loading dependency
 
   return (
     <AuthContext.Provider

@@ -1,9 +1,11 @@
 import {isRedirectingToLogin, redirectToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
+import {useOfflineStatus} from '@/context/OfflineContext'
 import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
+import {getRoutePages} from '@/utils/offlineDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
@@ -231,93 +233,36 @@ export default function HomeScreen() {
 				return
 			}
 
-			// Check network connectivity
-			const connected = await isConnected()
+			// Use new offline-first data manager
+			console.log('Fetching routes using offline-first approach')
+			const routePages = await getRoutePages()
 			
-			// If in offline mode or no connection, try cache first
-			if (isOfflineMode || !connected) {
-				console.log('Offline mode or no connection - loading from cache')
-				const cachedRoutes = await loadRoutesFromCache()
-				
-				if (cachedRoutes && cachedRoutes.length > 0) {
-					setRoutes(cachedRoutes)
-					setDataSource('cache')
-					setErrorMessage(null)
-					console.log('Loaded routes from cache:', cachedRoutes.length)
-					
-					// If we have connection, try to update in background
-					if (connected && !isOfflineMode) {
-						try {
-							const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
-							const freshRoutes = response.data.map(route => ({...route, activeTab: 'basic' as const}))
-							setRoutes(freshRoutes)
-							setDataSource('online')
-							await saveRoutesToCache(response.data)
-							console.log('Updated routes from server in background')
-						} catch (bgError) {
-							console.log('Background update failed, keeping cached data')
-						}
-					}
-					return
-				} else {
-					// No cached data available - continue to try online if connected
-					if (!connected) {
-						// No connection and no cache - just show empty state
-						setRoutes([])
-						setDataSource('none')
-						return
-					}
-				}
-			}
+			// Transform data to match expected format
+			const transformedRoutes = routePages.map(route => ({
+				id: route.id || 0,
+				dateFrom: route.date_from,
+				dateTo: route.date_to,
+				truckRegistrationNumber: route.truck_registration_number,
+				fuelConsumptionNorm: route.fuel_consumption_norm,
+				fuelBalanceAtStart: route.fuel_balance_at_start,
+				totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? null,
+				totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? null,
+				fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? null,
+				odometerAtRouteStart: route.odometer_at_route_start ?? null,
+				odometerAtRouteFinish: route.odometer_at_route_finish ?? null,
+				computedTotalRoutesLength: route.computed_total_routes_length ?? null,
+				activeTab: 'basic' as const
+			}))
 			
-			// Try online fetch
-			if (connected) {
-				try {
-					const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
-					const freshRoutes = response.data.map(route => ({...route, activeTab: 'basic' as const}))
-					setRoutes(freshRoutes)
-					setDataSource('online')
-					setErrorMessage(null)
-					
-					// Cache the fresh data
-					await saveRoutesToCache(response.data)
-					console.log('Fetched and cached fresh routes:', response.data.length)
-				} catch (error: any) {
-					if (error.response?.status === 404) {
-						// 404 is expected when no routes exist
-						setRoutes([])
-						setDataSource('online')
-						setErrorMessage(null)
-					} else {
-						console.error('Failed to fetch routes from server:', error)
-						
-						// Try to fall back to cached data
-						const cachedRoutes = await loadRoutesFromCache()
-						if (cachedRoutes && cachedRoutes.length > 0) {
-							setRoutes(cachedRoutes)
-							setDataSource('cache')
-							console.log('Fell back to cached routes due to server error')
-						} else {
-							// No cache available - just show empty state
-							setRoutes([])
-							setDataSource('none')
-						}
-					}
-				}
-			}
+			setRoutes(transformedRoutes)
+			setDataSource('online') // Data manager handles online/offline internally
+			console.log('Loaded routes using offline-first manager:', transformedRoutes.length)
+			
 		} catch (error: any) {
 			console.error('Error in fetchRoutes:', error)
-			
-			// Try to fall back to cached data
-			const cachedRoutes = await loadRoutesFromCache()
-			if (cachedRoutes && cachedRoutes.length > 0) {
-				setRoutes(cachedRoutes)
-				setDataSource('cache')
-			} else {
-				// No cache available - just show empty state
-				setRoutes([])
-				setDataSource('none')
-			}
+			// Even if there's an error, the offline data manager should handle fallbacks
+			setRoutes([])
+			setDataSource('none')
 		} finally {
 			setLoading(false)
 		}

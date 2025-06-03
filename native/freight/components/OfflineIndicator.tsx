@@ -1,54 +1,52 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import { useNetworkState } from '../utils/networkUtils';
 import { COLORS } from '../constants/theme';
-import { hasPendingTruckRoutes } from '../services/truckRouteSyncService';
-import { useEffect, useState } from 'react';
+import { useOfflineStatus, useQueueStats } from '../context/OfflineContext';
 
 /**
  * Component that shows an indicator when the app is offline
  * or has pending data to sync
  */
 export default function OfflineIndicator() {
-  const { isConnected } = useNetworkState();
-  const [hasPendingData, setHasPendingData] = useState(false);
-  
-  // Check for pending data
-  useEffect(() => {
-    const checkPendingData = async () => {
-      const hasPending = await hasPendingTruckRoutes();
-      setHasPendingData(hasPending);
-    };
-    
-    checkPendingData();
-    
-    // Set up interval to check periodically
-    const interval = setInterval(checkPendingData, 10000); // Check every 10 seconds
-    
-    return () => clearInterval(interval);
-  }, []);
+  const { isOnline, hasOfflineData, syncNeeded, hasErrors } = useOfflineStatus();
+  const queueStats = useQueueStats();
   
   // If connected and no pending data, don't show anything
-  if (isConnected && !hasPendingData) return null;
+  if (isOnline && !hasOfflineData) return null;
+  
+  // Determine indicator message and color
+  let message = '';
+  let backgroundColor = COLORS.warning;
+  
+  if (!isOnline) {
+    message = 'Offline režīms - dati tiks sinhronizēti, kad būs pieejams internets';
+    backgroundColor = COLORS.warning;
+  } else if (hasErrors) {
+    message = `Sinhronizācijas kļūda - ${queueStats.failed} operācijas neizdevās`;
+    backgroundColor = '#FF6B6B'; // Red for errors
+  } else if (syncNeeded) {
+    message = `Notiek datu sinhronizācija... (${queueStats.pending} operācijas)`;
+    backgroundColor = '#4ECDC4'; // Teal for syncing
+  }
+  
+  if (!message) return null;
   
   return (
-    <View style={styles.container}>
-      {!isConnected ? (
-        <Text style={styles.text}>
-          Offline režīms - dati tiks sinhronizēti, kad būs pieejams internets
+    <View style={[styles.container, { backgroundColor }]}>
+      <Text style={styles.text}>
+        {message}
+      </Text>
+      {queueStats.total > 0 && (
+        <Text style={styles.statsText}>
+          Rindā: {queueStats.pending} | Kļūdas: {queueStats.failed} | Pabeigtas: {queueStats.completed}
         </Text>
-      ) : hasPendingData ? (
-        <Text style={styles.text}>
-          Notiek datu sinhronizācija...
-        </Text>
-      ) : null}
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: Platform.OS === 'web' ? {
-    backgroundColor: COLORS.warning,
     padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
@@ -58,7 +56,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1000,
   } : {
-    backgroundColor: COLORS.warning,
     padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
@@ -72,5 +69,13 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 12,
+  },
+  statsText: {
+    color: COLORS.white,
+    fontSize: 10,
+    textAlign: 'center',
+    marginTop: 2,
+    opacity: 0.9,
   },
 });

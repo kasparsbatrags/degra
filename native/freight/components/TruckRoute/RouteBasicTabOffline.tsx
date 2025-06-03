@@ -8,7 +8,7 @@ import FormDatePicker from '../../components/FormDatePicker';
 import ImprovedFormDropdownOffline from '../../components/ImprovedFormDropdownOffline';
 import ImprovedFormDropdownWithAddButtonOffline from '../../components/ImprovedFormDropdownWithAddButtonOffline';
 
-const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
+const RouteBasicTabOffline: React.FC<RouteBasicTabProps> = ({
     isItRouteFinish,
     form,
     setForm,
@@ -108,7 +108,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 />
             </View>
 
-            <ImprovedFormDropdownWithAddButton
+            <ImprovedFormDropdownWithAddButtonOffline
                 label="Starts no..."
                 value={selectedOutTruckObject || form.outTruckObject}
                 onSelect={(value: string) => {
@@ -126,7 +126,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 objectName={outTruckObjectDetails?.name}
             />
 
-            <ImprovedFormDropdownWithAddButton
+            <ImprovedFormDropdownWithAddButtonOffline
                 label="Finišs..."
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
@@ -157,4 +157,4 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
     );
 };
 
-export default RouteBasicTab;
+export default RouteBasicTabOffline;

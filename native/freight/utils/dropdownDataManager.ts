@@ -1,0 +1,177 @@
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isConnected } from './networkUtils';
+import freightAxiosInstance from '../config/freightAxios';
+import { getTrucks, getObjects } from './offlineDataManagerExtended';
+
+// Generic dropdown data manager for offline-first dropdown operations
+class DropdownDataManager {
+  
+  // Get dropdown data based on endpoint (offline-first)
+  async getDropdownData(endpoint: string): Promise<any[]> {
+    try {
+      // Check if we have a specific offline handler for this endpoint
+      const offlineData = await this.getOfflineDataForEndpoint(endpoint);
+      if (offlineData) {
+        console.log(`Using offline data for endpoint: ${endpoint}`);
+        return offlineData;
+      }
+
+      // Fallback to hybrid approach
+      if (Platform.OS === 'web') {
+        return await this.getDropdownDataWeb(endpoint);
+      } else {
+        return await this.getDropdownDataMobile(endpoint);
+      }
+    } catch (error) {
+      console.error(`Failed to get dropdown data for ${endpoint}:`, error);
+      return [];
+    }
+  }
+
+  // Check if we have specific offline handlers for known endpoints
+  private async getOfflineDataForEndpoint(endpoint: string): Promise<any[] | null> {
+    try {
+      // Handle trucks endpoint
+      if (endpoint.includes('/trucks')) {
+        const trucks = await getTrucks();
+        return trucks.map(truck => ({
+          id: truck.id || truck.server_id,
+          registrationNumber: truck.registration_number,
+          name: truck.registration_number,
+          model: truck.model
+        }));
+      }
+
+      // Handle objects endpoint
+      if (endpoint.includes('/objects')) {
+        const objects = await getObjects();
+        return objects.map(obj => ({
+          id: obj.id || obj.server_id,
+          name: obj.name,
+          type: obj.type
+        }));
+      }
+
+      // Handle cargo types (static data)
+      if (endpoint.includes('/cargo-types') || endpoint.includes('/cargoTypes')) {
+        return [
+          { id: '1', name: 'Konteiners' },
+          { id: '2', name: 'Paletes' },
+          { id: '3', name: 'Beramkrāva' },
+          { id: '4', name: 'Šķidrums' },
+          { id: '5', name: 'Cits' }
+        ];
+      }
+
+      // Handle unit types (static data)
+      if (endpoint.includes('/unit-types') || endpoint.includes('/unitTypes')) {
+        return [
+          { id: 'kg', name: 'Kilogrami (kg)' },
+          { id: 't', name: 'Tonnas (t)' },
+          { id: 'm3', name: 'Kubikmetri (m³)' },
+          { id: 'l', name: 'Litri (l)' },
+          { id: 'gab', name: 'Gabali (gab.)' }
+        ];
+      }
+
+      return null; // No specific offline handler
+    } catch (error) {
+      console.error('Error in offline data handler:', error);
+      return null;
+    }
+  }
+
+  private async getDropdownDataWeb(endpoint: string): Promise<any[]> {
+    const connected = await isConnected();
+    
+    if (connected) {
+      try {
+        const response = await freightAxiosInstance.get(endpoint);
+        // Cache the data
+        const cacheKey = `dropdown_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(response.data));
+        return response.data;
+      } catch (error) {
+        console.log('Online fetch failed, trying cache');
+      }
+    }
+    
+    // Fallback to cache
+    try {
+      const cacheKey = `dropdown_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const cached = await AsyncStorage.getItem(cacheKey);
+      return cached ? JSON.parse(cached) : [];
+    } catch (error) {
+      console.error('Failed to load cached dropdown data:', error);
+      return [];
+    }
+  }
+
+  private async getDropdownDataMobile(endpoint: string): Promise<any[]> {
+    // For mobile, try online first, then fallback to cache
+    const connected = await isConnected();
+    
+    if (connected) {
+      try {
+        const response = await freightAxiosInstance.get(endpoint);
+        // Cache the data
+        const cacheKey = `dropdown_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(response.data));
+        return response.data;
+      } catch (error) {
+        console.log('Online fetch failed, trying cache');
+      }
+    }
+    
+    // Fallback to cache
+    try {
+      const cacheKey = `dropdown_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const cached = await AsyncStorage.getItem(cacheKey);
+      return cached ? JSON.parse(cached) : [];
+    } catch (error) {
+      console.error('Failed to load cached dropdown data:', error);
+      return [];
+    }
+  }
+
+  // Clear dropdown cache
+  async clearDropdownCache(endpoint?: string): Promise<void> {
+    try {
+      if (endpoint) {
+        const cacheKey = `dropdown_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        await AsyncStorage.removeItem(cacheKey);
+      } else {
+        // Clear all dropdown caches
+        const keys = await AsyncStorage.getAllKeys();
+        const dropdownKeys = keys.filter(key => key.startsWith('dropdown_cache_'));
+        await AsyncStorage.multiRemove(dropdownKeys);
+      }
+      console.log('Dropdown cache cleared');
+    } catch (error) {
+      console.error('Failed to clear dropdown cache:', error);
+    }
+  }
+
+  // Refresh dropdown data
+  async refreshDropdownData(endpoint: string): Promise<any[]> {
+    try {
+      // Clear cache first
+      await this.clearDropdownCache(endpoint);
+      
+      // Fetch fresh data
+      return await this.getDropdownData(endpoint);
+    } catch (error) {
+      console.error('Failed to refresh dropdown data:', error);
+      return [];
+    }
+  }
+}
+
+// Export singleton instance
+export const dropdownDataManager = new DropdownDataManager();
+
+// Convenience functions
+export const getDropdownData = (endpoint: string) => dropdownDataManager.getDropdownData(endpoint);
+export const refreshDropdownData = (endpoint: string) => dropdownDataManager.refreshDropdownData(endpoint);
+export const clearDropdownCache = (endpoint?: string) => dropdownDataManager.clearDropdownCache(endpoint);
