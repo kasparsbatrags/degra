@@ -296,11 +296,10 @@ export default function HomeScreen() {
 						if (cachedRoutes && cachedRoutes.length > 0) {
 							setRoutes(cachedRoutes)
 							setDataSource('cache')
-							setErrorMessage('Serveris nav pieejams. Rādīti saglabātie dati.')
 							console.log('Fell back to cached routes due to server error')
 						} else {
-							// No cache available, show error
-							setErrorMessage('Neizdevās ielādēt datus - serveris neatbild un nav saglabātu datu.')
+							// No cache available - just show empty state
+							setRoutes([])
 							setDataSource('none')
 						}
 					}
@@ -314,9 +313,9 @@ export default function HomeScreen() {
 			if (cachedRoutes && cachedRoutes.length > 0) {
 				setRoutes(cachedRoutes)
 				setDataSource('cache')
-				setErrorMessage('Radās kļūda. Rādīti saglabātie dati.')
 			} else {
-				setErrorMessage('Radās kļūda un nav saglabātu datu.')
+				// No cache available - just show empty state
+				setRoutes([])
 				setDataSource('none')
 			}
 		} finally {
@@ -355,18 +354,9 @@ export default function HomeScreen() {
 					title={buttonText}
 					onPress={() => router.push('/truck-route')}
 					style={styles.startTripButton}
-					disabled={errorMessage !== null || statusCheckLoading}
+					disabled={statusCheckLoading}
 					loading={statusCheckLoading}
 			/>
-			{errorMessage && (<View style={styles.errorContainer}>
-				<Text style={styles.errorText}>{errorMessage}</Text>
-				<Button
-						title="Pārbaudīt"
-						onPress={checkLastRouteStatus}
-						style={styles.refreshButton}
-						loading={statusCheckLoading}
-				/>
-			</View>)}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					refreshControl={<RefreshControl
 							refreshing={loading}
