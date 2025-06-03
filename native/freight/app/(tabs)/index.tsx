@@ -3,7 +3,7 @@ import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
-import {isSessionActive} from '@/utils/sessionUtils'
+import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
@@ -40,8 +40,14 @@ export default function HomeScreen() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 
-	// Constant for local database key
+	// Constants for local database keys
 	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
+	const CACHED_ROUTES_KEY = 'cachedRoutes'
+	const CACHED_ROUTES_TIMESTAMP_KEY = 'cachedRoutesTimestamp'
+	
+	// State for offline mode awareness
+	const [isOfflineMode, setIsOfflineMode] = useState(false)
+	const [dataSource, setDataSource] = useState<'online' | 'cache' | 'none'>('none')
 
 	// Check session status when component is loaded
 	useEffect(() => {
