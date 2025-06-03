@@ -48,6 +48,63 @@ export default function HomeScreen() {
 	// State for offline mode awareness
 	const [isOfflineMode, setIsOfflineMode] = useState(false)
 	const [dataSource, setDataSource] = useState<'online' | 'cache' | 'none'>('none')
+	
+	// Cache management functions
+	const saveRoutesToCache = async (routesData: TruckRoutePage[]) => {
+		try {
+			await AsyncStorage.setItem(CACHED_ROUTES_KEY, JSON.stringify(routesData))
+			await AsyncStorage.setItem(CACHED_ROUTES_TIMESTAMP_KEY, Date.now().toString())
+			console.log('Routes cached successfully')
+		} catch (error) {
+			console.error('Error caching routes:', error)
+		}
+	}
+	
+	const loadRoutesFromCache = async (): Promise<TruckRoutePage[] | null> => {
+		try {
+			const cachedData = await AsyncStorage.getItem(CACHED_ROUTES_KEY)
+			if (cachedData) {
+				const routes = JSON.parse(cachedData) as TruckRoutePage[]
+				return routes.map(route => ({...route, activeTab: 'basic' as const}))
+			}
+			return null
+		} catch (error) {
+			console.error('Error loading cached routes:', error)
+			return null
+		}
+	}
+	
+	const getCacheAge = async (): Promise<number | null> => {
+		try {
+			const timestamp = await AsyncStorage.getItem(CACHED_ROUTES_TIMESTAMP_KEY)
+			if (timestamp) {
+				return Date.now() - parseInt(timestamp)
+			}
+			return null
+		} catch (error) {
+			console.error('Error getting cache age:', error)
+			return null
+		}
+	}
+	
+	// Check session type and set offline mode awareness
+	useEffect(() => {
+		const checkSessionType = async () => {
+			try {
+				const sessionData = await loadSessionEnhanced()
+				if (sessionData.sessionType === 'persistent-offline') {
+					setIsOfflineMode(true)
+					console.log('Detected persistent offline session - prioritizing offline mode')
+				} else {
+					setIsOfflineMode(false)
+				}
+			} catch (error) {
+				console.error('Error checking session type:', error)
+			}
+		}
+		
+		checkSessionType()
+	}, [])
 
 	// Check session status when component is loaded
 	useEffect(() => {
@@ -77,9 +134,6 @@ export default function HomeScreen() {
 	}, [])
 
 	const checkLastRouteStatus = useCallback(async () => {
-		// Set loading state
-		//setStatusCheckLoading(true)
-
 		// Clear previous error message
 		setErrorMessage(null)
 
@@ -102,6 +156,20 @@ export default function HomeScreen() {
 			// Check if device is connected to the internet
 			const connected = await isConnected()
 
+			// If in offline mode or no connection, use cached status
+			if (isOfflineMode || !connected) {
+				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
+				if (localStatus) {
+					setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+					console.log('Using cached route status:', localStatus)
+				} else {
+					// Default to STARTS if no cached status
+					setButtonText('STARTS')
+					console.log('No cached route status, defaulting to STARTS')
+				}
+				return
+			}
+
 			if (connected) {
 				// If there is a connection, try to get data from server
 				try {
@@ -110,45 +178,42 @@ export default function HomeScreen() {
 
 					// Save status in local database
 					await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
+					console.log('Route status updated from server: active')
 				} catch (error: any) {
 					if (error.response?.status === 404) {
 						setButtonText('STARTS')
 
 						// Save status in local database
 						await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
-					} else if (!error.response) {
-						// If there is no response from server, try to get status from local database
+						console.log('Route status updated from server: inactive')
+					} else {
+						console.error('Server error, falling back to cached status:', error)
+						// Fall back to cached status
 						const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-
 						if (localStatus) {
-							// If there is a locally saved status, use it
 							setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+							console.log('Using cached route status due to server error:', localStatus)
 						} else {
-							// If there is no locally saved status, show error message
-							setErrorMessage('Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
+							setButtonText('STARTS')
+							console.log('No cached status available, defaulting to STARTS')
 						}
 					}
-				}
-			} else {
-				// If there is no connection, try to get status from local database
-				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-
-				if (localStatus) {
-					// If there is a locally saved status, use it
-					setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
-				} else {
-					// If there is no locally saved status, show error message
-					setErrorMessage('Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
 				}
 			}
 		} catch (error: any) {
 			console.error('Error checking route status:', error)
-			setErrorMessage('Neizdevās pieslēgties - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
+			// Fall back to cached status
+			const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
+			if (localStatus) {
+				setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+			} else {
+				setButtonText('STARTS')
+			}
 		} finally {
 			// Reset loading state
 			setStatusCheckLoading(false)
 		}
-	}, [])
+	}, [isOfflineMode])
 
 	const fetchRoutes = async () => {
 		try {
@@ -166,15 +231,93 @@ export default function HomeScreen() {
 				return
 			}
 
-			const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
-			setRoutes(response.data.map(route => ({...route, activeTab: 'basic' as const})))
-		} catch (error: any) {
-			if (error.response?.status != 404) {
-				console.error('Failed to fetch routes:2', error)
-				// If error is related to network problems, show error message
-				if (!error.response) {
-					setErrorMessage('Neizdevās ielādēt datus - serveris neatbild. Lūdzu, mēģiniet vēlreiz mazliet vēlāk!')
+			// Check network connectivity
+			const connected = await isConnected()
+			
+			// If in offline mode or no connection, try cache first
+			if (isOfflineMode || !connected) {
+				console.log('Offline mode or no connection - loading from cache')
+				const cachedRoutes = await loadRoutesFromCache()
+				
+				if (cachedRoutes && cachedRoutes.length > 0) {
+					setRoutes(cachedRoutes)
+					setDataSource('cache')
+					setErrorMessage(null)
+					console.log('Loaded routes from cache:', cachedRoutes.length)
+					
+					// If we have connection, try to update in background
+					if (connected && !isOfflineMode) {
+						try {
+							const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
+							const freshRoutes = response.data.map(route => ({...route, activeTab: 'basic' as const}))
+							setRoutes(freshRoutes)
+							setDataSource('online')
+							await saveRoutesToCache(response.data)
+							console.log('Updated routes from server in background')
+						} catch (bgError) {
+							console.log('Background update failed, keeping cached data')
+						}
+					}
+					return
+				} else {
+					// No cached data available - continue to try online if connected
+					if (!connected) {
+						// No connection and no cache - just show empty state
+						setRoutes([])
+						setDataSource('none')
+						return
+					}
 				}
+			}
+			
+			// Try online fetch
+			if (connected) {
+				try {
+					const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
+					const freshRoutes = response.data.map(route => ({...route, activeTab: 'basic' as const}))
+					setRoutes(freshRoutes)
+					setDataSource('online')
+					setErrorMessage(null)
+					
+					// Cache the fresh data
+					await saveRoutesToCache(response.data)
+					console.log('Fetched and cached fresh routes:', response.data.length)
+				} catch (error: any) {
+					if (error.response?.status === 404) {
+						// 404 is expected when no routes exist
+						setRoutes([])
+						setDataSource('online')
+						setErrorMessage(null)
+					} else {
+						console.error('Failed to fetch routes from server:', error)
+						
+						// Try to fall back to cached data
+						const cachedRoutes = await loadRoutesFromCache()
+						if (cachedRoutes && cachedRoutes.length > 0) {
+							setRoutes(cachedRoutes)
+							setDataSource('cache')
+							setErrorMessage('Serveris nav pieejams. Rādīti saglabātie dati.')
+							console.log('Fell back to cached routes due to server error')
+						} else {
+							// No cache available, show error
+							setErrorMessage('Neizdevās ielādēt datus - serveris neatbild un nav saglabātu datu.')
+							setDataSource('none')
+						}
+					}
+				}
+			}
+		} catch (error: any) {
+			console.error('Error in fetchRoutes:', error)
+			
+			// Try to fall back to cached data
+			const cachedRoutes = await loadRoutesFromCache()
+			if (cachedRoutes && cachedRoutes.length > 0) {
+				setRoutes(cachedRoutes)
+				setDataSource('cache')
+				setErrorMessage('Radās kļūda. Rādīti saglabātie dati.')
+			} else {
+				setErrorMessage('Radās kļūda un nav saglabātu datu.')
+				setDataSource('none')
 			}
 		} finally {
 			setLoading(false)
@@ -198,6 +341,16 @@ export default function HomeScreen() {
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
+			{/* Offline mode indicator */}
+			{(isOfflineMode || dataSource === 'cache') && (
+				<View style={styles.offlineIndicator}>
+					<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
+					<Text style={styles.offlineText}>
+						{isOfflineMode ? 'Offline režīms' : 'Dati no cache'}
+					</Text>
+				</View>
+			)}
+			
 			<Button
 					title={buttonText}
 					onPress={() => router.push('/truck-route')}
@@ -400,6 +553,8 @@ type Styles = {
 	errorContainer: ViewStyle;
 	errorText: TextStyle;
 	refreshButton: ViewStyle;
+	offlineIndicator: ViewStyle;
+	offlineText: TextStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -572,5 +727,22 @@ const styles = StyleSheet.create<Styles>({
 		borderLeftWidth: 3, borderLeftColor: COLORS.gray,
 	}, highlightedText: {
 		color: COLORS.highlight, fontFamily: FONT.semiBold,
+	},
+	offlineIndicator: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: 'rgba(255, 193, 7, 0.1)',
+		borderRadius: 6,
+		paddingVertical: 6,
+		paddingHorizontal: 12,
+		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 193, 7, 0.3)',
+	},
+	offlineText: {
+		fontSize: 12,
+		fontFamily: FONT.medium,
+		color: COLORS.highlight,
+		marginLeft: 6,
 	},
 })
