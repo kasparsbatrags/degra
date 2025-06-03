@@ -3,7 +3,14 @@ import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/
 import { saveOfflineCredentials, verifyOfflineCredentials } from '../utils/offlineAuth'
 import NetInfo from '@react-native-community/netinfo';
 import type {UserInfo, UserRegistrationData} from '@/types/auth'
-import {clearSession, saveSession, isSessionActive} from '@/utils/sessionUtils'
+import {
+  clearSession, 
+  saveSession, 
+  isSessionActive,
+  savePersistentOfflineSession,
+  loadSessionEnhanced,
+  clearAllSessions
+} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {initUserActivityTracking} from '@/utils/userActivityTracker'
 import {isConnected} from '@/utils/networkUtils'
@@ -37,15 +44,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const currentUser = await getCurrentUser();
-        if (mountedRef.current) {
-          if (currentUser) {
-            setUser(currentUser);
+        // Try enhanced session loading first (handles both regular and persistent sessions)
+        const sessionData = await loadSessionEnhanced();
+        
+        if (sessionData.accessToken && sessionData.user) {
+          if (mountedRef.current) {
+            setUser(sessionData.user);
             setIsAuthenticated(true);
             
+            console.log(`Initialized with ${sessionData.sessionType} session for:`, sessionData.user.email);
+            
             // Start session timeout check when user is authenticated
+            // For persistent offline sessions, we still want activity tracking
             startSessionTimeoutCheck();
           }
+        } else {
+          // Fallback to API call if no local session
+          try {
+            const currentUser = await getCurrentUser();
+            if (mountedRef.current && currentUser) {
+              setUser(currentUser);
+              setIsAuthenticated(true);
+              startSessionTimeoutCheck();
+            }
+          } catch (apiError) {
+            console.log("No valid API session found:", apiError);
+          }
+        }
+        
+        if (mountedRef.current) {
           setLoading(false);
         }
       } catch (error) {
@@ -107,9 +134,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!isValid) {
           throw new Error("Nepareizs e-pasts vai parole (offline režīms)");
         }
-        // Izveido lokālu sesiju ar fiktīvu accessToken
+        
+        // Create user object for offline session
         const user = { id: email, name: email, email, firstName: "", lastName: "" };
-        await saveSession("offline-access-token", 3600, user);
+        
+        // Save persistent offline session (never expires)
+        await savePersistentOfflineSession(user);
+        
+        console.log("Created persistent offline session for:", email);
+        
         if (mountedRef.current) {
           setUser(user);
           setIsAuthenticated(true);
@@ -124,11 +157,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleSignOut = async () => {
     try {
-      await apiSignOut();
-      await clearSession();
+      // Try to sign out from API (might fail if offline)
+      try {
+        await apiSignOut();
+      } catch (apiError) {
+        console.warn("API sign out failed (possibly offline):", apiError);
+      }
+      
+      // Clear all sessions (both regular and persistent offline)
+      await clearAllSessions();
       
       // Stop session timeout check after logout
       stopSessionTimeoutCheck();
+      
+      console.log("All sessions cleared on logout");
       
       if (mountedRef.current) {
         setUser(null);
