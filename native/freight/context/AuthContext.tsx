@@ -227,43 +227,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Periodiski pārbaudīt sesijas statusu
+  // Centralizēta sesijas statusa pārbaude ar SessionManager
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    const checkSessionStatus = async () => {
-      try {
-        // Pārbaudīt, vai ierīce ir online režīmā
-        const online = await isConnected();
-        
-        // Pārbaudīt sesijas statusu tikai tad, ja ierīce ir online režīmā
-        if (online && isAuthenticated) {
-          const sessionActive = await isSessionActive();
-          if (!sessionActive) {
-            console.log('Session expired, logging out user');
-            // Ja sesija nav aktīva, bet lietotājs joprojām ir autentificēts kontekstā
-            // Atjaunināt konteksta stāvokli
-            resetAuthState();
-          }
-        }
-      } catch (error) {
-        console.error("Error checking session status:", error);
-      }
-    };
-    
-    // Sākt sesijas pārbaudi tikai ja lietotājs ir autentificēts
-    if (isAuthenticated && !loading) {
-      // Pārbaudīt sesijas statusu periodiski
-      interval = setInterval(checkSessionStatus, 30000); // Pārbaudīt ik pēc 30 sekundēm
-    }
-    
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isAuthenticated, loading]); // Pievienots loading dependency
+    const { SessionManager } = require('../utils/SessionManager');
+    const { SessionStatus } = require('@/types/session');
+    const sessionManager = SessionManager.getInstance();
 
+    const unsubscribe = sessionManager.subscribe((status: any) => {
+      if (status === SessionStatus.EXPIRED) {
+        resetAuthState();
+      }
+    });
+
+    return unsubscribe;
+  }, []);
   return (
     <AuthContext.Provider
       value={{

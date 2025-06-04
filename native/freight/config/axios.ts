@@ -52,9 +52,9 @@ const redirectToLogin = async () => {
             
             // Pārvirzīt uz pieteikšanās lapu
             if (Platform.OS === 'web') {
-              window.location.href = '/login';
+              window.location.href = '/(auth)/login';
             } else {
-              expoRouter.replace('/login');
+              expoRouter.replace('/(auth)/login');
             }
           });
           
@@ -78,10 +78,10 @@ const redirectToLogin = async () => {
     setTimeout(() => {
       // For web platform, use direct window.location for more reliable navigation
       if (Platform.OS === 'web') {
-        window.location.href = '/login';
+        window.location.href = '/(auth)/login';
       } else {
         // For mobile platforms, use expo-router
-        expoRouter.replace('/login');
+        expoRouter.replace('/(auth)/login');
       }
       
       // Reset flag after a short delay to avoid multiple redirects
@@ -173,10 +173,10 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           // Try to refresh token
           const { accessToken, user } = await loadSession();
           
-          // If there's no token, clear session, redirect to login page and return error
+          // If there's no token, centralizēta sesijas izbeigšana un pārvirzīšana
           if (!accessToken) {
-            await clearSession();
-            redirectToLogin();
+            const { SessionManager } = require('@/utils/SessionManager');
+            await SessionManager.getInstance().handleUnauthorized();
             return Promise.reject(error);
           }
           
@@ -207,19 +207,18 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          // If token refresh failed, clear session and redirect to login page
-          await clearSession();
-          redirectToLogin();
+          // If token refresh failed, centralizēta sesijas izbeigšana un pārvirzīšana
+          const { SessionManager } = require('@/utils/SessionManager');
+          await SessionManager.getInstance().handleUnauthorized();
         }
       }
       
-      // If we receive 401 and it's not a login request, redirect to login page
+      // If we receive 401 and it's not a login request, centralizēta sesijas izbeigšana un pārvirzīšana
       if (error.response?.status === 401 && 
           originalRequest?.url !== API_ENDPOINTS.AUTH.LOGIN &&
           !isRedirectingToLogin) { // Check if redirection is already in progress
-        // Clear session and redirect to login page
-        await clearSession();
-        redirectToLogin();
+        const { SessionManager } = require('@/utils/SessionManager');
+        await SessionManager.getInstance().handleUnauthorized();
       }
       
       // Handle network errors

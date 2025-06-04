@@ -4,6 +4,7 @@ import { initDatabase, checkDatabaseHealth } from '../utils/database';
 import { offlineQueue, startOfflineQueueProcessing, stopOfflineQueueProcessing, getOfflineQueueStats } from '../utils/offlineQueue';
 import { syncRoutePages } from '../utils/offlineDataManager';
 import { isConnected } from '../utils/networkUtils';
+import { isSQLiteSupported, withSQLiteSupport, logPlatformWarning } from '../utils/platformUtils';
 
 // Offline context types
 interface OfflineContextType {
@@ -81,11 +82,14 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
 
       // Perform initial sync if online
       if (connected) {
+        console.log('🌐 [DEBUG] Device is online, performing initial sync...');
         try {
           await syncData();
-        } catch (error) {
-          console.warn('Initial sync failed (non-blocking):', error.message || error);
+        } catch (error: any) {
+          console.warn('🌐 [WARN] Initial sync failed (non-blocking):', error?.message || error);
         }
+      } else {
+        console.log('🌐 [DEBUG] Device is offline, skipping initial sync');
       }
 
       setIsInitialized(true);
@@ -106,18 +110,21 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
         return;
       }
 
-      console.log('Starting data synchronization...');
+      console.log('🌐 [DEBUG] Starting data synchronization...');
       
       // Process offline queue first
+      console.log('🌐 [DEBUG] Processing offline queue...');
       await offlineQueue.processQueue();
       
       // Then sync all data from server
+      console.log('🌐 [DEBUG] Syncing route pages...');
       await syncRoutePages();
       
       // Update queue stats
+      console.log('🌐 [DEBUG] Updating queue stats...');
       await updateQueueStats();
       
-      console.log('Data synchronization completed');
+      console.log('🌐 [DEBUG] Data synchronization completed successfully');
     } catch (error) {
       console.error('Data synchronization failed:', error);
       throw error;

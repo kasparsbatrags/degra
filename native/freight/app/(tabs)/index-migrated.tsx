@@ -108,7 +108,8 @@ export default function HomeScreen() {
 			const sessionActive = await isSessionActive()
 			console.log(sessionActive)
 			if (!sessionActive) {
-				redirectToLogin()
+				const { SessionManager } = require('@/utils/SessionManager');
+				await SessionManager.getInstance().handleUnauthorized();
 				return
 			}
 		}

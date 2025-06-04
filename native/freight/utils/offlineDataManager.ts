@@ -4,6 +4,7 @@ import { executeQuery, executeSelect, executeSelectFirst, executeTransaction, Ro
 import { addOfflineOperation } from './offlineQueue';
 import { isConnected } from './networkUtils';
 import freightAxiosInstance from '../config/freightAxios';
+import { normalizeRoutePagesFromApi, validateRoutePageForDb, RawApiRoutePage } from './apiDataNormalizer';
 
 /**
  * LEGACY DATA MANAGER - DEPRECATED
@@ -40,14 +41,19 @@ class OfflineDataManager {
     if (connected) {
       try {
         const endpoint = truckRouteId ? `/route-pages?truckRouteId=${truckRouteId}` : '/route-pages';
-        const response = await freightAxiosInstance.get<RoutePage[]>(endpoint);
+        const response = await freightAxiosInstance.get<RawApiRoutePage[]>(endpoint);
         
-        // Cache the data
+        // Normalize the data using the centralised normalizer
+        console.log('🔄 [WEB] Normalizing server data for web...');
+        const normalizedData = normalizeRoutePagesFromApi(response.data);
+        console.log('🔄 [WEB] Normalized', normalizedData.length, 'pages for web');
+        
+        // Cache the normalized data
         const cacheKey = truckRouteId ? `cached_route_pages_${truckRouteId}` : 'cached_route_pages';
-        await AsyncStorage.setItem(cacheKey, JSON.stringify(response.data));
-        return response.data;
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(normalizedData));
+        return normalizedData;
       } catch (error) {
-        console.log('Online fetch failed, trying cache');
+        console.log('🔄 [WEB] Online fetch failed, trying cache');
       }
     }
     
@@ -76,7 +82,12 @@ class OfflineDataManager {
 
     sql += ` ORDER BY created_at DESC`;
 
-    return await executeSelect(sql, params);
+    console.log('🔍 [DEBUG] Executing SQL query for route pages:', sql, 'with params:', params);
+    const result = await executeSelect(sql, params);
+    console.log('🔍 [DEBUG] Route pages query result:', result.length, 'rows found');
+    console.log('🔍 [DEBUG] First few results:', result.slice(0, 3));
+    
+    return result;
   }
 
   // Create route page
@@ -159,24 +170,53 @@ class OfflineDataManager {
 
   // Sync route pages when online
   async syncRoutePages(): Promise<void> {
+    console.log('🔄 [DEBUG] syncRoutePages called');
+    
     const connected = await isConnected();
     if (!connected) {
-      console.log('Device is offline, cannot sync route pages');
+      console.log('🔄 [DEBUG] Device is offline, cannot sync route pages');
       return;
     }
 
-    if (Platform.OS === 'web') return; // Skip for web
+    if (Platform.OS === 'web') {
+      console.log('🔄 [DEBUG] Web platform detected, skipping SQLite sync');
+      return; // Skip for web
+    }
 
     try {
-      const response = await freightAxiosInstance.get<RoutePage[]>('/route-pages');
-      const serverPages = response.data;
+      console.log('🔄 [DEBUG] Fetching route pages from server...');
+      const response = await freightAxiosInstance.get<RawApiRoutePage[]>('/route-pages');
+      const rawServerPages = response.data;
+      console.log('🔄 [DEBUG] Server response:', rawServerPages.length, 'raw route pages received');
+      console.log('🔄 [DEBUG] First few raw server pages:', rawServerPages.slice(0, 3));
+
+      // Normalize the data using the centralised normalizer
+      console.log('🔄 [DEBUG] Normalizing server data...');
+      const normalizedPages = normalizeRoutePagesFromApi(rawServerPages);
+      console.log('🔄 [DEBUG] Normalized pages:', normalizedPages.length, 'valid pages after normalization');
+
+      if (normalizedPages.length === 0) {
+        console.warn('🔄 [WARN] No valid pages after normalization - skipping database update');
+        return;
+      }
 
       await executeTransaction(async (db) => {
+        console.log('🔄 [DEBUG] Starting database transaction...');
+        
         // Clear existing server data
+        console.log('🔄 [DEBUG] Clearing existing server data...');
         await db.runAsync('DELETE FROM route_pages WHERE server_id IS NOT NULL AND is_dirty = 0');
 
-        // Insert server data
-        for (const page of serverPages) {
+        // Insert normalized data
+        console.log('🔄 [DEBUG] Inserting', normalizedPages.length, 'normalized pages into database...');
+        for (const page of normalizedPages) {
+          // Additional validation before database insertion
+          if (!validateRoutePageForDb(page)) {
+            console.warn('🔄 [WARN] Skipping invalid page during database insertion:', page);
+            continue;
+          }
+
+          console.log('🔄 [DEBUG] Inserting page:', page.id, page.truck_registration_number);
           await db.runAsync(`
             INSERT OR REPLACE INTO route_pages 
             (server_id, truck_route_server_id, date_from, date_to, truck_registration_number, 
@@ -185,7 +225,7 @@ class OfflineDataManager {
              odometer_at_route_finish, computed_total_routes_length, is_dirty, is_deleted, synced_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
           `, [
-            page.id || null,
+            page.server_id || null,
             page.truck_route_server_id || null,
             page.date_from,
             page.date_to,
@@ -201,11 +241,14 @@ class OfflineDataManager {
             Date.now()
           ]);
         }
+        
+        console.log('🔄 [DEBUG] Database transaction completed successfully');
       });
 
-      console.log(`Synced ${serverPages.length} route pages from server`);
+      console.log(`🔄 [DEBUG] Successfully synced ${normalizedPages.length} route pages from server`);
     } catch (error) {
-      console.error('Failed to sync route pages:', error);
+      console.error('🔄 [ERROR] Failed to sync route pages:', error);
+      console.error('🔄 [ERROR] Error details:', error instanceof Error ? error.message : 'Unknown error');
       throw error;
     }
   }

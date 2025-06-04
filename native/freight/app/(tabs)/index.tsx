@@ -14,6 +14,7 @@ import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleS
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
+import { runRoutePagesDiagnostic } from '../../debug/routePagesDiagnostic'
 
 interface TruckRoutePage {
 	id: number;
@@ -116,7 +117,8 @@ export default function HomeScreen() {
 			if (!sessionActive) {
 				// Use the shared redirectToLogin function from axios.ts
 				// This will handle redirection properly for both web and mobile
-				redirectToLogin()
+				const { SessionManager } = require('@/utils/SessionManager');
+				await SessionManager.getInstance().handleUnauthorized();
 				return
 			}
 		}
@@ -150,7 +152,8 @@ export default function HomeScreen() {
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
 				// If session is not active, redirect to login page using the shared function
-				redirectToLogin()
+				const { SessionManager } = require('@/utils/SessionManager');
+				await SessionManager.getInstance().handleUnauthorized();
 				setStatusCheckLoading(false)
 				return
 			}
@@ -219,47 +222,78 @@ export default function HomeScreen() {
 
 	const fetchRoutes = async () => {
 		try {
+			console.log('📱 [DEBUG] fetchRoutes called on platform:', Platform.OS)
+			
 			// Check if session is active and if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
+				console.log('📱 [DEBUG] Redirecting to login, skipping fetch')
 				setLoading(false)
 				return
 			}
 
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
+				console.log('📱 [DEBUG] Session not active, redirecting to login')
 				// If session is not active, redirect to login page using the shared function
-				redirectToLogin()
+				const { SessionManager } = require('@/utils/SessionManager');
+				await SessionManager.getInstance().handleUnauthorized();
 				setLoading(false)
 				return
 			}
 
 			// Use new offline-first data manager
-			console.log('Fetching routes using offline-first approach')
+			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const routePages = await getRoutePages()
+			console.log('📱 [DEBUG] Raw route pages received:', routePages.length, 'items')
+			console.log('📱 [DEBUG] First few raw route pages:', routePages.slice(0, 3))
 			
 			// Transform data to match expected format
-			const transformedRoutes = routePages.map(route => ({
-				id: route.id || 0,
-				dateFrom: route.date_from,
-				dateTo: route.date_to,
-				truckRegistrationNumber: route.truck_registration_number,
-				fuelConsumptionNorm: route.fuel_consumption_norm,
-				fuelBalanceAtStart: route.fuel_balance_at_start,
-				totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? null,
-				totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? null,
-				fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? null,
-				odometerAtRouteStart: route.odometer_at_route_start ?? null,
-				odometerAtRouteFinish: route.odometer_at_route_finish ?? null,
-				computedTotalRoutesLength: route.computed_total_routes_length ?? null,
-				activeTab: 'basic' as const
-			}))
+			const transformedRoutes = routePages.map((route, index) => {
+				console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
+				
+				const transformed = {
+					id: route.id || 0,
+					dateFrom: route.date_from,
+					dateTo: route.date_to,
+					truckRegistrationNumber: route.truck_registration_number,
+					fuelConsumptionNorm: route.fuel_consumption_norm,
+					fuelBalanceAtStart: route.fuel_balance_at_start,
+					totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? null,
+					totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? null,
+					fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? null,
+					odometerAtRouteStart: route.odometer_at_route_start ?? null,
+					odometerAtRouteFinish: route.odometer_at_route_finish ?? null,
+					computedTotalRoutesLength: route.computed_total_routes_length ?? null,
+					activeTab: 'basic' as const
+				};
+				
+				console.log('📱 [DEBUG] Transformed route:', transformed);
+				
+				// Validate that required fields are present
+				if (!transformed.id || !transformed.dateFrom || !transformed.dateTo || !transformed.truckRegistrationNumber) {
+					console.warn('📱 [WARN] Route missing required fields:', transformed);
+				}
+				
+				return transformed;
+			}).filter(route => {
+				// Filter out routes with missing required data
+				const isValid = route.id && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
+				if (!isValid) {
+					console.warn('📱 [WARN] Filtering out invalid route:', route);
+				}
+				return isValid;
+			});
+			
+			console.log('📱 [DEBUG] Transformed routes:', transformedRoutes.length, 'items')
+			console.log('📱 [DEBUG] First few transformed routes:', transformedRoutes.slice(0, 3))
 			
 			setRoutes(transformedRoutes)
 			setDataSource('online') // Data manager handles online/offline internally
-			console.log('Loaded routes using offline-first manager:', transformedRoutes.length)
+			console.log('📱 [DEBUG] Routes set in state, total count:', transformedRoutes.length)
 			
 		} catch (error: any) {
-			console.error('Error in fetchRoutes:', error)
+			console.error('📱 [ERROR] Error in fetchRoutes:', error)
+			console.error('📱 [ERROR] Error stack:', error?.stack)
 			// Even if there's an error, the offline data manager should handle fallbacks
 			setRoutes([])
 			setDataSource('none')
@@ -302,6 +336,29 @@ export default function HomeScreen() {
 					disabled={statusCheckLoading}
 					loading={statusCheckLoading}
 			/>
+			
+			{/* Debug button - only show on Android for testing */}
+			{Platform.OS === 'android' && (
+				<>
+					<Button
+						title="🔧 Debug Route Pages"
+						onPress={async () => {
+							console.log('🔧 Running diagnostic...');
+							await runRoutePagesDiagnostic();
+						}}
+						style={[styles.startTripButton, { backgroundColor: COLORS.highlight, marginTop: 8 }]}
+					/>
+					<Button
+						title="🔄 Refresh Routes"
+						onPress={async () => {
+							console.log('🔄 Manual refresh triggered...');
+							setLoading(true);
+							await fetchRoutes();
+						}}
+						style={[styles.startTripButton, { backgroundColor: COLORS.secondary, marginTop: 8 }]}
+					/>
+				</>
+			)}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					refreshControl={<RefreshControl
 							refreshing={loading}

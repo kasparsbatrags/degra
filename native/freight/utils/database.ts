@@ -1,27 +1,50 @@
-import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
 // Database configuration
 const DATABASE_NAME = 'freight_offline.db';
 const DATABASE_VERSION = 1;
 
-// Database instance
-let db: SQLite.SQLiteDatabase | null = null;
+// Dynamic SQLite loading to avoid web errors
+let SQLite: any = null;
+let db: any = null;
+
+// Load SQLite only on mobile platforms
+const getSQLite = () => {
+  if (Platform.OS === 'web') {
+    return null;
+  }
+  
+  if (!SQLite) {
+    try {
+      SQLite = require('expo-sqlite');
+    } catch (error) {
+      console.error('Failed to load expo-sqlite:', error);
+      return null;
+    }
+  }
+  
+  return SQLite;
+};
 
 // Initialize database
-export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+export const initDatabase = async (): Promise<any> => {
   if (db) {
     return db;
   }
 
   try {
     if (Platform.OS === 'web') {
-      // For web, we'll use a different approach or fallback to AsyncStorage
-      console.warn('SQLite not fully supported on web, falling back to AsyncStorage');
-      throw new Error('SQLite not supported on web');
+      // For web, SQLite is not supported - return null to indicate web mode
+      console.warn('SQLite not supported on web platform - using AsyncStorage fallback');
+      return null;
     }
 
-    db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    const sqlite = getSQLite();
+    if (!sqlite) {
+      throw new Error('SQLite not available');
+    }
+
+    db = await sqlite.openDatabaseAsync(DATABASE_NAME);
     
     // Enable foreign keys
     await db.execAsync('PRAGMA foreign_keys = ON;');
@@ -47,7 +70,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 };
 
 // Create database tables
-const createTables = async (database: SQLite.SQLiteDatabase) => {
+const createTables = async (database: any) => {
   const createTablesSQL = `
     -- Offline operations queue
     CREATE TABLE IF NOT EXISTS offline_operations (
@@ -183,9 +206,17 @@ const createTables = async (database: SQLite.SQLiteDatabase) => {
 };
 
 // Get database instance
-export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+export const getDatabase = async (): Promise<any> => {
+  if (Platform.OS === 'web') {
+    throw new Error('SQLite not supported on web platform');
+  }
+  
   if (!db) {
-    return await initDatabase();
+    const database = await initDatabase();
+    if (!database) {
+      throw new Error('Failed to initialize database');
+    }
+    return database;
   }
   return db;
 };
@@ -200,7 +231,7 @@ export const closeDatabase = async () => {
 };
 
 // Database utility functions
-export const executeQuery = async (sql: string, params: any[] = []): Promise<SQLite.SQLiteRunResult> => {
+export const executeQuery = async (sql: string, params: any[] = []): Promise<any> => {
   const database = await getDatabase();
   return await database.runAsync(sql, params);
 };
@@ -218,7 +249,7 @@ export const executeSelectFirst = async (sql: string, params: any[] = []): Promi
 };
 
 // Transaction wrapper
-export const executeTransaction = async (callback: (db: SQLite.SQLiteDatabase) => Promise<void>) => {
+export const executeTransaction = async (callback: (db: any) => Promise<void>) => {
   const database = await getDatabase();
   await database.withTransactionAsync(async () => {
     await callback(database);

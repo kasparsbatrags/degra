@@ -56,7 +56,7 @@ export default function TruckRouteScreen() {
         const checkSession = async () => {
             const sessionActive = await isSessionActive();
             if (!sessionActive && !isRedirectingToLogin) {
-                router.replace('/login');
+                router.replace('/(auth)/login');
             }
         };
 

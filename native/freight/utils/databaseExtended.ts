@@ -1,8 +1,27 @@
-import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
+// Dynamic SQLite loading to avoid web errors
+let SQLite: any = null;
+
+const getSQLite = () => {
+  if (Platform.OS === 'web') {
+    return null;
+  }
+  
+  if (!SQLite) {
+    try {
+      SQLite = require('expo-sqlite');
+    } catch (error) {
+      console.error('Failed to load expo-sqlite:', error);
+      return null;
+    }
+  }
+  
+  return SQLite;
+};
+
 // Extended database schema with trucks, objects, and active routes
-export const createExtendedTables = async (database: SQLite.SQLiteDatabase) => {
+export const createExtendedTables = async (database: any) => {
   const extendedTablesSQL = `
     -- Trucks table
     CREATE TABLE IF NOT EXISTS trucks (
