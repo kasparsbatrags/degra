@@ -201,18 +201,37 @@ interface SessionData {
   user: any;
 }
 
-// Save session data
+import { TokenAnalyzer, TokenInfo } from "./TokenAnalyzer";
+
+// Save session data with dynamic expiry and refresh scheduling
 export const saveSession = async (accessToken: string, expiresIn: number, user: any) => {
   try {
     if (!accessToken) {
       throw new Error("AccessToken is empty or undefined.");
     }
 
-    const sessionData: SessionData = {
+    // Try to parse JWT for expiry info
+    let tokenInfo: TokenInfo | null = TokenAnalyzer.parseTokenExpiry(accessToken);
+    let actualExpiresIn = expiresIn || 3600;
+    let expiresAt = Date.now() + actualExpiresIn * 1000;
+    let refreshScheduledAt = null;
+
+    if (tokenInfo) {
+      actualExpiresIn = tokenInfo.remainingTime;
+      expiresAt = Date.now() + tokenInfo.remainingTime * 1000;
+      // Schedule refresh at 80% of token lifetime
+      refreshScheduledAt = Date.now() + TokenAnalyzer.calculateRefreshTime(tokenInfo, 80);
+    } else {
+      // Fallback: schedule refresh at 80% of expiresIn
+      refreshScheduledAt = Date.now() + Math.floor((actualExpiresIn * 1000) * 0.8);
+    }
+
+    const sessionData: SessionData & { refreshScheduledAt?: number } = {
       accessToken,
-      expiresIn: expiresIn || 3600, // Default to 1 hour if not provided
-      expiresAt: Date.now() + (expiresIn || 3600) * 1000,
-      user: user || null
+      expiresIn: actualExpiresIn,
+      expiresAt,
+      user: user || null,
+      refreshScheduledAt
     };
 
     const storage = getStorage();

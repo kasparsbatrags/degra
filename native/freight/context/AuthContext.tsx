@@ -57,6 +57,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Start session timeout check when user is authenticated
             // For persistent offline sessions, we still want activity tracking
             startSessionTimeoutCheck();
+            // Schedule token refresh after session restoration
+            const { SessionManager } = require('../utils/SessionManager');
+            SessionManager.getInstance().scheduleRefreshFromSession();
           }
         } else {
           // Fallback to API call if no local session
@@ -134,6 +137,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsAuthenticated(true);
           // Start session timeout check after login
           startSessionTimeoutCheck();
+          // Schedule token refresh after login
+          const { SessionManager } = require('../utils/SessionManager');
+          SessionManager.getInstance().scheduleRefreshFromSession();
           console.log('✨ Login process completed successfully');
         } else {
           console.warn('⚠️ Component unmounted during login');
