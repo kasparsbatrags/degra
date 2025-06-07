@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TruckRouteRepository extends JpaRepository<TruckRoute, Integer> {
+public interface TruckRouteRepository extends JpaRepository<TruckRoute, String> {
 	@Query("""
         SELECT tr FROM TruckRoute tr
         WHERE tr.truckRoutePage.user.id = :userId
@@ -24,9 +24,9 @@ public interface TruckRouteRepository extends JpaRepository<TruckRoute, Integer>
 	
 	@Query("""
         SELECT tr FROM TruckRoute tr
-        WHERE tr.truckRoutePage.id = :truckRoutePageId
+        WHERE tr.truckRoutePage.uid = :truckRoutePageUid
             ORDER BY tr.routeDate DESC
     """)
-	Page<TruckRoute> findByTruckRoutePageId(@Param("truckRoutePageId") Integer truckRoutePageId, Pageable pageable);
+	Page<TruckRoute> findByTruckRoutePageUid(@Param("truckRoutePageUid") String truckRoutePageUid, Pageable pageable);
 
 }

@@ -20,7 +20,7 @@ import lv.degra.accounting.core.user.dto.UserManagementDto;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TruckRoutePageDto implements Serializable {
-	private Integer id;
+	private String uid;
 	@NotNull
 	private LocalDate dateFrom;
 	private LocalDate dateTo;

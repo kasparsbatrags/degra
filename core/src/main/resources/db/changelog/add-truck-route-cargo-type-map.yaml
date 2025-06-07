@@ -8,27 +8,27 @@ databaseChangeLog:
             tableName: truck_route_cargo_type_map
             columns:
               - column:
-                  name: id
-                  type: INT
-                  autoIncrement: true
+                  name: uid
+                  type: varchar(36)
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta ID"
+                  defaultValueComputed: uuid_generate_v4()
+                  remarks: "Ieraksta UID (UUID)"
               - column:
-                  name: truck_route_id
-                  type: INT
+                  name: truck_route_uid
+                  type: varchar(36)
                   constraints:
                     nullable: false
                     foreignKeyName: fk_truck_route_cargo_type_map_truck_route
-                  remarks: "Maršruta ID"
+                  remarks: "Maršruta UID"
               - column:
                   name: cargo_type_id
                   type: INT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_truck_route_cargo_type_map_cargo_type
-                  remarks: "Automašīnas ID"
+                  remarks: "Kravas tipa ID"
               - column:
                   name: created_date_time
                   type: TIMESTAMP
@@ -47,9 +47,9 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseTableName: truck_route_cargo_type_map
-            baseColumnNames: truck_route_id
+            baseColumnNames: truck_route_uid
             referencedTableName: truck_route
-            referencedColumnNames: id
+            referencedColumnNames: uid
             constraintName: fk_truck_route_cargo_type_map_truck_route
 
   - changeSet:
@@ -69,6 +69,6 @@ databaseChangeLog:
       changes:
         - addUniqueConstraint:
             tableName: truck_route_cargo_type_map
-            columnNames: truck_route_id, cargo_type_id
+            columnNames: truck_route_uid, cargo_type_id
             constraintName: uq_truck_route_cargo_type_map
             remarks: "Maršruts ar vienādu tipu nevar būt piesaistīt vienam un tam pašam braucienam vairākas reizes"

@@ -157,16 +157,29 @@ const asyncStorage: Storage = {
   }
 };
 
+// Validate SecureStore key (must be non-empty, only a-zA-Z0-9._-)
+function validateSecureStoreKey(key: string) {
+  if (!key || typeof key !== 'string') {
+    throw new Error('SecureStore key must be a non-empty string');
+  }
+  if (!/^[a-zA-Z0-9._-]+$/.test(key)) {
+    throw new Error(
+      `Invalid SecureStore key "${key}". Keys must only contain a-z, A-Z, 0-9, ".", "-", "_"`
+    );
+  }
+}
+
 // Choose storage implementation depending on platform
-const getStorage = (): Storage => {
+export const getStorage = (): Storage => {
   if (Platform.OS === 'web') {
     return webStorage;
   }
-  
+
   // For mobile platforms, try to use SecureStore with fallback to AsyncStorage
   return {
     setItemAsync: async (key: string, value: string) => {
       try {
+        validateSecureStoreKey(key);
         await SecureStore.setItemAsync(key, value);
       } catch (error) {
         console.warn('SecureStore failed, falling back to AsyncStorage:', error);
@@ -175,6 +188,7 @@ const getStorage = (): Storage => {
     },
     getItemAsync: async (key: string) => {
       try {
+        validateSecureStoreKey(key);
         const value = await SecureStore.getItemAsync(key);
         return value;
       } catch (error) {
@@ -184,6 +198,7 @@ const getStorage = (): Storage => {
     },
     deleteItemAsync: async (key: string) => {
       try {
+        validateSecureStoreKey(key);
         await SecureStore.deleteItemAsync(key);
       } catch (error) {
         console.warn('SecureStore failed, falling back to AsyncStorage:', error);
@@ -353,6 +368,13 @@ async function getPasswordHash(password: string): Promise<string> {
   }
 }
 
+// Helper function to create a safe key for SecureStore
+function createSafeStorageKey(email: string): string {
+  // Replace invalid characters with underscores and ensure key is valid
+  const safeEmail = email.toLowerCase().replace(/[^a-zA-Z0-9._-]/g, '_');
+  return `offline_credentials_${safeEmail}`;
+}
+
 // Save user email and password hash securely for offline authentication
 export const saveOfflineCredentials = async (email: string, password: string) => {
   try {
@@ -360,7 +382,7 @@ export const saveOfflineCredentials = async (email: string, password: string) =>
       throw new Error("Email and password are required");
     }
 
-    const key = `offline_credentials_${email.toLowerCase()}`;
+    const key = createSafeStorageKey(email);
     const passwordHash = await getPasswordHash(password);
 
     const storage = getStorage();
@@ -381,7 +403,7 @@ export const verifyOfflineCredentials = async (email: string, password: string):
       return false;
     }
 
-    const key = `offline_credentials_${email.toLowerCase()}`;
+    const key = createSafeStorageKey(email);
     const storage = getStorage();
     const storedHash = await storage.getItemAsync(key);
 
@@ -404,7 +426,7 @@ export const clearOfflineCredentials = async (email: string) => {
       return;
     }
 
-    const key = `offline_credentials_${email.toLowerCase()}`;
+    const key = createSafeStorageKey(email);
     const storage = getStorage();
     await storage.deleteItemAsync(key);
   } catch (error) {
@@ -420,7 +442,7 @@ export const hasOfflineCredentials = async (email: string): Promise<boolean> => 
       return false;
     }
 
-    const key = `offline_credentials_${email.toLowerCase()}`;
+    const key = createSafeStorageKey(email);
     const storage = getStorage();
     const storedHash = await storage.getItemAsync(key);
     return !!storedHash;

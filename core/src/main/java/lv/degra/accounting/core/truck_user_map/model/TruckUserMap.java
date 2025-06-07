@@ -1,6 +1,7 @@
 package lv.degra.accounting.core.truck_user_map.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -13,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,9 +34,8 @@ import lv.degra.accounting.core.user.model.User;
 @Table(name = "truck_user_map")
 public class TruckUserMap extends AuditInfo implements Serializable {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+	@Column(name = "uid", nullable = false, length = 36)
+	private String uid;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -44,7 +45,7 @@ public class TruckUserMap extends AuditInfo implements Serializable {
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "truck_id", nullable = false)
+	@JoinColumn(name = "truck_uid", nullable = false)
 	private Truck truck;
 
 	@NotNull
@@ -56,4 +57,12 @@ public class TruckUserMap extends AuditInfo implements Serializable {
 		this.user = user;
 		this.isDefault = isDefault;
 	}
+
+	@PrePersist
+	public void generateUid() {
+		if (this.uid == null) {
+			this.uid = UUID.randomUUID().toString();
+		}
+	}
+
 }

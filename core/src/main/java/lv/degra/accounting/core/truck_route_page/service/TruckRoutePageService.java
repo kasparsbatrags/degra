@@ -17,11 +17,11 @@ public interface TruckRoutePageService {
 
 	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user, @NotNull TruckDto truckDto);
 
-	TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, Integer truckId);
+	TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, String truckUid);
 
-	TruckRoutePageDto findById(Integer id);
+	TruckRoutePageDto findById(String uid);
 
 	TruckRoutePageDto save(@NotNull TruckRoutePageDto truckRoutePageDto);
 
-	TruckRoutePageDto updateTruckRoutePage(Integer id, TruckRoutePageDto truckRoutePageDto);
+	TruckRoutePageDto updateTruckRoutePage(String uid, TruckRoutePageDto truckRoutePageDto);
 }

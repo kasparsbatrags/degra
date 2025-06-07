@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -20,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -43,9 +45,8 @@ import lv.degra.accounting.core.user.model.User;
 @Table(name = "truck_route_page")
 public class TruckRoutePage extends AuditInfo implements Serializable {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+	@Column(name = "uid", nullable = false, length = 36)
+	private String uid;
 
 	@NotNull
 	@Column(name = "date_from", nullable = false)
@@ -56,7 +57,7 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "truck_id", nullable = false)
+	@JoinColumn(name = "truck_uid", nullable = false)
 	private Truck truck;
 
 	@NotNull
@@ -114,6 +115,13 @@ public class TruckRoutePage extends AuditInfo implements Serializable {
 
 		this.totalFuelReceivedOnRoutes = routes.stream().mapToDouble(route -> Optional.ofNullable(route.getFuelReceived()).orElse(0.0))
 				.sum();
+	}
+
+	@PrePersist
+	public void generateUid() {
+		if (this.uid == null) {
+			this.uid = UUID.randomUUID().toString();
+		}
 	}
 
 }

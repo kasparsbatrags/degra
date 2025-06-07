@@ -92,7 +92,9 @@ public class AuthUserService {
 			if (truck != null) {
 				try {
 					truckService.save(truck);
-					truckUserMapRepository.save(new TruckUserMap(truck, user, true));
+					TruckUserMap truckUserMap = new TruckUserMap(truck, user, true);
+					truckUserMap.setUid(java.util.UUID.randomUUID().toString());
+					truckUserMapRepository.save(truckUserMap);
 				} catch (Exception e) {
 					log.error("Error saving truck data: {}", e.getMessage());
 					throw new KeycloakIntegrationException("Failed to complete user registration", "USER_REGISTRATION_ERROR");
@@ -150,6 +152,7 @@ public class AuthUserService {
 
 		try {
 			Truck truck = new Truck();
+			truck.setUid(java.util.UUID.randomUUID().toString());
 			truck.setTruckMaker(attributes.get("truckMaker"));
 			truck.setTruckModel(attributes.get("truckModel"));
 			truck.setRegistrationNumber(attributes.get("truckRegistrationNumber"));

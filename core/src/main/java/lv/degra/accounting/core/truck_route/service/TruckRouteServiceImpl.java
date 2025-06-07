@@ -60,28 +60,28 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	}
 	
 	@Override
-	public Page<TruckRouteDto> getTruckRoutesByTruckRoutePageId(Integer truckRoutePageId, int page, int size) {
+	public Page<TruckRouteDto> getTruckRoutesByTruckRoutePageId(String truckRoutePageUid, int page, int size) {
 		// Verify that the truck route page exists
-		truckRoutePageService.findById(truckRoutePageId);
+		truckRoutePageService.findById(truckRoutePageUid);
 		
 		Pageable pageable = PageRequest.of(page, size, Sort.by("routeDate").descending());
 		
-		return truckRouteRepository.findByTruckRoutePageId(truckRoutePageId, pageable).map(freightMapper::toDto);
+		return truckRouteRepository.findByTruckRoutePageUid(truckRoutePageUid, pageable).map(freightMapper::toDto);
 	}
 
-	protected void validateUserAccessToTruck(Integer truckId, User user) {
-		TruckAccessUtils.validateUserAccessToTruck(truckId, user, truckUserMapRepository);
+	protected void validateUserAccessToTruck(String truckUid, User user) {
+		TruckAccessUtils.validateUserAccessToTruck(truckUid, user, truckUserMapRepository);
 	}
 
 	public TruckRouteDto createOrUpdateTruckRoute(TruckRouteDto truckRouteDto) {
 		String userId = UserContextUtils.getCurrentUserId();
 		User user = userService.getUserByUserId(userId);
 
-		Integer truckId = truckRouteDto.getTruckRoutePage().getTruck().getId();
+		String truckUid = truckRouteDto.getTruckRoutePage().getTruck().getUid();
 
-		validateUserAccessToTruck(truckId, user);
+		validateUserAccessToTruck(truckUid, user);
 
-		TruckDto truckDto = truckService.findTruckDtoById(truckId);
+		TruckDto truckDto = truckService.findTruckDtoById(truckUid);
 
 		truckRouteDto.setTruckRoutePage(truckRoutePageService.getOrCreateUserRoutePageByRouteDate(truckRouteDto, user, truckDto));
 
@@ -142,9 +142,9 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 				.findFirst();
 	}
 
-	public TruckRouteDto findById(Integer id) {
-		return truckRouteRepository.findById(id).map(freightMapper::toDto)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with ID: " + id));
+	public TruckRouteDto findById(String uid) {
+		return truckRouteRepository.findById(uid).map(freightMapper::toDto)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with UID: " + uid));
 	}
 
 }

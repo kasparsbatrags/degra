@@ -22,7 +22,7 @@ public class TruckAccessUtils {
      * @param truckUserMapRepository repozitorijs kravas auto-lietotāju saistībām
      * @throws AccessDeniedException ja lietotājam nav piekļuves tiesību
      */
-    public static void validateUserAccessToTruck(Integer truckId, User user, TruckUserMapRepository truckUserMapRepository) {
+    public static void validateUserAccessToTruck(String truckId, User user, TruckUserMapRepository truckUserMapRepository) {
         if (UserContextUtils.hasGroup(USER_MANAGER_ROLE_NAME)) {
             return;
         }
@@ -32,7 +32,7 @@ public class TruckAccessUtils {
         }
         
         boolean hasTruckAssociation = truckUserMapRepository.findByUser(user).stream()
-                .anyMatch(mapping -> mapping.getTruck().getId().equals(truckId));
+                .anyMatch(mapping -> mapping.getTruck().getUid().equals(truckId));
         
         if (!hasTruckAssociation) {
             throw new AccessDeniedException("User does not have access to this truck");

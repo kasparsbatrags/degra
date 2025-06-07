@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -22,13 +23,17 @@ import lv.degra.accounting.core.auditor.model.AuditInfo;
 @Table(name = "truck_object")
 public class TruckObject extends AuditInfo implements Serializable {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+	@Column(name = "uid", nullable = false, length = 36)
+	private String uid;
 
 	@Size(max = 100)
 	@Column(name = "name", length = 100)
 	private String name;
 
-
+	@PrePersist
+	public void generateUid() {
+		if (this.uid == null) {
+			this.uid = java.util.UUID.randomUUID().toString();
+		}
+	}
 }

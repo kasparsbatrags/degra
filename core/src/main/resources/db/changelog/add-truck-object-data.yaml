@@ -12,8 +12,8 @@ databaseChangeLog:
             tableName: truck_object
             columns:
               - column:
-                  name: id
-                  value: '1'
+                  name: uid
+                  value: '550e8400-e29b-41d4-a716-446655440001'
               - column:
                   name: name
                   value: 'Object1'
@@ -31,8 +31,8 @@ databaseChangeLog:
             tableName: truck_object
             columns:
               - column:
-                  name: id
-                  value: '2'
+                  name: uid
+                  value: '550e8400-e29b-41d4-a716-446655440002'
               - column:
                   name: name
                   value: 'Object2'
@@ -50,16 +50,8 @@ databaseChangeLog:
             tableName: truck_object
             columns:
               - column:
-                  name: id
-                  value: '3'
+                  name: uid
+                  value: '550e8400-e29b-41d4-a716-446655440003'
               - column:
                   name: name
                   value: 'Object3'
-
-  - changeSet:
-      id: SetTruckObjectSequenceToMax
-      author: Kaspars Batrags
-      changes:
-        - sql:
-            sql: |
-              SELECT setval('truck_object_id_seq', (SELECT MAX(id) FROM truck_object));

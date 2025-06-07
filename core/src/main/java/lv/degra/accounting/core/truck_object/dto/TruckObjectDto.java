@@ -19,7 +19,7 @@ import lv.degra.accounting.core.truck_object.model.TruckObject;
 @AllArgsConstructor
 public class TruckObjectDto implements Serializable {
 	@NotNull
-	private Integer id;
+	private String uid;
 	@Size(max = 100)
 	private String name;
 }

@@ -42,7 +42,7 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		this.truckUserMapRepository = truckUserMapRepository;
 	}
 
-	protected void validateUserAccessToTruck(Integer truckId, User user) {
+	protected void validateUserAccessToTruck(String truckId, User user) {
 		TruckAccessUtils.validateUserAccessToTruck(truckId, user, truckUserMapRepository);
 	}
 
@@ -62,7 +62,7 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 	public TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(TruckRouteDto truckRouteDto, User user, TruckDto truckDto) {
-		Integer truckId = truckDto.getId();
+		String truckId = truckDto.getUid();
 
 		validateUserAccessToTruck(truckId, user);
 
@@ -70,11 +70,11 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 				.map(this::convertAndCalculateSummary).orElseGet(() -> createNewTruckRoutePage(truckRouteDto, user));
 	}
 
-	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, Integer truckId) {
+	public TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, String truckId) {
 		User user = userService.getUserByUserId(userId);
 
 		List<TruckDto> allUserTrucks = truckService.getAllTrucksByUserFirstDefault(userId);
-		if (allUserTrucks.stream().noneMatch(truckDto -> truckDto.getId().equals(truckId))) {
+		if (allUserTrucks.stream().noneMatch(truckDto -> truckDto.getUid().equals(truckId))) {
 			throw new ResourceNotFoundException("Truck with ID: " + truckId + " is not allowed for user with ID " + userId);
 		}
 
@@ -110,9 +110,9 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 
-	public TruckRoutePageDto findById(Integer id) {
-		return truckRoutePageRepository.findById(id).map(freightMapper::toDto)
-				.orElseThrow(() -> new ResourceNotFoundException("No truck route pages found with ID: " + id));
+	public TruckRoutePageDto findById(String uid) {
+		return truckRoutePageRepository.findById(uid).map(freightMapper::toDto)
+				.orElseThrow(() -> new ResourceNotFoundException("No truck route pages found with ID: " + uid));
 	}
 
 	public TruckRoutePageDto save(TruckRoutePageDto truckRoutePageDto) {
@@ -122,9 +122,9 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 	}
 
 	@Transactional
-	public TruckRoutePageDto updateTruckRoutePage(Integer id, TruckRoutePageDto truckRoutePageDto) {
-		TruckRoutePage existingPage = truckRoutePageRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found with ID: " + id));
+	public TruckRoutePageDto updateTruckRoutePage(String uid, TruckRoutePageDto truckRoutePageDto) {
+		TruckRoutePage existingPage = truckRoutePageRepository.findById(uid)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found with ID: " + uid));
 
 		existingPage.setDateFrom(truckRoutePageDto.getDateFrom());
 		existingPage.setDateTo(truckRoutePageDto.getDateTo());

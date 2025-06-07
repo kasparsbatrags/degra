@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import lv.degra.accounting.core.user.model.User;
 
-public interface TruckUserMapRepository extends JpaRepository<TruckUserMap, Integer> {
+public interface TruckUserMapRepository extends JpaRepository<TruckUserMap, String> {
 	List<TruckUserMap> findByUser(User user);
 }

@@ -10,10 +10,12 @@ import org.hibernate.envers.Audited;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,9 +34,8 @@ import lv.degra.accounting.core.truck_user_map.model.TruckUserMap;
 public class Truck extends AuditInfo implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+	@Column(name = "uid", nullable = false, length = 36)
+	private String uid;
 
 	@Column(name = "truck_maker", nullable = false, length = 20)
 	private String truckMaker;
@@ -48,7 +49,7 @@ public class Truck extends AuditInfo implements Serializable {
 	@Column(name = "fuel_consumption_norm", nullable = false)
 	private Double fuelConsumptionNorm;
 
-	@OneToMany(mappedBy = "truck", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "truck", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<TruckUserMap> userMappings = new ArrayList<>();
 
 	public void addUserMapping(TruckUserMap mapping) {
@@ -61,12 +62,19 @@ public class Truck extends AuditInfo implements Serializable {
 		mapping.setTruck(null);
 	}
 
+	@PrePersist
+	public void generateUid() {
+		if (this.uid == null) {
+			this.uid = java.util.UUID.randomUUID().toString();
+		}
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Truck truck = (Truck) o;
-		return Objects.equals(id, truck.id) &&
+		return Objects.equals(uid, truck.uid) &&
 				Objects.equals(truckMaker, truck.truckMaker) &&
 				Objects.equals(truckModel, truck.truckModel) &&
 				Objects.equals(registrationNumber, truck.registrationNumber) &&
@@ -75,6 +83,6 @@ public class Truck extends AuditInfo implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, truckMaker, truckModel, registrationNumber, fuelConsumptionNorm);
+		return Objects.hash(uid, truckMaker, truckModel, registrationNumber, fuelConsumptionNorm);
 	}
 }

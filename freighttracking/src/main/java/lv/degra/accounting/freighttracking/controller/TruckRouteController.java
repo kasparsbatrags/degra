@@ -82,7 +82,7 @@ public class TruckRouteController {
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTES + ENDPOINT_TRUCK_ROUTE_BY_PAGE + "/{truckRoutePageId}")
 	public ResponseEntity<Page<TruckRouteDto>> getTruckRoutesByTruckRoutePage(
-			@org.springframework.web.bind.annotation.PathVariable Integer truckRoutePageId,
+			@org.springframework.web.bind.annotation.PathVariable String truckRoutePageId,
 			@RequestParam(name = "page", defaultValue = "0") int pageNumber,
 			@RequestParam(name = "size", defaultValue = "5") int pageSize) {
 
@@ -119,7 +119,7 @@ public class TruckRouteController {
 	@PutMapping(ENDPOINT_TRUCK_ROUTES)
 	public ResponseEntity<TruckRouteDto> updateTruckRoute(@Valid @RequestBody TruckRouteDto truckRouteDto) {
 
-		if (truckRouteDto.getId() == null) {
+		if (truckRouteDto.getUid() == null) {
 			throw new BadRequestException("TruckRoute ID must be provided in the request body.");
 		}
 

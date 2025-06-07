@@ -122,7 +122,7 @@ class AuthUserServiceTest {
 		when(userServiceMock.saveUser(anyString())).thenReturn(savedUser);
 
 		Truck savedTruck = new Truck();
-		savedTruck.setId(1);
+		savedTruck.setUid(String.valueOf(1));
 		when(truckServiceMock.save(any(Truck.class))).thenReturn(savedTruck);
 
 		// Act & Assert

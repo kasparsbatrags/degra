@@ -1,4 +1,4 @@
-import { isSessionActive, clearSession, loadSession, saveSession } from './sessionUtils';
+import { isSessionActive, clearSession, loadSession, saveSession, getStorage } from './sessionUtils';
 import { redirectToLogin } from '@/config/axios';
 import { SessionStatus } from '@/types/session';
 import { Platform } from 'react-native';
@@ -119,8 +119,8 @@ export class SessionManager {
     if (!session || !session.accessToken) return;
 
     try {
-      const storage = require('./sessionUtils');
-      const sessionDataRaw = await storage.getStorage().getItemAsync("user_session");
+      const storage = getStorage();
+      const sessionDataRaw = await storage.getItemAsync("user_session");
       if (!sessionDataRaw) return;
       const sessionData = JSON.parse(sessionDataRaw);
       const refreshScheduledAt = sessionData.refreshScheduledAt;

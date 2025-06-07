@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from 'react'
 import {createUser, getCurrentUser, signIn, signOut as apiSignOut} from '../lib/api'
 import { saveOfflineCredentials, verifyOfflineCredentials } from '../utils/offlineAuth'
 import NetInfo from '@react-native-community/netinfo';
+import { purgeAllOfflineData } from '../utils/offlinePurge';
 import type {UserInfo, UserRegistrationData} from '@/types/auth'
 import {
   clearSession, 
@@ -130,6 +131,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Saglabā offline akreditācijas datus
         await saveOfflineCredentials(email, password);
         console.log('🔑 Offline credentials saved');
+
+        // Purge all offline data after successful login (to avoid syncing stale records)
+        await purgeAllOfflineData();
+        console.log('🧹 Purged all offline data after login');
         
         if (mountedRef.current) {
           console.log('🎯 Setting user state and authentication...');
@@ -213,6 +218,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleRegister = async (data: UserRegistrationData) => {
     try {
       await createUser(data);
+      // Purge all offline data after registration (to avoid syncing stale records)
+      await purgeAllOfflineData();
+      console.log('🧹 Purged all offline data after registration');
       // Automatically login after registration
       if (mountedRef.current) {
         await handleSignIn(data.email, data.password);

@@ -37,11 +37,18 @@ class DropdownDataManager {
         const trucks = await getTrucks();
         console.log('Raw trucks data:', trucks);
         return trucks.map(truck => ({
-          id: String(truck.id || truck.server_id || ''),
-          registration_number: truck.registration_number,
-          registrationNumber: truck.registration_number,
-          name: truck.registration_number || `Auto ${truck.id || truck.server_id || 'N/A'}`,
-          model: truck.model
+          // Use backend format for web, SQLite format for mobile
+          id: String(truck.uid || truck.id || truck.server_id || ''),
+          uid: truck.uid,
+          registrationNumber: truck.registrationNumber || truck.registration_number,
+          truckModel: truck.truckModel || truck.model,
+          truckMaker: truck.truckMaker,
+          fuelConsumptionNorm: truck.fuelConsumptionNorm || truck.fuel_consumption_norm,
+          isDefault: truck.isDefault,
+          // Legacy fields for backward compatibility
+          registration_number: truck.registrationNumber || truck.registration_number,
+          name: truck.registrationNumber || truck.registration_number || `Auto ${truck.uid || truck.id || truck.server_id || 'N/A'}`,
+          model: truck.truckModel || truck.model
         }));
       }
 

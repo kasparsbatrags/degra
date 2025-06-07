@@ -8,13 +8,13 @@ databaseChangeLog:
             tableName: truck_user_map
             columns:
               - column:
-                  name: id
-                  type: INT
-                  autoIncrement: true
+                  name: uid
+                  type: varchar(36)
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta ID"
+                  defaultValueComputed: uuid_generate_v4()
+                  remarks: "Ieraksta UID (UUID)"
               - column:
                   name: user_id
                   type: INT
@@ -23,12 +23,12 @@ databaseChangeLog:
                     foreignKeyName: fk_truck_user_map_user
                   remarks: "Lietotāja ID"
               - column:
-                  name: truck_id
-                  type: INT
+                  name: truck_uid
+                  type: varchar(36)
                   constraints:
                     nullable: false
                     foreignKeyName: fk_truck_user_map_truck
-                  remarks: "Automašīnas ID"
+                  remarks: "Automašīnas UID"
               - column:
                   name: is_default
                   type: BOOLEAN
@@ -64,9 +64,9 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseTableName: truck_user_map
-            baseColumnNames: truck_id
+            baseColumnNames: truck_uid
             referencedTableName: truck
-            referencedColumnNames: id
+            referencedColumnNames: uid
             constraintName: fk_truck_user_map_truck
 
   - changeSet:
@@ -75,6 +75,6 @@ databaseChangeLog:
       changes:
         - addUniqueConstraint:
             tableName: truck_user_map
-            columnNames: user_id, truck_id
+            columnNames: user_id, truck_uid
             constraintName: uq_truck_user_map
             remarks: "Lietotājs nevar būt piesaistīts vienai un tai pašai automašīnai vairākas reizes"

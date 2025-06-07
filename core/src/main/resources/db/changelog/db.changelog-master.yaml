@@ -1,5 +1,7 @@
 databaseChangeLog:
     - include:
+        file: db/changelog/add-uuid-ossp-extension.yaml
+    - include:
           file: db/changelog/add-document.yaml
     - include:
         file: db/changelog/add-account-post.yaml

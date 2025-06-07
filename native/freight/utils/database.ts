@@ -319,7 +319,7 @@ export interface TruckRoute {
 }
 
 export interface RoutePage {
-  id?: number;
+  id?: number | string;
   server_id?: number;
   truck_route_id?: number;
   truck_route_server_id?: number;

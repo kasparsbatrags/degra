@@ -7,16 +7,16 @@ databaseChangeLog:
             tableName: truck_route
             columns:
               - column:
-                  name: id
-                  type: int
-                  autoIncrement: true
+                  name: uid
+                  type: varchar(36)
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta ID"
+                  defaultValueComputed: uuid_generate_v4()
+                  remarks: "Ieraksta UID (UUID)"
               - column:
-                  name: truck_route_page_id
-                  type: INT
+                  name: truck_route_page_uid
+                  type: varchar(36)
                   constraints:
                     nullable: false
                   remarks: "Maršruta laspas identifikators"
@@ -40,8 +40,8 @@ databaseChangeLog:
                   defaultValue: '0'
                   remarks: "Kravas apjoms"
               - column:
-                  name: out_truck_object_id
-                  type: INT
+                  name: out_truck_object_uid
+                  type: varchar(36)
                   constraints:
                     nullable: false
                   remarks: "Izbrauc no objekta"
@@ -64,8 +64,8 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Odometra rādītājs brauciena beigās"
               - column:
-                  name: in_truck_object_id
-                  type: INT
+                  name: in_truck_object_uid
+                  type: varchar(36)
                   constraints:
                     nullable: true
                   remarks: "Iebrauc no objektā"
@@ -122,11 +122,11 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: truck_route_page_id
+            baseColumnNames: truck_route_page_uid
             baseTableName: truck_route
-            constraintName: fk_truck_route_id_to_truck_route_page
+            constraintName: fk_truck_route_uid_to_truck_route_page
             onDelete: NO ACTION
-            referencedColumnNames: id
+            referencedColumnNames: uid
             referencedTableName: truck_route_page
 
 
@@ -135,11 +135,11 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: out_truck_object_id
+            baseColumnNames: out_truck_object_uid
             baseTableName: truck_route
-            constraintName: fk_out_truck_object_id_to_truck_object
+            constraintName: fk_out_truck_object_uid_to_truck_object
             onDelete: NO ACTION
-            referencedColumnNames: id
+            referencedColumnNames: uid
             referencedTableName: truck_object
 
   - changeSet:
@@ -147,9 +147,9 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: in_truck_object_id
+            baseColumnNames: in_truck_object_uid
             baseTableName: truck_route
-            constraintName: fk_in_truck_object_id_to_truck_object
+            constraintName: fk_in_truck_object_uid_to_truck_object
             onDelete: NO ACTION
-            referencedColumnNames: id
+            referencedColumnNames: uid
             referencedTableName: truck_object

@@ -94,7 +94,10 @@ export default function TruckRouteScreen() {
     // Validācijas funkcija, kas pārbauda obligātos laukus un pārslēdz uz atbilstošo tabu, ja kāds lauks nav aizpildīts
     const validateForm = () => {
         // Pārbaudīt basic tab laukus
-        if (!form.routePageTruck || !form.outTruckObject) {
+        // Pārbaudām gan form.outTruckObject, gan selectedOutTruckObject
+        const hasOutTruckObject = selectedOutTruckObject || form.outTruckObject;
+        
+        if (!form.routePageTruck || !hasOutTruckObject) {
             setActiveTab('basic');
             return false;
         }

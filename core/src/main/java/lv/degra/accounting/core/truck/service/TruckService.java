@@ -13,11 +13,11 @@ public interface TruckService {
 
 	List<TruckDto> getAllTrucksByUserFirstDefault(String userId);
 
-	TruckDto findTruckDtoById(Integer userId);
+	TruckDto findTruckDtoById(String truckUid);
 
 	Optional<Truck> getDefaultTruckForUser(User user);
 
-	Truck findTruckById(Integer userId);
+	Truck findTruckById(String truckUid);
 
 	Truck save(Truck truck);
 

@@ -2,6 +2,7 @@ package lv.degra.accounting.core.truck_route.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.envers.Audited;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -29,13 +31,12 @@ import lv.degra.accounting.core.truck_route_page.model.TruckRoutePage;
 @Table(name = "truck_route")
 public class TruckRoute {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+	@Column(name = "uid", nullable = false, length = 36)
+	private String uid;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "truck_route_page_id", nullable = false)
+	@JoinColumn(name = "truck_route_page_uid", nullable = false)
 	private TruckRoutePage truckRoutePage;
 
 	@NotNull
@@ -56,7 +57,7 @@ public class TruckRoute {
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name = "out_truck_object_id", nullable = false)
+	@JoinColumn(name = "out_truck_object_uid", nullable = false)
 	private TruckObject outTruckObject;
 
 	@NotNull
@@ -72,7 +73,7 @@ public class TruckRoute {
 	private Long odometerAtFinish;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "in_truck_object_id")
+	@JoinColumn(name = "in_truck_object_uid")
 	private TruckObject inTruckObject;
 
 	@Column(name = "in_date_time")
@@ -98,5 +99,12 @@ public class TruckRoute {
 
 	@Column(name = "last_modified_date_time")
 	private Instant lastModifiedDateTime;
+
+	@PrePersist
+	public void generateUid() {
+		if (this.uid == null) {
+			this.uid = UUID.randomUUID().toString();
+		}
+	}
 
 }

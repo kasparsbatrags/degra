@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import lv.degra.accounting.core.truck.model.Truck;
 import lv.degra.accounting.core.user.model.User;
 
-public interface TruckRoutePageRepository extends JpaRepository<TruckRoutePage, Integer> {
+public interface TruckRoutePageRepository extends JpaRepository<TruckRoutePage, String> {
 	Page<TruckRoutePage> findByUser(User user, Pageable pageable);
 
 	@Query("""

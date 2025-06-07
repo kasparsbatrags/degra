@@ -69,13 +69,13 @@ public class TruckServiceImpl implements TruckService {
 		return defaultTruck;
 	}
 
-	public Truck findTruckById(Integer truckId) {
-		return truckRepository.findById(truckId)
-				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with ID: " + truckId));
+	public Truck findTruckById(String truckUid) {
+		return truckRepository.findById(truckUid)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck not found with UID: " + truckUid));
 	}
 
-	public TruckDto findTruckDtoById(Integer truckId) {
-		Truck truck = findTruckById(truckId);
+	public TruckDto findTruckDtoById(String truckUid) {
+		Truck truck = findTruckById(truckUid);
 		return freightMapper.toDto(truck);
 	}
 

@@ -1,24 +1,36 @@
 export interface TruckObject {
-	id: number;
+	// Backend API fields (uid-based)
+	uid?: string;
 	name?: string;
+	
+	// Legacy fields for backward compatibility
+	id?: number;
 }
 
 export interface User {
-	id: string;
+	// Backend API fields (uid-based)
+	uid?: string;
 	preferred_username?: string;
 	email?: string;
 	given_name?: string;
 	family_name?: string;
 	attributes?: Record<string, string>;
+	
+	// Legacy fields for backward compatibility
+	id?: string;
 }
 
 export interface Truck {
-	id: number;
+	// Backend API fields (uid-based)
+	uid?: string;
 	truckMaker?: string;
 	truckModel?: string;
 	registrationNumber?: string;
 	fuelConsumptionNorm?: number;
 	isDefault?: boolean;
+	
+	// Legacy fields for backward compatibility
+	id?: number;
 }
 
 export interface TruckRoutePage {
@@ -40,7 +52,8 @@ export interface TruckRoutePage {
 }
 
 export interface TruckRouteDto {
-	id: number | null;
+	// Backend API fields (uid-based)
+	uid?: string | null;
 	routeDate: string;
 	truckRoutePage: TruckRoutePage | null;
 	outTruckObject: TruckObject | null;
@@ -54,6 +67,9 @@ export interface TruckRouteDto {
 	fuelBalanceAtFinish: number | null;
 	outDateTime: string;
 	inDateTime: string | null;
+	
+	// Legacy fields for backward compatibility
+	id?: number | null;
 }
 
 export interface Page<T> {

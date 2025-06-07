@@ -56,7 +56,7 @@ export function useTruckRouteFormMigrated(params: any) {
         try {
             const objects = await getObjects();
             const formattedOptions = objects.map(item => ({
-                id: String(item.id || item.server_id),
+                id: String(item.uid || item.id || item.server_id),
                 name: String(item.name || item)
             }));
             setObjectsList(formattedOptions);
@@ -346,19 +346,19 @@ export function useTruckRouteFormMigrated(params: any) {
 
             const now = new Date().toISOString();
             const payload: TruckRouteDto = {
-                id: form.id ? parseInt(form.id) : null,
+                uid: form.id || null,
                 routeDate: format(form.routeDate, 'yyyy-MM-dd'),
                 truckRoutePage: form.routePageTruck ? {
                     dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
                     dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
-                    truck: {id: parseInt(form.routePageTruck)},
-                    user: {id: user?.id || '0'},
+                    truck: {uid: form.routePageTruck},
+                    user: {uid: user?.id || '0'},
                     fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
                 } : null,
                 outTruckObject: outTruckObjectValue ?
-                        (outTruckObjectDetails ? outTruckObjectDetails : {id: parseInt(outTruckObjectValue)}) : null,
+                        (outTruckObjectDetails ? {uid: outTruckObjectValue, name: outTruckObjectDetails.name} : {uid: outTruckObjectValue}) : null,
                 inTruckObject: inTruckObjectValue ?
-                        (inTruckObjectDetails ? inTruckObjectDetails : {id: parseInt(inTruckObjectValue)}) : null,
+                        (inTruckObjectDetails ? {uid: inTruckObjectValue, name: inTruckObjectDetails.name} : {uid: inTruckObjectValue}) : null,
                 odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
                 odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : null,
                 cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,

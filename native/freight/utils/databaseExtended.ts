@@ -80,11 +80,20 @@ export const createExtendedTables = async (database: any) => {
 
 // Export types for new tables
 export interface Truck {
-  id?: number;
-  server_id?: number;
-  registration_number: string;
-  model?: string;
-  fuel_consumption_norm?: number;
+  // Backend API fields (camelCase)
+  uid?: string;                    // Backend primary ID
+  registrationNumber: string;      // Backend: registrationNumber
+  truckModel?: string;            // Backend: truckModel
+  truckMaker?: string;            // Backend: truckMaker
+  fuelConsumptionNorm?: number;   // Backend: fuelConsumptionNorm
+  isDefault?: boolean;            // Backend: isDefault
+  
+  // Mobile SQLite fields (snake_case for database compatibility)
+  id?: number;                    // Local database ID
+  server_id?: number;             // Mapping to backend uid
+  registration_number?: string;   // SQLite: registration_number
+  model?: string;                 // SQLite: model
+  fuel_consumption_norm?: number; // SQLite: fuel_consumption_norm
   is_dirty?: number;
   is_deleted?: number;
   created_at?: number;
@@ -93,10 +102,14 @@ export interface Truck {
 }
 
 export interface TruckObject {
-  id?: number;
-  server_id?: number;
+  // Backend API fields (uid-based)
+  uid?: string;
   name: string;
   type?: string;
+  
+  // Mobile SQLite fields (for database compatibility)
+  id?: number | string;
+  server_id?: number;
   is_dirty?: number;
   is_deleted?: number;
   created_at?: number;

@@ -61,19 +61,19 @@ public class TruckRoutePageController {
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
-	public ResponseEntity<TruckRoutePageDto> getRoutePageById(@PathVariable Integer id) {
+	public ResponseEntity<TruckRoutePageDto> getRoutePageById(@PathVariable String id) {
 		TruckRoutePageDto truckRoutePageDto = truckRoutePageService.findById(id);
 		return ResponseEntity.ok(truckRoutePageDto);
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + ENDPOINT_EXIST)
-	public ResponseEntity<TruckRoutePageDto> checkTruckRoutePageExists(@RequestParam Integer truckId, @RequestParam LocalDate routeDate) {
+	public ResponseEntity<TruckRoutePageDto> checkTruckRoutePageExists(@RequestParam String truckId, @RequestParam LocalDate routeDate) {
 		String userId = UserContextUtils.getCurrentUserId();
 		return ResponseEntity.ok(truckRoutePageService.userRoutePageByRouteDateExists(routeDate, userId, truckId));
 	}
 
 	@PutMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
-	public ResponseEntity<TruckRoutePageDto> updateTruckRoutePage(@PathVariable Integer id,
+	public ResponseEntity<TruckRoutePageDto> updateTruckRoutePage(@PathVariable String id,
 			@Valid @RequestBody TruckRoutePageDto truckRoutePageDto) {
 
 		TruckRoutePageDto updatedPage = truckRoutePageService.updateTruckRoutePage(id, truckRoutePageDto);

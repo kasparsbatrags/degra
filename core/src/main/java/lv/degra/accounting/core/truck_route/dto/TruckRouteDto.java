@@ -22,7 +22,7 @@ import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TruckRouteDto implements Serializable {
-	private Integer id;
+	private String uid;
 
 	private TruckRoutePageDto truckRoutePage;
 	@NotNull

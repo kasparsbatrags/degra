@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface TruckObjectRepository extends JpaRepository<TruckObject, Integer> {
+public interface TruckObjectRepository extends JpaRepository<TruckObject, String> {
 
 	boolean existsByNameIgnoreCase(String name);
 

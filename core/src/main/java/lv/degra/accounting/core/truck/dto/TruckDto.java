@@ -18,7 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TruckDto implements Serializable {
 	@NotNull
-	private Integer id;
+	private String uid;
 	@Size(max = 20)
 	private String truckMaker;
 	@Size(max = 20)

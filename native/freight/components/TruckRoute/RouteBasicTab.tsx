@@ -108,7 +108,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 />
             </View>
 
-            <ImprovedFormDropdownWithAddButton
+            <ImprovedFormDropdownWithAddButtonOffline
                 label="Starts no..."
                 value={selectedOutTruckObject || form.outTruckObject}
                 onSelect={(value: string) => {
@@ -126,7 +126,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 objectName={outTruckObjectDetails?.name}
             />
 
-            <ImprovedFormDropdownWithAddButton
+            <ImprovedFormDropdownWithAddButtonOffline
                 label="Finišs..."
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {

@@ -5,8 +5,7 @@ import {useOfflineStatus} from '@/context/OfflineContext'
 import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
-import {getRoutePages} from '@/utils/offlineDataManager'
-import {syncAllDropdownData} from '@/utils/offlineDataManagerExtended'
+import {getRoutePages, syncAllDropdownData} from '@/utils/offlineDataManagerExtended'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
@@ -264,7 +263,7 @@ export default function HomeScreen() {
 				console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
 				
 				const transformed = {
-					id: route.id || 0,
+					id: typeof route.id === 'string' ? parseInt(route.id) || 0 : route.id || 0,
 					dateFrom: route.date_from,
 					dateTo: route.date_to,
 					truckRegistrationNumber: route.truck_registration_number,

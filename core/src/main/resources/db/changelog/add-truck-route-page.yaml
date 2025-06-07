@@ -7,13 +7,13 @@ databaseChangeLog:
             tableName: truck_route_page
             columns:
               - column:
-                  name: id
-                  type: int
-                  autoIncrement: true
+                  name: uid
+                  type: varchar(36)
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "Ieraksta ID"
+                  defaultValueComputed: uuid_generate_v4()
+                  remarks: "Ieraksta UID (UUID)"
               - column:
                   name: date_from
                   type: date
@@ -27,8 +27,8 @@ databaseChangeLog:
                     nullable: true
                   remarks: "Maršruta lapas sākuma datums"
               - column:
-                  name: truck_id
-                  type: INT
+                  name: truck_uid
+                  type: varchar(36)
                   constraints:
                     nullable: false
                   remarks: "Automašīnas identifikators"
@@ -67,11 +67,11 @@ databaseChangeLog:
       author: Kaspars Batrags
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: truck_id
+            baseColumnNames: truck_uid
             baseTableName: truck_route_page
-            constraintName: fk_truck_id_to_truck_route_page
+            constraintName: fk_truck_uid_to_truck_route_page
             onDelete: NO ACTION
-            referencedColumnNames: id
+            referencedColumnNames: uid
             referencedTableName: truck
 
   - changeSet:
