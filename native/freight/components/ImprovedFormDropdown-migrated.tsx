@@ -159,7 +159,7 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
       const response = await freightAxiosInstance.get(endpoint);
       return response.data.map((item: any) => ({
         id: String(item.id),
-        name: item.registrationNumber || item.name || String(item)
+        name: item.registration_number || item.registrationNumber || item.name || String(item)
       }));
     },
     {
@@ -579,11 +579,6 @@ const styles = StyleSheet.create({
   inputError: { 
     borderColor: COLORS.error, 
     borderWidth: 1 
-  },
-  errorText: { 
-    fontSize: 14, 
-    color: COLORS.error, 
-    marginTop: 4 
   },
   inputDisabled: { 
     opacity: 0.5 

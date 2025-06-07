@@ -1,8 +1,8 @@
 import BackButton from '@/components/BackButton'
 import {commonStyles} from '@/constants/styles'
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { COLORS, FONT } from '@/constants/theme';
+import {View, Text, StyleSheet, Alert, Platform} from 'react-native'
+import {COLORS, FONT, SHADOWS} from '@/constants/theme'
 import FormInput from '@/components/FormInput';
 import Button from '@/components/Button';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -107,16 +107,19 @@ export default function AddTruckObjectScreenOfflineSimple() {
 				placeholder="Ievadiet objekta nosaukumu"
 				error={error}
 			/>
-			<Button
-				title="Pievienot"
-				onPress={handleSubmit}
-				style={styles.submitButton}
-				disabled={isSubmitting || !objectName.trim()}
-				loading={isSubmitting}
-			/>
-			<BackButton
-				onPress={() => router.push('/truck-route')}
-			/>
+
+			<View style={styles.buttonContainer}>
+				<BackButton
+						onPress={() => router.push('/truck-route')}
+						style={styles.backButton}
+				/>
+				<Button
+						title="Saglabāt"
+						onPress={handleSubmit}
+						style={styles.submitButton}
+						disabled={isSubmitting}
+				/>
+			</View>
 		</View>
 	);
 }
@@ -145,7 +148,23 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		textAlign: 'center',
 	},
-	submitButton: {
-		marginTop: 24,
+	buttonContainer: {
+		flexDirection: 'row', justifyContent: 'space-between', gap: 16, marginTop: 24,
+	},
+	backButton: Platform.OS === 'web' ? {
+		flex: 1, backgroundColor: COLORS.black100,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)',
+		...SHADOWS.small,
+	} : {
+		flex: 1, backgroundColor: COLORS.black100,
+		borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)',
+		...SHADOWS.medium,
+	},
+	submitButton: Platform.OS === 'web' ? {
+		flex: 1,
+		...SHADOWS.small,
+	} : {
+		flex: 1,
+		...SHADOWS.medium,
 	},
 });

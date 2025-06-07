@@ -35,10 +35,12 @@ class DropdownDataManager {
       // Handle trucks endpoint
       if (endpoint.includes('/trucks')) {
         const trucks = await getTrucks();
+        console.log('Raw trucks data:', trucks);
         return trucks.map(truck => ({
-          id: truck.id || truck.server_id,
+          id: String(truck.id || truck.server_id || ''),
+          registration_number: truck.registration_number,
           registrationNumber: truck.registration_number,
-          name: truck.registration_number,
+          name: truck.registration_number || `Auto ${truck.id || truck.server_id || 'N/A'}`,
           model: truck.model
         }));
       }

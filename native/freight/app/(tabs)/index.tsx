@@ -6,6 +6,7 @@ import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {getRoutePages} from '@/utils/offlineDataManager'
+import {syncAllDropdownData} from '@/utils/offlineDataManagerExtended'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
@@ -241,6 +242,17 @@ export default function HomeScreen() {
 				return
 			}
 
+			// Sync dropdown data first (trucks and objects) for mobile
+			if (Platform.OS !== 'web') {
+				try {
+					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
+					await syncAllDropdownData()
+					console.log('📱 [DEBUG] Dropdown data sync completed')
+				} catch (error) {
+					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
+				}
+			}
+
 			// Use new offline-first data manager
 			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const routePages = await getRoutePages()
@@ -356,6 +368,19 @@ export default function HomeScreen() {
 							await fetchRoutes();
 						}}
 						style={[styles.startTripButton, { backgroundColor: COLORS.secondary, marginTop: 8 }]}
+					/>
+					<Button
+						title="🚛 Sync Dropdown Data"
+						onPress={async () => {
+							console.log('🚛 Manual dropdown sync triggered...');
+							try {
+								await syncAllDropdownData();
+								console.log('🚛 Dropdown sync completed successfully');
+							} catch (error) {
+								console.error('🚛 Dropdown sync failed:', error);
+							}
+						}}
+						style={[styles.startTripButton, { backgroundColor: '#FF6B35', marginTop: 8 }]}
 					/>
 				</>
 			)}

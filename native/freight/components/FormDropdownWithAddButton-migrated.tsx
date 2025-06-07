@@ -70,7 +70,7 @@ const FormDropdownWithAddButton: React.FC<FormDropdownWithAddButtonProps> = ({
 			const response = await freightAxiosInstance.get(endpoint);
 			return response.data.map((item: any) => ({
 				id: String(item.id),
-				name: item.registrationNumber || item.name || String(item)
+				name: item.registration_number || item.registrationNumber || item.name || String(item)
 			}));
 		},
 		{

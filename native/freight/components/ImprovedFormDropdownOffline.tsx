@@ -143,10 +143,12 @@ const ImprovedFormDropdownOffline: React.FC<FormDropdownProps> = React.memo(({
       
       // Use offline-first dropdown data manager
       const data = await getDropdownData(endpoint);
+      console.log('Dropdown data received:', data);
       const formatted = data.map((item: any) => ({
-        id: String(item.id),
-        name: item.registrationNumber || item.name || String(item)
+        id: String(item.id || ''),
+        name: item.registration_number || item.registrationNumber || item.name || `Item ${item.id || 'N/A'}`
       }));
+      console.log('Formatted dropdown data:', formatted);
       
       dispatch({ 
         type: 'SET_OPTIONS', 

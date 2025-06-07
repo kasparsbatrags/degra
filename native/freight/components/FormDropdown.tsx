@@ -55,7 +55,7 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 			const response = await freightAxiosInstance.get(endpoint);
 			const formatted = response.data.map((item: any) => ({
 				id: String(item.id),
-				name: item.registrationNumber || item.name || String(item)
+				name: item.registration_number || item.registrationNumber || item.name || String(item)
 			}));
 			setOptions(formatted);
 		} catch (err) {
