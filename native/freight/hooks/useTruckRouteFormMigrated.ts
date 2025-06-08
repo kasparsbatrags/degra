@@ -122,7 +122,7 @@ export function useTruckRouteFormMigrated(params: any) {
 
             if (truckRouteForm.inTruckObjectName) {
                 setInTruckObjectDetails({
-                    id: parseInt(truckRouteForm.inTruckObject),
+                    uid: truckRouteForm.inTruckObject,
                     name: truckRouteForm.inTruckObjectName
                 });
             }
@@ -147,23 +147,30 @@ export function useTruckRouteFormMigrated(params: any) {
             setRefreshDropdowns(prev => prev + 1);
 
             if (newTruckObject.type === 'inTruckObject') {
-                setSelectedInTruckObject(newTruckObject.id);
-                setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
-                setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+                // Try to get UID from known fields
+                const inUid = (typeof newTruckObject === 'object' && ('uid' in newTruckObject))
+                    ? (newTruckObject as any).uid
+                    : (newTruckObject.id || '');
+                setSelectedInTruckObject(inUid);
+                setForm(prev => ({ ...prev, inTruckObject: inUid }));
+                setInTruckObjectDetails({ uid: inUid, name: newTruckObject.name });
 
                 // Also update store
                 updateTruckRouteForm({
-                    inTruckObject: newTruckObject.id,
+                    inTruckObject: inUid,
                     inTruckObjectName: newTruckObject.name
                 });
             } else if (newTruckObject.type === 'outTruckObject') {
-                setSelectedOutTruckObject(newTruckObject.id);
-                setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
-                setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+                const outUid = (typeof newTruckObject === 'object' && ('uid' in newTruckObject))
+                    ? (newTruckObject as any).uid
+                    : (newTruckObject.id || '');
+                setSelectedOutTruckObject(outUid);
+                setForm(prev => ({ ...prev, outTruckObject: outUid }));
+                setOutTruckObjectDetails({ id: outUid, name: newTruckObject.name });
 
                 // Also update store
                 updateTruckRouteForm({
-                    outTruckObject: newTruckObject.id,
+                    outTruckObject: outUid,
                     outTruckObjectName: newTruckObject.name
                 });
             }
@@ -208,7 +215,7 @@ export function useTruckRouteFormMigrated(params: any) {
                     ...prev,
                     inTruckObject: objectId
                 }));
-                setInTruckObjectDetails({ id: parseInt(objectId), name: objectName });
+                setInTruckObjectDetails({ uid: objectId, name: objectName });
 
                 setObjectsList(prev => {
                     const exists = prev.some(obj => obj.id === objectId);
@@ -291,7 +298,7 @@ export function useTruckRouteFormMigrated(params: any) {
                         // Get trucks using offline-first approach
                         const trucks = await getTrucks();
                         if (trucks && trucks.length > 0) {
-                            const defaultTruck = trucks[0].id?.toString() || trucks[0].server_id?.toString() || '';
+                            const defaultTruck = trucks[0].uid?.toString() || trucks[0].server_id?.toString() || trucks[0].id?.toString() || '';
                             const currentDate = new Date();
                             const outTruckObjectId = lastFinishedRoute?.outTruckObject?.id?.toString() || '';
 
@@ -349,6 +356,7 @@ export function useTruckRouteFormMigrated(params: any) {
                 uid: form.id || null,
                 routeDate: format(form.routeDate, 'yyyy-MM-dd'),
                 truckRoutePage: form.routePageTruck ? {
+                    uid: form.routePageTruck,
                     dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
                     dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
                     truck: {uid: form.routePageTruck},
@@ -369,6 +377,13 @@ export function useTruckRouteFormMigrated(params: any) {
                 outDateTime: now,
                 inDateTime: inTruckObjectValue && isItRouteFinish ? now : null
             };
+
+            // Debug logging
+            console.log('🚛 [DEBUG] Form routePageTruck value:', form.routePageTruck);
+            console.log('🚛 [DEBUG] Payload truck UID:', payload.truckRoutePage?.truck?.uid);
+			console.log('🚛 [DEBUG] Payload outTruckObject UID:', payload.outTruckObject?.uid);
+			console.log('🚛 [DEBUG] Payload inTruckObject UID:', payload.inTruckObject?.uid);
+            console.log('🚛 [DEBUG] Full payload:', JSON.stringify(payload, null, 2));
 
             if (isItRouteFinish) {
                 // Izmantojam endRoute hook funkciju

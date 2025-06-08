@@ -16,6 +16,9 @@ import lv.degra.accounting.core.config.mapper.FreightMapper;
 import lv.degra.accounting.core.exception.ResourceNotFoundException;
 import lv.degra.accounting.core.truck.dto.TruckDto;
 import lv.degra.accounting.core.truck.service.TruckService;
+import lv.degra.accounting.core.truck_object.dto.TruckObjectDto;
+import lv.degra.accounting.core.truck_object.model.TruckObject;
+import lv.degra.accounting.core.truck_object.model.TruckObjectRepository;
 import lv.degra.accounting.core.truck_route.dto.TruckRouteDto;
 import lv.degra.accounting.core.truck_route.model.TruckRoute;
 import lv.degra.accounting.core.truck_route.model.TruckRouteRepository;
@@ -39,16 +42,18 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	private final TruckService truckService;
 	private final FreightMapper freightMapper;
 	private final TruckUserMapRepository truckUserMapRepository;
+	private final TruckObjectRepository truckObjectRepository;
 
 	public TruckRouteServiceImpl(TruckRouteRepository truckRouteRepository, TruckRoutePageService truckRoutePageService,
 			UserService userService, TruckService truckService, FreightMapper freightMapper,
-			TruckUserMapRepository truckUserMapRepository) {
+			TruckUserMapRepository truckUserMapRepository, TruckObjectRepository truckObjectRepository) {
 		this.truckRouteRepository = truckRouteRepository;
 		this.truckRoutePageService = truckRoutePageService;
 		this.userService = userService;
 		this.truckService = truckService;
 		this.freightMapper = freightMapper;
 		this.truckUserMapRepository = truckUserMapRepository;
+		this.truckObjectRepository = truckObjectRepository;
 	}
 
 	public Page<TruckRouteDto> getLastTruckRoutesByUserId(String userId, int page, int size) {
@@ -94,6 +99,9 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 		TruckRoutePageDto truckRoutePage = truckRouteDto.getTruckRoutePage();
 		truckRoutePage.setFuelBalanceAtFinish(fuelBalanceAtFinish);
 		truckRoutePageService.save(truckRoutePage);
+
+		// Resolve TruckObject entities before mapping
+//		resolveTruckObjects(truckRouteDto);
 
 		TruckRoute truckRoute = freightMapper.toEntity(truckRouteDto);
 		return freightMapper.toDto(truckRouteRepository.save(truckRoute));
@@ -145,6 +153,35 @@ public class TruckRouteServiceImpl implements TruckRouteService {
 	public TruckRouteDto findById(String uid) {
 		return truckRouteRepository.findById(uid).map(freightMapper::toDto)
 				.orElseThrow(() -> new ResourceNotFoundException("Truck route not found with UID: " + uid));
+	}
+
+	/**
+	 * Resolve TruckObject entities from UIDs to prevent TransientPropertyValueException
+	 */
+	private void resolveTruckObjects(TruckRouteDto truckRouteDto) {
+		// Resolve outTruckObject
+		if (truckRouteDto.getOutTruckObject() != null && truckRouteDto.getOutTruckObject().getUid() != null) {
+			String outObjectUid = truckRouteDto.getOutTruckObject().getUid();
+			Optional<TruckObject> outObject = truckObjectRepository.findById(outObjectUid);
+			if (outObject.isEmpty()) {
+				throw new ResourceNotFoundException("TruckObject not found with UID: " + outObjectUid);
+			}
+			// Update DTO with complete object data
+			TruckObjectDto outObjectDto = freightMapper.toDto(outObject.get());
+			truckRouteDto.setOutTruckObject(outObjectDto);
+		}
+
+		// Resolve inTruckObject
+		if (truckRouteDto.getInTruckObject() != null && truckRouteDto.getInTruckObject().getUid() != null) {
+			String inObjectUid = truckRouteDto.getInTruckObject().getUid();
+			Optional<TruckObject> inObject = truckObjectRepository.findById(inObjectUid);
+			if (inObject.isEmpty()) {
+				throw new ResourceNotFoundException("TruckObject not found with UID: " + inObjectUid);
+			}
+			// Update DTO with complete object data
+			TruckObjectDto inObjectDto = freightMapper.toDto(inObject.get());
+			truckRouteDto.setInTruckObject(inObjectDto);
+		}
 	}
 
 }

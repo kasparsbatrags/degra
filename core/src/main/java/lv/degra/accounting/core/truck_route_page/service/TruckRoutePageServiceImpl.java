@@ -51,7 +51,7 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		User user = userService.getUserByUserId(userId);
 
 		List<TruckRoutePage> routePages = truckRoutePageRepository.findByUser(user,
-				PageRequest.of(page, size, Sort.by(Sort.Order.desc("id")))).getContent();
+				PageRequest.of(page, size, Sort.by(Sort.Order.desc("uid")))).getContent();
 
 		routePages.forEach(TruckRoutePage::calculateSummary);
 		return routePages;

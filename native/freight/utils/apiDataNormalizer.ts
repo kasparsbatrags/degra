@@ -9,7 +9,7 @@ import { RoutePage } from './database';
 
 // Type for raw API response (as received from server)
 interface RawApiRoutePage {
-  id?: number;
+  uid?: string;
   dateFrom?: string;
   dateTo?: string;
   truck?: {
@@ -66,7 +66,7 @@ export const normalizeRoutePageFromApi = (apiData: RawApiRoutePage): RoutePage |
 
     // Create normalized object
     const normalized: RoutePage = {
-      id: apiData.id,
+      id: apiData.uid,
       server_id: apiData.id,
       truck_route_server_id: apiData.truck_route_server_id || undefined,
       date_from: apiData.dateFrom,

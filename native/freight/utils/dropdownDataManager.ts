@@ -37,9 +37,9 @@ class DropdownDataManager {
         const trucks = await getTrucks();
         console.log('Raw trucks data:', trucks);
         return trucks.map(truck => ({
-          // Use backend format for web, SQLite format for mobile
-          id: String(truck.uid || truck.id || truck.server_id || ''),
-          uid: truck.uid,
+          // Always prioritize uid for backend compatibility
+          id: String(truck.uid || truck.server_id || truck.id || ''),
+          uid: truck.uid || truck.server_id,
           registrationNumber: truck.registrationNumber || truck.registration_number,
           truckModel: truck.truckModel || truck.model,
           truckMaker: truck.truckMaker,
@@ -47,7 +47,7 @@ class DropdownDataManager {
           isDefault: truck.isDefault,
           // Legacy fields for backward compatibility
           registration_number: truck.registrationNumber || truck.registration_number,
-          name: truck.registrationNumber || truck.registration_number || `Auto ${truck.uid || truck.id || truck.server_id || 'N/A'}`,
+          name: truck.registrationNumber || truck.registration_number || `Auto ${truck.uid || truck.server_id || truck.id || 'N/A'}`,
           model: truck.truckModel || truck.model
         }));
       }
@@ -55,11 +55,20 @@ class DropdownDataManager {
       // Handle objects endpoint
       if (endpoint.includes('/objects')) {
         const objects = await getObjects();
-        return objects.map(obj => ({
-          id: obj.id || obj.server_id,
-          name: obj.name,
-          type: obj.type
-        }));
+        // Filter unique by uid
+        const unique = new Map();
+        for (const obj of objects) {
+          const uid = String(obj.uid || obj.server_id || obj.id || '');
+          if (!unique.has(uid)) {
+            unique.set(uid, {
+              id: uid,
+              uid: obj.uid || obj.server_id,
+              name: obj.name,
+              type: obj.type
+            });
+          }
+        }
+        return Array.from(unique.values());
       }
 
       // Handle cargo types (static data)

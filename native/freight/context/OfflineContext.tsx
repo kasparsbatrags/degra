@@ -103,32 +103,32 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
 
   // Sync data with server
   const syncData = async (): Promise<void> => {
-    try {
-      const connected = await isConnected();
-      if (!connected) {
-        console.log('Device is offline, skipping sync');
-        return;
-      }
-
-      console.log('🌐 [DEBUG] Starting data synchronization...');
-      
-      // Process offline queue first
-      console.log('🌐 [DEBUG] Processing offline queue...');
-      await offlineQueue.processQueue();
-      
-      // Then sync all data from server
-      console.log('🌐 [DEBUG] Syncing route pages...');
-      await syncRoutePages();
-      
-      // Update queue stats
-      console.log('🌐 [DEBUG] Updating queue stats...');
-      await updateQueueStats();
-      
-      console.log('🌐 [DEBUG] Data synchronization completed successfully');
-    } catch (error) {
-      console.error('Data synchronization failed:', error);
-      throw error;
-    }
+    // try {
+    //   const connected = await isConnected();
+    //   if (!connected) {
+    //     console.log('Device is offline, skipping sync');
+    //     return;
+    //   }
+	//
+    //   console.log('🌐 [DEBUG] Starting data synchronization...');
+    //
+    //   // Process offline queue first
+    //   console.log('🌐 [DEBUG] Processing offline queue...');
+    //   await offlineQueue.processQueue();
+    //
+    //   // Then sync all data from server
+    //   console.log('🌐 [DEBUG] Syncing route pages...');
+    //   await syncRoutePages();
+    //
+    //   // Update queue stats
+    //   console.log('🌐 [DEBUG] Updating queue stats...');
+    //   await updateQueueStats();
+    //
+    //   console.log('🌐 [DEBUG] Data synchronization completed successfully');
+    // } catch (error) {
+    //   console.error('Data synchronization failed:', error);
+    //   throw error;
+    // }
   };
 
   // Clear completed operations from queue

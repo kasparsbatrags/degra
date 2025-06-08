@@ -130,6 +130,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 label="Finišs..."
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
+					console.log('Selected inTruckObject UID:', value);
                     setSelectedInTruckObject(value);
                     setForm(prev => ({...prev, inTruckObject: value}));
                 }}
@@ -141,7 +142,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                     params: { type: 'inTruckObject' }
                 })}
                 forceRefresh={refreshDropdowns}
-                objectName={inTruckObjectDetails?.name || params?.inTruckObjectName || ''}
+                objectName={inTruckObjectDetails?.name}
             />
 
             {/*<View style={commonStyles.spaceBetween}>*/}

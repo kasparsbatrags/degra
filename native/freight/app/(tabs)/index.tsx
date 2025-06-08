@@ -5,10 +5,11 @@ import {useOfflineStatus} from '@/context/OfflineContext'
 import {isConnected} from '@/utils/networkUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
-import {getRoutePages, syncAllDropdownData} from '@/utils/offlineDataManagerExtended'
+import {getRoutePages, syncAllData} from '@/utils/offlineDataManagerExtended'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
+import {any} from 'prop-types'
 import React, {useCallback, useEffect, useState} from 'react'
 import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
@@ -17,12 +18,13 @@ import freightAxiosInstance from '../../config/freightAxios'
 import { runRoutePagesDiagnostic } from '../../debug/routePagesDiagnostic'
 
 interface TruckRoutePage {
-	id: number;
+	uid: string;
 	dateFrom: string;
 	dateTo: string;
 	truckRegistrationNumber: string;
 	fuelConsumptionNorm: number;
 	fuelBalanceAtStart: number;
+
 
 	totalFuelReceivedOnRoutes: number | null;
 	totalFuelConsumedOnRoutes: number | null;
@@ -244,18 +246,19 @@ export default function HomeScreen() {
 			// Sync dropdown data first (trucks and objects) for mobile
 			if (Platform.OS !== 'web') {
 				try {
-					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
-					await syncAllDropdownData()
-					console.log('📱 [DEBUG] Dropdown data sync completed')
+					console.log('📱 [DEBUG] Syncing data for mobile...')
+					await syncAllData()
+					console.log('📱 [DEBUG] data sync completed')
 				} catch (error) {
-					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
+					console.warn('📱 [WARN] data sync failed, continuing with cached data:', error)
 				}
 			}
 
 			// Use new offline-first data manager
 			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const routePages = await getRoutePages()
-			console.log('📱 [DEBUG] Raw route pages received:', routePages.length, 'items')
+			console.log('📱 [DEBUG] Raw route pages receiveds:', routePages.length, 'items')
+			console.log('📱 [DEBUG] Raw route pages receiveds:', routePages)
 			console.log('📱 [DEBUG] First few raw route pages:', routePages.slice(0, 3))
 			
 			// Transform data to match expected format
@@ -263,6 +266,7 @@ export default function HomeScreen() {
 				console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
 				
 				const transformed = {
+					uid: route.id,
 					id: typeof route.id === 'string' ? parseInt(route.id) || 0 : route.id || 0,
 					dateFrom: route.date_from,
 					dateTo: route.date_to,
@@ -373,7 +377,7 @@ export default function HomeScreen() {
 						onPress={async () => {
 							console.log('🚛 Manual dropdown sync triggered...');
 							try {
-								await syncAllDropdownData();
+								await syncAllData();
 								console.log('🚛 Dropdown sync completed successfully');
 							} catch (error) {
 								console.error('🚛 Dropdown sync failed:', error);
@@ -393,12 +397,12 @@ export default function HomeScreen() {
 							}}
 					/>}
 					data={routes}
-					keyExtractor={(item) => item.id.toString()}
+					keyExtractor={(item) => item.uid}
 					style={styles.list}
 					renderItem={({item}) => (<Pressable
 							style={({pressed}) => [styles.routeCard, pressed && styles.routeCardPressed]}
 							onPress={() => router.push({
-								pathname: '/(tabs)/truck-route-page', params: {id: item.id}
+								pathname: '/(tabs)/truck-route-page', params: {uid: item.uid}
 							})}
 					>
 						<View style={styles.routeInfo}>
@@ -407,7 +411,7 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'basic' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.id === item.id ? {
+											const newRoutes = routes.map(route => route.uid === item.uid ? {
 												...route, activeTab: 'basic' as const
 											} : route)
 											setRoutes(newRoutes)
@@ -424,7 +428,7 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'odometer' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.id === item.id ? {
+											const newRoutes = routes.map(route => route.uid === item.uid ? {
 												...route, activeTab: 'odometer' as const
 											} : route)
 											setRoutes(newRoutes)
@@ -441,7 +445,7 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'fuel' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.id === item.id ? {
+											const newRoutes = routes.map(route => route.uid === item.uid ? {
 												...route, activeTab: 'fuel' as const
 											} : route)
 											setRoutes(newRoutes)

@@ -59,7 +59,7 @@ const RouteFuelTab: React.FC<RouteFuelTabProps> = ({
                 }}
                 placeholder="Ievadiet degvielas daudzumu"
                 keyboardType="numeric"
-                disabled={!showRoutePageError}
+                disabled={isItRouteFinish}
                 visible={true}
                 error={showRoutePageError && !form.fuelBalanceAtStart ? 'Ievadiet datus!' : undefined}
             />

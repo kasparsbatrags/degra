@@ -3,6 +3,7 @@ import {Alert, Platform, StyleSheet, Text, TextStyle, View, ViewStyle} from 'rea
 import {SafeAreaView} from 'react-native-safe-area-context'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
+import OfflinePurgeButton from '../../components/Profile/OfflinePurgeButton'
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -42,6 +43,7 @@ export default function ProfileScreen() {
         </View>
       </View>
       </View>
+      <OfflinePurgeButton />
     </SafeAreaView>
   );
 }

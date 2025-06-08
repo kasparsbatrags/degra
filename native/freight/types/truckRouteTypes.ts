@@ -34,6 +34,7 @@ export interface Truck {
 }
 
 export interface TruckRoutePage {
+	uid: string;
 	id?: number;
 	dateFrom: string;
 	dateTo: string;

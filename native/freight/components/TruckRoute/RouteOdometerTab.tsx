@@ -10,6 +10,7 @@ const RouteOdometerTab: React.FC<RouteOdometerTabProps> = ({
     setForm,
     showRoutePageError
 }) => {
+	console.log(isItRouteFinish)
     if (isItRouteFinish) {
         // Kad isItRouteFinish=true, Odometer tabā rāda odometru finišā
         return (
@@ -61,7 +62,7 @@ const RouteOdometerTab: React.FC<RouteOdometerTabProps> = ({
                 placeholder="Ievadiet rādījumu"
                 keyboardType="numeric"
                 visible={true}
-                disabled={!showRoutePageError}
+                disabled={isItRouteFinish}
                 error={showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : !showRoutePageError && !form.odometerAtStart ? 'Ievadiet datus!' : undefined}
             />
         </View>
