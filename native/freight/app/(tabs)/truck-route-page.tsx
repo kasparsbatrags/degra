@@ -22,7 +22,7 @@ interface TruckRoutePageForm {
 }
 
 interface Truck {
-	id: number;
+	uid: string;
 	truckMaker?: string;
 	truckModel?: string;
 	registrationNumber?: string;
@@ -31,10 +31,10 @@ interface Truck {
 }
 
 interface TruckRoute {
-	id: number;
+	uid: string;
 	routeDate: string;
-	outTruckObject: { id: number; name?: string };
-	inTruckObject: { id: number; name?: string };
+	outTruckObject: { uid: string; name?: string };
+	inTruckObject: { uid: string; name?: string };
 	odometerAtStart: number | null;
 	odometerAtFinish: number | null;
 	cargoVolume: number | null;
@@ -48,9 +48,9 @@ interface TruckRoute {
 
 
 export default function TruckRoutePageScreen() {
-	const {id} = useLocalSearchParams<{ id: string }>()
+	const {uid} = useLocalSearchParams<{ uid: string }>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [isLoading, setIsLoading] = useState(!!id)
+	const [isLoading, setIsLoading] = useState(!!uid)
 	const [isEditMode, setIsEditMode] = useState(true)
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
@@ -70,21 +70,21 @@ export default function TruckRoutePageScreen() {
 	})
 
 	useEffect(() => {
-		if (id) {
+		if (uid) {
 			fetchRouteDetails()
 			fetchTruckRoutes()
 		}
-	}, [id])
+	}, [uid])
 
 	const fetchRouteDetails = async () => {
 		try {
-			const response = await freightAxios.get(`/route-pages/${id}`)
+			const response = await freightAxios.get(`/route-pages/${uid}`)
 			const routeData = response.data
 
 			setForm({
 				dateFrom: new Date(routeData.dateFrom),
 				dateTo: new Date(routeData.dateTo),
-				truck: routeData.truck?.id?.toString() || '',
+				truck: routeData.truck?.uid || '',
 				fuelBalanceAtStart: routeData.fuelBalanceAtStart.toString(),
 				fuelBalanceAtFinish: routeData.fuelBalanceAtFinish?.toString() ?? '',
 			})
@@ -96,12 +96,12 @@ export default function TruckRoutePageScreen() {
 	}
 
 	const fetchTruckRoutes = async (page = 0) => {
-		if (!id) return;
+		if (!uid) return;
 		
 		try {
 			setPagination(prev => ({ ...prev, loading: true }));
 			const response = await freightAxios.get(
-				`/truck-routes/by-page/${id}`,
+				`/truck-routes/by-page/${uid}`,
 				{ params: { page, size: pagination.size } }
 			);
 			
@@ -148,8 +148,8 @@ export default function TruckRoutePageScreen() {
 				fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
 				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
 			}
-			if (id) {
-				await freightAxios.put(`/route-pages/${id}`, payload)
+			if (uid) {
+				await freightAxios.put(`/route-pages/${uid}`, payload)
 			} else {
 				await freightAxios.post('/route-pages', payload)
 			}
@@ -172,12 +172,12 @@ export default function TruckRoutePageScreen() {
 	return (<SafeAreaView style={styles.container}>
 		<ScrollView>
 			<View style={styles.content}>
-				{/*<Text style={styles.title}>*/}
-				{/*	{id ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}*/}
-				{/*</Text>*/}
+				<Text style={styles.title}>
+					{uid ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}
+				</Text>
 
 				{/* Tab buttons */}
-				{id && (
+				{uid && (
 					<View style={styles.tabContainer}>
 						<Pressable
 							style={[styles.tabButton, activeTab === 'basic' && styles.tabButtonActive]}
@@ -269,7 +269,7 @@ export default function TruckRoutePageScreen() {
 							<>
 								<FlatList
 									data={truckRoutes}
-									keyExtractor={(item) => item.id.toString()}
+									keyExtractor={(item) => item.uid}
 									renderItem={({ item: route }) => (
 										<View style={styles.routeCard}>
 											<View style={styles.routeRow}>

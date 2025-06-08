@@ -222,6 +222,52 @@ export default function HomeScreen() {
 		}
 	}, [isOfflineMode])
 
+	// Helper function to transform route data
+	const transformRouteData = (routePages: any[]): TruckRoutePage[] => {
+		if (!Array.isArray(routePages)) {
+			console.warn('📱 [WARN] Invalid routePages data:', routePages)
+			return []
+		}
+
+		return routePages.map((route, index) => {
+			console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
+			
+			// Backend-compatible field mapping with fallbacks
+			const transformed = {
+				uid: route.uid, // Backend-compatible
+				dateFrom: route.date_from || route.dateFrom,
+				dateTo: route.date_to || route.dateTo,
+				truckRegistrationNumber: route.truck_registration_number || route.truckRegistrationNumber,
+				fuelConsumptionNorm: route.fuel_consumption_norm || route.fuelConsumptionNorm || 0,
+				fuelBalanceAtStart: route.fuel_balance_at_start || route.fuelBalanceAtStart || 0,
+				totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? route.totalFuelReceivedOnRoutes ?? null,
+				totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? route.totalFuelConsumedOnRoutes ?? null,
+				fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? route.fuelBalanceAtRoutesFinish ?? null,
+				odometerAtRouteStart: route.odometer_at_route_start ?? route.odometerAtRouteStart ?? null,
+				odometerAtRouteFinish: route.odometer_at_route_finish ?? route.odometerAtRouteFinish ?? null,
+				computedTotalRoutesLength: route.computed_total_routes_length ?? route.computedTotalRoutesLength ?? null,
+				activeTab: 'basic' as const
+			};
+			
+			console.log('📱 [DEBUG] Transformed route:', transformed);
+			return transformed;
+		}).filter(route => {
+			// Validation with better error messages
+			console.log("=============================================")
+			console.log(route)
+			const isValid = route.uid && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
+			if (!isValid) {
+				console.warn('📱 [WARN] Filtering out invalid route:', {
+					uid: route.uid,
+					dateFrom: route.dateFrom,
+					dateTo: route.dateTo,
+					truckRegistrationNumber: route.truckRegistrationNumber
+				});
+			}
+			return isValid;
+		});
+	};
+
 	const fetchRoutes = async () => {
 		try {
 			console.log('📱 [DEBUG] fetchRoutes called on platform:', Platform.OS)
@@ -243,75 +289,70 @@ export default function HomeScreen() {
 				return
 			}
 
-			// Sync dropdown data first (trucks and objects) for mobile
+			// 1. FĀZE: Sync dropdown data first (trucks and objects) for mobile
 			if (Platform.OS !== 'web') {
 				try {
-					console.log('📱 [DEBUG] Syncing data for mobile...')
+					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
 					await syncAllData()
-					console.log('📱 [DEBUG] data sync completed')
+					console.log('📱 [DEBUG] Dropdown data sync completed')
 				} catch (error) {
-					console.warn('📱 [WARN] data sync failed, continuing with cached data:', error)
+					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
 				}
 			}
 
-			// Use new offline-first data manager
+			// 2. FĀZE: Get route pages with offline-first approach
 			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const routePages = await getRoutePages()
-			console.log('📱 [DEBUG] Raw route pages receiveds:', routePages.length, 'items')
-			console.log('📱 [DEBUG] Raw route pages receiveds:', routePages)
+			console.log('📱 [DEBUG] Raw route pages received:', routePages)
+			console.log('📱 [DEBUG] Raw route pages received:', routePages.length, 'items')
 			console.log('📱 [DEBUG] First few raw route pages:', routePages.slice(0, 3))
 			
-			// Transform data to match expected format
-			const transformedRoutes = routePages.map((route, index) => {
-				console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
-				
-				const transformed = {
-					uid: route.id,
-					id: typeof route.id === 'string' ? parseInt(route.id) || 0 : route.id || 0,
-					dateFrom: route.date_from,
-					dateTo: route.date_to,
-					truckRegistrationNumber: route.truck_registration_number,
-					fuelConsumptionNorm: route.fuel_consumption_norm,
-					fuelBalanceAtStart: route.fuel_balance_at_start,
-					totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? null,
-					totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? null,
-					fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? null,
-					odometerAtRouteStart: route.odometer_at_route_start ?? null,
-					odometerAtRouteFinish: route.odometer_at_route_finish ?? null,
-					computedTotalRoutesLength: route.computed_total_routes_length ?? null,
-					activeTab: 'basic' as const
-				};
-				
-				console.log('📱 [DEBUG] Transformed route:', transformed);
-				
-				// Validate that required fields are present
-				if (!transformed.id || !transformed.dateFrom || !transformed.dateTo || !transformed.truckRegistrationNumber) {
-					console.warn('📱 [WARN] Route missing required fields:', transformed);
-				}
-				
-				return transformed;
-			}).filter(route => {
-				// Filter out routes with missing required data
-				const isValid = route.id && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
-				if (!isValid) {
-					console.warn('📱 [WARN] Filtering out invalid route:', route);
-				}
-				return isValid;
-			});
+			// 3. FĀZE: Transform data to match expected format
+			const transformedRoutes = transformRouteData(routePages);
 			
-			console.log('📱 [DEBUG] Transformed routes:', transformedRoutes.length, 'items')
-			console.log('📱 [DEBUG] First few transformed routes:', transformedRoutes.slice(0, 3))
-			
-			setRoutes(transformedRoutes)
-			setDataSource('online') // Data manager handles online/offline internally
-			console.log('📱 [DEBUG] Routes set in state, total count:', transformedRoutes.length)
+			// 4. FĀZE: Cache management and UI update
+			if (transformedRoutes.length > 0) {
+				await saveRoutesToCache(transformedRoutes);
+				setRoutes(transformedRoutes)
+				setDataSource('online') // Data manager handles online/offline internally
+				console.log('📱 [DEBUG] Routes set in state, total count:', transformedRoutes.length)
+			} else {
+				// Fallback to cache if no data from server
+				console.log('📱 [DEBUG] No routes from server, trying cache...')
+				const cachedRoutes = await loadRoutesFromCache();
+				if (cachedRoutes && cachedRoutes.length > 0) {
+					setRoutes(cachedRoutes)
+					setDataSource('cache')
+					console.log('📱 [FALLBACK] Using cached routes:', cachedRoutes.length)
+				} else {
+					setRoutes([])
+					setDataSource('none')
+					console.log('📱 [DEBUG] No routes available from server or cache')
+				}
+			}
 			
 		} catch (error: any) {
 			console.error('📱 [ERROR] Error in fetchRoutes:', error)
 			console.error('📱 [ERROR] Error stack:', error?.stack)
-			// Even if there's an error, the offline data manager should handle fallbacks
-			setRoutes([])
-			setDataSource('none')
+			
+			// Enhanced fallback to cache
+			try {
+				console.log('📱 [FALLBACK] Attempting to load from cache due to error...')
+				const cachedRoutes = await loadRoutesFromCache();
+				if (cachedRoutes && cachedRoutes.length > 0) {
+					setRoutes(cachedRoutes)
+					setDataSource('cache')
+					console.log('📱 [FALLBACK] Successfully loaded cached routes:', cachedRoutes.length)
+				} else {
+					setRoutes([])
+					setDataSource('none')
+					console.log('📱 [FALLBACK] No cached routes available')
+				}
+			} catch (cacheError) {
+				console.error('📱 [ERROR] Cache fallback failed:', cacheError)
+				setRoutes([])
+				setDataSource('none')
+			}
 		} finally {
 			setLoading(false)
 		}
@@ -331,6 +372,63 @@ export default function HomeScreen() {
 	useEffect(() => {
 		fetchRoutes()
 	}, [])
+
+	// Background sync setup
+	useEffect(() => {
+		let syncInterval: NodeJS.Timeout;
+		
+		const setupBackgroundSync = () => {
+			// Background sync every 5 minutes when app is active
+			syncInterval = setInterval(async () => {
+				try {
+					const connected = await isConnected();
+					if (connected && !loading && !isRedirectingToLogin) {
+						console.log('📱 [BACKGROUND] Starting background sync...');
+						
+						// Sync dropdown data first
+						if (Platform.OS !== 'web') {
+							try {
+								await syncAllData();
+								console.log('📱 [BACKGROUND] Dropdown data synced');
+							} catch (error) {
+								console.warn('📱 [BACKGROUND] Dropdown sync failed:', error);
+							}
+						}
+						
+						// Check for new route pages
+						try {
+							const newRoutePages = await getRoutePages();
+							if (newRoutePages.length > 0) {
+								const newTransformed = transformRouteData(newRoutePages);
+								
+								// Only update if data has changed
+								if (newTransformed.length !== routes.length || 
+									JSON.stringify(newTransformed.map(r => r.uid)) !== JSON.stringify(routes.map(r => r.uid))) {
+									
+									setRoutes(newTransformed);
+									await saveRoutesToCache(newTransformed);
+									setDataSource('online');
+									console.log('📱 [BACKGROUND] Routes updated:', newTransformed.length);
+								}
+							}
+						} catch (error) {
+							console.warn('📱 [BACKGROUND] Route pages sync failed:', error);
+						}
+					}
+				} catch (error) {
+					console.warn('📱 [BACKGROUND] Background sync failed:', error);
+				}
+			}, 5 * 60 * 1000); // 5 minutes
+		};
+		
+		setupBackgroundSync();
+		
+		return () => {
+			if (syncInterval) {
+				clearInterval(syncInterval);
+			}
+		};
+	}, [routes.length, loading]); // Dependencies to restart interval when needed
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
@@ -353,40 +451,6 @@ export default function HomeScreen() {
 			/>
 			
 			{/* Debug button - only show on Android for testing */}
-			{Platform.OS === 'android' && (
-				<>
-					<Button
-						title="🔧 Debug Route Pages"
-						onPress={async () => {
-							console.log('🔧 Running diagnostic...');
-							await runRoutePagesDiagnostic();
-						}}
-						style={[styles.startTripButton, { backgroundColor: COLORS.highlight, marginTop: 8 }]}
-					/>
-					<Button
-						title="🔄 Refresh Routes"
-						onPress={async () => {
-							console.log('🔄 Manual refresh triggered...');
-							setLoading(true);
-							await fetchRoutes();
-						}}
-						style={[styles.startTripButton, { backgroundColor: COLORS.secondary, marginTop: 8 }]}
-					/>
-					<Button
-						title="🚛 Sync Dropdown Data"
-						onPress={async () => {
-							console.log('🚛 Manual dropdown sync triggered...');
-							try {
-								await syncAllData();
-								console.log('🚛 Dropdown sync completed successfully');
-							} catch (error) {
-								console.error('🚛 Dropdown sync failed:', error);
-							}
-						}}
-						style={[styles.startTripButton, { backgroundColor: '#FF6B35', marginTop: 8 }]}
-					/>
-				</>
-			)}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					refreshControl={<RefreshControl
 							refreshing={loading}

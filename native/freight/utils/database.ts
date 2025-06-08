@@ -360,8 +360,6 @@ export interface TruckRoutePage {
   computed_total_routes_length?: number;    // Backend: computedTotalRoutesLength
   
   // Legacy fields (for backward compatibility during transition)
-  id?: number | string;                     // Legacy: local database ID
-  server_id?: number;                       // Legacy: backend integer ID
   truck_route_id?: number;                  // Legacy: truck route reference
   truck_route_server_id?: number;           // Legacy: truck route server reference
   truck_registration_number?: string;       // Legacy: truck registration (now use truck_uid)
@@ -391,39 +389,26 @@ export interface TruckRoutePage {
 
 // Backend-compatible Truck interface
 export interface Truck {
-  uid?: string;                             // Backend primary key (optional for legacy compatibility)
-  truck_maker?: string;                     // Backend: truckMaker
-  truck_model?: string;                     // Backend: truckModel
-  registration_number?: string;             // Backend: registrationNumber
-  fuel_consumption_norm?: number;           // Backend: fuelConsumptionNorm
-  
-  // Legacy fields (for backward compatibility during transition)
-  id?: number | string;                     // Legacy: local database ID
-  server_id?: number | string;              // Legacy: backend integer ID
-  registrationNumber?: string;              // Legacy: camelCase version
-  truckModel?: string;                      // Legacy: camelCase version
-  truckMaker?: string;                      // Legacy: camelCase version
-  fuelConsumptionNorm?: number;             // Legacy: camelCase version
-  model?: string;                           // Legacy: simplified model field
-  isDefault?: boolean;                      // Legacy: default truck flag
-  
-  // Offline-only fields
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
+	// Backend primary fields
+	uid?: string;                             // Backend primary key
+	truckMaker?: string;                     // Backend field
+	truckModel?: string;                     // Backend field
+	registrationNumber?: string;             // Backend field
+	fuelConsumptionNorm?: number;           // Backend field
+	isDefault?: number;
+
+	// Offline-only fields
+	is_dirty?: number;
+	is_deleted?: number;
+	created_at?: number;
+	updated_at?: number;
+	synced_at?: number;
 }
 
 // Backend-compatible TruckObject interface
 export interface TruckObject {
   uid?: string;                             // Backend primary key (optional for legacy compatibility)
   name?: string;                            // Backend: name
-  
-  // Legacy fields (for backward compatibility during transition)
-  id?: number | string;                     // Legacy: local database ID
-  server_id?: number | string;              // Legacy: backend integer ID
-  type?: string;                            // Legacy: object type field
   
   // Offline-only fields
   is_dirty?: number;

@@ -58,7 +58,7 @@ class OfflineDataManagerExtended {
 	private async getTrucksMobile(): Promise<Truck[]> {
 		const sql = `
             SELECT *
-            FROM trucks
+            FROM truck
             WHERE is_deleted = 0
             ORDER BY registration_number ASC
 		`
@@ -105,10 +105,10 @@ class OfflineDataManagerExtended {
 	}
 
 	// Create object (offline-first)
-	async createObject(objectData: Omit<TruckObject, 'id' | 'created_at' | 'updated_at'>): Promise<TruckObject> {
+	async createObject(objectData: Omit<TruckObject, 'created_at' | 'updated_at'>): Promise<TruckObject> {
 		const object: TruckObject = {
 			...objectData,
-			id: Platform.OS === 'web' ? generateOfflineId() : undefined,
+			uid: Platform.OS === 'web' ? generateOfflineId() : undefined,
 			is_dirty: 1,
 			is_deleted: 0,
 			created_at: Date.now(),
@@ -135,16 +135,14 @@ class OfflineDataManagerExtended {
 
 	private async createObjectMobile(object: TruckObject): Promise<TruckObject> {
 		const sql = `
-            INSERT INTO objects
-                (name, type, is_dirty, is_deleted, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO truck_object
+                (uid, name, is_dirty, is_deleted)
+            VALUES (?, ?, 1, 0)
 		`
 
-		const result = await executeQuery(sql, [object.name, object.type || null, 1, // is_dirty
-			0, // is_deleted
-			Date.now(), Date.now()])
+		const result = await executeQuery(sql, [object.uid, object.name,Date.now(), Date.now()])
 
-		const createdObject = {...object, id: result.lastInsertRowId}
+		const createdObject = {...object, uid: result.lastInsertRowId}
 
 		// Add to offline queue
 		await addOfflineOperation('CREATE', 'objects', '/objects', createdObject)
@@ -226,51 +224,6 @@ class OfflineDataManagerExtended {
             LIMIT 1
 		`
 		return await executeSelectFirst(sql)
-	}
-
-	// Set active route
-	async setActiveRoute(routeData: any): Promise<void> {
-		try {
-			if (Platform.OS === 'web') {
-				await this.setActiveRouteWeb(routeData)
-			} else {
-				await this.setActiveRouteMobile(routeData)
-			}
-		} catch (error) {
-			console.error('Failed to set active route:', error)
-			throw error
-		}
-	}
-
-	private async setActiveRouteWeb(routeData: any): Promise<void> {
-		await AsyncStorage.setItem('cached_last_active_route', JSON.stringify(routeData))
-	}
-
-	private async setActiveRouteMobile(routeData: any): Promise<void> {
-		// Deactivate all existing routes
-		await executeQuery('UPDATE active_routes SET is_active = 0')
-
-		// Insert new active route
-		const sql = `
-            INSERT INTO active_routes (route_data, is_active, created_at, updated_at)
-            VALUES (?, 1, ?, ?)
-		`
-
-		await executeQuery(sql, [JSON.stringify(routeData), Date.now(), Date.now()])
-	}
-
-	// Clear active route
-	async clearActiveRoute(): Promise<void> {
-		try {
-			if (Platform.OS === 'web') {
-				await AsyncStorage.removeItem('cached_last_active_route')
-			} else {
-				await executeQuery('UPDATE active_routes SET is_active = 0')
-			}
-		} catch (error) {
-			console.error('Failed to clear active route:', error)
-			throw error
-		}
 	}
 
 	// Check route page exists
@@ -377,14 +330,20 @@ class OfflineDataManagerExtended {
 
 	private async getRoutePagesMobile(truckRouteId?: number): Promise<RoutePage[]> {
 		let sql = `
-            SELECT *
-            FROM truck_route_pages
-            WHERE is_deleted = 0
+            SELECT
+                trp.*,
+                t.truck_maker,
+                t.truck_model,
+                t.registration_number as truck_registration_number,
+                t.fuel_consumption_norm
+            FROM truck_route_page trp
+            	LEFT JOIN truck t ON trp.truck_uid = t.uid
+            WHERE trp.is_deleted = 0
 		`
 		const params: any[] = []
 
 		if (truckRouteId) {
-			sql += ` AND truck_route_id = ?`
+			sql += ` AND trp.truck_route_id = ?`
 			params.push(truckRouteId)
 		}
 
@@ -461,93 +420,147 @@ class OfflineDataManagerExtended {
 	// ==================== SYNC OPERATIONS ====================
 
 	// Sync trucks from server to mobile database
-	async syncTrucks(db?: SQLiteDatabase): Promise<void> {
+	async downloadTrucks(db?: SQLiteDatabase): Promise<void> {
 		if (Platform.OS === 'web') {
-			console.log('Skipping truck sync on web platform')
-			return
+			console.log('Skipping truck sync on web platform');
+			return;
 		}
 
-		const connected = await isConnected()
-		if (!connected) {
-			console.log('Device is offline, cannot sync trucks')
-			return
+		if (!(await isConnected())) {
+			console.log('Device is offline, cannot sync trucks');
+			return;
 		}
 
 		try {
-			console.log('🚛 Syncing trucks from server...')
-			const response = await freightAxiosInstance.get<Truck[]>('/trucks')
-			const serverTrucks = response.data
-			console.log(`🚛 Received ${serverTrucks.length} trucks from server`)
-			console.log('🚛 First few trucks:', serverTrucks.slice(0, 3))
+			console.log('🚛 Syncing trucks from server...');
+			const { data: serverTrucks } = await freightAxiosInstance.get<Truck[]>('/trucks');
 
-			await executeQuery('DELETE FROM trucks')
-
-			const sql = `
-                INSERT INTO trucks
-                (server_id, registration_number, model, fuel_consumption_norm, is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, ?, 0, 0, ?)
-			`
-
-			for (const truck of serverTrucks) {
-				const registrationNumber = truck.registrationNumber
-				const model = truck.truckModel
-				const fuelConsumptionNorm = truck.fuelConsumptionNorm
-				const serverId = truck.uid
-
-				if (!registrationNumber || !serverId) {
-					console.warn('🚛 Skipping truck without registration number or UID:', truck)
-					continue
-				}
-
-				await executeQuery(sql, [serverId, registrationNumber, model || null, fuelConsumptionNorm || null, Date.now()])
+			if (!Array.isArray(serverTrucks) || serverTrucks.length === 0) {
+				console.warn('🚛 No trucks received from server.');
+				return;
 			}
 
-			console.log(`🚛 Successfully synced ${serverTrucks.length} trucks to local database`)
+			console.log(`🚛 Received ${serverTrucks.length} trucks from server`);
+			console.log('🚛 First few trucks:', serverTrucks.slice(0, 3));
+
+			await executeQuery('DELETE FROM truck');
+
+			const insertSQL = `
+                INSERT OR REPLACE INTO truck
+                (uid, truck_maker, truck_model, registration_number, fuel_consumption_norm, is_dirty, is_deleted, synced_at)
+                VALUES (?, ?, ?, ?, ?, 0, 0, ?)
+			`;
+
+			// Use executeTransaction for better performance
+			if (db) {
+				await executeTransaction(async (database) => {
+					for (const truck of serverTrucks) {
+						if (!truck.registrationNumber || !truck.uid) {
+							console.warn('🚛 Skipping invalid truck:', truck);
+							continue;
+						}
+
+						await database.runAsync(insertSQL, [
+							truck.uid,
+							truck.truck_maker ?? '',
+							truck.truck_model ?? '',
+							truck.registrationNumber,
+							truck.fuelConsumptionNorm ?? 0,
+							Date.now(),
+						]);
+					}
+				});
+			} else {
+				for (const truck of serverTrucks) {
+					if (!truck.registrationNumber || !truck.uid) {
+						console.warn('🚛 Skipping invalid truck:', truck);
+						continue;
+					}
+
+					await executeQuery(insertSQL, [
+						truck.uid,
+						truck.truck_maker ?? '',
+						truck.truck_model ?? '',
+						truck.registrationNumber,
+						truck.fuelConsumptionNorm ?? 0,
+						Date.now(),
+					]);
+				}
+			}
+
+			console.log(`🚛 Successfully synced ${serverTrucks.length} trucks to local database`);
 		} catch (error) {
-			console.error('🚛 Failed to sync trucks:', error)
-			throw error
+			console.error('🚛 Failed to sync trucks:', error);
+			throw error;
 		}
 	}
 
+
 	// Sync objects from server to mobile database
-	async syncObjects(db?: SQLiteDatabase): Promise<void> {
+	async downloadObjects(db?: SQLiteDatabase): Promise<void> {
 		if (Platform.OS === 'web') {
-			console.log('Skipping objects sync on web platform')
-			return
+			console.log('📍 Skipping objects sync on web platform');
+			return;
 		}
 
-		const connected = await isConnected()
-		if (!connected) {
-			console.log('Device is offline, cannot sync objects')
-			return
+		if (!(await isConnected())) {
+			console.log('📍 Device is offline, cannot sync objects');
+			return;
 		}
 
 		try {
-			console.log('📍 Syncing objects from server...')
-			const response = await freightAxiosInstance.get<TruckObject[]>('/objects')
-			const serverObjects = response.data
-			console.log(`📍 Received ${serverObjects.length} objects from server`)
+			console.log('📍 Syncing objects from server...');
+			const { data: serverObjects } = await freightAxiosInstance.get<TruckObject[]>('/objects');
 
-			// Clear ALL existing objects first to prevent duplicates
-			console.log('📍 Clearing all existing objects from database...')
-
-			await executeQuery('DELETE FROM objects')
-
-			// Insert new data
-			const sql = `
-                INSERT INTO objects
-                    (server_id, name, type, is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, 0, 0, ?)
-			`
-
-			for (const obj of serverObjects) {
-				await executeQuery(sql, [obj.uid, obj.name, Date.now()])
+			if (!Array.isArray(serverObjects) || serverObjects.length === 0) {
+				console.warn('📍 No objects received from server.');
+				return;
 			}
 
-			console.log(`📍 Successfully synced ${serverObjects.length} objects to local database`)
+			console.log(`📍 Received ${serverObjects.length} objects from server`);
+			console.log('📍 Clearing all existing objects from database...');
+			await executeQuery('DELETE FROM truck_object');
+
+			const insertSQL = `
+                INSERT OR REPLACE INTO truck_object
+                (uid, name, is_dirty, is_deleted, synced_at)
+                VALUES (?, ?, 0, 0, ?)
+			`;
+
+			if (db) {
+				await executeTransaction(async (database) => {
+					for (const obj of serverObjects) {
+						if (!obj.uid || !obj.name) {
+							console.warn('📍 Skipping invalid object:', obj);
+							continue;
+						}
+
+						await database.runAsync(insertSQL, [
+							obj.uid,
+							obj.name,
+							Date.now(),
+						]);
+					}
+				});
+			} else {
+				for (const obj of serverObjects) {
+					if (!obj.uid || !obj.name) {
+						console.warn('📍 Skipping invalid object:', obj);
+						continue;
+					}
+
+					await executeQuery(insertSQL, [
+						obj.uid,
+						obj.name,
+						Date.now(),
+					]);
+				}
+			}
+
+			console.log(`📍 Successfully synced ${serverObjects.length} objects to local database`);
 		} catch (error) {
-			console.error('📍 Failed to sync objects:', error)
-			throw error
+			console.error('📍 Failed to sync objects:', error);
+			throw error;
 		}
 	}
 
@@ -633,13 +646,131 @@ class OfflineDataManagerExtended {
 		console.log('🔄 Starting sync of all dropdown data...')
 
 		try {
-			await this.syncTrucks()
-			await this.syncObjects()
+			await this.downloadTrucks()
+			await this.downloadObjects()
+			await this.downloadRoutePages()
 
 			console.log('🔄 Successfully synced all dropdown data')
 		} catch (error) {
 			console.error('🔄 Failed to sync dropdown data:', error)
 			throw error
+		}
+	}
+
+	// Sync route pages from server to mobile database
+	async downloadRoutePages(db?: SQLiteDatabase): Promise<void> {
+		console.log("-----------------------------------------------------------------------------")
+		if (Platform.OS === 'web') {
+			console.log('🔄 Skipping route pages sync on web platform');
+			return;
+		}
+
+		if (!(await isConnected())) {
+			console.log('🔄 Device is offline, cannot sync route pages');
+			return;
+		}
+
+		try {
+			console.log('🔄 Syncing route pages from server...');
+			const { data: serverRoutePages } = await freightAxiosInstance.get<RawApiRoutePage[]>('/route-pages');
+
+			if (!Array.isArray(serverRoutePages) || serverRoutePages.length === 0) {
+				console.warn('🔄 No route pages received from server.');
+				return;
+			}
+
+			console.log(`🔄 Received ${serverRoutePages.length} route pages from server`);
+			console.log('🔄 First few raw route pages:', serverRoutePages.slice(0, 3));
+
+			// Normalize the data using the centralised normalizer
+			console.log('🔄 Normalizing server data...');
+			const normalizedPages = normalizeRoutePagesFromApi(serverRoutePages);
+			console.log(`🔄 ----------------------------------------------------------------------------------`);
+			console.log(normalizedPages);
+			console.log(`🔄 Normalized ${normalizedPages.length} valid pages after normalization`);
+
+			if (normalizedPages.length === 0) {
+				console.warn('🔄 No valid pages after normalization - skipping database update');
+				return;
+			}
+
+			console.log('🔄 Clearing all existing route pages from database...');
+			await executeQuery('DELETE FROM truck_route_page');
+
+			const insertSQL = `
+                INSERT OR REPLACE INTO truck_route_page
+                    (uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
+                 	total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
+                 	odometer_at_route_start,odometer_at_route_finish,computed_total_routes_length,
+                 	is_dirty, is_deleted, synced_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+			`;
+
+			if (db) {
+				await executeTransaction(async (database) => {
+					for (const page of normalizedPages) {
+						// Additional validation before database insertion
+						if (!validateRoutePageForDb(page)) {
+							console.warn('🔄 Skipping invalid page during database insertion:', page);
+							continue;
+						}
+
+						await database.runAsync(insertSQL, [
+							page.uid,
+							page.date_from,
+							page.date_to,
+							page.truck_uid,
+							page.user_id,
+							page.fuel_balance_at_start,
+							page.fuel_balance_at_routes_finish,
+							page.total_fuel_received_on_routes || null,
+							page.total_fuel_consumed_on_routes || null,
+							page.fuel_balance_at_routes_finish || null,
+							page.odometer_at_route_start || null,
+							page.odometer_at_route_finish || null,
+							page.computed_total_routes_length || null,
+							Date.now(),
+						]);
+					}
+				});
+			} else {
+				for (const page of normalizedPages) {
+					// Additional validation before database insertion
+					if (!validateRoutePageForDb(page)) {
+						console.warn('🔄 Skipping invalid page during database insertion:', page);
+						continue;
+					}
+
+					await executeQuery(insertSQL, [
+						page.uid,
+						page.date_from,
+						page.date_to,
+						page.truck_uid,
+						page.user_id,
+						page.fuel_balance_at_start,
+						page.fuel_balance_at_routes_finish,
+						page.total_fuel_received_on_routes || null,
+						page.total_fuel_consumed_on_routes || null,
+						page.fuel_balance_at_routes_finish || null,
+						page.odometer_at_route_start || null,
+						page.odometer_at_route_finish || null,
+						page.computed_total_routes_length || null,
+						Date.now(),
+					]);
+				}
+			}
+
+			console.log(`🔄 Successfully synced ${normalizedPages.length} route pages to local database`);
+		} catch (error: any) {
+			// Handle 403 Forbidden error with user-friendly message
+			if (error.response?.status === 403) {
+				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!';
+				console.error('🔄 Access denied:', userFriendlyMessage);
+				throw new Error(userFriendlyMessage);
+			}
+
+			console.error('🔄 Failed to sync route pages:', error);
+			throw error;
 		}
 	}
 }
@@ -650,12 +781,10 @@ export const offlineDataManagerExtended = new OfflineDataManagerExtended()
 // Convenience functions
 export const getTrucks = () => offlineDataManagerExtended.getTrucks()
 export const getObjects = () => offlineDataManagerExtended.getObjects()
-export const createObject = (data: Omit<TruckObject, 'id' | 'created_at' | 'updated_at'>) => offlineDataManagerExtended.createObject(data)
+export const createObject = (data: Omit<TruckObject, 'created_at' | 'updated_at'>) => offlineDataManagerExtended.createObject(data)
 
 export const getLastActiveRoute = () => offlineDataManagerExtended.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManagerExtended.getLastFinishedRoute()
-export const setActiveRoute = (routeData: any) => offlineDataManagerExtended.setActiveRoute(routeData)
-export const clearActiveRoute = () => offlineDataManagerExtended.clearActiveRoute()
 export const checkRoutePageExists = (truckId: string,
 		routeDate: string) => offlineDataManagerExtended.checkRoutePageExists(truckId, routeDate)
 

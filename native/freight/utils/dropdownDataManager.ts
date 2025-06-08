@@ -33,22 +33,21 @@ class DropdownDataManager {
   private async getOfflineDataForEndpoint(endpoint: string): Promise<any[] | null> {
     try {
       // Handle trucks endpoint
-      if (endpoint.includes('/trucks')) {
+      if (endpoint.includes('/truck')) {
         const trucks = await getTrucks();
         console.log('Raw trucks data:', trucks);
         return trucks.map(truck => ({
           // Always prioritize uid for backend compatibility
-          id: String(truck.uid || truck.server_id || truck.id || ''),
-          uid: truck.uid || truck.server_id,
-          registrationNumber: truck.registrationNumber || truck.registration_number,
-          truckModel: truck.truckModel || truck.model,
+          uid: truck.uid ,
+          registrationNumber: truck.registrationNumber || truck.registrationNumber,
+          truckModel: truck.truckModel,
           truckMaker: truck.truckMaker,
-          fuelConsumptionNorm: truck.fuelConsumptionNorm || truck.fuel_consumption_norm,
+          fuelConsumptionNorm: truck.fuelConsumptionNorm,
           isDefault: truck.isDefault,
           // Legacy fields for backward compatibility
-          registration_number: truck.registrationNumber || truck.registration_number,
-          name: truck.registrationNumber || truck.registration_number || `Auto ${truck.uid || truck.server_id || truck.id || 'N/A'}`,
-          model: truck.truckModel || truck.model
+          registration_number: truck.registrationNumber || truck.registrationNumber,
+          name: truck.registrationNumber || `Auto ${truck.uid  || 'N/A'}`,
+          model: truck.truckModel
         }));
       }
 
@@ -58,13 +57,12 @@ class DropdownDataManager {
         // Filter unique by uid
         const unique = new Map();
         for (const obj of objects) {
-          const uid = String(obj.uid || obj.server_id || obj.id || '');
+          const uid = String(obj.uid || '');
           if (!unique.has(uid)) {
             unique.set(uid, {
               id: uid,
-              uid: obj.uid || obj.server_id,
+              uid: obj.uid,
               name: obj.name,
-              type: obj.type
             });
           }
         }
