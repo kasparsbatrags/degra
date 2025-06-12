@@ -71,7 +71,7 @@
 ## 📋 Placeholder/Incomplete Komponenti
 
 ### 1. **new-truck-route.tsx** (`app/(tabs)/new-truck-route.tsx`)
-**Status**: Placeholder (tikai "New Truck Route Screen" teksts)
+**Status**: Placeholder (tikai "New TruckDto Route Screen" teksts)
 - Nav nepieciešama migrācija - nav implementēts
 
 ### 2. **truck-route.tsx** (`app/(tabs)/truck-route.tsx`)

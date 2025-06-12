@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import { useNetworkState } from '@/utils/networkUtils';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
 import freightAxios from '@/config/freightAxios';
-import { FormState, TruckRoutePage, TruckRouteDto, TruckObject, Page } from '@/types/truckRouteTypes';
+import { FormState, TruckRoutePageDto, TruckRouteDto, TruckObjectDto, Page } from '@/types/truckRouteTypes';
 import { getTrucks, getObjects, createObject, getLastActiveRoute, getLastFinishedRoute, checkRoutePageExists } from '@/utils/offlineDataManagerExtended';
 
 export function useTruckRouteForm(params: any) {
@@ -17,9 +17,9 @@ export function useTruckRouteForm(params: any) {
     const [hasCargo, setHasCargo] = useState(false);
     const [showRoutePageError, setShowRoutePageError] = useState(false);
     const [isItRouteFinish, setIsRouteFinish] = useState(false);
-    const [existingRoutePage, setExistingRoutePage] = useState<TruckRoutePage | null>(null);
-    const [outTruckObjectDetails, setOutTruckObjectDetails] = useState<TruckObject | null>(null);
-    const [inTruckObjectDetails, setInTruckObjectDetails] = useState<TruckObject | null>(null);
+    const [existingRoutePage, setExistingRoutePage] = useState<TruckRoutePageDto | null>(null);
+    const [outTruckObjectDetails, setOutTruckObjectDetails] = useState<TruckObjectDto | null>(null);
+    const [inTruckObjectDetails, setInTruckObjectDetails] = useState<TruckObjectDto | null>(null);
     const [refreshDropdowns, setRefreshDropdowns] = useState(0);
     const [objectsList, setObjectsList] = useState<{id: string, name: string}[]>([]);
     const [selectedOutTruckObject, setSelectedOutTruckObject] = useState<string>('');
@@ -79,7 +79,7 @@ export function useTruckRouteForm(params: any) {
             timeoutId = setTimeout(async () => {
                 try {
                     const formattedDate = format(date, 'yyyy-MM-dd');
-                    const response = await freightAxios.get<TruckRoutePage>(`/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`);
+                    const response = await freightAxios.get<TruckRoutePageDto>(`/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`);
                     if (response.data) {
                         setExistingRoutePage(response.data);
                         setShowRoutePageError(false);

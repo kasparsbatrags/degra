@@ -1,77 +1,4 @@
-export interface TruckObject {
-	// Backend API fields (uid-based)
-	uid?: string;
-	name?: string;
-	
-	// Legacy fields for backward compatibility
-	id?: number;
-}
-
-export interface User {
-	// Backend API fields (uid-based)
-	uid?: string;
-	preferred_username?: string;
-	email?: string;
-	given_name?: string;
-	family_name?: string;
-	attributes?: Record<string, string>;
-	
-	// Legacy fields for backward compatibility
-	id?: string;
-}
-
-export interface Truck {
-	// Backend API fields (uid-based)
-	uid?: string;
-	truckMaker?: string;
-	truckModel?: string;
-	registrationNumber?: string;
-	fuelConsumptionNorm?: number;
-	isDefault?: boolean;
-	
-	// Legacy fields for backward compatibility
-	id?: number;
-}
-
-export interface TruckRoutePage {
-	uid: string;
-	id?: number;
-	dateFrom: string;
-	dateTo: string;
-	truck: Truck;
-	user: User;
-	fuelBalanceAtStart: number | null;
-	fuelBalanceAtFinish?: number;
-	truckRegistrationNumber?: string;
-	fuelConsumptionNorm?: number;
-	totalFuelReceivedOnRoutes?: number;
-	totalFuelConsumedOnRoutes?: number;
-	fuelBalanceAtRoutesFinish?: number;
-	odometerAtRouteStart?: number;
-	odometerAtRouteFinish?: number;
-	computedTotalRoutesLength?: number;
-}
-
-export interface TruckRouteDto {
-	// Backend API fields (uid-based)
-	uid?: string | null;
-	routeDate: string;
-	truckRoutePage: TruckRoutePage | null;
-	outTruckObject: TruckObject | null;
-	inTruckObject: TruckObject | null;
-	odometerAtStart: number | null;
-	odometerAtFinish: number | null;
-	cargoVolume: number | null;
-	unitType: string | null;
-	fuelBalanceAtStart: number | null;
-	fuelReceived: number | null;
-	fuelBalanceAtFinish: number | null;
-	outDateTime: string;
-	inDateTime: string | null;
-	
-	// Legacy fields for backward compatibility
-	id?: number | null;
-}
+import {TruckObjectDto} from '@/dto/TruckObjectDto'
 
 export interface Page<T> {
 	content: T[];
@@ -118,8 +45,8 @@ export interface RouteTabBaseProps {
     selectedInTruckObject: string;
     setSelectedOutTruckObject: React.Dispatch<React.SetStateAction<string>>;
     setSelectedInTruckObject: React.Dispatch<React.SetStateAction<string>>;
-    outTruckObjectDetails: TruckObject | null;
-    inTruckObjectDetails: TruckObject | null;
+    outTruckObjectDetails: TruckObjectDto | null;
+    inTruckObjectDetails: TruckObjectDto | null;
     refreshDropdowns: number;
     router: any;
     params?: any;

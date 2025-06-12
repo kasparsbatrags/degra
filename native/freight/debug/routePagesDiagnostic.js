@@ -10,7 +10,6 @@ import { getRoutePages, syncRoutePages } from '../utils/offlineDataManagerExtend
 import { executeSelect, checkDatabaseHealth } from '../utils/database';
 import { isConnected } from '../utils/networkUtils';
 import freightAxiosInstance from '../config/freightAxios';
-import { normalizeRoutePagesFromApi } from '../utils/apiDataNormalizer';
 
 export const runRoutePagesDiagnostic = async () => {
   console.log('🔧 [DIAGNOSTIC] Starting route pages diagnostic...');

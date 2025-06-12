@@ -22,14 +22,6 @@ public class FreightMapper {
 	public FreightMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 
-		modelMapper.addMappings(new PropertyMap<TruckRoutePage, TruckRoutePageDto>() {
-			@Override
-			protected void configure() {
-				map().setFuelConsumptionNorm(source.getTruck().getFuelConsumptionNorm());
-				map().setTruckRegistrationNumber(source.getTruck().getRegistrationNumber());
-			}
-		});
-
 	}
 
 	public TruckRoutePageDto toDto(TruckRoutePage truckRoutePage) {

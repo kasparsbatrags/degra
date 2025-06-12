@@ -24,7 +24,7 @@ const testConfig = {
       name: 'TruckRoute',
       original: 'components/TruckRoute/index.tsx',
       migrated: 'components/TruckRoute/index-simple-migrated.tsx',
-      description: 'Truck route form with offline support',
+      description: 'TruckDto route form with offline support',
       priority: 'High',
       complexity: 'Medium'
     },

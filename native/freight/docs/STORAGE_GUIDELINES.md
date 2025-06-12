@@ -43,7 +43,7 @@ await SecureStore.deleteItemAsync('userToken');
 ## 🗄️ SQLite Database
 
 ### **Kad izmantot:**
-- Truck routes un to dati
+- TruckDto routes un to dati
 - Objects (iekraušanas/izkraušanas vietas)
 - Trucks saraksts
 - Form data un cache
@@ -109,7 +109,7 @@ Vai dati ir sensitīvi autentifikācijas dati?
 │   └── Session keys
 │
 └── NĒ → SQLite Database
-    ├── Truck routes
+    ├── TruckDto routes
     ├── Objects
     ├── Form data
     └── Cache data

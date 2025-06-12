@@ -19,7 +19,7 @@
 
 ## ❌ Vēl nav implementēts:
 
-### 1. **Truck Route Operations** (`useTruckRouteForm.ts`)
+### 1. **TruckDto Route Operations** (`useTruckRouteForm.ts`)
 ```typescript
 // Šie API calls vēl nav aizstāti:
 freightAxios.get('/truck-routes/last-active')        // Route status check
@@ -61,7 +61,7 @@ endRoute.mutateAsync(payload)
 ### 1. **Paplašināt offlineDataManager.ts**
 Pievienot funkcijas:
 ```typescript
-// Truck operations
+// TruckDto operations
 export const getTrucks = () => offlineDataManager.getTrucks();
 export const getLastActiveRoute = () => offlineDataManager.getLastActiveRoute();
 export const getLastFinishedRoute = () => offlineDataManager.getLastFinishedRoute();
@@ -137,7 +137,7 @@ const newObject = await createObject(data);
 ## Prioritātes:
 
 ### 1. **Augsta prioritāte** (Core funkcionalitāte)
-- [ ] Truck route start/end operations
+- [ ] TruckDto route start/end operations
 - [ ] Objects list un creation
 - [ ] Trucks list
 - [ ] Route status checking

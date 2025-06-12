@@ -27,7 +27,7 @@ graph TD
     D --> G[Session Keys]
     
     C --> H[SQLite Database]
-    H --> I[Truck Routes]
+    H --> I[TruckDto Routes]
     H --> J[Objects]
     H --> K[Trucks]
     H --> L[Offline Queue]
@@ -46,7 +46,7 @@ graph TD
 - Biometric data
 
 #### **🗃️ SQLite Database (Aplikācijas dati)**
-- Truck routes un maršruti
+- TruckDto routes un maršruti
 - Objects (iekraušanas/izkraušanas vietas)
 - Trucks saraksts
 - Form data un cache
@@ -161,7 +161,7 @@ context/
 
 ## 🚀 Galvenās funkcijas
 
-### **✅ Truck Route Management**
+### **✅ TruckDto Route Management**
 - **Offline truck selection** - no lokālās DB
 - **Offline object selection** - iekraušanas/izkraušanas vietas
 - **Route creation/completion** - ar offline queue

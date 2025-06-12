@@ -490,7 +490,7 @@ class AuthUserServiceTest {
 		// Assert
 		assertNotNull(userDto);
 		assertEquals("12345", userDto.getId());
-		assertEquals("Test User", userDto.getPreferred_username());
+		assertEquals("Test User", userDto.getPreferredUsername());
 		assertEquals("test@example.com", userDto.getEmail());
 		assertEquals("Test", userDto.getGiven_name());
 		assertEquals("User", userDto.getFamily_name());
@@ -533,7 +533,7 @@ class AuthUserServiceTest {
 		assertNotNull(userDto);
 		assertNull(userDto.getId());
 		assertNull(userDto.getEmail());
-		assertNull(userDto.getPreferred_username());
+		assertNull(userDto.getPreferredUsername());
 		assertNull(userDto.getGiven_name());
 		assertNull(userDto.getFamily_name());
 		assertTrue(userDto.getAttributes().isEmpty());

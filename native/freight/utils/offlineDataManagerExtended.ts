@@ -1,9 +1,17 @@
+import { loadSessionEnhanced } from '@/utils/sessionUtils';
+import {TruckDto} from '@/dto/TruckDto'
+import {TruckObjectDto} from '@/dto/TruckObjectDto'
+import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
+import {UserDto} from '@/dto/UserDto'
+import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
+import {Truck} from '@/models/Truck'
+import {TruckObject} from '@/models/TruckObject'
+import {TruckRoutePage} from '@/models/TruckRoutePage'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {SQLiteDatabase} from 'expo-sqlite'
 import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
-import {normalizeRoutePagesFromApi, RawApiRoutePage, validateRoutePageForDb} from './apiDataNormalizer'
-import {executeQuery, executeSelect, executeSelectFirst, executeTransaction, RoutePage, Truck, TruckObject} from './database'
+import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
 import {isConnected} from './networkUtils'
 import {addOfflineOperation} from './offlineQueue'
 
@@ -140,7 +148,7 @@ class OfflineDataManagerExtended {
             VALUES (?, ?, 1, 0)
 		`
 
-		const result = await executeQuery(sql, [object.uid, object.name,Date.now(), Date.now()])
+		const result = await executeQuery(sql, [object.uid, object.name, Date.now(), Date.now()])
 
 		const createdObject = {...object, uid: result.lastInsertRowId}
 
@@ -275,12 +283,26 @@ class OfflineDataManagerExtended {
 	// ==================== ROUTE PAGES ====================
 
 	// Get route pages for a truck route
-	async getRoutePages(truckRouteId?: number): Promise<RoutePage[]> {
+	async getRoutePages(truckRouteId?: number): Promise<TruckRoutePageDto[]> {
 		try {
 			if (Platform.OS === 'web') {
 				return await this.getRoutePagesWeb(truckRouteId)
 			} else {
-				return await this.getRoutePagesMobile(truckRouteId)
+				const routePages = await this.getRoutePagesMobile(truckRouteId)
+				console.log('📱 [DEBUG] route pages from DB: ', routePages);
+				console.log('📱 [DEBUG] route pages count:', routePages.length);
+				
+				// Ensure we have an array before mapping
+				if (!Array.isArray(routePages)) {
+					console.warn('📱 [WARN] Expected array from mobile DB, got:', typeof routePages);
+					return []
+				}
+				
+				const mappedPages = mapTruckRoutePageModelToDto(routePages)
+				console.log('📱 [DEBUG] mapped pages:', mappedPages.length);
+				
+				// Ensure mapper returns an array
+				return Array.isArray(mappedPages) ? mappedPages : []
 			}
 		} catch (error) {
 			console.error('Failed to get route pages:', error)
@@ -288,24 +310,26 @@ class OfflineDataManagerExtended {
 		}
 	}
 
-	private async getRoutePagesWeb(truckRouteId?: number): Promise<RoutePage[]> {
+	private async getRoutePagesWeb(truckRouteId?: number): Promise<TruckRoutePageDto[]> {
 		const connected = await isConnected()
 
 		if (connected) {
 			try {
 				const endpoint = truckRouteId ? `/route-pages?truckRouteId=${truckRouteId}` : '/route-pages'
-				const response = await freightAxiosInstance.get<RawApiRoutePage[]>(endpoint)
+				const response = await freightAxiosInstance.get<TruckRoutePageDto[]>(endpoint)
 
-				// Normalize the data using the centralised normalizer
-				console.log('🔄 [WEB] Normalizing server data for web...')
-				const normalizedData = normalizeRoutePagesFromApi(response.data)
-				console.log('🔄 [WEB] Normalized', normalizedData, 'pages for web')
-				console.log('🔄 [WEB] Normalized', normalizedData.length, 'pages for web')
+				console.log('🔄 [WEB] Server response received:', response.data)
+				console.log('🔄 [WEB] Response data type:', typeof response.data)
+				console.log('🔄 [WEB] Response data is array:', Array.isArray(response.data))
 
-				// Cache the normalized data
+				// Ensure we always return an array
+				const routePages = Array.isArray(response.data) ? response.data : []
+				console.log('🔄 [WEB] Normalized to array:', routePages.length, 'pages')
+
+				// Cache the array data
 				const cacheKey = truckRouteId ? `cached_route_pages_${truckRouteId}` : 'cached_route_pages'
-				await AsyncStorage.setItem(cacheKey, JSON.stringify(normalizedData))
-				return normalizedData
+				await AsyncStorage.setItem(cacheKey, JSON.stringify(routePages))
+				return routePages
 			} catch (error: any) {
 				// Handle 403 Forbidden error with user-friendly message
 				if (error.response?.status === 403) {
@@ -321,24 +345,28 @@ class OfflineDataManagerExtended {
 		try {
 			const cacheKey = truckRouteId ? `cached_route_pages_${truckRouteId}` : 'cached_route_pages'
 			const cached = await AsyncStorage.getItem(cacheKey)
-			return cached ? JSON.parse(cached) : []
+			if (cached) {
+				const parsedCache = JSON.parse(cached)
+				// Ensure cached data is also an array
+				return Array.isArray(parsedCache) ? parsedCache : []
+			}
+			return []
 		} catch (error) {
 			console.error('Failed to load cached route pages:', error)
 			return []
 		}
 	}
 
-	private async getRoutePagesMobile(truckRouteId?: number): Promise<RoutePage[]> {
+	private async getRoutePagesMobile(truckRouteId?: number): Promise<TruckRoutePage[]> {
 		let sql = `
-            SELECT
-                trp.*,
-                t.truck_maker,
-                t.truck_model,
-                t.registration_number as truck_registration_number,
-                t.fuel_consumption_norm
-            FROM truck_route_page trp
-            	LEFT JOIN truck t ON trp.truck_uid = t.uid
-            WHERE trp.is_deleted = 0
+	           SELECT trp.*,
+	                  t.truck_maker,
+	                  t.truck_model,
+	                  t.registration_number,
+	                  t.fuel_consumption_norm
+	           FROM truck_route_page trp
+	                    LEFT JOIN truck t ON trp.truck_uid = t.uid
+	           WHERE trp.is_deleted = 0
 		`
 		const params: any[] = []
 
@@ -354,7 +382,8 @@ class OfflineDataManagerExtended {
 		console.log('🔍 [DEBUG] Route pages query result:', result.length, 'rows found')
 		console.log('🔍 [DEBUG] First few results:', result.slice(0, 3))
 
-		return result
+		// Ensure we always return an array
+		return Array.isArray(result) ? result : []
 	}
 
 	// Create route page
@@ -417,229 +446,206 @@ class OfflineDataManagerExtended {
 		return createdPage
 	}
 
-	// ==================== SYNC OPERATIONS ====================
-
-	// Sync trucks from server to mobile database
 	async downloadTrucks(db?: SQLiteDatabase): Promise<void> {
 		if (Platform.OS === 'web') {
-			console.log('Skipping truck sync on web platform');
-			return;
+			console.log('Skipping truck sync on web platform')
+			return
 		}
 
 		if (!(await isConnected())) {
-			console.log('Device is offline, cannot sync trucks');
-			return;
+			console.log('Device is offline, cannot sync trucks')
+			return
 		}
 
 		try {
-			console.log('🚛 Syncing trucks from server...');
-			const { data: serverTrucks } = await freightAxiosInstance.get<Truck[]>('/trucks');
+			console.log('🚛 Syncing trucks from server...')
+			const {data: serverTrucks} = await freightAxiosInstance.get<TruckDto[]>('/trucks')
 
 			if (!Array.isArray(serverTrucks) || serverTrucks.length === 0) {
-				console.warn('🚛 No trucks received from server.');
-				return;
+				console.warn('🚛 No trucks received from server.')
+				return
 			}
 
-			console.log(`🚛 Received ${serverTrucks.length} trucks from server`);
-			console.log('🚛 First few trucks:', serverTrucks.slice(0, 3));
+			console.log(`🚛 Received ${serverTrucks.length} trucks from server`)
+			console.log('🚛 First few trucks:', serverTrucks.slice(0, 3))
 
-			await executeQuery('DELETE FROM truck');
+			await executeQuery('DELETE FROM truck WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck
+                INSERT OR
+                REPLACE
+                INTO truck
                 (uid, truck_maker, truck_model, registration_number, fuel_consumption_norm, is_dirty, is_deleted, synced_at)
                 VALUES (?, ?, ?, ?, ?, 0, 0, ?)
-			`;
+			`
 
-			// Use executeTransaction for better performance
 			if (db) {
 				await executeTransaction(async (database) => {
 					for (const truck of serverTrucks) {
 						if (!truck.registrationNumber || !truck.uid) {
-							console.warn('🚛 Skipping invalid truck:', truck);
-							continue;
+							console.warn('🚛 Skipping invalid truck:', truck)
+							continue
 						}
 
-						await database.runAsync(insertSQL, [
-							truck.uid,
-							truck.truck_maker ?? '',
-							truck.truck_model ?? '',
-							truck.registrationNumber,
-							truck.fuelConsumptionNorm ?? 0,
-							Date.now(),
-						]);
+						await database.runAsync(insertSQL, [truck.uid, truck.truckMaker ?? '', truck.truckModel ?? '', truck.registrationNumber, truck.fuelConsumptionNorm ?? 0, Date.now(),])
 					}
-				});
+				})
 			} else {
 				for (const truck of serverTrucks) {
 					if (!truck.registrationNumber || !truck.uid) {
-						console.warn('🚛 Skipping invalid truck:', truck);
-						continue;
+						console.warn('🚛 Skipping invalid truck:', truck)
+						continue
 					}
 
-					await executeQuery(insertSQL, [
-						truck.uid,
-						truck.truck_maker ?? '',
-						truck.truck_model ?? '',
-						truck.registrationNumber,
-						truck.fuelConsumptionNorm ?? 0,
-						Date.now(),
-					]);
+					await executeQuery(insertSQL, [truck.uid, truck.truckMaker ?? '', truck.truckModel ?? '', truck.registrationNumber, truck.fuelConsumptionNorm ?? 0, Date.now(),])
 				}
 			}
 
-			console.log(`🚛 Successfully synced ${serverTrucks.length} trucks to local database`);
+			console.log(`🚛 Successfully synced ${serverTrucks.length} trucks to local database`)
 		} catch (error) {
-			console.error('🚛 Failed to sync trucks:', error);
-			throw error;
+			console.error('🚛 Failed to sync trucks:', error)
+			throw error
 		}
 	}
-
 
 	// Sync objects from server to mobile database
 	async downloadObjects(db?: SQLiteDatabase): Promise<void> {
 		if (Platform.OS === 'web') {
-			console.log('📍 Skipping objects sync on web platform');
-			return;
+			console.log('📍 Skipping objects sync on web platform')
+			return
 		}
 
 		if (!(await isConnected())) {
-			console.log('📍 Device is offline, cannot sync objects');
-			return;
+			console.log('📍 Device is offline, cannot sync objects')
+			return
 		}
 
 		try {
-			console.log('📍 Syncing objects from server...');
-			const { data: serverObjects } = await freightAxiosInstance.get<TruckObject[]>('/objects');
+			console.log('📍 Syncing objects from server...')
+			const {data: serverObjects} = await freightAxiosInstance.get<TruckObjectDto[]>('/objects')
 
 			if (!Array.isArray(serverObjects) || serverObjects.length === 0) {
-				console.warn('📍 No objects received from server.');
-				return;
+				console.warn('📍 No objects received from server.')
+				return
 			}
 
-			console.log(`📍 Received ${serverObjects.length} objects from server`);
-			console.log('📍 Clearing all existing objects from database...');
-			await executeQuery('DELETE FROM truck_object');
+			console.log(`📍 Received ${serverObjects.length} objects from server`)
+			console.log('📍 Clearing all existing objects from database...')
+			await executeQuery('DELETE FROM truck_object WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck_object
-                (uid, name, is_dirty, is_deleted, synced_at)
+                INSERT OR
+                REPLACE
+                INTO truck_object
+                    (uid, name, is_dirty, is_deleted, synced_at)
                 VALUES (?, ?, 0, 0, ?)
-			`;
+			`
 
 			if (db) {
 				await executeTransaction(async (database) => {
 					for (const obj of serverObjects) {
 						if (!obj.uid || !obj.name) {
-							console.warn('📍 Skipping invalid object:', obj);
-							continue;
+							console.warn('📍 Skipping invalid object:', obj)
+							continue
 						}
 
-						await database.runAsync(insertSQL, [
-							obj.uid,
-							obj.name,
-							Date.now(),
-						]);
+						await database.runAsync(insertSQL, [obj.uid, obj.name, Date.now(),])
 					}
-				});
+				})
 			} else {
 				for (const obj of serverObjects) {
 					if (!obj.uid || !obj.name) {
-						console.warn('📍 Skipping invalid object:', obj);
-						continue;
+						console.warn('📍 Skipping invalid object:', obj)
+						continue
 					}
 
-					await executeQuery(insertSQL, [
-						obj.uid,
-						obj.name,
-						Date.now(),
-					]);
+					await executeQuery(insertSQL, [obj.uid, obj.name, Date.now(),])
 				}
 			}
 
-			console.log(`📍 Successfully synced ${serverObjects.length} objects to local database`);
+			console.log(`📍 Successfully synced ${serverObjects.length} objects to local database`)
 		} catch (error) {
-			console.error('📍 Failed to sync objects:', error);
-			throw error;
+			console.error('📍 Failed to sync objects:', error)
+			throw error
 		}
 	}
 
 	// Sync route pages when online
-	async syncRoutePages(): Promise<void> {
-		console.log('🔄 [DEBUG] syncRoutePages called')
+	// async syncRoutePages(): Promise<void> {
+	// 	console.log('🔄 [DEBUG] syncRoutePages called')
+	//
+	// 	const connected = await isConnected()
+	// 	if (!connected) {
+	// 		console.log('🔄 [DEBUG] Device is offline, cannot sync route pages')
+	// 		return
+	// 	}
+	//
+	// 	if (Platform.OS === 'web') {
+	// 		console.log('🔄 [DEBUG] Web platform detected, skipping SQLite sync')
+	// 		return // Skip for web
+	// 	}
 
-		const connected = await isConnected()
-		if (!connected) {
-			console.log('🔄 [DEBUG] Device is offline, cannot sync route pages')
-			return
-		}
-
-		if (Platform.OS === 'web') {
-			console.log('🔄 [DEBUG] Web platform detected, skipping SQLite sync')
-			return // Skip for web
-		}
-
-		try {
-			console.log('🔄 [DEBUG] Fetching route pages from server...')
-			const response = await freightAxiosInstance.get<RawApiRoutePage[]>('/route-pages')
-			const rawServerPages = response.data
-			console.log('🔄 [DEBUG] Server response:', rawServerPages.length, 'raw route pages received')
-			console.log('🔄 [DEBUG] First few raw server pages:', rawServerPages.slice(0, 3))
-
-			// Normalize the data using the centralised normalizer
-			console.log('🔄 [DEBUG] Normalizing server data...')
-			const normalizedPages = normalizeRoutePagesFromApi(rawServerPages)
-			console.log('🔄 [DEBUG] Normalized pages:', normalizedPages.length, 'valid pages after normalization')
-
-			if (normalizedPages.length === 0) {
-				console.warn('🔄 [WARN] No valid pages after normalization - skipping database update')
-				return
-			}
-
-			await executeTransaction(async (db) => {
-				console.log('🔄 [DEBUG] Starting database transaction...')
-
-				// Clear ALL existing route pages first to prevent duplicates
-				console.log('🔄 [DEBUG] Clearing all existing route pages from database...')
-				await db.runAsync('DELETE FROM route_pages')
-
-				// Insert normalized data
-				console.log('🔄 [DEBUG] Inserting', normalizedPages.length, 'normalized pages into database...')
-				for (const page of normalizedPages) {
-					// Additional validation before database insertion
-					if (!validateRoutePageForDb(page)) {
-						console.warn('🔄 [WARN] Skipping invalid page during database insertion:', page)
-						continue
-					}
-
-					console.log('🔄 [DEBUG] Inserting page:', page.id, page.truck_registration_number)
-					await db.runAsync(`
-                        INSERT INTO route_pages
-                        (server_id, truck_route_server_id, date_from, date_to, truck_registration_number,
-                         fuel_consumption_norm, fuel_balance_at_start, total_fuel_received_on_routes,
-                         total_fuel_consumed_on_routes, fuel_balance_at_routes_finish, odometer_at_route_start,
-                         odometer_at_route_finish, computed_total_routes_length, is_dirty, is_deleted, synced_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
-					`, [page.server_id || null, page.truck_route_server_id || null, page.date_from, page.date_to, page.truck_registration_number, page.fuel_consumption_norm, page.fuel_balance_at_start, page.total_fuel_received_on_routes || null, page.total_fuel_consumed_on_routes || null, page.fuel_balance_at_routes_finish || null, page.odometer_at_route_start || null, page.odometer_at_route_finish || null, page.computed_total_routes_length || null, Date.now()])
-				}
-
-				console.log('🔄 [DEBUG] Database transaction completed successfully')
-			})
-
-			console.log(`🔄 [DEBUG] Successfully synced ${normalizedPages.length} route pages from server`)
-		} catch (error: any) {
-			// Handle 403 Forbidden error with user-friendly message
-			if (error.response?.status === 403) {
-				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
-				console.error('🔄 [ERROR] Access denied:', userFriendlyMessage)
-				throw new Error(userFriendlyMessage)
-			}
-
-			console.error('🔄 [ERROR] Failed to sync route pages:', error)
-			console.error('🔄 [ERROR] Error details:', error instanceof Error ? error.message : 'Unknown error')
-			throw error
-		}
-	}
+	// 	try {
+	// 		console.log('🔄 [DEBUG] Fetching route pages from server...')
+	// 		const response = await freightAxiosInstance.get<RawApiRoutePage[]>('/route-pages')
+	// 		const rawServerPages = response.data
+	// 		console.log('🔄 [DEBUG] Server response:', rawServerPages.length, 'raw route pages received')
+	// 		console.log('🔄 [DEBUG] First few raw server pages:', rawServerPages.slice(0, 3))
+	//
+	// 		// Normalize the data using the centralised normalizer
+	// 		console.log('🔄 [DEBUG] Normalizing server data...')
+	// 		const normalizedPages = normalizeRoutePagesFromApi(rawServerPages)
+	// 		console.log('🔄 [DEBUG] Normalized pages:', normalizedPages.length, 'valid pages after normalization')
+	//
+	// 		if (normalizedPages.length === 0) {
+	// 			console.warn('🔄 [WARN] No valid pages after normalization - skipping database update')
+	// 			return
+	// 		}
+	//
+	// 		await executeTransaction(async (db) => {
+	// 			console.log('🔄 [DEBUG] Starting database transaction...')
+	//
+	// 			// Clear ALL existing route pages first to prevent duplicates
+	// 			console.log('🔄 [DEBUG] Clearing all existing route pages from database...')
+	// 			await db.runAsync('DELETE FROM route_pages')
+	//
+	// 			// Insert normalized data
+	// 			console.log('🔄 [DEBUG] Inserting', normalizedPages.length, 'normalized pages into database...')
+	// 			for (const page of normalizedPages) {
+	// 				// Additional validation before database insertion
+	// 				if (!validateRoutePageForDb(page)) {
+	// 					console.warn('🔄 [WARN] Skipping invalid page during database insertion:', page)
+	// 					continue
+	// 				}
+	//
+	// 				console.log('🔄 [DEBUG] Inserting page:', page.id, page.truck_registration_number)
+	// 				await db.runAsync(`
+	//                     INSERT INTO route_pages
+	//                     (server_id, truck_route_server_id, date_from, date_to, truck_registration_number,
+	//                      fuel_consumption_norm, fuel_balance_at_start, total_fuel_received_on_routes,
+	//                      total_fuel_consumed_on_routes, fuel_balance_at_routes_finish, odometer_at_route_start,
+	//                      odometer_at_route_finish, computed_total_routes_length, is_dirty, is_deleted, synced_at)
+	//                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+	// 				`, [page.server_id || null, page.truck_route_server_id || null, page.date_from, page.date_to, page.truck_registration_number, page.fuel_consumption_norm, page.fuel_balance_at_start, page.total_fuel_received_on_routes || null, page.total_fuel_consumed_on_routes || null, page.fuel_balance_at_routes_finish || null, page.odometer_at_route_start || null, page.odometer_at_route_finish || null, page.computed_total_routes_length || null, Date.now()])
+	// 			}
+	//
+	// 			console.log('🔄 [DEBUG] Database transaction completed successfully')
+	// 		})
+	//
+	// 		console.log(`🔄 [DEBUG] Successfully synced ${normalizedPages.length} route pages from server`)
+	// 	} catch (error: any) {
+	// 		// Handle 403 Forbidden error with user-friendly message
+	// 		if (error.response?.status === 403) {
+	// 			const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
+	// 			console.error('🔄 [ERROR] Access denied:', userFriendlyMessage)
+	// 			throw new Error(userFriendlyMessage)
+	// 		}
+	//
+	// 		console.error('🔄 [ERROR] Failed to sync route pages:', error)
+	// 		console.error('🔄 [ERROR] Error details:', error instanceof Error ? error.message : 'Unknown error')
+	// 		throw error
+	// 	}
+	// }
 
 	// Sync all dropdown data
 	async syncAllData(): Promise<void> {
@@ -659,118 +665,128 @@ class OfflineDataManagerExtended {
 
 	// Sync route pages from server to mobile database
 	async downloadRoutePages(db?: SQLiteDatabase): Promise<void> {
-		console.log("-----------------------------------------------------------------------------")
+		console.log('-----------------------------------------------------------------------------')
 		if (Platform.OS === 'web') {
-			console.log('🔄 Skipping route pages sync on web platform');
-			return;
+			console.log('🔄 Skipping route pages sync on web platform')
+			return
 		}
 
 		if (!(await isConnected())) {
-			console.log('🔄 Device is offline, cannot sync route pages');
-			return;
+			console.log('🔄 Device is offline, cannot sync route pages')
+			return
 		}
 
 		try {
-			console.log('🔄 Syncing route pages from server...');
-			const { data: serverRoutePages } = await freightAxiosInstance.get<RawApiRoutePage[]>('/route-pages');
+			console.log('🔄 Syncing route pages from server...')
+			const {data: serverRoutePages} = await freightAxiosInstance.get<TruckRoutePageDto[]>('/route-pages')
 
 			if (!Array.isArray(serverRoutePages) || serverRoutePages.length === 0) {
-				console.warn('🔄 No route pages received from server.');
-				return;
+				console.warn('🔄 No route pages received from server.')
+				return
 			}
 
-			console.log(`🔄 Received ${serverRoutePages.length} route pages from server`);
-			console.log('🔄 First few raw route pages:', serverRoutePages.slice(0, 3));
+			console.log(`🔄 Received ${serverRoutePages.length} route pages from server`)
+			console.log('🔄 First few raw route pages:', serverRoutePages.slice(0, 3))
 
 			// Normalize the data using the centralised normalizer
-			console.log('🔄 Normalizing server data...');
-			const normalizedPages = normalizeRoutePagesFromApi(serverRoutePages);
-			console.log(`🔄 ----------------------------------------------------------------------------------`);
-			console.log(normalizedPages);
-			console.log(`🔄 Normalized ${normalizedPages.length} valid pages after normalization`);
+			// console.log('🔄 Normalizing server data...');
+			// const normalizedPages = normalizeRoutePagesFromApi(serverRoutePages);
+			// console.log(`🔄 ----------------------------------------------------------------------------------`);
+			// console.log(normalizedPages);
+			// console.log(`🔄 Normalized ${normalizedPages.length} valid pages after normalization`);
 
-			if (normalizedPages.length === 0) {
-				console.warn('🔄 No valid pages after normalization - skipping database update');
-				return;
-			}
+			// if (normalizedPages.length === 0) {
+			// 	console.warn('🔄 No valid pages after normalization - skipping database update');
+			// 	return;
+			// }
 
-			console.log('🔄 Clearing all existing route pages from database...');
-			await executeQuery('DELETE FROM truck_route_page');
+			console.log('🔄 Clearing all existing route pages from database...')
+			await executeQuery('DELETE FROM user WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
-			const insertSQL = `
-                INSERT OR REPLACE INTO truck_route_page
-                    (uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
-                 	total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
-                 	odometer_at_route_start,odometer_at_route_finish,computed_total_routes_length,
-                 	is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
-			`;
-
+			const insertUserSQL = `
+                INSERT OR
+                REPLACE
+                INTO user
+                (id, email, given_name, family_name,
+                 is_dirty, is_deleted, synced_at)
+                VALUES (?, ?, ?, ?, 0, 0, ?)
+			`
+			const sessionData = await loadSessionEnhanced();
+			const currentUser = sessionData.user;
 			if (db) {
 				await executeTransaction(async (database) => {
-					for (const page of normalizedPages) {
-						// Additional validation before database insertion
-						if (!validateRoutePageForDb(page)) {
-							console.warn('🔄 Skipping invalid page during database insertion:', page);
-							continue;
-						}
-
-						await database.runAsync(insertSQL, [
-							page.uid,
-							page.date_from,
-							page.date_to,
-							page.truck_uid,
-							page.user_id,
-							page.fuel_balance_at_start,
-							page.fuel_balance_at_routes_finish,
-							page.total_fuel_received_on_routes || null,
-							page.total_fuel_consumed_on_routes || null,
-							page.fuel_balance_at_routes_finish || null,
-							page.odometer_at_route_start || null,
-							page.odometer_at_route_finish || null,
-							page.computed_total_routes_length || null,
-							Date.now(),
-						]);
+					for (const page of serverRoutePages) {
+						const user: UserDto = page.user
+						await database.runAsync(insertUserSQL, [
+								user.id,
+								currentUser.email,
+								currentUser.givenName || currentUser.firstName,
+								currentUser.familyName || currentUser.lastName,
+								Date.now()
+						])
 					}
-				});
+				})
 			} else {
-				for (const page of normalizedPages) {
-					// Additional validation before database insertion
-					if (!validateRoutePageForDb(page)) {
-						console.warn('🔄 Skipping invalid page during database insertion:', page);
-						continue;
-					}
-
-					await executeQuery(insertSQL, [
-						page.uid,
-						page.date_from,
-						page.date_to,
-						page.truck_uid,
-						page.user_id,
-						page.fuel_balance_at_start,
-						page.fuel_balance_at_routes_finish,
-						page.total_fuel_received_on_routes || null,
-						page.total_fuel_consumed_on_routes || null,
-						page.fuel_balance_at_routes_finish || null,
-						page.odometer_at_route_start || null,
-						page.odometer_at_route_finish || null,
-						page.computed_total_routes_length || null,
-						Date.now(),
-					]);
+				for (const page of serverRoutePages) {
+					const user: UserDto = page.user
+					await executeQuery(insertUserSQL, [
+						user.id,
+						currentUser.email,
+						currentUser.givenName || currentUser.firstName,
+						currentUser.familyName || currentUser.lastName,
+						Date.now()
+					])
 				}
 			}
 
-			console.log(`🔄 Successfully synced ${normalizedPages.length} route pages to local database`);
+			await executeQuery('DELETE FROM truck_route_page WHERE synced_at IS NOT NULL AND is_dirty = 0')
+
+			const insertSQL = `
+                INSERT OR
+                REPLACE
+                INTO truck_route_page
+                (uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
+                 total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
+                 odometer_at_route_start, odometer_at_route_finish, computed_total_routes_length,
+                 is_dirty, is_deleted, synced_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+			`
+
+			if (db) {
+				await executeTransaction(async (database) => {
+					for (const page of serverRoutePages) {
+						// Additional validation before database insertion
+						await database.runAsync(insertSQL,
+								[page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id,
+									page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null,
+									page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null,
+									page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null,
+									Date.now()])
+					}
+				})
+			} else {
+				for (const page of serverRoutePages) {
+					// Additional validation before database insertion
+					await executeQuery(insertSQL,
+							[page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id,
+								page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null,
+								page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null,
+								page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null,
+								Date.now()])
+				}
+			}
+
+			console.log(`🔄 Successfully synced ${serverRoutePages.length} route pages to local database`)
 		} catch (error: any) {
 			// Handle 403 Forbidden error with user-friendly message
 			if (error.response?.status === 403) {
-				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!';
-				console.error('🔄 Access denied:', userFriendlyMessage);
-				throw new Error(userFriendlyMessage);
+				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
+				console.error('🔄 Access denied:', userFriendlyMessage)
+				throw new Error(userFriendlyMessage)
 			}
 
-			console.error('🔄 Failed to sync route pages:', error);
-			throw error;
+			console.error('🔄 Failed to sync route pages:', error)
+			throw error
 		}
 	}
 }
@@ -790,13 +806,13 @@ export const checkRoutePageExists = (truckId: string,
 
 // Route pages functions
 export const getRoutePages = (truckRouteId?: number) => offlineDataManagerExtended.getRoutePages(truckRouteId)
-export const createRoutePage = (data: Omit<RoutePage, 'id' | 'created_at' | 'updated_at'>) => offlineDataManagerExtended.createRoutePage(data)
+// export const createRoutePage = (data: Omit<RoutePage, 'id' | 'created_at' | 'updated_at'>) => offlineDataManagerExtended.createRoutePage(data)
 
 // Sync functions
 // export const syncTrucks = () => offlineDataManagerExtended.syncTrucks()
 // export const syncObjects = () => offlineDataManagerExtended.syncObjects()
 // export const syncRoutePages = () => offlineDataManagerExtended.syncRoutePages()
-export const syncAllData = () => offlineDataManagerExtended.syncAllData()
+export const downloadServerData = () => offlineDataManagerExtended.syncAllData()
 
 // Legacy compatibility - export the main instance as offlineDataManager for backward compatibility
 export const offlineDataManager = offlineDataManagerExtended

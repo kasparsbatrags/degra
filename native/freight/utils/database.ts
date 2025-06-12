@@ -104,6 +104,20 @@ const createTables = async (database: any) => {
       synced_at INTEGER
     );
 
+    CREATE TABLE IF NOT EXISTS user (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      given_name TEXT NOT NULL,
+      family_name TEXT NOT NULL,
+
+      -- Offline-only fields
+      is_dirty INTEGER DEFAULT 0,
+      is_deleted INTEGER DEFAULT 0,
+      created_at INTEGER DEFAULT (strftime('%s', 'now')),
+      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
+      synced_at INTEGER
+    );
+
     -- Trucks (backend-compatible structure)
     CREATE TABLE IF NOT EXISTS truck (
       uid TEXT PRIMARY KEY,
@@ -111,6 +125,7 @@ const createTables = async (database: any) => {
       truck_model TEXT NOT NULL,
       registration_number TEXT NOT NULL,
       fuel_consumption_norm REAL NOT NULL,
+      is_default DEFAULT false,
       
       -- Offline-only fields
       is_dirty INTEGER DEFAULT 0,
@@ -339,160 +354,4 @@ export interface OfflineOperation {
   error_message?: string;
   created_at: number;
   updated_at: number;
-}
-
-// Backend-compatible TruckRoutePage interface
-export interface TruckRoutePage {
-  uid?: string;                             // Backend primary key (optional for legacy compatibility)
-  date_from?: string;                       // Backend: dateFrom (LocalDate)
-  date_to?: string;                         // Backend: dateTo (LocalDate)
-  truck_uid?: string;                       // Backend: truck.uid (foreign key)
-  user_id?: string;                         // Backend: user.id (foreign key)
-  fuel_balance_at_start?: number;           // Backend: fuelBalanceAtStart
-  fuel_balance_at_end?: number;             // Backend: fuelBalanceAtFinish
-  
-  // Computed fields (from backend @Transient)
-  total_fuel_received_on_routes?: number;   // Backend: totalFuelReceivedOnRoutes
-  total_fuel_consumed_on_routes?: number;   // Backend: totalFuelConsumedOnRoutes
-  fuel_balance_at_routes_finish?: number;   // Backend: fuelBalanceAtRoutesFinish
-  odometer_at_route_start?: number;         // Backend: odometerAtRouteStart
-  odometer_at_route_finish?: number;        // Backend: odometerAtRouteFinish
-  computed_total_routes_length?: number;    // Backend: computedTotalRoutesLength
-  
-  // Legacy fields (for backward compatibility during transition)
-  truck_route_id?: number;                  // Legacy: truck route reference
-  truck_route_server_id?: number;           // Legacy: truck route server reference
-  truck_registration_number?: string;       // Legacy: truck registration (now use truck_uid)
-  fuel_consumption_norm?: number;           // Legacy: fuel consumption norm
-  
-  // Frontend-specific fields (from index.tsx)
-  dateFrom?: string;                        // Frontend: camelCase version of date_from
-  dateTo?: string;                          // Frontend: camelCase version of date_to
-  truckRegistrationNumber?: string;         // Frontend: camelCase version of truck_registration_number
-  fuelConsumptionNorm?: number;             // Frontend: camelCase version of fuel_consumption_norm
-  fuelBalanceAtStart?: number;              // Frontend: camelCase version of fuel_balance_at_start
-  totalFuelReceivedOnRoutes?: number | null; // Frontend: camelCase version with null support
-  totalFuelConsumedOnRoutes?: number | null;  // Frontend: camelCase version with null support
-  fuelBalanceAtRoutesFinish?: number | null;  // Frontend: camelCase version with null support
-  odometerAtRouteStart?: number | null;       // Frontend: camelCase version with null support
-  odometerAtRouteFinish?: number | null;      // Frontend: camelCase version with null support
-  computedTotalRoutesLength?: number | null;  // Frontend: camelCase version with null support
-  activeTab?: 'basic' | 'odometer' | 'fuel';  // Frontend: UI state
-  
-  // Offline-only fields
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
-}
-
-// Backend-compatible Truck interface
-export interface Truck {
-	// Backend primary fields
-	uid?: string;                             // Backend primary key
-	truckMaker?: string;                     // Backend field
-	truckModel?: string;                     // Backend field
-	registrationNumber?: string;             // Backend field
-	fuelConsumptionNorm?: number;           // Backend field
-	isDefault?: number;
-
-	// Offline-only fields
-	is_dirty?: number;
-	is_deleted?: number;
-	created_at?: number;
-	updated_at?: number;
-	synced_at?: number;
-}
-
-// Backend-compatible TruckObject interface
-export interface TruckObject {
-  uid?: string;                             // Backend primary key (optional for legacy compatibility)
-  name?: string;                            // Backend: name
-  
-  // Offline-only fields
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
-}
-
-// Legacy interfaces (for backward compatibility during transition)
-export interface TruckRoute {
-  id?: number;
-  server_id?: number;
-  date_from: string;
-  date_to: string;
-  truck_registration_number: string;
-  fuel_consumption_norm: number;
-  fuel_balance_at_start: number;
-  total_fuel_received_on_routes?: number;
-  total_fuel_consumed_on_routes?: number;
-  fuel_balance_at_routes_finish?: number;
-  odometer_at_route_start?: number;
-  odometer_at_route_finish?: number;
-  computed_total_routes_length?: number;
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
-}
-
-export interface FuelEntry {
-  id?: number;
-  server_id?: number;
-  route_id?: number;
-  route_server_id?: number;
-  amount: number;
-  price_per_liter?: number;
-  total_cost?: number;
-  station_name?: string;
-  receipt_number?: string;
-  entry_date: string;
-  notes?: string;
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
-}
-
-export interface OdometerReading {
-  id?: number;
-  server_id?: number;
-  route_id?: number;
-  route_server_id?: number;
-  reading: number;
-  reading_date: string;
-  location?: string;
-  notes?: string;
-  is_dirty?: number;
-  is_deleted?: number;
-  created_at?: number;
-  updated_at?: number;
-  synced_at?: number;
-}
-
-export interface ActiveRoute {
-  id?: number;
-  route_data: string; // JSON string
-  is_active?: number;
-  created_at?: number;
-  updated_at?: number;
-}
-
-export interface SyncMetadata {
-  table_name: string;
-  last_sync_timestamp?: number;
-  last_sync_date?: string;
-  sync_status: 'idle' | 'syncing' | 'error';
-  error_message?: string;
-  updated_at: number;
-}
-
-// Legacy compatibility - keep old RoutePage interface name for backward compatibility
-export interface RoutePage extends TruckRoutePage {
-  // This is now just an alias for TruckRoutePage
 }

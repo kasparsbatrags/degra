@@ -29,7 +29,7 @@ Izveidots `index-migrated.tsx` kas:
 
 ```typescript
 // VECAIS: Manuāla state pārvaldība
-const [routes, setRoutes] = useState<TruckRoutePage[]>([])
+const [routes, setRoutes] = useState<TruckRoutePageDto[]>([])
 const [loading, setLoading] = useState(true)
 const [buttonText, setButtonText] = useState('Starts')
 
@@ -42,23 +42,23 @@ const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
 
 // VECAIS: Sarežģīta error handling loģika
 if (connected) {
-  try {
-    await freightAxiosInstance.get('/truck-routes/last-active')
-    setButtonText('FINIŠS')
-    await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      setButtonText('STARTS')
-      await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
-    } else if (!error.response) {
-      const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-      if (localStatus) {
-        setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
-      } else {
-        setErrorMessage('Neizdevās pieslēgties...')
-      }
-    }
-  }
+	try {
+		await freightAxiosInstance.get('/truck-routes/last-active')
+		setButtonText('FINIŠS')
+		await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
+	} catch (error: any) {
+		if (error.response?.status === 404) {
+			setButtonText('STARTS')
+			await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
+		} else if (!error.response) {
+			const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
+			if (localStatus) {
+				setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
+			} else {
+				setErrorMessage('Neizdevās pieslēgties...')
+			}
+		}
+	}
 }
 ```
 
@@ -67,51 +67,51 @@ if (connected) {
 ```typescript
 // JAUNAIS: Offline hooks
 const {
-  data: routes,
-  isLoading: routesLoading,
-  isFromCache: routesFromCache,
-  isStale: routesStale,
-  error: routesError,
-  refetch: refetchRoutes
+	data: routes,
+	isLoading: routesLoading,
+	isFromCache: routesFromCache,
+	isStale: routesStale,
+	error: routesError,
+	refetch: refetchRoutes
 } = useOfflineData(
-  CACHE_KEYS.ROUTES,
-  async () => {
-    const response = await freightAxiosInstance.get<TruckRoutePage[]>('/route-pages')
-    return response.data.map(route => ({...route, activeTab: 'basic' as const}))
-  },
-  {
-    strategy: 'stale-while-revalidate',
-    onError: (error) => console.error('Failed to fetch routes:', error)
-  }
+		CACHE_KEYS.ROUTES,
+		async () => {
+			const response = await freightAxiosInstance.get<TruckRoutePageDto[]>('/route-pages')
+			return response.data.map(route => ({...route, activeTab: 'basic' as const}))
+		},
+		{
+			strategy: 'stale-while-revalidate',
+			onError: (error) => console.error('Failed to fetch routes:', error)
+		}
 )
 
 const {
-  data: routeStatus,
-  isLoading: statusLoading,
-  isFromCache: statusFromCache,
-  error: statusError,
-  refetch: refetchStatus
+	data: routeStatus,
+	isLoading: statusLoading,
+	isFromCache: statusFromCache,
+	error: statusError,
+	refetch: refetchStatus
 } = useOfflineData(
-  CACHE_KEYS.ROUTE_STATUS,
-  async () => {
-    try {
-      await freightAxiosInstance.get('/truck-routes/last-active')
-      return 'active'
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return 'inactive'
-      }
-      throw error
-    }
-  },
-  {
-    strategy: 'cache-first',
-    onError: (error) => console.error('Failed to fetch route status:', error)
-  }
+		CACHE_KEYS.ROUTE_STATUS,
+		async () => {
+			try {
+				await freightAxiosInstance.get('/truck-routes/last-active')
+				return 'active'
+			} catch (error: any) {
+				if (error.response?.status === 404) {
+					return 'inactive'
+				}
+				throw error
+			}
+		},
+		{
+			strategy: 'cache-first',
+			onError: (error) => console.error('Failed to fetch route status:', error)
+		}
 )
 
 // JAUNAIS: Network status
-const { isOnline, isOfflineMode } = useNetworkStatus()
+const {isOnline, isOfflineMode} = useNetworkStatus()
 ```
 
 ### 🎨 Pievienoti UI Uzlabojumi

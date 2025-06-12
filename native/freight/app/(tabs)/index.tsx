@@ -209,13 +209,7 @@ export default function HomeScreen() {
 	// };
 
 	// Helper function to initialize tabs for routes
-	const initializeTabsForRoutes = (routes: any): TruckRoutePageDto[] => {
-		// Check if routes is an array
-		if (!Array.isArray(routes)) {
-			console.warn('📱 [WARN] Routes is not an array:', typeof routes, routes);
-			return [];
-		}
-		
+	const initializeTabsForRoutes = (routes: TruckRoutePageDto[]): TruckRoutePageDto[] => {
 		return routes.map(route => ({
 			...route,
 			activeTab: route.activeTab || 'basic' as const
@@ -257,14 +251,8 @@ export default function HomeScreen() {
 			// 2. FĀZE: Get route pages with offline-first approach
 			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const rawRoutes = await getRoutePages()
-			console.log('📱 [DEBUG] Raw route pages received:', rawRoutes)
-			console.log('📱 [DEBUG] Raw route pages type:', typeof rawRoutes)
-			console.log('📱 [DEBUG] Raw route pages is array:', Array.isArray(rawRoutes))
-			
-			if (Array.isArray(rawRoutes)) {
-				console.log('📱 [DEBUG] Raw route pages received:', rawRoutes.length, 'items')
-				console.log('📱 [DEBUG] First few raw route pages:', rawRoutes.slice(0, 3))
-			}
+			console.log('📱 [DEBUG] Raw route pages received:', rawRoutes.length, 'items')
+			console.log('📱 [DEBUG] First few raw route pages:', rawRoutes.slice(0, 3))
 
 			// Initialize tabs for all routes
 			const routesWithTabs = initializeTabsForRoutes(rawRoutes)

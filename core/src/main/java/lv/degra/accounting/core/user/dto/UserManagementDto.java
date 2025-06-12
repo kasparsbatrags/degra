@@ -13,9 +13,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserManagementDto {
 	private String id;
-	private String preferred_username;
+
+	private String preferredUsername;
+
 	private String email;
-	private String given_name;
-	private String family_name;
+	private String givenName;
+	private String familyName;
 	private Map<String, String> attributes;
 }

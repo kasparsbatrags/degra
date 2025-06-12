@@ -30,9 +30,6 @@ public class TruckRoutePageDto implements Serializable {
 	private Double fuelBalanceAtStart;
 	private Double fuelBalanceAtFinish;
 
-	private String truckRegistrationNumber;
-	private Double fuelConsumptionNorm;
-
 	private Double totalFuelReceivedOnRoutes;
 	private Double totalFuelConsumedOnRoutes;
 	private Double fuelBalanceAtRoutesFinish;

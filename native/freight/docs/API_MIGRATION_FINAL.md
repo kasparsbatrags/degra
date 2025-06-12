@@ -32,7 +32,7 @@
 - **getLastFinishedRoute()**: ✅ Pēdējā maršruta iegūšana
 - **checkRoutePageExists()**: ✅ Maršruta lapas pārbaude
 
-### 5. **Truck Route Form Migration** (`useTruckRouteFormMigrated.ts`)
+### 5. **TruckDto Route Form Migration** (`useTruckRouteFormMigrated.ts`)
 - **Objects loading**: ✅ Migrēts uz `getObjects()`
 - **Active route check**: ✅ Migrēts uz `getLastActiveRoute()`
 - **Trucks loading**: ✅ Migrēts uz `getTrucks()`
@@ -105,7 +105,7 @@ getDropdownData(endpoint)      // ✅ Smart routing
 ### ✅ **Offline Scenarios**:
 - Database schema creation ✅
 - Extended data manager functions ✅
-- Truck route form offline operations ✅
+- TruckDto route form offline operations ✅
 - Object creation offline ✅
 - Form dropdowns offline ✅
 
@@ -171,8 +171,8 @@ getDropdownData(endpoint)      // ✅ Smart routing
 
 ## Galvenās funkcijas tagad offline:
 
-### 🚛 **Truck Route Management**
-- Truck selection (offline DB)
+### 🚛 **TruckDto Route Management**
+- TruckDto selection (offline DB)
 - Object selection (offline DB)
 - Route creation/completion (offline queue)
 - Form validation (local)

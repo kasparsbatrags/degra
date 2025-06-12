@@ -346,7 +346,7 @@ export default function RegisterScreen() {
             </View>
           )}
 
-          {/* Truck data tab */}
+          {/* TruckDto data tab */}
           {activeTab === 'truck' && (
             <View style={styles.tabContent}>
               <FormInput

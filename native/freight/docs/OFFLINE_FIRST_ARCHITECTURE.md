@@ -127,7 +127,7 @@ await deleteTruckRoute(routeId);
 
 ## Database Schema
 
-### Truck Routes
+### TruckDto Routes
 ```sql
 CREATE TABLE truck_routes (
   id INTEGER PRIMARY KEY,

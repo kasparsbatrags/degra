@@ -39,8 +39,8 @@ Universāls cache pārvaldnieks ar šādām funkcijām:
 
 ```typescript
 // Izmantošana
-const result = await cacheManager.get<TruckRoutePage[]>('routes');
-await cacheManager.set('routes', data, { ttl: 3600000 });
+const result = await cacheManager.get<TruckRoutePageDto[]>('routes');
+await cacheManager.set('routes', data, {ttl: 3600000});
 ```
 
 ### 3. Sync Manager (`services/SyncManager.ts`)
