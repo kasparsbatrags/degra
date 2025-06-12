@@ -1,45 +1,24 @@
-import {isRedirectingToLogin, redirectToLogin} from '@/config/axios'
+import {isRedirectingToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
-import {useOfflineStatus} from '@/context/OfflineContext'
+import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {isConnected} from '@/utils/networkUtils'
+import {getRoutePages, downloadServerData} from '@/utils/offlineDataManagerExtended'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
-import {getRoutePages, syncAllData} from '@/utils/offlineDataManagerExtended'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
-import {any} from 'prop-types'
 import React, {useCallback, useEffect, useState} from 'react'
 import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import freightAxiosInstance from '../../config/freightAxios'
-import { runRoutePagesDiagnostic } from '../../debug/routePagesDiagnostic'
-
-interface TruckRoutePage {
-	uid: string;
-	dateFrom: string;
-	dateTo: string;
-	truckRegistrationNumber: string;
-	fuelConsumptionNorm: number;
-	fuelBalanceAtStart: number;
-
-
-	totalFuelReceivedOnRoutes: number | null;
-	totalFuelConsumedOnRoutes: number | null;
-	fuelBalanceAtRoutesFinish: number | null;
-
-	odometerAtRouteStart: number | null;
-	odometerAtRouteFinish: number | null;
-	computedTotalRoutesLength: number | null;
-	activeTab?: 'basic' | 'odometer' | 'fuel';
-}
 
 export default function HomeScreen() {
 	const {user} = useAuth()
 	const router = useRouter()
-	const [routes, setRoutes] = useState<TruckRoutePage[]>([])
+	const [routes, setRoutes] = useState<TruckRoutePageDto[]>([])
 	const [loading, setLoading] = useState(true)
 	const [buttonText, setButtonText] = useState('Starts')
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -49,49 +28,10 @@ export default function HomeScreen() {
 	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
 	const CACHED_ROUTES_KEY = 'cachedRoutes'
 	const CACHED_ROUTES_TIMESTAMP_KEY = 'cachedRoutesTimestamp'
-	
+
 	// State for offline mode awareness
 	const [isOfflineMode, setIsOfflineMode] = useState(false)
-	const [dataSource, setDataSource] = useState<'online' | 'cache' | 'none'>('none')
-	
-	// Cache management functions
-	const saveRoutesToCache = async (routesData: TruckRoutePage[]) => {
-		try {
-			await AsyncStorage.setItem(CACHED_ROUTES_KEY, JSON.stringify(routesData))
-			await AsyncStorage.setItem(CACHED_ROUTES_TIMESTAMP_KEY, Date.now().toString())
-			console.log('Routes cached successfully')
-		} catch (error) {
-			console.error('Error caching routes:', error)
-		}
-	}
-	
-	const loadRoutesFromCache = async (): Promise<TruckRoutePage[] | null> => {
-		try {
-			const cachedData = await AsyncStorage.getItem(CACHED_ROUTES_KEY)
-			if (cachedData) {
-				const routes = JSON.parse(cachedData) as TruckRoutePage[]
-				return routes.map(route => ({...route, activeTab: 'basic' as const}))
-			}
-			return null
-		} catch (error) {
-			console.error('Error loading cached routes:', error)
-			return null
-		}
-	}
-	
-	const getCacheAge = async (): Promise<number | null> => {
-		try {
-			const timestamp = await AsyncStorage.getItem(CACHED_ROUTES_TIMESTAMP_KEY)
-			if (timestamp) {
-				return Date.now() - parseInt(timestamp)
-			}
-			return null
-		} catch (error) {
-			console.error('Error getting cache age:', error)
-			return null
-		}
-	}
-	
+
 	// Check session type and set offline mode awareness
 	useEffect(() => {
 		const checkSessionType = async () => {
@@ -107,7 +47,7 @@ export default function HomeScreen() {
 				console.error('Error checking session type:', error)
 			}
 		}
-		
+
 		checkSessionType()
 	}, [])
 
@@ -119,8 +59,8 @@ export default function HomeScreen() {
 			if (!sessionActive) {
 				// Use the shared redirectToLogin function from axios.ts
 				// This will handle redirection properly for both web and mobile
-				const { SessionManager } = require('@/utils/SessionManager');
-				await SessionManager.getInstance().handleUnauthorized();
+				const {SessionManager} = require('@/utils/SessionManager')
+				await SessionManager.getInstance().handleUnauthorized()
 				return
 			}
 		}
@@ -154,8 +94,8 @@ export default function HomeScreen() {
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
 				// If session is not active, redirect to login page using the shared function
-				const { SessionManager } = require('@/utils/SessionManager');
-				await SessionManager.getInstance().handleUnauthorized();
+				const {SessionManager} = require('@/utils/SessionManager')
+				await SessionManager.getInstance().handleUnauthorized()
 				setStatusCheckLoading(false)
 				return
 			}
@@ -223,55 +163,69 @@ export default function HomeScreen() {
 	}, [isOfflineMode])
 
 	// Helper function to transform route data
-	const transformRouteData = (routePages: any[]): TruckRoutePage[] => {
-		if (!Array.isArray(routePages)) {
-			console.warn('📱 [WARN] Invalid routePages data:', routePages)
-			return []
-		}
+	// const transformRouteData = (routePages: any[]): TruckRoutePageDto[] => {
+	// 	if (!Array.isArray(routePages)) {
+	// 		console.warn('📱 [WARN] Invalid routePages data:', routePages)
+	// 		return []
+	// 	}
+	//
+	// 	return routePages.map((route, index) => {
+	// 		console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
+	//
+	// 		// Backend-compatible field mapping with fallbacks
+	// 		const transformed = {
+	// 			uid: route.uid, // Backend-compatible
+	// 			dateFrom: route.date_from || route.dateFrom,
+	// 			dateTo: route.date_to || route.dateTo,
+	// 			truckRegistrationNumber: route.truck_registration_number || route.truckRegistrationNumber,
+	// 			fuelConsumptionNorm: route.fuel_consumption_norm || route.fuelConsumptionNorm || 0,
+	// 			fuelBalanceAtStart: route.fuel_balance_at_start || route.fuelBalanceAtStart || 0,
+	// 			totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? route.totalFuelReceivedOnRoutes ?? null,
+	// 			totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? route.totalFuelConsumedOnRoutes ?? null,
+	// 			fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? route.fuelBalanceAtRoutesFinish ?? null,
+	// 			odometerAtRouteStart: route.odometer_at_route_start ?? route.odometerAtRouteStart ?? null,
+	// 			odometerAtRouteFinish: route.odometer_at_route_finish ?? route.odometerAtRouteFinish ?? null,
+	// 			computedTotalRoutesLength: route.computed_total_routes_length ?? route.computedTotalRoutesLength ?? null,
+	// 			activeTab: 'basic' as const
+	// 		};
+	//
+	// 		console.log('📱 [DEBUG] Transformed route:', transformed);
+	// 		return transformed;
+	// 	}).filter(route => {
+	// 		// Validation with better error messages
+	// 		console.log("=============================================")
+	// 		console.log(route)
+	// 		const isValid = route.uid && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
+	// 		if (!isValid) {
+	// 			console.warn('📱 [WARN] Filtering out invalid route:', {
+	// 				uid: route.uid,
+	// 				dateFrom: route.dateFrom,
+	// 				dateTo: route.dateTo,
+	// 				truckRegistrationNumber: route.truckRegistrationNumber
+	// 			});
+	// 		}
+	// 		return isValid;
+	// 	});
+	// };
 
-		return routePages.map((route, index) => {
-			console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
-			
-			// Backend-compatible field mapping with fallbacks
-			const transformed = {
-				uid: route.uid, // Backend-compatible
-				dateFrom: route.date_from || route.dateFrom,
-				dateTo: route.date_to || route.dateTo,
-				truckRegistrationNumber: route.truck_registration_number || route.truckRegistrationNumber,
-				fuelConsumptionNorm: route.fuel_consumption_norm || route.fuelConsumptionNorm || 0,
-				fuelBalanceAtStart: route.fuel_balance_at_start || route.fuelBalanceAtStart || 0,
-				totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? route.totalFuelReceivedOnRoutes ?? null,
-				totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? route.totalFuelConsumedOnRoutes ?? null,
-				fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? route.fuelBalanceAtRoutesFinish ?? null,
-				odometerAtRouteStart: route.odometer_at_route_start ?? route.odometerAtRouteStart ?? null,
-				odometerAtRouteFinish: route.odometer_at_route_finish ?? route.odometerAtRouteFinish ?? null,
-				computedTotalRoutesLength: route.computed_total_routes_length ?? route.computedTotalRoutesLength ?? null,
-				activeTab: 'basic' as const
-			};
-			
-			console.log('📱 [DEBUG] Transformed route:', transformed);
-			return transformed;
-		}).filter(route => {
-			// Validation with better error messages
-			console.log("=============================================")
-			console.log(route)
-			const isValid = route.uid && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
-			if (!isValid) {
-				console.warn('📱 [WARN] Filtering out invalid route:', {
-					uid: route.uid,
-					dateFrom: route.dateFrom,
-					dateTo: route.dateTo,
-					truckRegistrationNumber: route.truckRegistrationNumber
-				});
-			}
-			return isValid;
-		});
+	// Helper function to initialize tabs for routes
+	const initializeTabsForRoutes = (routes: any): TruckRoutePageDto[] => {
+		// Check if routes is an array
+		if (!Array.isArray(routes)) {
+			console.warn('📱 [WARN] Routes is not an array:', typeof routes, routes);
+			return [];
+		}
+		
+		return routes.map(route => ({
+			...route,
+			activeTab: route.activeTab || 'basic' as const
+		}));
 	};
 
 	const fetchRoutes = async () => {
 		try {
 			console.log('📱 [DEBUG] fetchRoutes called on platform:', Platform.OS)
-			
+
 			// Check if session is active and if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				console.log('📱 [DEBUG] Redirecting to login, skipping fetch')
@@ -283,8 +237,8 @@ export default function HomeScreen() {
 			if (!sessionActive) {
 				console.log('📱 [DEBUG] Session not active, redirecting to login')
 				// If session is not active, redirect to login page using the shared function
-				const { SessionManager } = require('@/utils/SessionManager');
-				await SessionManager.getInstance().handleUnauthorized();
+				const {SessionManager} = require('@/utils/SessionManager')
+				await SessionManager.getInstance().handleUnauthorized()
 				setLoading(false)
 				return
 			}
@@ -293,7 +247,7 @@ export default function HomeScreen() {
 			if (Platform.OS !== 'web') {
 				try {
 					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
-					await syncAllData()
+					await downloadServerData()
 					console.log('📱 [DEBUG] Dropdown data sync completed')
 				} catch (error) {
 					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
@@ -302,57 +256,24 @@ export default function HomeScreen() {
 
 			// 2. FĀZE: Get route pages with offline-first approach
 			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
-			const routePages = await getRoutePages()
-			console.log('📱 [DEBUG] Raw route pages received:', routePages)
-			console.log('📱 [DEBUG] Raw route pages received:', routePages.length, 'items')
-			console.log('📱 [DEBUG] First few raw route pages:', routePages.slice(0, 3))
+			const rawRoutes = await getRoutePages()
+			console.log('📱 [DEBUG] Raw route pages received:', rawRoutes)
+			console.log('📱 [DEBUG] Raw route pages type:', typeof rawRoutes)
+			console.log('📱 [DEBUG] Raw route pages is array:', Array.isArray(rawRoutes))
 			
-			// 3. FĀZE: Transform data to match expected format
-			const transformedRoutes = transformRouteData(routePages);
-			
-			// 4. FĀZE: Cache management and UI update
-			if (transformedRoutes.length > 0) {
-				await saveRoutesToCache(transformedRoutes);
-				setRoutes(transformedRoutes)
-				setDataSource('online') // Data manager handles online/offline internally
-				console.log('📱 [DEBUG] Routes set in state, total count:', transformedRoutes.length)
-			} else {
-				// Fallback to cache if no data from server
-				console.log('📱 [DEBUG] No routes from server, trying cache...')
-				const cachedRoutes = await loadRoutesFromCache();
-				if (cachedRoutes && cachedRoutes.length > 0) {
-					setRoutes(cachedRoutes)
-					setDataSource('cache')
-					console.log('📱 [FALLBACK] Using cached routes:', cachedRoutes.length)
-				} else {
-					setRoutes([])
-					setDataSource('none')
-					console.log('📱 [DEBUG] No routes available from server or cache')
-				}
+			if (Array.isArray(rawRoutes)) {
+				console.log('📱 [DEBUG] Raw route pages received:', rawRoutes.length, 'items')
+				console.log('📱 [DEBUG] First few raw route pages:', rawRoutes.slice(0, 3))
 			}
+
+			// Initialize tabs for all routes
+			const routesWithTabs = initializeTabsForRoutes(rawRoutes)
+			console.log('📱 [DEBUG] Routes with initialized tabs:', routesWithTabs.length, 'items')
 			
+			setRoutes(routesWithTabs)
 		} catch (error: any) {
 			console.error('📱 [ERROR] Error in fetchRoutes:', error)
 			console.error('📱 [ERROR] Error stack:', error?.stack)
-			
-			// Enhanced fallback to cache
-			try {
-				console.log('📱 [FALLBACK] Attempting to load from cache due to error...')
-				const cachedRoutes = await loadRoutesFromCache();
-				if (cachedRoutes && cachedRoutes.length > 0) {
-					setRoutes(cachedRoutes)
-					setDataSource('cache')
-					console.log('📱 [FALLBACK] Successfully loaded cached routes:', cachedRoutes.length)
-				} else {
-					setRoutes([])
-					setDataSource('none')
-					console.log('📱 [FALLBACK] No cached routes available')
-				}
-			} catch (cacheError) {
-				console.error('📱 [ERROR] Cache fallback failed:', cacheError)
-				setRoutes([])
-				setDataSource('none')
-			}
 		} finally {
 			setLoading(false)
 		}
@@ -374,74 +295,70 @@ export default function HomeScreen() {
 	}, [])
 
 	// Background sync setup
-	useEffect(() => {
-		let syncInterval: NodeJS.Timeout;
-		
-		const setupBackgroundSync = () => {
-			// Background sync every 5 minutes when app is active
-			syncInterval = setInterval(async () => {
-				try {
-					const connected = await isConnected();
-					if (connected && !loading && !isRedirectingToLogin) {
-						console.log('📱 [BACKGROUND] Starting background sync...');
-						
-						// Sync dropdown data first
-						if (Platform.OS !== 'web') {
-							try {
-								await syncAllData();
-								console.log('📱 [BACKGROUND] Dropdown data synced');
-							} catch (error) {
-								console.warn('📱 [BACKGROUND] Dropdown sync failed:', error);
-							}
-						}
-						
-						// Check for new route pages
-						try {
-							const newRoutePages = await getRoutePages();
-							if (newRoutePages.length > 0) {
-								const newTransformed = transformRouteData(newRoutePages);
-								
-								// Only update if data has changed
-								if (newTransformed.length !== routes.length || 
-									JSON.stringify(newTransformed.map(r => r.uid)) !== JSON.stringify(routes.map(r => r.uid))) {
-									
-									setRoutes(newTransformed);
-									await saveRoutesToCache(newTransformed);
-									setDataSource('online');
-									console.log('📱 [BACKGROUND] Routes updated:', newTransformed.length);
-								}
-							}
-						} catch (error) {
-							console.warn('📱 [BACKGROUND] Route pages sync failed:', error);
-						}
-					}
-				} catch (error) {
-					console.warn('📱 [BACKGROUND] Background sync failed:', error);
-				}
-			}, 5 * 60 * 1000); // 5 minutes
-		};
-		
-		setupBackgroundSync();
-		
-		return () => {
-			if (syncInterval) {
-				clearInterval(syncInterval);
-			}
-		};
-	}, [routes.length, loading]); // Dependencies to restart interval when needed
+	// useEffect(() => {
+	// 	let syncInterval: NodeJS.Timeout;
+	//
+	// 	const setupBackgroundSync = () => {
+	// 		// Background sync every 5 minutes when app is active
+	// 		syncInterval = setInterval(async () => {
+	// 			try {
+	// 				const connected = await isConnected();
+	// 				if (connected && !loading && !isRedirectingToLogin) {
+	// 					console.log('📱 [BACKGROUND] Starting background sync...');
+	//
+	// 					// Sync dropdown data first
+	// 					if (Platform.OS !== 'web') {
+	// 						try {
+	// 							await syncAllData();
+	// 							console.log('📱 [BACKGROUND] Dropdown data synced');
+	// 						} catch (error) {
+	// 							console.warn('📱 [BACKGROUND] Dropdown sync failed:', error);
+	// 						}
+	// 					}
+	//
+	// 					// Check for new route pages
+	// 					try {
+	// 						const newRoutePages = await getRoutePages();
+	// 						if (newRoutePages.length > 0) {
+	// 							const newTransformed = transformRouteData(newRoutePages);
+	//
+	// 							// Only update if data has changed
+	// 							if (newTransformed.length !== routes.length ||
+	// 								JSON.stringify(newTransformed.map(r => r.uid)) !== JSON.stringify(routes.map(r => r.uid))) {
+	//
+	// 								setRoutes(newTransformed);
+	// 								console.log('📱 [BACKGROUND] Routes updated:', newTransformed.length);
+	// 							}
+	// 						}
+	// 					} catch (error) {
+	// 						console.warn('📱 [BACKGROUND] Route pages sync failed:', error);
+	// 					}
+	// 				}
+	// 			} catch (error) {
+	// 				console.warn('📱 [BACKGROUND] Background sync failed:', error);
+	// 			}
+	// 		}, 5 * 60 * 1000); // 5 minutes
+	// 	};
+	//
+	// 	setupBackgroundSync();
+	//
+	// 	return () => {
+	// 		if (syncInterval) {
+	// 			clearInterval(syncInterval);
+	// 		}
+	// 	};
+	// }, [routes.length, loading]); // Dependencies to restart interval when needed
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
 			{/* Offline mode indicator */}
-			{(isOfflineMode || dataSource === 'cache') && (
-				<View style={styles.offlineIndicator}>
-					<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
-					<Text style={styles.offlineText}>
-						{isOfflineMode ? 'Offline režīms' : 'Dati no cache'}
-					</Text>
-				</View>
-			)}
-			
+			{(isOfflineMode) && (<View style={styles.offlineIndicator}>
+						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
+						<Text style={styles.offlineText}>
+							{isOfflineMode ? 'Offline režīms' : 'Dati no cache'}
+						</Text>
+					</View>)}
+
 			<Button
 					title={buttonText}
 					onPress={() => router.push('/truck-route')}
@@ -449,7 +366,7 @@ export default function HomeScreen() {
 					disabled={statusCheckLoading}
 					loading={statusCheckLoading}
 			/>
-			
+
 			{/* Debug button - only show on Android for testing */}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
 					refreshControl={<RefreshControl
@@ -475,10 +392,15 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'basic' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.uid === item.uid ? {
-												...route, activeTab: 'basic' as const
-											} : route)
-											setRoutes(newRoutes)
+											try {
+												const newRoutes = routes.map(route => route.uid === item.uid ? {
+													...route, activeTab: 'basic' as const
+												} : route)
+												setRoutes(newRoutes)
+												console.log('📱 [DEBUG] Tab switched to basic for route:', item.uid)
+											} catch (error) {
+												console.error('📱 [ERROR] Error switching to basic tab:', error)
+											}
 										}}
 								>
 									{Platform.OS === 'web' ? (
@@ -492,10 +414,15 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'odometer' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.uid === item.uid ? {
-												...route, activeTab: 'odometer' as const
-											} : route)
-											setRoutes(newRoutes)
+											try {
+												const newRoutes = routes.map(route => route.uid === item.uid ? {
+													...route, activeTab: 'odometer' as const
+												} : route)
+												setRoutes(newRoutes)
+												console.log('📱 [DEBUG] Tab switched to odometer for route:', item.uid)
+											} catch (error) {
+												console.error('📱 [ERROR] Error switching to odometer tab:', error)
+											}
 										}}
 								>
 									{Platform.OS === 'web' ? (
@@ -509,10 +436,15 @@ export default function HomeScreen() {
 								<Pressable
 										style={[styles.tabButton, item.activeTab === 'fuel' && styles.tabButtonActive]}
 										onPress={() => {
-											const newRoutes = routes.map(route => route.uid === item.uid ? {
-												...route, activeTab: 'fuel' as const
-											} : route)
-											setRoutes(newRoutes)
+											try {
+												const newRoutes = routes.map(route => route.uid === item.uid ? {
+													...route, activeTab: 'fuel' as const
+												} : route)
+												setRoutes(newRoutes)
+												console.log('📱 [DEBUG] Tab switched to fuel for route:', item.uid)
+											} catch (error) {
+												console.error('📱 [ERROR] Error switching to fuel tab:', error)
+											}
 										}}
 								>
 									{Platform.OS === 'web' ? (
@@ -527,66 +459,66 @@ export default function HomeScreen() {
 
 							{/* Tab content */}
 							{item.activeTab === 'basic' && (<View style={[styles.tabContentContainer, styles.basicTabContent]}>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Periods:</Text>
-											<Text style={styles.routeText}>
-												{new Date(item.dateFrom).toLocaleDateString('lv-LV', {
-													day: '2-digit', month: '2-digit', year: 'numeric'
-												})} - {new Date(item.dateTo).toLocaleDateString('lv-LV', {
-												day: '2-digit', month: '2-digit', year: 'numeric'
-											})}
-											</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Auto:</Text>
-											<Text style={styles.routeText}>{item.truckRegistrationNumber}</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Vadītājs:</Text>
-											<Text style={styles.routeText}>
-												{[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
-											</Text>
-										</View>
-									</View>)}
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Periods:</Text>
+									<Text style={styles.routeText}>
+										{new Date(item.dateFrom).toLocaleDateString('lv-LV', {
+											day: '2-digit', month: '2-digit', year: 'numeric'
+										})} - {new Date(item.dateTo).toLocaleDateString('lv-LV', {
+										day: '2-digit', month: '2-digit', year: 'numeric'
+									})}
+									</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Auto:</Text>
+									<Text style={styles.routeText}>{item.truck?.registrationNumber || 'Nav pieejams'}</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Vadītājs:</Text>
+									<Text style={styles.routeText}>
+										{[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
+									</Text>
+								</View>
+							</View>)}
 
 							{item.activeTab === 'odometer' && (<View style={[styles.tabContentContainer, styles.odometerTabContent]}>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Startā:</Text>
-											<Text style={styles.routeText}>{item.odometerAtRouteStart?.toLocaleString() ?? '0'} km</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Distance:</Text>
-											<Text style={[styles.routeText, styles.highlightedText]}>{item.computedTotalRoutesLength?.toLocaleString() ?? '0'} km</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Finišā:</Text>
-											<Text style={[styles.routeText, styles.routeText]}>{item.odometerAtRouteFinish?.toLocaleString() ?? '0'} km</Text>
-										</View>
-									</View>)}
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Startā:</Text>
+									<Text style={styles.routeText}>{item.odometerAtRouteStart?.toLocaleString() ?? '0'} km</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Distance:</Text>
+									<Text style={[styles.routeText, styles.highlightedText]}>{item.computedTotalRoutesLength?.toLocaleString() ?? '0'} km</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Finišā:</Text>
+									<Text style={[styles.routeText, styles.routeText]}>{item.odometerAtRouteFinish?.toLocaleString() ?? '0'} km</Text>
+								</View>
+							</View>)}
 
 							{item.activeTab === 'fuel' && (<View style={[styles.tabContentContainer, styles.fuelTabContent]}>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Norma:</Text>
-											<Text style={styles.routeText}>{item.fuelConsumptionNorm} L/100 Km</Text>
-										</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Norma:</Text>
+									<Text style={styles.routeText}>{item.truck?.fuelConsumptionNorm || 0} L/100 Km</Text>
+								</View>
 
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Sākumā:</Text>
-											<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Saņemta:</Text>
-											<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelReceivedOnRoutes ?? '0'} L</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Patērēta:</Text>
-											<Text style={[styles.routeText, styles.highlightedText]}>{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
-										</View>
-										<View style={styles.routeRow}>
-											<Text style={styles.routeLabelInline}>Beigās:</Text>
-											<Text style={styles.routeText}>{item.fuelBalanceAtRoutesFinish ?? '0'} L</Text>
-										</View>
-									</View>)}
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Sākumā:</Text>
+									<Text style={styles.routeText}>{item.fuelBalanceAtStart} L</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Saņemta:</Text>
+									<Text style={[styles.routeText, styles.highlightedText]}>+{item.totalFuelReceivedOnRoutes ?? '0'} L</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Patērēta:</Text>
+									<Text style={[styles.routeText, styles.highlightedText]}>{item.totalFuelConsumedOnRoutes ?? '0'} L</Text>
+								</View>
+								<View style={styles.routeRow}>
+									<Text style={styles.routeLabelInline}>Beigās:</Text>
+									<Text style={styles.routeText}>{item.fuelBalanceAtRoutesFinish ?? '0'} L</Text>
+								</View>
+							</View>)}
 						</View>
 					</Pressable>)}
 					ListEmptyComponent={() => (<View style={styles.emptyContainer}>
@@ -811,8 +743,7 @@ const styles = StyleSheet.create<Styles>({
 		borderLeftWidth: 3, borderLeftColor: COLORS.gray,
 	}, highlightedText: {
 		color: COLORS.highlight, fontFamily: FONT.semiBold,
-	},
-	offlineIndicator: {
+	}, offlineIndicator: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: 'rgba(255, 193, 7, 0.1)',
@@ -822,11 +753,7 @@ const styles = StyleSheet.create<Styles>({
 		marginBottom: 12,
 		borderWidth: 1,
 		borderColor: 'rgba(255, 193, 7, 0.3)',
-	},
-	offlineText: {
-		fontSize: 12,
-		fontFamily: FONT.medium,
-		color: COLORS.highlight,
-		marginLeft: 6,
+	}, offlineText: {
+		fontSize: 12, fontFamily: FONT.medium, color: COLORS.highlight, marginLeft: 6,
 	},
 })
