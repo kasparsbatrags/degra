@@ -1,4 +1,3 @@
-import { loadSessionEnhanced } from '@/utils/sessionUtils';
 import {TruckDto} from '@/dto/TruckDto'
 import {TruckObjectDto} from '@/dto/TruckObjectDto'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
@@ -7,6 +6,7 @@ import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
 import {Truck} from '@/models/Truck'
 import {TruckObject} from '@/models/TruckObject'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
+import {loadSessionEnhanced} from '@/utils/sessionUtils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {SQLiteDatabase} from 'expo-sqlite'
 import {Platform} from 'react-native'
@@ -105,7 +105,7 @@ class OfflineDataManagerExtended {
 	private async getObjectsMobile(): Promise<TruckObject[]> {
 		const sql = `
             SELECT *
-            FROM objects
+            FROM truck_object
             WHERE is_deleted = 0
             ORDER BY name ASC
 		`
@@ -269,12 +269,17 @@ class OfflineDataManagerExtended {
 
 	private async checkRoutePageExistsMobile(truckId: string, routeDate: string): Promise<any | null> {
 		const sql = `
-            SELECT *
-            FROM route_pages
-            WHERE truck_registration_number = ?
-              AND date_from <= ?
-              AND date_to >= ?
-              AND is_deleted = 0
+            SELECT trp.*,
+                   t.truck_maker,
+                   t.truck_model,
+                   t.registration_number,
+                   t.fuel_consumption_norm
+            FROM truck_route_page trp
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+            WHERE t.registration_number = ?
+              AND trp.date_from <= ?
+              AND trp.date_to >= ?
+              AND trp.is_deleted = 0
             LIMIT 1
 		`
 		return await executeSelectFirst(sql, [truckId, routeDate, routeDate])
@@ -289,18 +294,18 @@ class OfflineDataManagerExtended {
 				return await this.getRoutePagesWeb(truckRouteId)
 			} else {
 				const routePages = await this.getRoutePagesMobile(truckRouteId)
-				console.log('📱 [DEBUG] route pages from DB: ', routePages);
-				console.log('📱 [DEBUG] route pages count:', routePages.length);
-				
+				console.log('📱 [DEBUG] route pages from DB: ', routePages)
+				console.log('📱 [DEBUG] route pages count:', routePages.length)
+
 				// Ensure we have an array before mapping
 				if (!Array.isArray(routePages)) {
-					console.warn('📱 [WARN] Expected array from mobile DB, got:', typeof routePages);
+					console.warn('📱 [WARN] Expected array from mobile DB, got:', typeof routePages)
 					return []
 				}
-				
+
 				const mappedPages = mapTruckRoutePageModelToDto(routePages)
-				console.log('📱 [DEBUG] mapped pages:', mappedPages.length);
-				
+				console.log('📱 [DEBUG] mapped pages:', mappedPages.length)
+
 				// Ensure mapper returns an array
 				return Array.isArray(mappedPages) ? mappedPages : []
 			}
@@ -359,14 +364,14 @@ class OfflineDataManagerExtended {
 
 	private async getRoutePagesMobile(truckRouteId?: number): Promise<TruckRoutePage[]> {
 		let sql = `
-	           SELECT trp.*,
-	                  t.truck_maker,
-	                  t.truck_model,
-	                  t.registration_number,
-	                  t.fuel_consumption_norm
-	           FROM truck_route_page trp
-	                    LEFT JOIN truck t ON trp.truck_uid = t.uid
-	           WHERE trp.is_deleted = 0
+            SELECT trp.*,
+                   t.truck_maker,
+                   t.truck_model,
+                   t.registration_number,
+                   t.fuel_consumption_norm
+            FROM truck_route_page trp
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+            WHERE trp.is_deleted = 0
 		`
 		const params: any[] = []
 
@@ -711,31 +716,19 @@ class OfflineDataManagerExtended {
                  is_dirty, is_deleted, synced_at)
                 VALUES (?, ?, ?, ?, 0, 0, ?)
 			`
-			const sessionData = await loadSessionEnhanced();
-			const currentUser = sessionData.user;
+			const sessionData = await loadSessionEnhanced()
+			const currentUser = sessionData.user
 			if (db) {
 				await executeTransaction(async (database) => {
 					for (const page of serverRoutePages) {
 						const user: UserDto = page.user
-						await database.runAsync(insertUserSQL, [
-								user.id,
-								currentUser.email,
-								currentUser.givenName || currentUser.firstName,
-								currentUser.familyName || currentUser.lastName,
-								Date.now()
-						])
+						await database.runAsync(insertUserSQL, [user.id, currentUser.email, currentUser.givenName || currentUser.firstName, currentUser.familyName || currentUser.lastName, Date.now()])
 					}
 				})
 			} else {
 				for (const page of serverRoutePages) {
 					const user: UserDto = page.user
-					await executeQuery(insertUserSQL, [
-						user.id,
-						currentUser.email,
-						currentUser.givenName || currentUser.firstName,
-						currentUser.familyName || currentUser.lastName,
-						Date.now()
-					])
+					await executeQuery(insertUserSQL, [user.id, currentUser.email, currentUser.givenName || currentUser.firstName, currentUser.familyName || currentUser.lastName, Date.now()])
 				}
 			}
 
@@ -756,23 +749,13 @@ class OfflineDataManagerExtended {
 				await executeTransaction(async (database) => {
 					for (const page of serverRoutePages) {
 						// Additional validation before database insertion
-						await database.runAsync(insertSQL,
-								[page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id,
-									page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null,
-									page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null,
-									page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null,
-									Date.now()])
+						await database.runAsync(insertSQL, [page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id, page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null, page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null, page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null, Date.now()])
 					}
 				})
 			} else {
 				for (const page of serverRoutePages) {
 					// Additional validation before database insertion
-					await executeQuery(insertSQL,
-							[page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id,
-								page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null,
-								page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null,
-								page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null,
-								Date.now()])
+					await executeQuery(insertSQL, [page.uid, page.dateFrom, page.dateTo, page.truck.uid, page.user.id, page.fuelBalanceAtStart, page.fuelBalanceAtFinish, page.totalFuelReceivedOnRoutes || null, page.totalFuelConsumedOnRoutes || null, page.fuelBalanceAtRoutesFinish || null, page.odometerAtRouteStart || null, page.odometerAtRouteFinish || null, page.computedTotalRoutesLength || null, Date.now()])
 				}
 			}
 
