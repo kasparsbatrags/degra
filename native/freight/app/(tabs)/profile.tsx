@@ -43,7 +43,6 @@ export default function ProfileScreen() {
         </View>
       </View>
       </View>
-      <OfflinePurgeButton />
     </SafeAreaView>
   );
 }
