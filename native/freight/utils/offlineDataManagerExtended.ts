@@ -13,6 +13,7 @@ import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
 import {isConnected} from './networkUtils'
+import {isOfflineMode} from '@/services/offlineService'
 import {addOfflineOperation} from './offlineQueue'
 
 // Simple ID generation without crypto dependencies
@@ -391,65 +392,6 @@ class OfflineDataManagerExtended {
 		return Array.isArray(result) ? result : []
 	}
 
-	// Create route page
-	async createRoutePage(pageData: Omit<RoutePage, 'id' | 'created_at' | 'updated_at'>): Promise<RoutePage> {
-		const page: RoutePage = {
-			...pageData,
-			id: Platform.OS === 'web' ? generateOfflineId() : undefined,
-			is_dirty: 1,
-			is_deleted: 0,
-			created_at: Date.now(),
-			updated_at: Date.now()
-		}
-
-		try {
-			if (Platform.OS === 'web') {
-				return await this.createRoutePageWeb(page)
-			} else {
-				return await this.createRoutePageMobile(page)
-			}
-		} catch (error) {
-			console.error('Failed to create route page:', error)
-			throw error
-		}
-	}
-
-	private async createRoutePageWeb(page: RoutePage): Promise<RoutePage> {
-		// Store locally first
-		const cacheKey = page.truck_route_id ? `cached_route_pages_${page.truck_route_id}` : 'cached_route_pages'
-		const cached = await AsyncStorage.getItem(cacheKey)
-		const pages: RoutePage[] = cached ? JSON.parse(cached) : []
-		pages.unshift(page)
-		await AsyncStorage.setItem(cacheKey, JSON.stringify(pages))
-
-		// Add to offline queue
-		await addOfflineOperation('CREATE', 'route_pages', '/route-pages', page)
-
-		return page
-	}
-
-	private async createRoutePageMobile(page: RoutePage): Promise<RoutePage> {
-		const sql = `
-            INSERT INTO route_pages
-            (uid, truck_route_id, truck_route_server_id, date_from, date_to, truck_registration_number,
-             fuel_consumption_norm, fuel_balance_at_start, total_fuel_received_on_routes,
-             total_fuel_consumed_on_routes, fuel_balance_at_routes_finish, odometer_at_route_start,
-             odometer_at_route_finish, computed_total_routes_length, is_dirty, is_deleted,
-             created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`
-
-		const result = await executeQuery(sql, [page.uid || generateOfflineId(), page.truck_route_id || null, page.truck_route_server_id || null, page.date_from, page.date_to, page.truck_registration_number, page.fuel_consumption_norm, page.fuel_balance_at_start, page.total_fuel_received_on_routes || null, page.total_fuel_consumed_on_routes || null, page.fuel_balance_at_routes_finish || null, page.odometer_at_route_start || null, page.odometer_at_route_finish || null, page.computed_total_routes_length || null, 1, // is_dirty
-			0, // is_deleted
-			Date.now(), Date.now()])
-
-		const createdPage = {...page, id: result.lastInsertRowId}
-
-		// Add to offline queue
-		await addOfflineOperation('CREATE', 'route_pages', '/route-pages', createdPage)
-
-		return createdPage
-	}
 
 	async downloadTrucks(db?: SQLiteDatabase): Promise<void> {
 		if (Platform.OS === 'web') {
@@ -457,8 +399,9 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		if (!(await isConnected())) {
-			console.log('Device is offline, cannot sync trucks')
+		// Check both network connection and global offline mode
+		if (!(await isConnected()) || (await isOfflineMode())) {
+			console.log('Device is offline or force offline mode, cannot sync trucks')
 			return
 		}
 
@@ -520,8 +463,9 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		if (!(await isConnected())) {
-			console.log('📍 Device is offline, cannot sync objects')
+		// Check both network connection and global offline mode
+		if (!(await isConnected()) || (await isOfflineMode())) {
+			console.log('📍 Device is offline or force offline mode, cannot sync objects')
 			return
 		}
 
@@ -676,8 +620,9 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		if (!(await isConnected())) {
-			console.log('🔄 Device is offline, cannot sync route pages')
+		// Check both network connection and global offline mode
+		if (!(await isConnected()) || (await isOfflineMode())) {
+			console.log('🔄 Device is offline or force offline mode, cannot sync route pages')
 			return
 		}
 
