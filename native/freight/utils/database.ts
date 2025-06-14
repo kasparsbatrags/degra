@@ -148,74 +148,32 @@ const createTables = async (database: any) => {
       synced_at INTEGER
     );
 
-    -- Truck routes
+    -- Truck routes (backend-compatible structure)
     CREATE TABLE IF NOT EXISTS truck_routes (
-      id INTEGER PRIMARY KEY,
-      server_id INTEGER UNIQUE,
-      date_from TEXT NOT NULL,
-      date_to TEXT NOT NULL,
-      truck_registration_number TEXT NOT NULL,
-      fuel_consumption_norm REAL NOT NULL,
-      fuel_balance_at_start REAL NOT NULL,
-      total_fuel_received_on_routes REAL,
-      total_fuel_consumed_on_routes REAL,
-      fuel_balance_at_routes_finish REAL,
-      odometer_at_route_start INTEGER,
-      odometer_at_route_finish INTEGER,
-      computed_total_routes_length INTEGER,
+      uid TEXT PRIMARY KEY,
+      truck_route_page_uid TEXT NOT NULL,
+      route_date TEXT NOT NULL,
+      route_number INTEGER,
+      cargo_volume REAL DEFAULT 0,
+      out_truck_object_uid TEXT NOT NULL,
+      odometer_at_start INTEGER NOT NULL,
+      out_date_time TEXT NOT NULL,
+      odometer_at_finish INTEGER,
+      in_truck_object_uid TEXT,
+      in_date_time TEXT,
+      route_length INTEGER,
+      fuel_balance_at_start REAL,
+      fuel_consumed REAL,
+      fuel_received REAL,
+      fuel_balance_at_finish REAL,
+      created_date_time TEXT,
+      last_modified_date_time TEXT,
+      unit_type_id INTEGER,
+      
+      -- Offline fields
       is_dirty INTEGER DEFAULT 0,
       is_deleted INTEGER DEFAULT 0,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
       synced_at INTEGER
-    );
-
-    -- Fuel entries
-    CREATE TABLE IF NOT EXISTS fuel_entries (
-      id INTEGER PRIMARY KEY,
-      server_id INTEGER UNIQUE,
-      route_id INTEGER,
-      route_server_id INTEGER,
-      amount REAL NOT NULL,
-      price_per_liter REAL,
-      total_cost REAL,
-      station_name TEXT,
-      receipt_number TEXT,
-      entry_date TEXT NOT NULL,
-      notes TEXT,
-      is_dirty INTEGER DEFAULT 0,
-      is_deleted INTEGER DEFAULT 0,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-      synced_at INTEGER,
-      FOREIGN KEY (route_id) REFERENCES truck_routes(id) ON DELETE CASCADE
-    );
-
-    -- Odometer readings
-    CREATE TABLE IF NOT EXISTS odometer_readings (
-      id INTEGER PRIMARY KEY,
-      server_id INTEGER UNIQUE,
-      route_id INTEGER,
-      route_server_id INTEGER,
-      reading INTEGER NOT NULL,
-      reading_date TEXT NOT NULL,
-      location TEXT,
-      notes TEXT,
-      is_dirty INTEGER DEFAULT 0,
-      is_deleted INTEGER DEFAULT 0,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-      synced_at INTEGER,
-      FOREIGN KEY (route_id) REFERENCES truck_routes(id) ON DELETE CASCADE
-    );
-
-    -- Active routes tracking
-    CREATE TABLE IF NOT EXISTS active_routes (
-      id INTEGER PRIMARY KEY,
-      route_data TEXT NOT NULL, -- JSON
-      is_active INTEGER DEFAULT 1,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now'))
     );
 
     -- Sync metadata
@@ -243,6 +201,11 @@ const createTables = async (database: any) => {
     CREATE INDEX IF NOT EXISTS idx_truck_object_deleted ON truck_object(is_deleted);
     CREATE INDEX IF NOT EXISTS idx_truck_routes_dirty ON truck_routes(is_dirty);
     CREATE INDEX IF NOT EXISTS idx_truck_routes_deleted ON truck_routes(is_deleted);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_page_uid ON truck_routes(truck_route_page_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_out_object ON truck_routes(out_truck_object_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_in_object ON truck_routes(in_truck_object_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_date ON truck_routes(route_date);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_active ON truck_routes(in_date_time);
     CREATE INDEX IF NOT EXISTS idx_fuel_entries_route ON fuel_entries(route_id);
     CREATE INDEX IF NOT EXISTS idx_odometer_readings_route ON odometer_readings(route_id);
     CREATE INDEX IF NOT EXISTS idx_active_routes_active ON active_routes(is_active);
@@ -252,9 +215,7 @@ const createTables = async (database: any) => {
       ('truck_route_page', 0),
       ('truck', 0),
       ('truck_object', 0),
-      ('truck_routes', 0),
-      ('fuel_entries', 0),
-      ('odometer_readings', 0);
+      ('truck_routes', 0);
   `;
 
   await database.execAsync(createTablesSQL);
@@ -329,8 +290,6 @@ export const clearAllData = async () => {
   const database = await getDatabase();
   await database.execAsync(`
     DELETE FROM offline_operations;
-    DELETE FROM fuel_entries;
-    DELETE FROM odometer_readings;
     DELETE FROM truck_routes;
     DELETE FROM truck_route_page;
     DELETE FROM truck;

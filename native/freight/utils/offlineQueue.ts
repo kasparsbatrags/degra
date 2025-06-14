@@ -1,9 +1,17 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
 import { isConnected } from './networkUtils';
 import freightAxiosInstance from '../config/freightAxios';
+
+// Simple ID generation without crypto dependencies
+function generateOfflineId(): string {
+  // Use timestamp + multiple random parts for better uniqueness
+  const timestamp = Date.now().toString();
+  const randomPart1 = Math.random().toString(36).substr(2, 9);
+  const randomPart2 = Math.random().toString(36).substr(2, 5);
+  return `offline-${timestamp}-${randomPart1}-${randomPart2}`;
+}
 
 // Offline queue configuration
 const QUEUE_STORAGE_KEY = 'offline_operations_queue';
@@ -23,7 +31,7 @@ class OfflineQueueManager {
     endpoint: string,
     data: any
   ): Promise<string> {
-    const operationId = uuidv4();
+    const operationId = generateOfflineId();
     const operation: OfflineOperation = {
       id: operationId,
       type,

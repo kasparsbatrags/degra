@@ -2,14 +2,13 @@ import {isRedirectingToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-import {isConnected} from '@/utils/networkUtils'
-import {getRoutePages, downloadServerData} from '@/utils/offlineDataManagerExtended'
+import {isOfflineMode} from '@/services/offlineService'
+import {getRoutePages, downloadServerData, offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
-import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
+import {isSessionActive} from '@/utils/sessionUtils'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useFocusEffect, useRouter} from 'expo-router'
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState, useMemo} from 'react'
 import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
@@ -24,32 +23,40 @@ export default function HomeScreen() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 
-	// Constants for local database keys
-	const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus'
-	const CACHED_ROUTES_KEY = 'cachedRoutes'
-	const CACHED_ROUTES_TIMESTAMP_KEY = 'cachedRoutesTimestamp'
 
-	// State for offline mode awareness
-	const [isOfflineMode, setIsOfflineMode] = useState(false)
-
-	// Check session type and set offline mode awareness
+	// Use global offline service that respects both network status and manual offline mode
+	const [globalOfflineMode, setGlobalOfflineMode] = useState(false)
+	
+	// Check global offline mode (includes both network status and manual offline setting)
 	useEffect(() => {
-		const checkSessionType = async () => {
-			try {
-				const sessionData = await loadSessionEnhanced()
-				if (sessionData.sessionType === 'persistent-offline') {
-					setIsOfflineMode(true)
-					console.log('Detected persistent offline session - prioritizing offline mode')
-				} else {
-					setIsOfflineMode(false)
-				}
-			} catch (error) {
-				console.error('Error checking session type:', error)
-			}
+		const checkGlobalOfflineMode = async () => {
+			const offline = await isOfflineMode()
+			setGlobalOfflineMode(offline)
 		}
-
-		checkSessionType()
+		
+		checkGlobalOfflineMode()
+		
+		// Check every 5 seconds to stay in sync with OfflineControls
+		const interval = setInterval(checkGlobalOfflineMode, 5000)
+		
+		return () => clearInterval(interval)
 	}, [])
+	
+	const isOfflineModeActive = globalOfflineMode
+
+	// Calculate if user can start a route
+	const canStartRoute = useMemo(() => {
+		// Web - always can (online only)
+		if (Platform.OS === 'web') return true
+		
+		// Mobile offline - can only if there are route pages
+		if (isOfflineModeActive) {
+			return routes.length > 0
+		}
+		
+		// Mobile online - always can
+		return true
+	}, [isOfflineModeActive, routes.length])
 
 	// Check session status when component is loaded
 	useEffect(() => {
@@ -80,7 +87,7 @@ export default function HomeScreen() {
 	}, [])
 
 	const checkLastRouteStatus = useCallback(async () => {
-		// Clear previous error message
+		setStatusCheckLoading(true)
 		setErrorMessage(null)
 
 		// Check if redirection to login page is already in progress
@@ -100,113 +107,21 @@ export default function HomeScreen() {
 				return
 			}
 
-			// Check if device is connected to the internet
-			const connected = await isConnected()
-
-			// If in offline mode or no connection, use cached status
-			if (isOfflineMode || !connected) {
-				const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-				if (localStatus) {
-					setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
-					console.log('Using cached route status:', localStatus)
-				} else {
-					// Default to STARTS if no cached status
-					setButtonText('STARTS')
-					console.log('No cached route status, defaulting to STARTS')
-				}
-				return
-			}
-
-			if (connected) {
-				// If there is a connection, try to get data from server
-				try {
-					await freightAxiosInstance.get('/truck-routes/last-active')
-					setButtonText('FINIŠS')
-
-					// Save status in local database
-					await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'active')
-					console.log('Route status updated from server: active')
-				} catch (error: any) {
-					if (error.response?.status === 404) {
-						setButtonText('STARTS')
-
-						// Save status in local database
-						await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, 'inactive')
-						console.log('Route status updated from server: inactive')
-					} else {
-						console.error('Server error, falling back to cached status:', error)
-						// Fall back to cached status
-						const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-						if (localStatus) {
-							setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
-							console.log('Using cached route status due to server error:', localStatus)
-						} else {
-							setButtonText('STARTS')
-							console.log('No cached status available, defaulting to STARTS')
-						}
-					}
-				}
-			}
-		} catch (error: any) {
+			// Use existing centralized function - handles web/mobile and offline/online automatically
+			const lastActiveRoute = await offlineDataManagerExtended.getLastActiveRoute()
+			setButtonText(lastActiveRoute ? 'FINIŠS' : 'STARTS')
+			
+			console.log('Route status:', lastActiveRoute ? 'active' : 'inactive', 
+						Platform.OS === 'web' ? '(server)' : '(database)',
+						lastActiveRoute?.uid ? `uid: ${lastActiveRoute.uid}` : '')
+			
+		} catch (error) {
 			console.error('Error checking route status:', error)
-			// Fall back to cached status
-			const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY)
-			if (localStatus) {
-				setButtonText(localStatus === 'active' ? 'FINIŠS' : 'STARTS')
-			} else {
-				setButtonText('STARTS')
-			}
+			setButtonText('STARTS')
 		} finally {
-			// Reset loading state
 			setStatusCheckLoading(false)
 		}
-	}, [isOfflineMode])
-
-	// Helper function to transform route data
-	// const transformRouteData = (routePages: any[]): TruckRoutePageDto[] => {
-	// 	if (!Array.isArray(routePages)) {
-	// 		console.warn('📱 [WARN] Invalid routePages data:', routePages)
-	// 		return []
-	// 	}
-	//
-	// 	return routePages.map((route, index) => {
-	// 		console.log('📱 [DEBUG] Transforming route at index', index, ':', route);
-	//
-	// 		// Backend-compatible field mapping with fallbacks
-	// 		const transformed = {
-	// 			uid: route.uid, // Backend-compatible
-	// 			dateFrom: route.date_from || route.dateFrom,
-	// 			dateTo: route.date_to || route.dateTo,
-	// 			truckRegistrationNumber: route.truck_registration_number || route.truckRegistrationNumber,
-	// 			fuelConsumptionNorm: route.fuel_consumption_norm || route.fuelConsumptionNorm || 0,
-	// 			fuelBalanceAtStart: route.fuel_balance_at_start || route.fuelBalanceAtStart || 0,
-	// 			totalFuelReceivedOnRoutes: route.total_fuel_received_on_routes ?? route.totalFuelReceivedOnRoutes ?? null,
-	// 			totalFuelConsumedOnRoutes: route.total_fuel_consumed_on_routes ?? route.totalFuelConsumedOnRoutes ?? null,
-	// 			fuelBalanceAtRoutesFinish: route.fuel_balance_at_routes_finish ?? route.fuelBalanceAtRoutesFinish ?? null,
-	// 			odometerAtRouteStart: route.odometer_at_route_start ?? route.odometerAtRouteStart ?? null,
-	// 			odometerAtRouteFinish: route.odometer_at_route_finish ?? route.odometerAtRouteFinish ?? null,
-	// 			computedTotalRoutesLength: route.computed_total_routes_length ?? route.computedTotalRoutesLength ?? null,
-	// 			activeTab: 'basic' as const
-	// 		};
-	//
-	// 		console.log('📱 [DEBUG] Transformed route:', transformed);
-	// 		return transformed;
-	// 	}).filter(route => {
-	// 		// Validation with better error messages
-	// 		console.log("=============================================")
-	// 		console.log(route)
-	// 		const isValid = route.uid && route.dateFrom && route.dateTo && route.truckRegistrationNumber;
-	// 		if (!isValid) {
-	// 			console.warn('📱 [WARN] Filtering out invalid route:', {
-	// 				uid: route.uid,
-	// 				dateFrom: route.dateFrom,
-	// 				dateTo: route.dateTo,
-	// 				truckRegistrationNumber: route.truckRegistrationNumber
-	// 			});
-	// 		}
-	// 		return isValid;
-	// 	});
-	// };
+	}, [isOfflineModeActive])
 
 	// Helper function to initialize tabs for routes
 	const initializeTabsForRoutes = (routes: TruckRoutePageDto[]): TruckRoutePageDto[] => {
@@ -282,78 +197,50 @@ export default function HomeScreen() {
 		fetchRoutes()
 	}, [])
 
-	// Background sync setup
-	// useEffect(() => {
-	// 	let syncInterval: NodeJS.Timeout;
-	//
-	// 	const setupBackgroundSync = () => {
-	// 		// Background sync every 5 minutes when app is active
-	// 		syncInterval = setInterval(async () => {
-	// 			try {
-	// 				const connected = await isConnected();
-	// 				if (connected && !loading && !isRedirectingToLogin) {
-	// 					console.log('📱 [BACKGROUND] Starting background sync...');
-	//
-	// 					// Sync dropdown data first
-	// 					if (Platform.OS !== 'web') {
-	// 						try {
-	// 							await syncAllData();
-	// 							console.log('📱 [BACKGROUND] Dropdown data synced');
-	// 						} catch (error) {
-	// 							console.warn('📱 [BACKGROUND] Dropdown sync failed:', error);
-	// 						}
-	// 					}
-	//
-	// 					// Check for new route pages
-	// 					try {
-	// 						const newRoutePages = await getRoutePages();
-	// 						if (newRoutePages.length > 0) {
-	// 							const newTransformed = transformRouteData(newRoutePages);
-	//
-	// 							// Only update if data has changed
-	// 							if (newTransformed.length !== routes.length ||
-	// 								JSON.stringify(newTransformed.map(r => r.uid)) !== JSON.stringify(routes.map(r => r.uid))) {
-	//
-	// 								setRoutes(newTransformed);
-	// 								console.log('📱 [BACKGROUND] Routes updated:', newTransformed.length);
-	// 							}
-	// 						}
-	// 					} catch (error) {
-	// 						console.warn('📱 [BACKGROUND] Route pages sync failed:', error);
-	// 					}
-	// 				}
-	// 			} catch (error) {
-	// 				console.warn('📱 [BACKGROUND] Background sync failed:', error);
-	// 			}
-	// 		}, 5 * 60 * 1000); // 5 minutes
-	// 	};
-	//
-	// 	setupBackgroundSync();
-	//
-	// 	return () => {
-	// 		if (syncInterval) {
-	// 			clearInterval(syncInterval);
-	// 		}
-	// 	};
-	// }, [routes.length, loading]); // Dependencies to restart interval when needed
-
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
 			{/* Offline mode indicator */}
-			{(isOfflineMode) && (<View style={styles.offlineIndicator}>
+			{isOfflineModeActive && (<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
-						<Text style={styles.offlineText}>
-							{isOfflineMode ? 'Offline režīms' : 'Dati no cache'}
-						</Text>
+						<Text style={styles.offlineText}>Offline režīms</Text>
 					</View>)}
 
 			<Button
 					title={buttonText}
-					onPress={() => router.push('/truck-route')}
-					style={styles.startTripButton}
-					disabled={statusCheckLoading}
+					onPress={() => {
+						if (canStartRoute) {
+							router.push('/truck-route')
+						}
+					}}
+					style={[
+						styles.startTripButton,
+						!canStartRoute && styles.disabledButton
+					]}
+					disabled={statusCheckLoading || !canStartRoute}
 					loading={statusCheckLoading}
 			/>
+
+			{/* Warning message when user can't start route */}
+			{!canStartRoute && (
+					<View style={styles.warningContainer}>
+						<View style={styles.iconTextRow}>
+							<MaterialIcons name="warning" size={20} color={COLORS.highlight} />
+							<Text style={styles.warningText}>
+								Nepieciešams internets - aplikācija nedarbosies. Lūdzu, pārslēdzieties ka ir pieejams internets un sinhronizējiet datus.
+							</Text>
+						</View>
+
+						<Pressable
+								style={styles.syncButton}
+								onPress={() => {
+									setLoading(true)
+									fetchRoutes()
+								}}
+						>
+							<Text style={styles.syncButtonText}>SINHRONIZĒT DATUS</Text>
+						</Pressable>
+					</View>
+			)}
 
 			{/* Debug button - only show on Android for testing */}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList
@@ -541,6 +428,7 @@ type Styles = {
 	infoContainer: ViewStyle;
 	infoText: TextStyle;
 	startTripButton: ViewStyle;
+	disabledButton: ViewStyle;
 	addRouteButton: ViewStyle;
 	sectionTitle: TextStyle;
 	tabContainer: ViewStyle;
@@ -559,6 +447,10 @@ type Styles = {
 	refreshButton: ViewStyle;
 	offlineIndicator: ViewStyle;
 	offlineText: TextStyle;
+	warningContainer: ViewStyle;
+	warningText: TextStyle;
+	syncButton: ViewStyle;
+	syncButtonText: TextStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -743,5 +635,41 @@ const styles = StyleSheet.create<Styles>({
 		borderColor: 'rgba(255, 193, 7, 0.3)',
 	}, offlineText: {
 		fontSize: 12, fontFamily: FONT.medium, color: COLORS.highlight, marginLeft: 6,
+	}, disabledButton: {
+		opacity: 0.5,
+	}, warningContainer: {
+		flexDirection: 'column',
+		alignItems: 'flex-start',
+		backgroundColor: 'rgba(255, 193, 7, 0.1)',
+		borderRadius: 8,
+		padding: 12,
+		marginTop: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 193, 7, 0.3)',
+	}, warningText: {
+		fontSize: 14,
+		fontFamily: FONT.medium,
+		color: COLORS.highlight,
+		marginLeft: 8,
+		marginRight: 8,
+		flex: 1,
+		lineHeight: 20,
+	}, syncButton: {
+		backgroundColor: COLORS.secondary,
+		borderRadius: 8,
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		marginTop: 8,
+		alignSelf: 'center',
+		alignItems: 'center',
+		height: 48,
+		justifyContent: 'center',
+	}, syncButtonText: {
+		fontSize: 16,
+		fontFamily: FONT.semiBold,
+		color: COLORS.white,
+	},	iconTextRow: {
+		flexDirection: 'row', // ikona un teksts blakus
+		alignItems: 'flex-start',
 	},
 })

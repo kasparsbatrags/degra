@@ -13,10 +13,26 @@ import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
-import {isConnected} from '@/utils/networkUtils'
+import {isConnected, useNetworkState} from '@/utils/networkUtils'
+import {isOfflineMode} from '@/services/offlineService'
 import {addOfflineOperation} from '@/utils/offlineQueue'
-import {isSessionActive} from '@/utils/sessionUtils'
+import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
+import {executeQuery, executeSelect, executeSelectFirst} from '@/utils/database'
+import {offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import {TruckRoutePage} from '@/models/TruckRoutePage'
+import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
+import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
+
+// Simple ID generation without crypto dependencies
+function generateOfflineId(): string {
+	// Use timestamp + multiple random parts for better uniqueness
+	const timestamp = Date.now().toString()
+	const randomPart1 = Math.random().toString(36).substr(2, 9)
+	const randomPart2 = Math.random().toString(36).substr(2, 5)
+	return `offline-${timestamp}-${randomPart1}-${randomPart2}`
+}
 
 interface TruckRoutePageForm {
 	dateFrom: Date;
@@ -24,15 +40,6 @@ interface TruckRoutePageForm {
 	truck: string;
 	fuelBalanceAtStart: string;
 	fuelBalanceAtFinish: string;
-}
-
-interface Truck {
-	uid: string;
-	truckMaker?: string;
-	truckModel?: string;
-	registrationNumber?: string;
-	fuelConsumptionNorm?: number;
-	isDefault?: boolean;
 }
 
 interface TruckRoute {
@@ -59,8 +66,28 @@ export default function TruckRoutePageScreen() {
 	const [isEditMode, setIsEditMode] = useState(true)
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
-	const [isOfflineMode, setIsOfflineMode] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	
+	// Use global offline service that respects both network status and manual offline mode
+	const { isConnected: networkConnected } = useNetworkState()
+	const [globalOfflineMode, setGlobalOfflineMode] = useState(false)
+	
+	// Check global offline mode (includes both network status and manual offline setting)
+	useEffect(() => {
+		const checkGlobalOfflineMode = async () => {
+			const offline = await isOfflineMode()
+			setGlobalOfflineMode(offline)
+		}
+		
+		checkGlobalOfflineMode()
+		
+		// Check every 5 seconds to stay in sync with OfflineControls
+		const interval = setInterval(checkGlobalOfflineMode, 5000)
+		
+		return () => clearInterval(interval)
+	}, [])
+	
+	const isOfflineModeActive = globalOfflineMode
 	const [pagination, setPagination] = useState({
 		page: 0,
 		size: 5,
@@ -101,15 +128,6 @@ export default function TruckRoutePageScreen() {
 		checkSession()
 	}, [])
 
-	// Check network status and set offline mode
-	useEffect(() => {
-		const checkNetworkStatus = async () => {
-			const connected = await isConnected()
-			setIsOfflineMode(!connected)
-		}
-
-		checkNetworkStatus()
-	}, [])
 
 	useEffect(() => {
 		if (uid) {
@@ -136,6 +154,45 @@ export default function TruckRoutePageScreen() {
 				await SessionManager.getInstance().handleUnauthorized()
 				setIsLoading(false)
 				return
+			}
+
+			// OFFLINE-FIRST APPROACH FOR MOBILE
+			if (Platform.OS !== 'web') {
+				console.log('📱 [Mobile] Fetching route details offline-first for uid:', uid)
+				
+				try {
+					// First try to get from local database
+					const sql = `
+						SELECT trp.*, 
+							   t.truck_maker, t.truck_model, t.registration_number, t.fuel_consumption_norm,
+							   u.email, u.given_name, u.family_name
+						FROM truck_route_page trp
+						LEFT JOIN truck t ON trp.truck_uid = t.uid
+						LEFT JOIN user u ON trp.user_id = u.id
+						WHERE trp.uid = ? AND trp.is_deleted = 0
+						LIMIT 1
+					`
+					
+					const localRouteData = await executeSelectFirst(sql, [uid])
+					
+					if (localRouteData) {
+						console.log('📱 [Mobile] Found route data in local database:', localRouteData)
+						
+						setForm({
+							dateFrom: new Date(localRouteData.date_from),
+							dateTo: new Date(localRouteData.date_to),
+							truck: localRouteData.truck_uid || '',
+							fuelBalanceAtStart: localRouteData.fuel_balance_at_start?.toString() || '',
+							fuelBalanceAtFinish: localRouteData.fuel_balance_at_end?.toString() || '',
+						})
+						
+						return
+					} else {
+						console.log('📱 [Mobile] No local data found, checking network...')
+					}
+				} catch (error) {
+					console.error('📱 [Mobile] Error fetching from local database:', error)
+				}
 			}
 
 			// Check network connectivity
@@ -165,8 +222,11 @@ export default function TruckRoutePageScreen() {
 					}
 				}
 			} else {
-				setIsOfflineMode(true)
-				setErrorMessage('Nav interneta savienojuma - dati nav pieejami offline režīmā')
+				if (Platform.OS === 'web') {
+					setErrorMessage('Nav interneta savienojuma - dati nav pieejami offline režīmā')
+				} else {
+					setErrorMessage('Nav interneta savienojuma - rādīti lokālie dati')
+				}
 			}
 		} catch (error) {
 			console.error('Error in fetchRouteDetails:', error)
@@ -281,23 +341,141 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			const payload = {
-				dateFrom: format(form.dateFrom, 'yyyy-MM-dd'),
-				dateTo: format(form.dateTo, 'yyyy-MM-dd'),
-				truck: {id: parseInt(form.truck)},
-				fuelBalanceAtStart: parseFloat(form.fuelBalanceAtStart),
-				fuelBalanceAtFinish: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : null,
+			// Get full truck and user objects
+			const trucks = await offlineDataManagerExtended.getTrucks()
+			const selectedTruck = trucks.find(t => t.uid === form.truck)
+			const sessionData = await loadSessionEnhanced()
+			const currentUser = sessionData.user
+
+			if (!selectedTruck) {
+				setErrorMessage('Izvēlētais auto nav atrasts')
+				setIsSubmitting(false)
+				return
 			}
 
-			// Check network connectivity
+			// Create TruckRoutePage model object with all required fields
+			const routePageModel: TruckRoutePage = {
+				uid: uid || generateOfflineId(),
+				date_from: format(form.dateFrom, 'yyyy-MM-dd'),
+				date_to: format(form.dateTo, 'yyyy-MM-dd'),
+				truck_uid: form.truck,
+				user_id: currentUser.id,
+				fuel_balance_at_start: parseFloat(form.fuelBalanceAtStart),
+				fuel_balance_at_end: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : undefined,
+				
+				// Include truck information for proper DTO mapping
+				truck_maker: selectedTruck.truckMaker,
+				truck_model: selectedTruck.truckModel,
+				registration_number: selectedTruck.registrationNumber,
+				fuel_consumption_norm: selectedTruck.fuelConsumptionNorm,
+				is_default: selectedTruck.isDefault ? 1 : 0,
+				
+				// Include user information for proper DTO mapping
+				email: currentUser.email,
+				givenName: currentUser.givenName || currentUser.firstName,
+				familyName: currentUser.familyName || currentUser.lastName,
+				
+				// Offline tracking fields
+				is_dirty: 1,
+				is_deleted: 0,
+				created_at: Date.now(),
+				updated_at: Date.now()
+			}
+
+			console.log('📱 [DEBUG] Created route page model:', routePageModel)
+
+			// Transform to DTO using the mapper
+			const routePageDto: TruckRoutePageDto = mapTruckRoutePageModelToDto([routePageModel])[0]
+			
+			if (!routePageDto) {
+				setErrorMessage('Kļūda sagatavot datus nosūtīšanai')
+				setIsSubmitting(false)
+				return
+			}
+
+			console.log('📱 [DEBUG] Transformed to DTO:', routePageDto)
+
+			// OFFLINE-FIRST APPROACH FOR MOBILE
+			if (Platform.OS !== 'web') {
+				console.log('📱 [Mobile] Saving data offline-first')
+				
+				try {
+					if (uid) {
+						// UPDATE existing route page in local database
+						const updateSql = `
+							UPDATE truck_route_page 
+							SET date_from = ?, date_to = ?, truck_uid = ?, 
+								fuel_balance_at_start = ?, fuel_balance_at_end = ?,
+								is_dirty = 1, updated_at = ?
+							WHERE uid = ?
+						`
+						
+						await executeQuery(updateSql, [
+							routePageModel.date_from,
+							routePageModel.date_to,
+							routePageModel.truck_uid,
+							routePageModel.fuel_balance_at_start,
+							routePageModel.fuel_balance_at_end,
+							Date.now(),
+							uid
+						])
+						
+						console.log('📱 [Mobile] Updated route page in local database')
+					} else {
+						// CREATE new route page in local database
+						const insertSql = `
+							INSERT INTO truck_route_page 
+							(uid, date_from, date_to, truck_uid, user_id, 
+							 fuel_balance_at_start, fuel_balance_at_end, 
+							 is_dirty, is_deleted, created_at, updated_at)
+							VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)
+						`
+						
+						await executeQuery(insertSql, [
+							routePageModel.uid,
+							routePageModel.date_from,
+							routePageModel.date_to,
+							routePageModel.truck_uid,
+							routePageModel.user_id,
+							routePageModel.fuel_balance_at_start,
+							routePageModel.fuel_balance_at_end,
+							Date.now(),
+							Date.now()
+						])
+						
+						console.log('📱 [Mobile] Created new route page in local database with uid:', routePageModel.uid)
+					}
+					
+					// Add DTO to offline queue for server synchronization
+					await addOfflineOperation(
+						uid ? 'UPDATE' : 'CREATE',
+						'truck_route_page',
+						uid ? `/route-pages/${uid}` : '/route-pages',
+						routePageDto
+					)
+					
+					setErrorMessage('Dati saglabāti lokāli un tiks sinhronizēti ar serveri')
+					console.log('📱 [Mobile] Data saved locally and added to sync queue')
+					
+					// Navigate back immediately after local save
+					setTimeout(() => router.push('/(tabs)'), 1500)
+					return
+					
+				} catch (error) {
+					console.error('📱 [Mobile] Error saving to local database:', error)
+					// Fall back to online save if local save fails
+				}
+			}
+
+			// Check network connectivity for web or fallback
 			const connected = await isConnected()
 			
 			if (connected) {
 				try {
 					if (uid) {
-						await freightAxios.put(`/route-pages/${uid}`, payload)
+						await freightAxios.put(`/route-pages/${uid}`, routePageDto)
 					} else {
-						await freightAxios.post('/route-pages', payload)
+						await freightAxios.post('/route-pages', routePageDto)
 					}
 					router.push('/(tabs)')
 				} catch (error: any) {
@@ -311,9 +489,9 @@ export default function TruckRoutePageScreen() {
 						// Add to offline queue as fallback
 						await addOfflineOperation(
 							uid ? 'UPDATE' : 'CREATE',
-							'route_pages',
+							'truck_route_page',
 							uid ? `/route-pages/${uid}` : '/route-pages',
-							payload
+							routePageDto
 						)
 						setErrorMessage('Dati saglabāti offline režīmā un tiks sinhronizēti, kad būs internets')
 						// Still navigate back after offline save
@@ -321,12 +499,12 @@ export default function TruckRoutePageScreen() {
 					}
 				}
 			} else {
-				// Offline mode - add to queue
+				// Offline mode - add to queue only (for web or mobile fallback)
 				await addOfflineOperation(
 					uid ? 'UPDATE' : 'CREATE',
-					'route_pages',
+					'truck_route_page',
 					uid ? `/route-pages/${uid}` : '/route-pages',
-					payload
+					routePageDto
 				)
 				setErrorMessage('Dati saglabāti offline režīmā un tiks sinhronizēti, kad būs internets')
 				console.log('Data saved to offline queue')
@@ -357,8 +535,9 @@ export default function TruckRoutePageScreen() {
 				</Text>
 
 				{/* Offline mode indicator */}
-				{isOfflineMode && (
+				{isOfflineModeActive && Platform.OS !== 'web' && (
 					<View style={styles.offlineIndicator}>
+						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
 						<Text style={styles.offlineText}>Offline režīms</Text>
 					</View>
 				)}
@@ -754,7 +933,8 @@ const styles = StyleSheet.create({
 		color: COLORS.gray,
 		textAlign: 'center',
 		marginTop: 24,
-offlineIndicator: {
+	},
+	offlineIndicator: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: 'rgba(255, 193, 7, 0.1)',
@@ -784,6 +964,5 @@ offlineIndicator: {
 		fontFamily: FONT.medium,
 		color: '#FF6B6B',
 		textAlign: 'center',
-	},
 	},
 })

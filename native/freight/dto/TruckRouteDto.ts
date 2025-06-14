@@ -1,26 +1,56 @@
-import {TruckObjectDto} from '@/dto/TruckObjectDto'
-import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
+import { TruckDto } from './TruckDto'
+import { TruckObjectDto } from './TruckObjectDto'
+import { TruckRoutePageDto } from './TruckRoutePageDto'
 
+/**
+ * TruckRoute DTO - Matches server response structure
+ * This is the structure returned by the backend API
+ */
 export interface TruckRouteDto {
-	// Backend API fields (uid-based)
-	uid?: string | null;
-	truckRoutePage: TruckRoutePageDto | null;
-	routeDate: string;
-	routeNumber: number | null;
-	cargoVolume: number | null;
-	unitType: string | null;
+  uid: string
+  truckRoutePage: TruckRoutePageDto
+  routeDate: string
+  routeNumber?: number
+  cargoVolume?: number
+  unitType?: string
+  outTruckObject: TruckObjectDto
+  outDateTime: string
+  odometerAtStart: number
+  inTruckObject?: TruckObjectDto
+  inDateTime?: string
+  odometerAtFinish?: number
+  routeLength?: number
+  fuelBalanceAtStart?: number
+  fuelConsumed?: number
+  fuelReceived?: number
+  fuelBalanceAtFinish?: number
+}
 
-	outTruckObject: TruckObjectDto | null;
-	outDateTime: string;
-	odometerAtStart: number | null;
+/**
+ * Simplified TruckRoute DTO for API requests
+ */
+export interface CreateTruckRouteDto {
+  truckRoutePageUid: string
+  routeDate: string
+  routeNumber?: number
+  cargoVolume?: number
+  unitTypeId?: number
+  outTruckObjectUid: string
+  outDateTime: string
+  odometerAtStart: number
+  inTruckObjectUid?: string
+  inDateTime?: string
+  odometerAtFinish?: number
+  routeLength?: number
+  fuelBalanceAtStart?: number
+  fuelConsumed?: number
+  fuelReceived?: number
+  fuelBalanceAtFinish?: number
+}
 
-	inTruckObject: TruckObjectDto | null;
-	inDateTime: string | null;
-	odometerAtFinish: number | null;
-
-
-	fuelBalanceAtStart: number | null;
-	fuelReceived: number | null;
-	fuelBalanceAtFinish: number | null;
-
+/**
+ * Update TruckRoute DTO for API requests
+ */
+export interface UpdateTruckRouteDto extends Partial<CreateTruckRouteDto> {
+  uid: string
 }
