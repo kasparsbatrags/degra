@@ -1,11 +1,11 @@
+import {TruckObjectDto} from '@/dto/TruckObjectDto'
+import {isOfflineMode} from '@/services/offlineService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
 import {TruckRoutePageDto} from '../dto/TruckRoutePageDto'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
 import {isConnected} from './networkUtils'
-import {isOfflineMode} from '@/services/offlineService'
-import {addOfflineOperation} from './offlineQueue'
 
 // Type for SQLite database (to avoid import issues)
 type SQLiteDatabase = any
@@ -29,8 +29,8 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		// Check both network connection and global offline mode
-		if (!(await isConnected()) || (await isOfflineMode())) {
+		// Check if we're in offline mode (includes both network status and manual setting)
+		if (await isOfflineMode()) {
 			console.log('Device is offline or force offline mode, cannot sync trucks')
 			return
 		}
@@ -50,7 +50,8 @@ class OfflineDataManagerExtended {
 			await executeQuery('DELETE FROM truck WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck
+                INSERT OR
+                REPLACE INTO truck
                 (uid, truck_maker, truck_model, registration_number, fuel_consumption_norm, is_default, is_dirty, is_deleted, synced_at)
                 VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)
 			`
@@ -63,15 +64,7 @@ class OfflineDataManagerExtended {
 							continue
 						}
 
-						await database.runAsync(insertSQL, [
-							truck.uid,
-							truck.truckMaker || '',
-							truck.truckModel || '',
-							truck.registrationNumber || '',
-							truck.fuelConsumptionNorm || 0,
-							truck.isDefault ? 1 : 0,
-							Date.now()
-						])
+						await database.runAsync(insertSQL, [truck.uid, truck.truckMaker || '', truck.truckModel || '', truck.registrationNumber || '', truck.fuelConsumptionNorm || 0, truck.isDefault ? 1 : 0, Date.now()])
 					}
 				})
 			} else {
@@ -81,15 +74,7 @@ class OfflineDataManagerExtended {
 						continue
 					}
 
-					await executeQuery(insertSQL, [
-						truck.uid,
-						truck.truckMaker || '',
-						truck.truckModel || '',
-						truck.registrationNumber || '',
-						truck.fuelConsumptionNorm || 0,
-						truck.isDefault ? 1 : 0,
-						Date.now()
-					])
+					await executeQuery(insertSQL, [truck.uid, truck.truckMaker || '', truck.truckModel || '', truck.registrationNumber || '', truck.fuelConsumptionNorm || 0, truck.isDefault ? 1 : 0, Date.now()])
 				}
 			}
 
@@ -155,15 +140,15 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		// Check both network connection and global offline mode
-		if (!(await isConnected()) || (await isOfflineMode())) {
+		// Check if we're in offline mode (includes both network status and manual setting)
+		if (await isOfflineMode()) {
 			console.log('📍 Device is offline or force offline mode, cannot sync objects')
 			return
 		}
 
 		try {
 			console.log('📍 Syncing objects from server...')
-			const {data: serverObjects} = await freightAxiosInstance.get<any[]>('/truck-objects')
+			const {data: serverObjects} = await freightAxiosInstance.get<TruckObjectDto[]>('/objects')
 
 			if (!Array.isArray(serverObjects) || serverObjects.length === 0) {
 				console.warn('📍 No objects received from server.')
@@ -176,8 +161,9 @@ class OfflineDataManagerExtended {
 			await executeQuery('DELETE FROM truck_object WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck_object
-                (uid, name, is_dirty, is_deleted, synced_at)
+                INSERT OR
+                REPLACE INTO truck_object
+                    (uid, name, is_dirty, is_deleted, synced_at)
                 VALUES (?, ?, 0, 0, ?)
 			`
 
@@ -265,8 +251,8 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		// Check both network connection and global offline mode
-		if (!(await isConnected()) || (await isOfflineMode())) {
+		// Check if we're in offline mode (includes both network status and manual setting)
+		if (await isOfflineMode()) {
 			console.log('🚗 Device is offline or force offline mode, cannot sync truck routes')
 			return
 		}
@@ -287,7 +273,8 @@ class OfflineDataManagerExtended {
 			await executeQuery('DELETE FROM truck_routes WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck_routes
+                INSERT OR
+                REPLACE INTO truck_routes
                 (uid, truck_route_page_uid, route_date, route_number, cargo_volume,
                  out_truck_object_uid, odometer_at_start, out_date_time,
                  odometer_at_finish, in_truck_object_uid, in_date_time,
@@ -305,28 +292,7 @@ class OfflineDataManagerExtended {
 							continue
 						}
 
-						await database.runAsync(insertSQL, [
-							route.uid,
-							route.truckRoutePage?.uid || null,
-							route.routeDate,
-							route.routeNumber || null,
-							route.cargoVolume || 0,
-							route.outTruckObject?.uid || null,
-							route.odometerAtStart || 0,
-							route.outDateTime,
-							route.odometerAtFinish || null,
-							route.inTruckObject?.uid || null,
-							route.inDateTime || null,
-							route.routeLength || null,
-							route.fuelBalanceAtStart || null,
-							route.fuelConsumed || null,
-							route.fuelReceived || null,
-							route.fuelBalanceAtFinish || null,
-							route.createdDateTime || null,
-							route.lastModifiedDateTime || null,
-							route.unitTypeId || null,
-							Date.now()
-						])
+						await database.runAsync(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, Date.now()])
 					}
 				})
 			} else {
@@ -336,28 +302,7 @@ class OfflineDataManagerExtended {
 						continue
 					}
 
-					await executeQuery(insertSQL, [
-						route.uid,
-						route.truckRoutePage?.uid || null,
-						route.routeDate,
-						route.routeNumber || null,
-						route.cargoVolume || 0,
-						route.outTruckObject?.uid || null,
-						route.odometerAtStart || 0,
-						route.outDateTime,
-						route.odometerAtFinish || null,
-						route.inTruckObject?.uid || null,
-						route.inDateTime || null,
-						route.routeLength || null,
-						route.fuelBalanceAtStart || null,
-						route.fuelConsumed || null,
-						route.fuelReceived || null,
-						route.fuelBalanceAtFinish || null,
-						route.createdDateTime || null,
-						route.lastModifiedDateTime || null,
-						route.unitTypeId || null,
-						Date.now()
-					])
+					await executeQuery(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, Date.now()])
 				}
 			}
 
@@ -403,15 +348,19 @@ class OfflineDataManagerExtended {
 	private async getTruckRoutesMobile(truckRoutePageUid?: string): Promise<any[]> {
 		let sql = `
             SELECT tr.*,
-                   trp.date_from, trp.date_to, trp.truck_uid,
-                   t.registration_number, t.truck_maker, t.truck_model,
+                   trp.date_from,
+                   trp.date_to,
+                   trp.truck_uid,
+                   t.registration_number,
+                   t.truck_maker,
+                   t.truck_model,
                    out_obj.name as out_object_name,
-                   in_obj.name as in_object_name
+                   in_obj.name  as in_object_name
             FROM truck_routes tr
-            LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
-            LEFT JOIN truck t ON trp.truck_uid = t.uid
-            LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
-            LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
+                     LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+                     LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
+                     LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
             WHERE tr.is_deleted = 0
 		`
 		const params: any[] = []
@@ -441,8 +390,8 @@ class OfflineDataManagerExtended {
 			return
 		}
 
-		// Check both network connection and global offline mode
-		if (!(await isConnected()) || (await isOfflineMode())) {
+		// Check if we're in offline mode (includes both network status and manual setting)
+		if (await isOfflineMode()) {
 			console.log('🔄 Device is offline or force offline mode, cannot sync route pages')
 			return
 		}
@@ -463,7 +412,8 @@ class OfflineDataManagerExtended {
 			await executeQuery('DELETE FROM truck_route_page WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
 			const insertSQL = `
-                INSERT OR REPLACE INTO truck_route_page
+                INSERT OR
+                REPLACE INTO truck_route_page
                 (uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
                  total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
                  odometer_at_route_start, odometer_at_route_finish, computed_total_routes_length,
@@ -479,22 +429,7 @@ class OfflineDataManagerExtended {
 							continue
 						}
 
-						await database.runAsync(insertSQL, [
-							routePage.uid,
-							routePage.dateFrom,
-							routePage.dateTo,
-							routePage.truck?.uid || null,
-							routePage.user?.id || null,
-							routePage.fuelBalanceAtStart || 0,
-							routePage.fuelBalanceAtFinish || 0,
-							routePage.totalFuelReceivedOnRoutes || null,
-							routePage.totalFuelConsumedOnRoutes || null,
-							routePage.fuelBalanceAtRoutesFinish || null,
-							routePage.odometerAtRouteStart || null,
-							routePage.odometerAtRouteFinish || null,
-							routePage.computedTotalRoutesLength || null,
-							Date.now()
-						])
+						await database.runAsync(insertSQL, [routePage.uid, routePage.dateFrom, routePage.dateTo, routePage.truck?.uid || null, routePage.user?.id || null, routePage.fuelBalanceAtStart || 0, routePage.fuelBalanceAtFinish || 0, routePage.totalFuelReceivedOnRoutes || null, routePage.totalFuelConsumedOnRoutes || null, routePage.fuelBalanceAtRoutesFinish || null, routePage.odometerAtRouteStart || null, routePage.odometerAtRouteFinish || null, routePage.computedTotalRoutesLength || null, Date.now()])
 					}
 				})
 			} else {
@@ -504,22 +439,7 @@ class OfflineDataManagerExtended {
 						continue
 					}
 
-					await executeQuery(insertSQL, [
-						routePage.uid,
-						routePage.dateFrom,
-						routePage.dateTo,
-						routePage.truck?.uid || null,
-						routePage.user?.id || null,
-						routePage.fuelBalanceAtStart || 0,
-						routePage.fuelBalanceAtFinish || 0,
-						routePage.totalFuelReceivedOnRoutes || null,
-						routePage.totalFuelConsumedOnRoutes || null,
-						routePage.fuelBalanceAtRoutesFinish || null,
-						routePage.odometerAtRouteStart || null,
-						routePage.odometerAtRouteFinish || null,
-						routePage.computedTotalRoutesLength || null,
-						Date.now()
-					])
+					await executeQuery(insertSQL, [routePage.uid, routePage.dateFrom, routePage.dateTo, routePage.truck?.uid || null, routePage.user?.id || null, routePage.fuelBalanceAtStart || 0, routePage.fuelBalanceAtFinish || 0, routePage.totalFuelReceivedOnRoutes || null, routePage.totalFuelConsumedOnRoutes || null, routePage.fuelBalanceAtRoutesFinish || null, routePage.odometerAtRouteStart || null, routePage.odometerAtRouteFinish || null, routePage.computedTotalRoutesLength || null, Date.now()])
 				}
 			}
 
@@ -586,11 +506,17 @@ class OfflineDataManagerExtended {
 	private async getRoutePagesMobile(): Promise<TruckRoutePageDto[]> {
 		const sql = `
             SELECT trp.*,
-                   t.truck_maker, t.truck_model, t.registration_number, t.fuel_consumption_norm, t.is_default,
-                   u.email, u.given_name, u.family_name
+                   t.truck_maker,
+                   t.truck_model,
+                   t.registration_number,
+                   t.fuel_consumption_norm,
+                   t.is_default,
+                   u.email,
+                   u.given_name,
+                   u.family_name
             FROM truck_route_page trp
-            LEFT JOIN truck t ON trp.truck_uid = t.uid
-            LEFT JOIN user u ON trp.user_id = u.id
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+                     LEFT JOIN user u ON trp.user_id = u.id
             WHERE trp.is_deleted = 0
             ORDER BY trp.date_from DESC
 		`
@@ -605,36 +531,21 @@ class OfflineDataManagerExtended {
 			uid: row.uid,
 			dateFrom: row.date_from,
 			dateTo: row.date_to,
-			truck: row.truck_uid
-				? {
-						uid: row.truck_uid,
-						truckMaker: row.truck_maker || '',
-						truckModel: row.truck_model || '',
-						registrationNumber: row.registration_number || '',
-						fuelConsumptionNorm: row.fuel_consumption_norm || 0,
-						isDefault: row.is_default || 0
-				  }
-				: {
-						uid: '',
-						truckMaker: '',
-						truckModel: '',
-						registrationNumber: 'Nav pieejams',
-						fuelConsumptionNorm: 0,
-						isDefault: 0
-				  },
-			user: row.user_id
-				? {
-						id: row.user_id,
-						email: row.email || '',
-						givenName: row.given_name || '',
-						familyName: row.family_name || ''
-				  }
-				: {
-						id: '',
-						email: '',
-						givenName: '',
-						familyName: ''
-				  },
+			truck: row.truck_uid ? {
+				uid: row.truck_uid,
+				truckMaker: row.truck_maker || '',
+				truckModel: row.truck_model || '',
+				registrationNumber: row.registration_number || '',
+				fuelConsumptionNorm: row.fuel_consumption_norm || 0,
+				isDefault: row.is_default || 0
+			} : {
+				uid: '', truckMaker: '', truckModel: '', registrationNumber: 'Nav pieejams', fuelConsumptionNorm: 0, isDefault: 0
+			},
+			user: row.user_id ? {
+				id: row.user_id, email: row.email || '', givenName: row.given_name || '', familyName: row.family_name || ''
+			} : {
+				id: '', email: '', givenName: '', familyName: ''
+			},
 			fuelBalanceAtStart: row.fuel_balance_at_start || 0,
 			fuelBalanceAtFinish: row.fuel_balance_at_end || 0,
 			totalFuelReceivedOnRoutes: row.total_fuel_received_on_routes,
@@ -680,16 +591,20 @@ class OfflineDataManagerExtended {
 	private async getLastActiveRouteMobile(): Promise<any | null> {
 		const sql = `
             SELECT tr.*,
-                   trp.date_from, trp.date_to, trp.truck_uid,
-                   t.registration_number, t.truck_maker, t.truck_model,
+                   trp.date_from,
+                   trp.date_to,
+                   trp.truck_uid,
+                   t.registration_number,
+                   t.truck_maker,
+                   t.truck_model,
                    out_obj.name as out_object_name,
-                   in_obj.name as in_object_name
+                   in_obj.name  as in_object_name
             FROM truck_routes tr
-            LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
-            LEFT JOIN truck t ON trp.truck_uid = t.uid
-            LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
-            LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
-            WHERE tr.in_date_time IS NULL 
+                     LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+                     LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
+                     LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
+            WHERE tr.in_date_time IS NULL
               AND tr.is_deleted = 0
             ORDER BY tr.out_date_time DESC
             LIMIT 1

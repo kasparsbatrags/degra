@@ -11,7 +11,7 @@ import { useObjectStore } from '@/hooks/useObjectStore';
 
 // NEW: Import offline hooks and components
 import { useOfflineData } from '@/hooks/useOfflineData'
-import { useNetworkStatus } from '@/hooks/useNetworkStatus'
+import { useNetworkStatus } from '../hooks/useNetworkStatus'
 import { CACHE_KEYS } from '@/config/offlineConfig'
 import GlobalOfflineIndicator from '@/components/GlobalOfflineIndicator'
 

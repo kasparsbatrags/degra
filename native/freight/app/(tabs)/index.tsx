@@ -2,7 +2,7 @@ import {isRedirectingToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-import {isOfflineMode} from '@/services/offlineService'
+import { useNetworkStatus } from '../../hooks/useNetworkStatus'
 import {getRoutePages, downloadServerData, offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -24,25 +24,8 @@ export default function HomeScreen() {
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 
 
-	// Use global offline service that respects both network status and manual offline mode
-	const [globalOfflineMode, setGlobalOfflineMode] = useState(false)
-	
-	// Check global offline mode (includes both network status and manual offline setting)
-	useEffect(() => {
-		const checkGlobalOfflineMode = async () => {
-			const offline = await isOfflineMode()
-			setGlobalOfflineMode(offline)
-		}
-		
-		checkGlobalOfflineMode()
-		
-		// Check every 5 seconds to stay in sync with OfflineControls
-		const interval = setInterval(checkGlobalOfflineMode, 5000)
-		
-		return () => clearInterval(interval)
-	}, [])
-	
-	const isOfflineModeActive = globalOfflineMode
+	// Izmantot jauno useNetworkStatus hook
+	const { isOfflineMode: isOfflineModeActive } = useNetworkStatus()
 
 	// Calculate if user can start a route
 	const canStartRoute = useMemo(() => {
@@ -226,7 +209,7 @@ export default function HomeScreen() {
 						<View style={styles.iconTextRow}>
 							<MaterialIcons name="warning" size={20} color={COLORS.highlight} />
 							<Text style={styles.warningText}>
-								Nepieciešams internets - aplikācija nedarbosies. Lūdzu, pārslēdzieties ka ir pieejams internets un sinhronizējiet datus.
+								Nepieciešams internets - aplikācija nedarbosies. Pārliecinieties, ka ir pieejams internets un sinhronizējiet datus.
 							</Text>
 						</View>
 
@@ -451,6 +434,7 @@ type Styles = {
 	warningText: TextStyle;
 	syncButton: ViewStyle;
 	syncButtonText: TextStyle;
+	iconTextRow: ViewStyle;
 };
 
 const styles = StyleSheet.create<Styles>({

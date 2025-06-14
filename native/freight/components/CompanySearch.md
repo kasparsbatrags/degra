@@ -1,8 +1,8 @@
-# CompanySearch Component Documentation
+# CompanySearchMigrated Component Documentation
 
 ## Overview
 
-The CompanySearch component is a reusable React Native component that provides a search interface for companies. It allows users to search for companies by name, displays suggestions as they type, and lets them select a company from the results.
+The CompanySearchMigrated component is a reusable React Native component that provides a search interface for companies. It allows users to search for companies by name, displays suggestions as they type, and lets them select a company from the results.
 
 ## Features
 
@@ -34,7 +34,7 @@ The CompanySearch component is a reusable React Native component that provides a
 ```tsx
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
-import CompanySearch from '../components/CompanySearch';
+import CompanySearchMigrated from '../components/CompanySearchMigrated';
 
 export default function CompanyRegistrationScreen() {
   const [selectedCompany, setSelectedCompany] = useState<{
@@ -51,7 +51,7 @@ export default function CompanyRegistrationScreen() {
 
   return (
     <View style={{ padding: 16 }}>
-      <CompanySearch
+      <CompanySearchMigrated
         label="Uzņēmuma meklēšana"
         placeholder="Ievadiet uzņēmuma nosaukumu vai reģ. numuru"
         onSelect={handleCompanySelect}
@@ -115,7 +115,7 @@ const renderSuggestionItem = useCallback(({ item, index }) => (
 
 ## Testing
 
-Unit tests for the CompanySearch component are available in the `__tests__` directory. These tests verify the component's functionality, including rendering, user interactions, and API integration.
+Unit tests for the CompanySearchMigrated component are available in the `__tests__` directory. These tests verify the component's functionality, including rendering, user interactions, and API integration.
 
 ## Improvements Over Previous Version
 

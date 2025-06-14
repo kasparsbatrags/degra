@@ -70,15 +70,6 @@ CREATE TABLE objects (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Active routes tabula
-CREATE TABLE active_routes (
-  id INTEGER PRIMARY KEY,
-  truck_id INTEGER,
-  start_date DATE,
-  end_date DATE,
-  status TEXT DEFAULT 'active'
-);
-
 -- Offline queue tabula
 CREATE TABLE offline_queue (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -17,11 +17,6 @@ import {
 	ViewStyle,
 } from 'react-native'
 
-// NEW: Import offline hooks and components
-import { useOfflineData } from '@/hooks/useOfflineData'
-import { useNetworkStatus } from '@/hooks/useNetworkStatus'
-import { CACHE_KEYS } from '@/config/offlineConfig'
-
 interface CompanySearchProps {
   onSelect: (registrationNumber: string, name?: string) => void;
   value?: string;
@@ -31,7 +26,7 @@ interface CompanySearchProps {
   disabled?: boolean;
 }
 
-export default function CompanySearch({
+export default function CompanySearchMigrated({
   onSelect,
   value = '',
   label,
@@ -52,74 +47,44 @@ export default function CompanySearch({
 
   const debouncedQuery = useDebounce(query, 300);
 
-  // NEW: Use network status hook
-  const { isOnline, isOfflineMode } = useNetworkStatus()
+  // Effect for searching with debounce
+  useEffect(() => {
+    const searchCompaniesAsync = async () => {
+      // Only search if no company is selected and query is long enough
+      if (!isCompanySelected && debouncedQuery.length >= 2) {
+        setLoading(true);
+        setError(null);
 
-  // NEW: Generate cache key for search results
-  const searchCacheKey = debouncedQuery.length >= 2 ? `${CACHE_KEYS.OBJECTS}_search_${debouncedQuery.toLowerCase()}` : null;
-
-  // NEW: Use offline data for search results caching
-  const {
-    data: cachedSearchResults,
-    isLoading: searchLoading,
-    isFromCache: searchFromCache,
-    isStale: searchStale,
-    error: searchError,
-    refetch: refetchSearch
-  } = useOfflineData(
-    searchCacheKey || 'company_search_default',
-    async () => {
-      if (debouncedQuery.length < 2) return [];
-      return await searchCompanies(debouncedQuery);
-    },
-    {
-      strategy: 'stale-while-revalidate',
-      enabled: !isCompanySelected && debouncedQuery.length >= 2,
-      onError: (error) => {
-        console.error('Failed to search companies:', error)
-        setError('Neizdevās ielādēt uzņēmumus. Lūdzu, mēģiniet vēlreiz.');
+        try {
+          const results = await searchCompanies(debouncedQuery);
+          setSuggestions(results);
+          setShowSuggestions(results.length > 0);
+          setSelectedIndex(-1);
+        } catch (error: any) {
+          console.error('Kļūda meklējot uzņēmumus:', error);
+          setError('Neizdevās ielādēt uzņēmumus. Lūdzu, mēģiniet vēlreiz.');
+          setSuggestions([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setError(null);
       }
-    }
-  )
+    };
 
-  // NEW: Handle search results from offline hook
-  useEffect(() => {
-    if (cachedSearchResults) {
-      setSuggestions(cachedSearchResults);
-      setShowSuggestions(cachedSearchResults.length > 0);
-      setSelectedIndex(-1);
-      setError(null);
-    } else if (searchError && !searchFromCache) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      setError('Neizdevās ielādēt uzņēmumus. Lūdzu, mēģiniet vēlreiz.');
-    }
-  }, [cachedSearchResults, searchError, searchFromCache]);
-
-  // NEW: Handle loading state from offline hook
-  useEffect(() => {
-    setLoading(searchLoading);
-  }, [searchLoading]);
-
-  // Effect for searching with debounce (DEPRECATED - now using useOfflineData)
-  useEffect(() => {
-    // This is now handled by useOfflineData hook
-    // Keep for backward compatibility but it won't be called
-    if (!cachedSearchResults && !searchLoading && debouncedQuery.length >= 2 && !isCompanySelected) {
-      console.warn('Fallback search - useOfflineData should handle this');
-    }
-  }, [debouncedQuery, isCompanySelected, cachedSearchResults, searchLoading]);
+    searchCompaniesAsync();
+  }, [debouncedQuery, isCompanySelected]);
 
   // Log selection state changes for debugging
   useEffect(() => {
-    console.log('CompanySearch selection state changed:', {
+    console.log('CompanySearchMigrated selection state changed:', {
       isCompanySelected,
       query,
-      value,
-      isOnline,
-      searchFromCache
+      value
     });
-  }, [isCompanySelected, query, value, isOnline, searchFromCache]);
+  }, [isCompanySelected, query, value]);
 
   // Sync external value with internal state
   useEffect(() => {
@@ -145,14 +110,13 @@ export default function CompanySearch({
     setIsCompanySelected(true); // Mark that a company has been selected
 
     // Log the selection for debugging
-    console.log('Company selected in CompanySearch:', {
+    console.log('Company selected in CompanySearchMigrated:', {
       registerNumber: regNumber,
-      name: suggestion.name,
-      fromCache: searchFromCache
+      name: suggestion.name
     });
 
     Keyboard.dismiss();
-  }, [onSelect, searchFromCache]);
+  }, [onSelect]);
 
   const handleClear = useCallback(() => {
     setQuery('');
@@ -162,12 +126,6 @@ export default function CompanySearch({
     setIsCompanySelected(false); // Reset selected state when clearing
     inputRef.current?.focus();
   }, []);
-
-  // NEW: Handle retry for failed search
-  const handleRetry = useCallback(() => {
-    setError(null);
-    refetchSearch();
-  }, [refetchSearch]);
 
   const handleKeyPress = useCallback((e: any) => {
     if (!showSuggestions || suggestions.length === 0) return;
@@ -203,34 +161,13 @@ export default function CompanySearch({
   ), [handleSelect, selectedIndex]);
 
   return (
-    <View style={[styles.container, { marginBottom: SPACING.s, marginTop: SPACING.m }]}>
+<View style={[styles.container, { marginBottom: SPACING.s, marginTop: SPACING.m }]}>
       {label && <Text style={styles.label}>{label}</Text>}
-
-      {/* NEW: Show cache status if search results are from cache */}
-      {searchFromCache && debouncedQuery.length >= 2 && (
-        <View style={styles.cacheIndicator}>
-          <Text style={styles.cacheText}>
-            📱 Meklēšanas rezultāti no cache
-            {searchStale && ' (dati var būt novecojuši)'}
-          </Text>
-        </View>
-      )}
-
-      {/* NEW: Show offline warning if no network and no cached results */}
-      {!isOnline && !searchFromCache && debouncedQuery.length >= 2 && (
-        <View style={styles.offlineWarning}>
-          <Text style={styles.offlineWarningText}>
-            🔴 Offline režīmā meklēšana nav pieejama
-          </Text>
-        </View>
-      )}
 
       <View style={[
         styles.inputContainer,
-        (error || errorMessage) && styles.inputError,
-        disabled && styles.inputDisabled,
-        // NEW: Show different style when using cached data
-        searchFromCache && styles.inputCached
+        error && styles.inputError,
+        disabled && styles.inputDisabled
       ]}>
         <TextInput
           ref={inputRef}
@@ -243,7 +180,7 @@ export default function CompanySearch({
               setIsCompanySelected(false);
             }
           }}
-          placeholder={isOnline ? placeholder : `${placeholder} (Offline)`}
+          placeholder={placeholder}
           placeholderTextColor={COLORS.gray}
           onFocus={() => setShowSuggestions(query.length >= 2)}
           onKeyPress={handleKeyPress}
@@ -252,16 +189,6 @@ export default function CompanySearch({
           accessibilityHint="Ievadiet vismaz divus simbolus, lai meklētu uzņēmumus"
           accessibilityRole="search"
         />
-
-        {/* NEW: Show cache indicator icon */}
-        {searchFromCache && (
-          <Ionicons 
-            name="phone-portrait-outline" 
-            size={16} 
-            color={COLORS.warning} 
-            style={styles.cacheIcon as any}
-          />
-        )}
 
         {loading ? (
           <ActivityIndicator style={styles.loader} color={COLORS.primary} />
@@ -277,38 +204,17 @@ export default function CompanySearch({
         ) : null}
       </View>
 
-      {/* NEW: Enhanced error display with retry option */}
-      {typeof (error || errorMessage) === 'string' && (error || errorMessage)?.trim() !== '' && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>
-            {(error || errorMessage)?.trim()}
-          </Text>
-          {searchError && !searchFromCache && (
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={handleRetry}
-            >
-              <Text style={styles.retryButtonText}>Mēģināt vēlreiz</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+	{typeof (error || errorMessage) === 'string' && (error || errorMessage)?.trim() !== '' && (
+			<Text style={styles.errorText}>
+				{(error || errorMessage)?.trim()}
+			</Text>
+	)}
 
       {showSuggestions && (
         <TouchableWithoutFeedback onPress={() => setShowSuggestions(false)}>
           <View style={styles.backdrop}>
             <TouchableWithoutFeedback>
               <View style={styles.suggestionsContainer}>
-                {/* NEW: Show cache status in suggestions header */}
-                {searchFromCache && (
-                  <View style={styles.suggestionsCacheIndicator}>
-                    <Text style={styles.suggestionsCacheText}>
-                      📱 Rādīti saglabātie rezultāti
-                      {searchStale && ' (var būt novecojuši)'}
-                    </Text>
-                  </View>
-                )}
-
                 {suggestions.length > 0 ? (
                   <View style={styles.suggestionsList}>
                     {suggestions.map((item, index) => (
@@ -330,20 +236,8 @@ export default function CompanySearch({
                 ) : (
                   <View style={styles.emptyState}>
                     <Text style={styles.emptyStateText}>
-                      {!isOnline && !searchFromCache 
-                        ? 'Meklēšana nav pieejama offline režīmā'
-                        : 'Nav atrasti uzņēmumi, kas atbilst meklēšanas kritērijiem'
-                      }
+                      Nav atrasti uzņēmumi, kas atbilst meklēšanas kritērijiem
                     </Text>
-                    {/* NEW: Show retry button in empty state if there's an error */}
-                    {searchError && !searchFromCache && (
-                      <TouchableOpacity
-                        style={styles.retryButton}
-                        onPress={handleRetry}
-                      >
-                        <Text style={styles.retryButtonText}>Mēģināt meklēt vēlreiz</Text>
-                      </TouchableOpacity>
-                    )}
                   </View>
                 )}
               </View>
@@ -374,18 +268,6 @@ type Styles = {
   companyName: TextStyle;
   emptyState: ViewStyle;
   emptyStateText: TextStyle;
-  // NEW: Offline-related styles
-  inputCached: ViewStyle;
-  cacheIcon: ViewStyle;
-  cacheIndicator: ViewStyle;
-  cacheText: TextStyle;
-  offlineWarning: ViewStyle;
-  offlineWarningText: TextStyle;
-  errorContainer: ViewStyle;
-  retryButton: ViewStyle;
-  retryButtonText: TextStyle;
-  suggestionsCacheIndicator: ViewStyle;
-  suggestionsCacheText: TextStyle;
 };
 
 const styles = StyleSheet.create<Styles>({
@@ -415,11 +297,6 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: '#f0f0f0',
     opacity: 0.7,
   },
-  // NEW: Cached input style
-  inputCached: {
-    borderColor: 'rgba(255, 193, 7, 0.5)',
-    borderWidth: 2,
-  },
   input: {
     flex: 1,
     paddingHorizontal: SPACING.m,
@@ -434,60 +311,12 @@ const styles = StyleSheet.create<Styles>({
   clearButton: {
     padding: SPACING.xs,
   },
-  // NEW: Cache icon
-  cacheIcon: {
-    marginRight: SPACING.s,
-  },
-  // NEW: Cache and error indicator styles
-  cacheIndicator: {
-    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-    borderRadius: 6,
-    padding: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 193, 7, 0.3)',
-  },
-  cacheText: {
-    fontSize: 11,
-    fontFamily: FONT.medium,
-    color: COLORS.warning,
-    textAlign: 'center',
-  },
-  offlineWarning: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    borderRadius: 6,
-    padding: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 0, 0, 0.3)',
-  },
-  offlineWarningText: {
-    fontSize: 12,
-    fontFamily: FONT.medium,
-    color: '#FF6B6B',
-    textAlign: 'center',
-  },
-  errorContainer: {
-    marginTop: SPACING.xs,
-    marginLeft: SPACING.xs,
-  },
   errorText: {
     color: COLORS.error,
     fontSize: 14,
     fontFamily: FONT.regular,
-    marginBottom: 4,
-  },
-  retryButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    alignSelf: 'flex-start',
-  },
-  retryButtonText: {
-    fontSize: 11,
-    fontFamily: FONT.medium,
-    color: COLORS.white,
+    marginTop: SPACING.xs,
+    marginLeft: SPACING.xs,
   },
   backdrop: {
     position: 'absolute',
@@ -509,19 +338,6 @@ const styles = StyleSheet.create<Styles>({
     maxHeight: 200,
     zIndex: 2,
     ...SHADOWS.small,
-  },
-  // NEW: Suggestions cache indicator
-  suggestionsCacheIndicator: {
-    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 193, 7, 0.3)',
-  },
-  suggestionsCacheText: {
-    fontSize: 10,
-    fontFamily: FONT.medium,
-    color: COLORS.warning,
-    textAlign: 'center',
   },
   suggestionsList: {
     flex: 1,
@@ -557,6 +373,5 @@ const styles = StyleSheet.create<Styles>({
     fontFamily: FONT.regular,
     color: COLORS.gray,
     textAlign: 'center',
-    marginBottom: 8,
   },
 });

@@ -55,7 +55,7 @@
 
 ### Citi Komponenti 🔄 Gatavi migrācijai
 - **FormDropdown** - Jau izmanto useOfflineData
-- **CompanySearch** - Jau izmanto offline hooks
+- **CompanySearchMigrated** - Jau izmanto offline hooks
 - **TruckObjectSearch** - Gatavs migrācijai
 
 ## 📈 Metrics un Uzlabojumi
@@ -147,7 +147,7 @@ Component C ──┘                           ↓              ↓
 - [x] HomeScreen migration
 - [x] TruckRoute migration
 - [ ] FormDropdown enhancement
-- [ ] CompanySearch enhancement
+- [ ] CompanySearchMigrated enhancement
 - [ ] Other components
 
 ### Testing & Validation ✅

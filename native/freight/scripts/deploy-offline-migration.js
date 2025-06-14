@@ -41,8 +41,8 @@ const MIGRATED_COMPONENTS = [
     dir: COMPONENTS_DIR
   },
   {
-    original: 'CompanySearch.tsx',
-    migrated: 'CompanySearch-migrated.tsx',
+    original: 'CompanySearchMigrated.tsx',
+    migrated: 'CompanySearchMigrated-migrated.tsx',
     dir: COMPONENTS_DIR
   },
   {

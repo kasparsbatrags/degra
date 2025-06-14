@@ -206,9 +206,6 @@ const createTables = async (database: any) => {
     CREATE INDEX IF NOT EXISTS idx_truck_routes_in_object ON truck_routes(in_truck_object_uid);
     CREATE INDEX IF NOT EXISTS idx_truck_routes_date ON truck_routes(route_date);
     CREATE INDEX IF NOT EXISTS idx_truck_routes_active ON truck_routes(in_date_time);
-    CREATE INDEX IF NOT EXISTS idx_fuel_entries_route ON fuel_entries(route_id);
-    CREATE INDEX IF NOT EXISTS idx_odometer_readings_route ON odometer_readings(route_id);
-    CREATE INDEX IF NOT EXISTS idx_active_routes_active ON active_routes(is_active);
 
     -- Insert initial sync metadata
     INSERT OR IGNORE INTO sync_metadata (table_name, last_sync_timestamp) VALUES 
@@ -294,7 +291,6 @@ export const clearAllData = async () => {
     DELETE FROM truck_route_page;
     DELETE FROM truck;
     DELETE FROM truck_object;
-    DELETE FROM active_routes;
     UPDATE sync_metadata SET last_sync_timestamp = 0, last_sync_date = NULL, sync_status = 'idle', error_message = NULL;
   `);
   console.log('All data cleared from database');

@@ -58,7 +58,7 @@
 - **Migrācijas laiks**: ~40 minūtes
 - **Piezīmes**: Varētu būt deprecated
 
-### 4. **CompanySearch** (`components/CompanySearch.tsx`)
+### 4. **CompanySearchMigrated** (`components/CompanySearch-migrated.tsx`)
 **Prioritāte: Augsta**
 - **Apraksts**: Company search funkcionalitāte
 - **Sarežģītība**: Augsta
@@ -83,7 +83,7 @@
 ## 🎯 Migrācijas Prioritātes
 
 ### **Augsta Prioritāte (1 komponente)**
-1. **CompanySearch** - Svarīgs search komponente ar API calls
+1. **CompanySearchMigrated** - Svarīgs search komponente ar API calls
 
 ### **Vidēja Prioritāte (1 komponente)**
 1. **FormDropdown** - Bāzes dropdown funkcionalitāte
@@ -97,11 +97,11 @@
 ## ⏱️ Laika Novērtējums
 
 ### **Minimālā migrācija (tikai augsta prioritāte):**
-- **CompanySearch**: ~60 minūtes
+- **CompanySearchMigrated**: ~60 minūtes
 - **Kopā**: ~1 stunda
 
 ### **Pilnā migrācija (visi komponenti):**
-- **CompanySearch**: ~60 minūtes
+- **CompanySearchMigrated**: ~60 minūtes
 - **FormDropdown**: ~30 minūtes
 - **FormDropdownWithAddButton**: ~20 minūtes
 - **ImprovedFormDropdownWithAddButton**: ~40 minūtes
@@ -112,7 +112,7 @@
 ## 🚀 Ieteicamā Stratēģija
 
 ### **Opcija 1: Minimālā migrācija (Ieteicama)**
-1. Migrēt tikai **CompanySearch** (augsta prioritāte)
+1. Migrēt tikai **CompanySearchMigrated** (augsta prioritāte)
 2. Sasniegt **70% completion** (7/10 komponenti)
 3. Uzsākt deployment ar 6 jau migrētajiem komponentiem
 
@@ -122,7 +122,7 @@
 3. Pilnīgi pabeigt migrāciju
 
 ### **Opcija 3: Selektīvā migrācija**
-1. Migrēt **CompanySearch** + **FormDropdown**
+1. Migrēt **CompanySearchMigrated** + **FormDropdown**
 2. Izlaist deprecated komponentus
 3. Sasniegt **80% completion** (8/10 komponenti)
 
@@ -130,7 +130,7 @@
 
 ## 📊 Detalizēta Analīze
 
-### **CompanySearch.tsx** - Augstākā prioritāte
+### **CompanySearchMigrated.tsx** - Augstākā prioritāte
 ```typescript
 // Iespējamās funkcijas:
 - Company search API calls
@@ -170,17 +170,17 @@
 ### **Faktiskais atlikušo komponentu skaits: 1-4**
 
 **Minimāli nepieciešams:**
-- **1 komponente** (CompanySearch) - kritiskā funkcionalitāte
+- **1 komponente** (CompanySearchMigrated) - kritiskā funkcionalitāte
 
 **Pilnīgai migrācijai:**
 - **4 komponenti** - visi atlikušie
 
 **Ieteikums:**
-Migrēt **CompanySearch** kā prioritāti, pārējos novērtēt pēc nepieciešamības projektā.
+Migrēt **CompanySearchMigrated** kā prioritāti, pārējos novērtēt pēc nepieciešamības projektā.
 
 ### **Pašreizējais progress: 60% → Potenciāls: 70-100%**
 
-**Ar CompanySearch migrāciju:**
+**Ar CompanySearchMigrated migrāciju:**
 - Progress: 70% (7/10 komponenti)
 - Visas kritiskās funkcijas migrētas
 
@@ -193,9 +193,9 @@ Migrēt **CompanySearch** kā prioritāti, pārējos novērtēt pēc nepiecieša
 ## 📋 Nākamie Soļi
 
 1. **Izvēlēties stratēģiju** (minimālā/pilnā/selektīvā)
-2. **Migrēt CompanySearch** (augstākā prioritāte)
+2. **Migrēt CompanySearchMigrated** (augstākā prioritāte)
 3. **Novērtēt deprecated komponentus** (vai tie tiek izmantoti?)
 4. **Uzsākt deployment** ar migrētajiem komponentiem
 5. **Testēt production** ar offline funkcionalitāti
 
-**Ieteikums: Sākt ar CompanySearch migrāciju! 🚀**
+**Ieteikums: Sākt ar CompanySearchMigrated migrāciju! 🚀**

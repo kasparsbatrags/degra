@@ -13,8 +13,8 @@ import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
-import {isConnected, useNetworkState} from '@/utils/networkUtils'
-import {isOfflineMode} from '@/services/offlineService'
+import { useNetworkStatus } from '../../hooks/useNetworkStatus'
+import { isConnected } from '@/utils/networkUtils'
 import {addOfflineOperation} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
@@ -68,26 +68,8 @@ export default function TruckRoutePageScreen() {
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	
-	// Use global offline service that respects both network status and manual offline mode
-	const { isConnected: networkConnected } = useNetworkState()
-	const [globalOfflineMode, setGlobalOfflineMode] = useState(false)
-	
-	// Check global offline mode (includes both network status and manual offline setting)
-	useEffect(() => {
-		const checkGlobalOfflineMode = async () => {
-			const offline = await isOfflineMode()
-			setGlobalOfflineMode(offline)
-		}
-		
-		checkGlobalOfflineMode()
-		
-		// Check every 5 seconds to stay in sync with OfflineControls
-		const interval = setInterval(checkGlobalOfflineMode, 5000)
-		
-		return () => clearInterval(interval)
-	}, [])
-	
-	const isOfflineModeActive = globalOfflineMode
+	// Izmantot jauno useNetworkStatus hook
+	const { isOfflineMode: isOfflineModeActive } = useNetworkStatus()
 	const [pagination, setPagination] = useState({
 		page: 0,
 		size: 5,

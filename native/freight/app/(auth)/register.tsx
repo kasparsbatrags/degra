@@ -18,7 +18,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
-import CompanySearch from '../../components/CompanySearch'
+import CompanySearchMigrated from '../../components/CompanySearch-migrated'
 import FormInput from '../../components/FormInput'
 import {COLORS, CONTAINER_WIDTH, FONT} from '../../constants/theme'
 import {useAuth} from '../../context/AuthContext'
@@ -319,7 +319,7 @@ export default function RegisterScreen() {
                 autoCompleteType="name"
               />
 
-              <CompanySearch
+              <CompanySearchMigrated
                 label="Uzņēmuma nosaukums"
                 value={companyName}
                 onSelect={(registrationNumber, name) => {

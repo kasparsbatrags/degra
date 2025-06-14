@@ -1,6 +1,6 @@
-# Testing CompanySearch Component
+# Testing CompanySearchMigrated Component
 
-This directory contains tests for the CompanySearch component. The tests demonstrate how to verify the component's functionality, including rendering, user interactions, and API integration.
+This directory contains tests for the CompanySearchMigrated component. The tests demonstrate how to verify the component's functionality, including rendering, user interactions, and API integration.
 
 ## Required Dependencies
 
@@ -18,10 +18,10 @@ Once the dependencies are installed, you can run the tests with:
 npm test
 ```
 
-Or to run just the CompanySearch tests:
+Or to run just the CompanySearchMigrated tests:
 
 ```bash
-npm test -- -t "CompanySearch"
+npm test -- -t "CompanySearchMigrated"
 ```
 
 ## Test Coverage
@@ -37,7 +37,7 @@ The tests cover the following functionality:
 
 ## Notes for Implementation
 
-Before running the tests, you may need to make a small modification to the CompanySearch component to add a testID to the ActivityIndicator:
+Before running the tests, you may need to make a small modification to the CompanySearchMigrated component to add a testID to the ActivityIndicator:
 
 ```tsx
 {loading ? (

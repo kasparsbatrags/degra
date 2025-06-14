@@ -1,7 +1,7 @@
 import {fireEvent, render} from '@testing-library/react-native'
 import React from 'react'
 import {searchCompanies} from '../../lib/api'
-import CompanySearch from '../CompanySearch'
+import CompanySearchMigrated from '../CompanySearch-migrated'
 
 // Mock the API module
 jest.mock('../../lib/api', () => ({
@@ -18,14 +18,14 @@ jest.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
 }));
 
-describe('CompanySearch', () => {
+describe('CompanySearchMigrated', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders correctly with default props', () => {
     const { getByPlaceholderText } = render(
-      <CompanySearch onSelect={jest.fn()} />
+      <CompanySearchMigrated onSelect={jest.fn()} />
     );
     
     expect(getByPlaceholderText('Sāciet rakstīt...')).toBeTruthy();
@@ -33,7 +33,7 @@ describe('CompanySearch', () => {
 
   it('renders with custom label and placeholder', () => {
     const { getByText, getByPlaceholderText } = render(
-      <CompanySearch 
+      <CompanySearchMigrated 
         onSelect={jest.fn()} 
         label="Test Label" 
         placeholder="Test Placeholder" 
@@ -51,7 +51,7 @@ describe('CompanySearch', () => {
     );
     
     const { getByPlaceholderText, findByTestId } = render(
-      <CompanySearch onSelect={jest.fn()} />
+      <CompanySearchMigrated onSelect={jest.fn()} />
     );
     
     const input = getByPlaceholderText('Sāciet rakstīt...');
@@ -72,7 +72,7 @@ describe('CompanySearch', () => {
     (searchCompanies as jest.Mock).mockResolvedValue(mockResults);
     
     const { getByPlaceholderText, findByText } = render(
-      <CompanySearch onSelect={jest.fn()} />
+      <CompanySearchMigrated onSelect={jest.fn()} />
     );
     
     const input = getByPlaceholderText('Sāciet rakstīt...');
@@ -92,7 +92,7 @@ describe('CompanySearch', () => {
     const onSelectMock = jest.fn();
     
     const { getByPlaceholderText, findByText } = render(
-      <CompanySearch onSelect={onSelectMock} />
+      <CompanySearchMigrated onSelect={onSelectMock} />
     );
     
     const input = getByPlaceholderText('Sāciet rakstīt...');
@@ -108,7 +108,7 @@ describe('CompanySearch', () => {
     (searchCompanies as jest.Mock).mockRejectedValue(new Error('API Error'));
     
     const { getByPlaceholderText, findByText } = render(
-      <CompanySearch onSelect={jest.fn()} />
+      <CompanySearchMigrated onSelect={jest.fn()} />
     );
     
     const input = getByPlaceholderText('Sāciet rakstīt...');
@@ -119,7 +119,7 @@ describe('CompanySearch', () => {
 
   it('clears input when clear button is pressed', async () => {
     const { getByPlaceholderText, findByLabelText } = render(
-      <CompanySearch onSelect={jest.fn()} value="Initial Value" />
+      <CompanySearchMigrated onSelect={jest.fn()} value="Initial Value" />
     );
     
     const input = getByPlaceholderText('Sāciet rakstīt...');

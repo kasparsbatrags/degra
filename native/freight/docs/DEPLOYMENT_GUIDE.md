@@ -12,7 +12,7 @@
 4. **Profile** (`app/(tabs)/profile.tsx`)
 5. **AddTruckObjectScreen** (`components/AddTruckObjectScreen.tsx`)
 6. **ImprovedFormDropdown** (`components/ImprovedFormDropdown.tsx`)
-7. **CompanySearch** (`components/CompanySearch.tsx`)
+7. **CompanySearchMigrated** (`components/CompanySearchMigrated.tsx`)
 8. **FormDropdown** (`components/FormDropdown.tsx`)
 9. **FormDropdownWithAddButton** (`components/FormDropdownWithAddButton.tsx`)
 10. **ImprovedFormDropdownWithAddButton** (`components/ImprovedFormDropdownWithAddButton.tsx`)

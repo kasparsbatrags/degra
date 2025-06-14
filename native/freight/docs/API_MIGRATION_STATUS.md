@@ -95,13 +95,6 @@ CREATE TABLE objects (
   -- other object fields
 );
 
--- Active routes tracking
-CREATE TABLE active_routes (
-  id INTEGER PRIMARY KEY,
-  route_data TEXT NOT NULL, -- JSON
-  is_active INTEGER DEFAULT 1,
-  created_at INTEGER DEFAULT (strftime('%s', 'now'))
-);
 ```
 
 ### 3. **Migrēt komponentes**

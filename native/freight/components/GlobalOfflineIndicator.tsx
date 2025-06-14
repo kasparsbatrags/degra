@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { COLORS, FONT, SHADOWS } from '@/constants/theme';
-import { useNetworkStatus, useSyncStatus } from '@/hooks/useNetworkStatus';
+import { useNetworkStatus, useSyncStatus } from '../hooks/useNetworkStatus';
 
 interface GlobalOfflineIndicatorProps {
   showDetails?: boolean;
