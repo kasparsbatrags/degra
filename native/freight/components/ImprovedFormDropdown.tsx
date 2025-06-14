@@ -144,8 +144,8 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
       const response = await freightAxiosInstance.get(endpoint);
       console.log('API response data:', response.data);
       const formatted = response.data.map((item: any) => ({
-        id: String(item.id || ''),
-        name: item.registration_number || item.registrationNumber || item.name || `Item ${item.id || 'N/A'}`
+        id: String(item.uid || item.id || ''),
+        name: item.registration_number || item.registrationNumber || item.name || `Item ${item.uid || item.id || 'N/A'}`
       }));
       console.log('Formatted API data:', formatted);
       
