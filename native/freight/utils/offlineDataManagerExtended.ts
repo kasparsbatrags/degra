@@ -650,6 +650,59 @@ class OfflineDataManagerExtended {
 		return await executeSelectFirst(sql)
 	}
 
+	// ==================== FINISHED ROUTES ====================
+
+	// Get last finished route (offline-first)
+	async getLastFinishedRoute(): Promise<any | null> {
+		try {
+			if (Platform.OS === 'web') {
+				return await this.getLastFinishedRouteWeb()
+			} else {
+				return await this.getLastFinishedRouteMobile()
+			}
+		} catch (error) {
+			console.error('Failed to get last finished route:', error)
+			return null
+		}
+	}
+
+	private async getLastFinishedRouteWeb(): Promise<any | null> {
+		try {
+			const response = await freightAxiosInstance.get('/truck-routes/last-finished')
+			return response.data
+		} catch (error: any) {
+			if (error.response?.status === 404) {
+				return null // No finished route
+			}
+			console.error('Failed to fetch last finished route from server:', error)
+			return null
+		}
+	}
+
+	private async getLastFinishedRouteMobile(): Promise<any | null> {
+		const sql = `
+            SELECT tr.*,
+                   trp.date_from,
+                   trp.date_to,
+                   trp.truck_uid,
+                   t.registration_number,
+                   t.truck_maker,
+                   t.truck_model,
+                   out_obj.name as out_object_name,
+                   in_obj.name  as in_object_name
+            FROM truck_routes tr
+                     LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+                     LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
+                     LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
+            WHERE tr.in_date_time IS NOT NULL
+              AND tr.is_deleted = 0
+            ORDER BY tr.in_date_time DESC
+            LIMIT 1
+		`
+		return await executeSelectFirst(sql)
+	}
+
 	// ==================== SYNC ALL DATA ====================
 
 	// Sync all data
@@ -676,3 +729,7 @@ export const offlineDataManagerExtended = new OfflineDataManagerExtended()
 // Export functions for backward compatibility
 export const getRoutePages = () => offlineDataManagerExtended.getRoutePages()
 export const downloadServerData = () => offlineDataManagerExtended.syncAllData()
+export const getTrucks = () => offlineDataManagerExtended.getTrucks()
+export const getObjects = () => offlineDataManagerExtended.getObjects()
+export const getLastActiveRoute = () => offlineDataManagerExtended.getLastActiveRoute()
+export const getLastFinishedRoute = () => offlineDataManagerExtended.getLastFinishedRoute()
