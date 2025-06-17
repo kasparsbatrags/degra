@@ -53,10 +53,29 @@ const FormDropdown: React.FC<FormDropdownProps> = ({
 		try {
 			setLoading(true);
 			const response = await freightAxiosInstance.get(endpoint);
-			const formatted = response.data.map((item: any) => ({
-				id: String(item.id),
-				name: item.registration_number || item.registrationNumber || item.name || String(item)
-			}));
+			
+			const formatted = response.data.map((item: any) => {
+				// Get the ID from uid (offline-first) or id (legacy)
+				const itemId = String(item.uid || item.id || '');
+				
+				// For trucks endpoint, prioritize registration number
+				if (endpoint === '/trucks') {
+					return {
+						id: itemId,
+						name: item.registrationNumber || item.registration_number || 
+							`${item.truckMaker || ''} ${item.truckModel || ''}`.trim() || 
+							`Auto ${itemId}`
+					};
+				}
+				
+				// For other endpoints, use the general approach
+				return {
+					id: itemId,
+					name: item.name || item.registrationNumber || item.registration_number || 
+						`Item ${itemId}`
+				};
+			});
+			
 			setOptions(formatted);
 		} catch (err) {
 			console.error('Failed to fetch options:', err);

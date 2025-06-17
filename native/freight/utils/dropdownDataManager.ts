@@ -36,19 +36,27 @@ class DropdownDataManager {
       if (endpoint.includes('/truck')) {
         const trucks = await getTrucks();
         console.log('Raw trucks data:', trucks);
-        return trucks.map(truck => ({
-          // Always prioritize uid for backend compatibility
-          uid: truck.uid ,
-          registrationNumber: truck.registrationNumber || truck.registrationNumber,
-          truckModel: truck.truckModel,
-          truckMaker: truck.truckMaker,
-          fuelConsumptionNorm: truck.fuelConsumptionNorm,
-          isDefault: truck.isDefault,
-          // Legacy fields for backward compatibility
-          registration_number: truck.registrationNumber || truck.registrationNumber,
-          name: truck.registrationNumber || `Auto ${truck.uid  || 'N/A'}`,
-          model: truck.truckModel
-        }));
+        return trucks.map(truck => {
+          // Handle both camelCase and snake_case field names
+          const regNumber = truck.registrationNumber || truck.registration_number || '';
+          const truckId = truck.uid || truck.id || 'N/A';
+          
+          return {
+            // Always prioritize uid for backend compatibility
+            uid: truckId,
+            id: truckId, // For legacy compatibility
+            // Standardize field names in both formats
+            registrationNumber: regNumber,
+            registration_number: regNumber,
+            truckModel: truck.truckModel || truck.truck_model || '',
+            truckMaker: truck.truckMaker || truck.truck_maker || '',
+            fuelConsumptionNorm: truck.fuelConsumptionNorm || truck.fuel_consumption_norm || 0,
+            isDefault: truck.isDefault || truck.is_default || false,
+            // Set name for display in dropdowns
+            name: regNumber || `${truck.truckMaker || truck.truck_maker || ''} ${truck.truckModel || truck.truck_model || ''}`.trim() || `Auto ${truckId}`,
+            model: truck.truckModel || truck.truck_model || ''
+          };
+        });
       }
 
       // Handle objects endpoint

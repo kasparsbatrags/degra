@@ -144,10 +144,29 @@ const ImprovedFormDropdownOffline: React.FC<FormDropdownProps> = React.memo(({
       // Use offline-first dropdown data manager
       const data = await getDropdownData(endpoint);
       console.log('Dropdown data received:', data);
-      const formatted = data.map((item: any, index: number) => ({
-        id: String(item.uid || item.id || `fallback-${index}`),
-        name: item.name || item.registrationNumber || item.registration_number || `Item ${item.uid || item.id || 'N/A'}`
-      }));
+      
+      const formatted = data.map((item: any, index: number) => {
+        // Get the ID from uid (offline-first) or id (legacy) or fallback
+        const itemId = String(item.uid || item.id || `fallback-${index}`);
+        
+        // For trucks endpoint, prioritize registration number
+        if (endpoint === '/trucks') {
+          return {
+            id: itemId,
+            name: item.registrationNumber || item.registration_number || 
+                  `${item.truckMaker || ''} ${item.truckModel || ''}`.trim() || 
+                  `Auto ${itemId}`
+          };
+        }
+        
+        // For other endpoints, use the general approach
+        return {
+          id: itemId,
+          name: item.name || item.registrationNumber || item.registration_number || 
+                `Item ${itemId}`
+        };
+      });
+      
       console.log('Formatted dropdown data:', formatted);
       
       dispatch({ 

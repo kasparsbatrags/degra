@@ -157,10 +157,28 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
     async () => {
       if (!endpoint) return [];
       const response = await freightAxiosInstance.get(endpoint);
-      return response.data.map((item: any) => ({
-        id: String(item.id),
-        name: item.registration_number || item.registrationNumber || item.name || String(item)
-      }));
+      
+      return response.data.map((item: any) => {
+        // Get the ID from uid (offline-first) or id (legacy)
+        const itemId = String(item.uid || item.id || '');
+        
+        // For trucks endpoint, prioritize registration number
+        if (endpoint === '/trucks') {
+          return {
+            id: itemId,
+            name: item.registrationNumber || item.registration_number || 
+                  `${item.truckMaker || ''} ${item.truckModel || ''}`.trim() || 
+                  `Auto ${itemId}`
+          };
+        }
+        
+        // For other endpoints, use the general approach
+        return {
+          id: itemId,
+          name: item.name || item.registrationNumber || item.registration_number || 
+                `Item ${itemId}`
+        };
+      });
     },
     {
       strategy: 'stale-while-revalidate',
