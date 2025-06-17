@@ -703,6 +703,92 @@ class OfflineDataManagerExtended {
 		return await executeSelectFirst(sql)
 	}
 
+	// ==================== ROUTE PAGE CHECKS ====================
+
+	// Check if a route page exists for a given truck ID and date (offline-first)
+	async checkRoutePageExists(truckId: string, date: string): Promise<any | null> {
+		try {
+			if (Platform.OS === 'web') {
+				return await this.checkRoutePageExistsWeb(truckId, date)
+			} else {
+				return await this.checkRoutePageExistsMobile(truckId, date)
+			}
+		} catch (error) {
+			console.error(`Failed to check route page for truck ${truckId} on date ${date}:`, error)
+			return null
+		}
+	}
+
+	private async checkRoutePageExistsWeb(truckId: string, date: string): Promise<any | null> {
+		try {
+			const response = await freightAxiosInstance.get(`/route-pages/check?truckId=${truckId}&date=${date}`)
+			return response.data
+		} catch (error: any) {
+			if (error.response?.status === 404) {
+				return null // No route page exists
+			}
+			console.error(`Failed to check route page for truck ${truckId} on date ${date} from server:`, error)
+			return null
+		}
+	}
+
+	private async checkRoutePageExistsMobile(truckId: string, date: string): Promise<any | null> {
+		const sql = `
+            SELECT trp.*,
+                   t.truck_maker,
+                   t.truck_model,
+                   t.registration_number,
+                   t.fuel_consumption_norm,
+                   t.is_default,
+                   u.email,
+                   u.given_name,
+                   u.family_name
+            FROM truck_route_page trp
+                     LEFT JOIN truck t ON trp.truck_uid = t.uid
+                     LEFT JOIN user u ON trp.user_id = u.id
+            WHERE trp.truck_uid = ?
+              AND date(trp.date_from) <= date(?)
+              AND date(trp.date_to) >= date(?)
+              AND trp.is_deleted = 0
+            LIMIT 1
+		`
+		
+		console.log('🔍 [Mobile] Checking route page for truck:', truckId, 'on date:', date)
+		const result = await executeSelectFirst(sql, [truckId, date, date])
+		console.log('🔍 [Mobile] Route page check result:', result ? 'Found' : 'Not found')
+		
+		if (!result) return null
+		
+		// Transform database result to DTO
+		return {
+			uid: result.uid,
+			dateFrom: result.date_from,
+			dateTo: result.date_to,
+			truck: result.truck_uid ? {
+				uid: result.truck_uid,
+				truckMaker: result.truck_maker || '',
+				truckModel: result.truck_model || '',
+				registrationNumber: result.registration_number || '',
+				fuelConsumptionNorm: result.fuel_consumption_norm || 0,
+				isDefault: result.is_default || 0
+			} : null,
+			user: result.user_id ? {
+				id: result.user_id, 
+				email: result.email || '', 
+				givenName: result.given_name || '', 
+				familyName: result.family_name || ''
+			} : null,
+			fuelBalanceAtStart: result.fuel_balance_at_start || 0,
+			fuelBalanceAtFinish: result.fuel_balance_at_end || 0,
+			totalFuelReceivedOnRoutes: result.total_fuel_received_on_routes,
+			totalFuelConsumedOnRoutes: result.total_fuel_consumed_on_routes,
+			fuelBalanceAtRoutesFinish: result.fuel_balance_at_routes_finish,
+			odometerAtRouteStart: result.odometer_at_route_start,
+			odometerAtRouteFinish: result.odometer_at_route_finish,
+			computedTotalRoutesLength: result.computed_total_routes_length
+		}
+	}
+
 	// ==================== SYNC ALL DATA ====================
 
 	// Sync all data
@@ -733,3 +819,4 @@ export const getTrucks = () => offlineDataManagerExtended.getTrucks()
 export const getObjects = () => offlineDataManagerExtended.getObjects()
 export const getLastActiveRoute = () => offlineDataManagerExtended.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManagerExtended.getLastFinishedRoute()
+export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManagerExtended.checkRoutePageExists(truckId, date)

@@ -1,3 +1,5 @@
+import {TruckObjectDto} from '@/dto/TruckObjectDto'
+import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useObjectStore } from '@/hooks/useObjectStore';
@@ -7,9 +9,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useNetworkState } from '@/utils/networkUtils';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
-import freightAxios from '@/config/freightAxios';
-import { FormState, TruckRoutePageDto, TruckRouteDto, TruckObjectDto, Page } from '@/types/truckRouteTypes';
-import { getTrucks, getObjects, createObject, getLastActiveRoute, getLastFinishedRoute, checkRoutePageExists } from '@/utils/offlineDataManagerExtended';
+import { FormState } from '@/types/truckRouteTypes';
+import {
+	getTrucks,
+	getObjects,
+	getLastActiveRoute,
+	getLastFinishedRoute,
+	checkRoutePageExists
+} from '@/utils/offlineDataManagerExtended'
+import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto';
 
 export function useTruckRouteForm(params: any) {
     const { user } = useAuth();
@@ -51,17 +59,16 @@ export function useTruckRouteForm(params: any) {
     // Konstante AsyncStorage atslēgai
     const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus';
 
-    // Function to fetch objects list
+    // Function to fetch objects list (offline-first)
     const fetchObjectsList = useCallback(async () => {
         try {
-            const response = await freightAxios.get('/objects');
-            if (Array.isArray(response.data)) {
-                const formattedOptions = response.data.map(item => ({
-                    id: String(item.id),
-                    name: String(item.name || item.title || item.label || item)
-                }));
-                setObjectsList(formattedOptions);
-            }
+            const objects = await getObjects();
+            const formattedOptions = objects.map(item => ({
+                id: String(item.uid || item.id || item.server_id),
+                name: String(item.name || item)
+            }));
+            setObjectsList(formattedOptions);
+            console.log('Loaded objects using offline-first approach:', formattedOptions.length);
         } catch (error) {
             console.error('Failed to fetch objects list:', error);
         }
@@ -79,18 +86,19 @@ export function useTruckRouteForm(params: any) {
             timeoutId = setTimeout(async () => {
                 try {
                     const formattedDate = format(date, 'yyyy-MM-dd');
-                    const response = await freightAxios.get<TruckRoutePageDto>(`/route-pages/exists?truckId=${truckId}&routeDate=${formattedDate}`);
-                    if (response.data) {
-                        setExistingRoutePage(response.data);
+                    // Use offline-first route page check
+                    const routePage = await checkRoutePageExists(truckId, formattedDate);
+                    if (routePage) {
+                        setExistingRoutePage(routePage);
                         setShowRoutePageError(false);
-                    }
-                } catch (error: any) {
-                    if (error.response?.status === 404) {
+                    } else {
                         setExistingRoutePage(null);
                         setShowRoutePageError(true);
-                    } else {
-                        console.error('Failed to check route page:', error);
                     }
+                } catch (error: any) {
+                    console.error('Failed to check route page:', error);
+                    setExistingRoutePage(null);
+                    setShowRoutePageError(true);
                 }
             }, 300);
         };
@@ -122,7 +130,7 @@ export function useTruckRouteForm(params: any) {
 
             if (truckRouteForm.inTruckObjectName) {
                 setInTruckObjectDetails({
-                    id: parseInt(truckRouteForm.inTruckObject),
+                    uid: truckRouteForm.inTruckObject,
                     name: truckRouteForm.inTruckObjectName
                 });
             }
@@ -147,23 +155,30 @@ export function useTruckRouteForm(params: any) {
             setRefreshDropdowns(prev => prev + 1);
 
             if (newTruckObject.type === 'inTruckObject') {
-                setSelectedInTruckObject(newTruckObject.id);
-                setForm(prev => ({ ...prev, inTruckObject: newTruckObject.id }));
-                setInTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+                // Try to get UID from known fields
+                const inUid = (typeof newTruckObject === 'object' && ('uid' in newTruckObject))
+                    ? (newTruckObject as any).uid
+                    : (newTruckObject.id || '');
+                setSelectedInTruckObject(inUid);
+                setForm(prev => ({ ...prev, inTruckObject: inUid }));
+                setInTruckObjectDetails({ uid: inUid, name: newTruckObject.name });
 
                 // Also update store
                 updateTruckRouteForm({
-                    inTruckObject: newTruckObject.id,
+                    inTruckObject: inUid,
                     inTruckObjectName: newTruckObject.name
                 });
             } else if (newTruckObject.type === 'outTruckObject') {
-                setSelectedOutTruckObject(newTruckObject.id);
-                setForm(prev => ({ ...prev, outTruckObject: newTruckObject.id }));
-                setOutTruckObjectDetails({ id: parseInt(newTruckObject.id), name: newTruckObject.name });
+                const outUid = (typeof newTruckObject === 'object' && ('uid' in newTruckObject))
+                    ? (newTruckObject as any).uid
+                    : (newTruckObject.id || '');
+                setSelectedOutTruckObject(outUid);
+                setForm(prev => ({ ...prev, outTruckObject: outUid }));
+                setOutTruckObjectDetails({ id: outUid, name: newTruckObject.name });
 
                 // Also update store
                 updateTruckRouteForm({
-                    outTruckObject: newTruckObject.id,
+                    outTruckObject: outUid,
                     outTruckObjectName: newTruckObject.name
                 });
             }
@@ -208,7 +223,7 @@ export function useTruckRouteForm(params: any) {
                     ...prev,
                     inTruckObject: objectId
                 }));
-                setInTruckObjectDetails({ id: parseInt(objectId), name: objectName });
+                setInTruckObjectDetails({ uid: objectId, name: objectName });
 
                 setObjectsList(prev => {
                     const exists = prev.some(obj => obj.id === objectId);
@@ -229,108 +244,98 @@ export function useTruckRouteForm(params: any) {
         }
 
         setIsLoading(true);
-        const getLastFinishedRoute = async (): Promise<TruckRouteDto | null> => {
-            try {
-                const response = await freightAxios.get<Page<TruckRouteDto>>('/truck-routes?pageSize=1');
-                return response.data.content[0] || null;
-            } catch (error: any) {
-				if (error.response?.status != 404) {
-					console.error('Failed to fetch last finished route:', error);
-				}
-                return null;
-            }
-        };
 
         const initializeForm = async () => {
             try {
-                // Get last route and populate form
+                // Get last active route using offline-first approach
                 try {
-                    const lastRouteResponse = await freightAxios.get<TruckRouteDto>('/truck-routes/last-active');
-                    const lastRoute = lastRouteResponse.data;
-                    setIsRouteFinish(true);
+                    const lastRoute = await getLastActiveRoute();
+                    if (lastRoute) {
+                        setIsRouteFinish(true);
 
-                    // Set hasCargo based on whether cargoVolume exists
-                    setHasCargo(!!lastRoute.cargoVolume);
+                        // Set hasCargo based on whether cargoVolume exists
+                        setHasCargo(!!lastRoute.cargoVolume);
 
-                    // Convert dates from string to Date objects
-                    const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date();
-                    const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date();
+                        // Convert dates from string to Date objects
+                        const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date();
+                        const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date();
 
-                    const outTruckObjectId = lastRoute.outTruckObject?.id?.toString() || '';
-                    const inTruckObjectId = lastRoute.inTruckObject?.id?.toString() || '';
+                        const outTruckObjectId = lastRoute.outTruckObject?.id?.toString() || '';
+                        const inTruckObjectId = lastRoute.inTruckObject?.id?.toString() || '';
 
-                    // Set the selected object state variables
-                    setSelectedOutTruckObject(outTruckObjectId);
-                    setSelectedInTruckObject(inTruckObjectId);
+                        // Set the selected object state variables
+                        setSelectedOutTruckObject(outTruckObjectId);
+                        setSelectedInTruckObject(inTruckObjectId);
 
-                    // Set the form state
-                    setForm({
-                        id: lastRoute.id?.toString() || '',
-                        routeDate,
-                        outDateTime,
-                        dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
-                        dateTo: lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date(),
-                        routePageTruck: lastRoute.truckRoutePage?.truck?.id?.toString() || '',
-                        odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
-                        odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
-                        outTruckObject: outTruckObjectId,
-                        inTruckObject: inTruckObjectId,
-                        cargoType: '',  // Not provided in the response
-                        cargoVolume: lastRoute.cargoVolume?.toString() || '',
-                        unitType: lastRoute.unitType || '',
-                        fuelBalanceAtStart: lastRoute.fuelBalanceAtStart?.toString() || '',
-                        fuelReceived: lastRoute.fuelReceived?.toString() || '',
-                        notes: '',  // Not provided in the response
-                    });
+                        // Set the form state
+                        setForm({
+                            id: lastRoute.id?.toString() || '',
+                            routeDate,
+                            outDateTime,
+                            dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
+                            dateTo: lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date(),
+                            routePageTruck: lastRoute.truckRoutePage?.truck?.id?.toString() || '',
+                            odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
+                            odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
+                            outTruckObject: outTruckObjectId,
+                            inTruckObject: inTruckObjectId,
+                            cargoType: '',  // Not provided in the response
+                            cargoVolume: lastRoute.cargoVolume?.toString() || '',
+                            unitType: lastRoute.unitType || '',
+                            fuelBalanceAtStart: lastRoute.fuelBalanceAtStart?.toString() || '',
+                            fuelReceived: lastRoute.fuelReceived?.toString() || '',
+                            notes: '',  // Not provided in the response
+                        });
 
-                    // Set the object details
-                    if (lastRoute.outTruckObject) {
-                        setOutTruckObjectDetails(lastRoute.outTruckObject);
-                    }
-                    if (lastRoute.inTruckObject) {
-                        setInTruckObjectDetails(lastRoute.inTruckObject);
-                    }
-                } catch (error: any) {
-                    if (error.response?.status === 404) {
+                        // Set the object details
+                        if (lastRoute.outTruckObject) {
+                            setOutTruckObjectDetails(lastRoute.outTruckObject);
+                        }
+                        if (lastRoute.inTruckObject) {
+                            setInTruckObjectDetails(lastRoute.inTruckObject);
+                        }
+
+                        console.log('Loaded last active route using offline-first approach');
+                    } else {
+                        // No active route found
                         setIsRouteFinish(false);
-                        // If no last route exists, get default truck
-                        // Get last finished route for odometer value
+                        
+                        // Get last finished route for odometer value using offline-first approach
                         const lastFinishedRoute = await getLastFinishedRoute();
 
-                        try {
-                            const response = await freightAxios.get('/trucks');
-                            if (response.data && response.data.length > 0) {
-                                const defaultTruck = response.data[0].id.toString();
-                                const currentDate = new Date();
-                                const outTruckObjectId = lastFinishedRoute?.outTruckObject?.id?.toString() || '';
+                        // Get trucks using offline-first approach
+                        const trucks = await getTrucks();
+                        if (trucks && trucks.length > 0) {
+                            const defaultTruck = trucks[0].uid?.toString() || trucks[0].server_id?.toString() || trucks[0].id?.toString() || '';
+                            const currentDate = new Date();
+                            const outTruckObjectId = lastFinishedRoute?.outTruckObject?.id?.toString() || '';
 
-                                // Set the selected object state variables
-                                setSelectedOutTruckObject(outTruckObjectId);
+                            // Set the selected object state variables
+                            setSelectedOutTruckObject(outTruckObjectId);
 
-                                // Set the form state
-                                setForm(prev => ({
-                                    ...prev,
-                                    routeDate: currentDate,
-                                    routePageTruck: defaultTruck,
-                                    odometerAtStart: lastFinishedRoute?.odometerAtFinish?.toString() || '',
-                                    outTruckObject: outTruckObjectId,
-                                    fuelBalanceAtStart: lastFinishedRoute?.fuelBalanceAtFinish?.toString() || ''
-                                }));
+                            // Set the form state
+                            setForm(prev => ({
+                                ...prev,
+                                routeDate: currentDate,
+                                routePageTruck: defaultTruck,
+                                odometerAtStart: lastFinishedRoute?.odometerAtFinish?.toString() || '',
+                                outTruckObject: outTruckObjectId,
+                                fuelBalanceAtStart: lastFinishedRoute?.fuelBalanceAtFinish?.toString() || ''
+                            }));
 
-                                // Set the object details
-                                if (lastFinishedRoute?.outTruckObject) {
-                                    setOutTruckObjectDetails(lastFinishedRoute.outTruckObject);
-                                }
+                            // Set the object details
+                            if (lastFinishedRoute?.outTruckObject) {
+                                setOutTruckObjectDetails(lastFinishedRoute.outTruckObject);
                             }
-                        } catch (truckError) {
-                            console.error('Failed to fetch default truck:', truckError);
+
+                            console.log('Loaded default truck and last finished route using offline-first approach');
                         }
-                    } else {
-                        console.error('Failed to fetch last finished route:', error);
                     }
+                } catch (error) {
+                    console.error('Failed to initialize form with offline-first data:', error);
                 }
             } catch (error) {
-                console.error('Failed to fetch default truck:', error);
+                console.error('Failed to initialize form:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -356,19 +361,20 @@ export function useTruckRouteForm(params: any) {
 
             const now = new Date().toISOString();
             const payload: TruckRouteDto = {
-                id: form.id ? parseInt(form.id) : null,
+                uid: form.id || null,
                 routeDate: format(form.routeDate, 'yyyy-MM-dd'),
                 truckRoutePage: form.routePageTruck ? {
+                    uid: form.routePageTruck,
                     dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
                     dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
-                    truck: {id: parseInt(form.routePageTruck)},
-                    user: {id: user?.id || '0'},
+                    truck: {uid: form.routePageTruck},
+                    user: {uid: user?.id || '0'},
                     fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
                 } : null,
                 outTruckObject: outTruckObjectValue ?
-                        (outTruckObjectDetails ? outTruckObjectDetails : {id: parseInt(outTruckObjectValue)}) : null,
+                        (outTruckObjectDetails ? {uid: outTruckObjectValue, name: outTruckObjectDetails.name} : {uid: outTruckObjectValue}) : null,
                 inTruckObject: inTruckObjectValue ?
-                        (inTruckObjectDetails ? inTruckObjectDetails : {id: parseInt(inTruckObjectValue)}) : null,
+                        (inTruckObjectDetails ? {uid: inTruckObjectValue, name: inTruckObjectDetails.name} : {uid: inTruckObjectValue}) : null,
                 odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
                 odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : null,
                 cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,
@@ -379,6 +385,13 @@ export function useTruckRouteForm(params: any) {
                 outDateTime: now,
                 inDateTime: inTruckObjectValue && isItRouteFinish ? now : null
             };
+
+            // Debug logging
+            console.log('🚛 [DEBUG] Form routePageTruck value:', form.routePageTruck);
+            console.log('🚛 [DEBUG] Payload truck UID:', payload.truckRoutePage?.truck?.uid);
+			console.log('🚛 [DEBUG] Payload outTruckObject UID:', payload.outTruckObject?.uid);
+			console.log('🚛 [DEBUG] Payload inTruckObject UID:', payload.inTruckObject?.uid);
+            console.log('🚛 [DEBUG] Full payload:', JSON.stringify(payload, null, 2));
 
             if (isItRouteFinish) {
                 // Izmantojam endRoute hook funkciju
