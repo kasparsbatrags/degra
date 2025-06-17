@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
 import { isConnected } from './networkUtils';
+import { isOfflineMode } from '../services/offlineService';
 import freightAxiosInstance from '../config/freightAxios';
 
 // Simple ID generation without crypto dependencies
@@ -56,8 +57,12 @@ class OfflineQueueManager {
 
       console.log(`Added offline operation: ${type} ${tableName}`, operationId);
       
-      // Try to process queue immediately if online
-      this.processQueue();
+      const offlineModeActive = await isOfflineMode();
+      if (!offlineModeActive) {
+        this.processQueue();
+      } else {
+        console.log('Operation added to queue but not processed - global offline mode is active');
+      }
       
       return operationId;
     } catch (error) {
@@ -151,10 +156,9 @@ class OfflineQueueManager {
       return;
     }
 
-    // Check if online
-    const online = await isConnected();
-    if (!online) {
-      console.log('Device is offline, skipping queue processing');
+    const offlineModeActive = await isOfflineMode();
+    if (offlineModeActive) {
+      console.log('Global offline mode is active, skipping queue processing');
       return;
     }
 
@@ -347,8 +351,13 @@ class OfflineQueueManager {
         await executeQuery(sql, [newRetryCount, Date.now(), operation.id]);
       }
 
-      // Try processing again
-      this.processQueue();
+      // Try processing again, but check offline mode first
+      const offlineModeActive = await isOfflineMode();
+      if (!offlineModeActive) {
+        this.processQueue();
+      } else {
+        console.log(`Retry for operation ${operation.id} queued but not processed - global offline mode is active`);
+      }
     }, delay);
   }
 
@@ -366,11 +375,16 @@ class OfflineQueueManager {
       clearInterval(this.processingInterval);
     }
 
-    this.processingInterval = setInterval(() => {
-      this.processQueue();
+    this.processingInterval = setInterval(async () => {
+      const offlineModeActive = await isOfflineMode();
+      if (!offlineModeActive) {
+        this.processQueue();
+      } else {
+        console.log('Auto processing skipped - global offline mode is active');
+      }
     }, intervalMs);
 
-    console.log(`Started automatic queue processing every ${intervalMs}ms`);
+    console.log(`Started automatic queue processing every ${intervalMs}ms (respecting global offline mode)`);
   }
 
   // Stop automatic queue processing

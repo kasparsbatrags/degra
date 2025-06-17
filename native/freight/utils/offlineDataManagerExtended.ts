@@ -131,6 +131,44 @@ class OfflineDataManagerExtended {
 		return Array.isArray(result) ? result : []
 	}
 
+	// Get truck by ID (offline-first)
+	async getTruckById(truckId: string): Promise<any | null> {
+		try {
+			if (Platform.OS === 'web') {
+				return await this.getTruckByIdWeb(truckId)
+			} else {
+				return await this.getTruckByIdMobile(truckId)
+			}
+		} catch (error) {
+			console.error(`Failed to get truck with ID ${truckId}:`, error)
+			return null
+		}
+	}
+
+	private async getTruckByIdWeb(truckId: string): Promise<any | null> {
+		try {
+			const response = await freightAxiosInstance.get<any>(`/trucks/${truckId}`)
+			return response.data || null
+		} catch (error) {
+			console.error(`Failed to fetch truck with ID ${truckId} from server:`, error)
+			return null
+		}
+	}
+
+	private async getTruckByIdMobile(truckId: string): Promise<any | null> {
+		const sql = `
+            SELECT *
+            FROM truck
+            WHERE uid = ? AND is_deleted = 0
+		`
+
+		console.log('[Mobile] Executing SQL query for truck by ID:', sql, 'with ID:', truckId)
+		const result = await executeSelectFirst(sql, [truckId])
+		console.log('[Mobile] Truck query result:', result ? 'Found' : 'Not found')
+
+		return result || null
+	}
+
 	// ==================== OBJECTS ====================
 
 	// Sync objects from server to mobile database

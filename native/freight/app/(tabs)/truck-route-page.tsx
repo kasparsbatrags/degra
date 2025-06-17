@@ -366,9 +366,10 @@ export default function TruckRoutePageScreen() {
 
 			console.log('📱 [DEBUG] Created route page model:', routePageModel)
 
-			// Transform to DTO using the mapper
-			const routePageDto: TruckRoutePageDto = mapTruckRoutePageModelToDto([routePageModel])[0]
-			
+			const [routePageDto] = await mapTruckRoutePageModelToDto([routePageModel])
+
+			console.log('📱 [DEBUG] ----------------:', routePageDto)
+
 			if (!routePageDto) {
 				setErrorMessage('Kļūda sagatavot datus nosūtīšanai')
 				setIsSubmitting(false)
@@ -436,7 +437,6 @@ export default function TruckRoutePageScreen() {
 						routePageDto
 					)
 					
-					setErrorMessage('Dati saglabāti lokāli un tiks sinhronizēti ar serveri')
 					console.log('📱 [Mobile] Data saved locally and added to sync queue')
 					
 					// Navigate back immediately after local save
@@ -475,7 +475,6 @@ export default function TruckRoutePageScreen() {
 							uid ? `/route-pages/${uid}` : '/route-pages',
 							routePageDto
 						)
-						setErrorMessage('Dati saglabāti offline režīmā un tiks sinhronizēti, kad būs internets')
 						// Still navigate back after offline save
 						setTimeout(() => router.push('/(tabs)'), 2000)
 					}
@@ -488,7 +487,6 @@ export default function TruckRoutePageScreen() {
 					uid ? `/route-pages/${uid}` : '/route-pages',
 					routePageDto
 				)
-				setErrorMessage('Dati saglabāti offline režīmā un tiks sinhronizēti, kad būs internets')
 				console.log('Data saved to offline queue')
 				// Navigate back after offline save
 				setTimeout(() => router.push('/(tabs)'), 2000)

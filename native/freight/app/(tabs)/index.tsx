@@ -136,7 +136,7 @@ export default function HomeScreen() {
 			}
 
 			// 1. FĀZE: Sync dropdown data first (trucks and objects) for mobile
-			if (Platform.OS !== 'web') {
+			if (Platform.OS !== 'web' && !isOfflineModeActive) {
 				try {
 					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
 					await downloadServerData()
@@ -144,6 +144,8 @@ export default function HomeScreen() {
 				} catch (error) {
 					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
 				}
+			} else if (Platform.OS !== 'web' && isOfflineModeActive) {
+				console.log('📱 [DEBUG] Device is in offline mode, skipping server data sync')
 			}
 
 			// 2. FĀZE: Get route pages with offline-first approach
