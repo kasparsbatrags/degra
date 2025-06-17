@@ -31,7 +31,7 @@
 - **getLastFinishedRoute()**: ✅ Pēdējā maršruta iegūšana
 - **checkRoutePageExists()**: ✅ Maršruta lapas pārbaude
 
-### 5. **TruckDto Route Form Migration** (`useTruckRouteFormMigrated.ts`)
+### 5. **TruckDto Route Form Migration** (`useTruckRouteForm.ts`)
 - **Objects loading**: ✅ Migrēts uz `getObjects()`
 - **Active route check**: ✅ Migrēts uz `getLastActiveRoute()`
 - **Trucks loading**: ✅ Migrēts uz `getTrucks()`
@@ -60,7 +60,7 @@ endRoute.mutateAsync(payload)
 ```
 
 ### 4. **Component Integration**
-- Aizstāt `useTruckRouteForm` ar `useTruckRouteFormMigrated` komponentēs
+- Aizstāt `useTruckRouteForm` ar `useTruckRouteForm` komponentēs
 - Integrēt extended database tables galvenajā database failā
 
 ## Nepieciešamās izmaiņas:
@@ -75,8 +75,8 @@ import { createExtendedTables } from './databaseExtended';
 ### 2. **Migrēt komponentes**
 ```typescript
 // TruckRouteScreen.tsx
-import { useTruckRouteFormMigrated } from '@/hooks/useTruckRouteFormMigrated';
-// Aizstāt useTruckRouteForm ar useTruckRouteFormMigrated
+import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
+// Aizstāt useTruckRouteForm ar useTruckRouteForm
 ```
 
 ### 3. **Form Dropdown Migration**
@@ -140,7 +140,7 @@ checkRoutePageExists()         // Maršruta lapas pārbaude
 ```
 
 ### Migrētie komponenti:
-- `useTruckRouteFormMigrated.ts` - pilnībā offline-first truck route form
+- `useTruckRouteForm.ts` - pilnībā offline-first truck route form
 - `databaseExtended.ts` - paplašināta database schema
 - `offlineDataManagerExtended.ts` - jaunās offline-first funkcijas
 
@@ -154,7 +154,7 @@ checkRoutePageExists()         // Maršruta lapas pārbaude
 - [ ] Form dropdowns offline
 
 ### Integration Testing:
-- [ ] Replace useTruckRouteForm with useTruckRouteFormMigrated
+- [ ] Replace useTruckRouteForm with useTruckRouteForm
 - [ ] Test offline/online transitions
 - [ ] Verify data sync when back online
 

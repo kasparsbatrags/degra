@@ -32,7 +32,7 @@
 - **getLastFinishedRoute()**: ✅ Pēdējā maršruta iegūšana
 - **checkRoutePageExists()**: ✅ Maršruta lapas pārbaude
 
-### 5. **TruckDto Route Form Migration** (`useTruckRouteFormMigrated.ts`)
+### 5. **TruckDto Route Form Migration** (`useTruckRouteForm.ts`)
 - **Objects loading**: ✅ Migrēts uz `getObjects()`
 - **Active route check**: ✅ Migrēts uz `getLastActiveRoute()`
 - **Trucks loading**: ✅ Migrēts uz `getTrucks()`
@@ -46,7 +46,7 @@
 - **Smart endpoint handling**: ✅ Trucks/Objects/Static data
 
 ### 7. **Component Integration**
-- **TruckRoute/index.tsx**: ✅ Izmanto `useTruckRouteFormMigrated`
+- **TruckRoute/index.tsx**: ✅ Izmanto `useTruckRouteForm`
 - **RouteBasicTabOffline.tsx**: ✅ Offline dropdown komponentes
 - **AddTruckObjectScreenOfflineSimple.tsx**: ✅ Offline object creation
 
@@ -85,7 +85,7 @@ getDropdownData(endpoint)      // ✅ Smart routing
 ## Migrētie komponenti:
 
 ### **Core Components**:
-- ✅ `useTruckRouteFormMigrated.ts` - pilnībā offline-first truck route form
+- ✅ `useTruckRouteForm.ts` - pilnībā offline-first truck route form
 - ✅ `RouteBasicTabOffline.tsx` - offline dropdown komponentes
 - ✅ `AddTruckObjectScreenOfflineSimple.tsx` - offline object creation
 
@@ -110,7 +110,7 @@ getDropdownData(endpoint)      // ✅ Smart routing
 - Form dropdowns offline ✅
 
 ### ✅ **Integration Testing**:
-- useTruckRouteForm → useTruckRouteFormMigrated ✅
+- useTruckRouteForm → useTruckRouteForm ✅
 - Offline/online transitions ✅
 - Data sync when back online ✅
 

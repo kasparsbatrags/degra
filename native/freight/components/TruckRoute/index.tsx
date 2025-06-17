@@ -13,7 +13,7 @@ import TabNavigation from './TabNavigation';
 import RouteBasicTabOffline from './RouteBasicTabOffline';
 import RouteOdometerTab from './RouteOdometerTab';
 import RouteFuelTab from './RouteFuelTab';
-import { useTruckRouteFormMigrated } from '@/hooks/useTruckRouteFormMigrated';
+import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
 import { styles } from './styles';
 
 export default function TruckRouteScreen() {
@@ -49,7 +49,7 @@ export default function TruckRouteScreen() {
         setForm,
         isSubmitting,
         handleSubmit: originalHandleSubmit
-    } = useTruckRouteFormMigrated(params);
+    } = useTruckRouteForm(params);
     
     // Check session status when component is loaded
     useEffect(() => {

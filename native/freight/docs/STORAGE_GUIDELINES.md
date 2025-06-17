@@ -70,7 +70,7 @@ const trucks = await getTrucks();
 - `utils/databaseExtended.ts`
 - `utils/offlineDataManagerExtended.ts`
 - `utils/dropdownDataManager.ts`
-- `hooks/useTruckRouteFormMigrated.ts`
+- `hooks/useTruckRouteForm.ts`
 - Visi offline komponenti
 
 ---

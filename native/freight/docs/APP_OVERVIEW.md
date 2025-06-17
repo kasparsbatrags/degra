@@ -140,7 +140,7 @@ components/
 ```
 hooks/
 ├── useTruckRouteForm.ts          # Legacy form hook (deprecated)
-├── useTruckRouteFormMigrated.ts  # Offline-first form hook
+├── useTruckRouteForm.ts  # Offline-first form hook
 └── useObjectStore.ts             # Object state management
 
 context/
