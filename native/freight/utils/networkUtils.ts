@@ -1,14 +1,18 @@
-import NetInfo, {NetInfoState} from '@react-native-community/netinfo'
-import {useCallback, useEffect, useState} from 'react'
-import {isWeb} from './platformUtils'
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
+import { Platform } from 'react-native';
+import { getOfflineConfig } from '../services/offlineService';
+
+// Eksportējam hooks no hooks mapes
+export { useNetworkStatus, NetworkStatus, NetworkStatusResult } from '../hooks/useNetworkStatus';
+export { useSyncStatus } from '../hooks/useSyncStatus';
+
+// Konstantes
+const isWeb = Platform.OS === 'web';
+
+// ==================== UTILITY FUNKCIJAS ====================
 
 /**
- * Utility functions for network operations
- */
-
-/**
- * Checks if the device is currently connected to the internet
- * @returns Promise that resolves to a boolean indicating if the device is connected
+ * Pārbauda, vai ierīce ir pievienota internetam
  */
 export const isConnected = async (): Promise<boolean> => {
   try {
@@ -25,8 +29,7 @@ export const isConnected = async (): Promise<boolean> => {
 };
 
 /**
- * Checks if the device has a strong internet connection
- * @returns Promise that resolves to a boolean indicating if the connection is strong
+ * Pārbauda, vai ierīcei ir spēcīgs interneta savienojums
  */
 export const hasStrongConnection = async (): Promise<boolean> => {
   try {
@@ -63,63 +66,27 @@ export const hasStrongConnection = async (): Promise<boolean> => {
 };
 
 /**
- * Hook that provides the current network state and connection status
- * @returns Object with network state information
+ * Pārbauda, vai aplikācija ir offline režīmā
  */
-export const useNetworkState = () => {
-  const [networkState, setNetworkState] = useState<NetInfoState | null>(null);
-  
-  useEffect(() => {
-    // Get initial state
-    NetInfo.fetch().then(setNetworkState);
-    
-    // Set up listener for changes
-    const unsubscribe = NetInfo.addEventListener(setNetworkState);
-    
-    // Clear listener when component is unmounted
-    return () => unsubscribe();
-  }, []);
-  
-  const isConnected = networkState?.isConnected === true;
-  const isWifi = networkState?.type === 'wifi';
-  const isCellular = networkState?.type === 'cellular';
-  const isInternetReachable = networkState?.isInternetReachable === true;
-  
-  // Determines if the connection is good enough for loading large data
-  const isStrongConnection = useCallback(() => {
-    if (!isConnected) return false;
-    
-    // For web platform, always return true if there is a connection
-    if (isWeb) return true;
-    
-    // WiFi is usually a good connection
-    if (isWifi) return true;
-    
-    // For mobile data, check strength
-    if (isCellular) {
-      const generation = networkState?.details?.cellularGeneration;
-      return generation === '4g' || generation === '5g';
+export const isOfflineMode = async (): Promise<boolean> => {
+  try {
+    // Vispirms pārbaudām konfigurāciju
+    const config = await getOfflineConfig();
+    if (config.forceOfflineMode) {
+      return true;
     }
     
+    // Pārbaudām tīkla savienojumu
+    const connected = await isConnected();
+    return !connected;
+  } catch (error) {
+    console.error('Error checking offline mode:', error);
     return false;
-  }, [networkState, isConnected, isWifi, isCellular]);
-  
-  return {
-    isConnected,
-    isWifi,
-    isCellular,
-    isInternetReachable,
-    isStrongConnection: isStrongConnection(),
-    networkType: networkState?.type,
-    details: networkState?.details,
-  };
+  }
 };
 
 /**
- * Throttles network requests based on connection quality
- * @param callback Function to execute
- * @param options Options for throttling
- * @returns Promise that resolves to the result of the callback
+ * Ierobežo tīkla pieprasījumus atkarībā no savienojuma kvalitātes
  */
 export const throttleNetworkRequest = async <T>(
   callback: () => Promise<T>,
@@ -137,68 +104,36 @@ export const throttleNetworkRequest = async <T>(
     priorityLevel = 'medium',
   } = options;
   
-  // Check connection quality
   const hasConnection = await isConnected();
   const strongConnection = await hasStrongConnection();
   
-  // If there's no connection, return error immediately
   if (!hasConnection) {
     throw new Error('No internet connection');
   }
   
-  // If priority is low and connection is weak, increase timeout
   let actualTimeout = timeout;
   if (priorityLevel === 'low' && !strongConnection) {
     actualTimeout = timeout * 2;
   }
   
-  // Try to execute the request
   let lastError: Error | null = null;
   for (let attempt = 0; attempt < retryCount; attempt++) {
     try {
-      // Create promise with timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), actualTimeout);
       });
       
-      // Execute request with timeout
       return await Promise.race([callback(), timeoutPromise]) as T;
     } catch (error) {
       lastError = error as Error;
       
-      // If it's the last attempt, return error
       if (attempt === retryCount - 1) {
         throw lastError;
       }
       
-      // Wait before next attempt
       await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
     }
   }
   
-  // If we get here, return the last error
   throw lastError || new Error('Unknown error');
-};
-
-/**
- * Detects if the app is running in offline mode
- * @returns Boolean indicating if the app is in offline mode
- */
-export const isOfflineMode = async (): Promise<boolean> => {
-  try {
-    // Check if there is a connection
-    const connected = await isConnected();
-    if (!connected) return true;
-    
-    // Check if internet is available with timeout
-    const timeoutPromise = new Promise<NetInfoState>((_, reject) => {
-      setTimeout(() => reject(new Error('Network check timeout')), 3000);
-    });
-    
-    const state = await Promise.race([NetInfo.fetch(), timeoutPromise]);
-    return state.isInternetReachable === false;
-  } catch (error) {
-    console.warn('Offline mode check failed, assuming offline:', error);
-    return true; // Ja nevar pārbaudīt, pieņem ka ir offline
-  }
 };

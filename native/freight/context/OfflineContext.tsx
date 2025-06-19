@@ -2,9 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import { initDatabase, checkDatabaseHealth } from '../utils/database';
 import { offlineQueue, startOfflineQueueProcessing, stopOfflineQueueProcessing, getOfflineQueueStats } from '../utils/offlineQueue';
-import { syncRoutePages } from '../utils/offlineDataManagerExtended';
 import { isConnected } from '../utils/networkUtils';
-import { isSQLiteSupported, withSQLiteSupport, logPlatformWarning } from '../utils/platformUtils';
 
 // Offline context types
 interface OfflineContextType {

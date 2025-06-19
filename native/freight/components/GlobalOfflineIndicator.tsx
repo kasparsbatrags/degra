@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { COLORS, FONT, SHADOWS } from '@/constants/theme';
-import { useNetworkStatus, useSyncStatus } from '../hooks/useNetworkStatus';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useSyncStatus } from '../hooks/useSyncStatus';
 
 interface GlobalOfflineIndicatorProps {
   showDetails?: boolean;
@@ -18,7 +19,7 @@ export default function GlobalOfflineIndicator({
   const { 
     isOnline, 
     isOfflineMode, 
-    connectionQuality,
+    isStrongConnection,
     pendingOperations,
     cacheSize 
   } = useNetworkStatus();
@@ -61,13 +62,9 @@ export default function GlobalOfflineIndicator({
   };
 
   const getConnectionQualityText = () => {
-    switch (connectionQuality) {
-      case 'excellent': return 'Lielisks';
-      case 'good': return 'Labs';
-      case 'poor': return 'Vājš';
-      case 'offline': return 'Nav';
-      default: return 'Nezināms';
-    }
+    if (!isOnline) return 'Nav';
+    if (isStrongConnection) return 'Labs';
+    return 'Vājš';
   };
 
   const formatCacheSize = (bytes: number) => {
