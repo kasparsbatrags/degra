@@ -1,6 +1,5 @@
 import NetInfo, {NetInfoState} from '@react-native-community/netinfo'
 import {useCallback, useEffect, useState} from 'react'
-import {Platform} from 'react-native'
 import {isWeb} from './platformUtils'
 
 /**
@@ -13,7 +12,6 @@ import {isWeb} from './platformUtils'
  */
 export const isConnected = async (): Promise<boolean> => {
   try {
-    // Timeout pārbaude, lai neblokētu ilgi
     const timeoutPromise = new Promise<NetInfoState>((_, reject) => {
       setTimeout(() => reject(new Error('Network check timeout')), 3000);
     });

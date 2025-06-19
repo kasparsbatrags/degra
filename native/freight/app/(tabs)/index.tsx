@@ -12,7 +12,7 @@ import React, {useCallback, useEffect, useState, useMemo} from 'react'
 import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
-import freightAxiosInstance from '../../config/freightAxios'
+
 
 export default function HomeScreen() {
 	const {user} = useAuth()
@@ -90,7 +90,6 @@ export default function HomeScreen() {
 				return
 			}
 
-			// Use existing centralized function - handles web/mobile and offline/online automatically
 			const lastActiveRoute = await offlineDataManagerExtended.getLastActiveRoute()
 			setButtonText(lastActiveRoute ? 'FINIŠS' : 'STARTS')
 			

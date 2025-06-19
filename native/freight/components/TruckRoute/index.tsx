@@ -10,7 +10,7 @@ import { isRedirectingToLogin } from '@/config/axios';
 import BackButton from '../../components/BackButton';
 import Button from '../../components/Button';
 import TabNavigation from './TabNavigation';
-import RouteBasicTabOffline from './RouteBasicTabOffline';
+import RouteBasicTab from './RouteBasicTab';
 import RouteOdometerTab from './RouteOdometerTab';
 import RouteFuelTab from './RouteFuelTab';
 import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
@@ -164,7 +164,7 @@ export default function TruckRouteScreen() {
                     <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
                     
                     {/* Tab saturs */}
-                    {activeTab === 'basic' && <RouteBasicTabOffline {...tabProps} />}
+                    {activeTab === 'basic' && <RouteBasicTab {...tabProps} />}
                     {activeTab === 'odometer' && <RouteOdometerTab {...tabProps} />}
                     {activeTab === 'fuel' && <RouteFuelTab {...tabProps} />}
                     

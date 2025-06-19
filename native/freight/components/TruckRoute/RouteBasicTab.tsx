@@ -7,6 +7,7 @@ import { styles } from './styles';
 import FormDatePicker from '../../components/FormDatePicker';
 import ImprovedFormDropdownOffline from '../../components/ImprovedFormDropdownOffline';
 import ImprovedFormDropdownWithAddButtonOffline from '../../components/ImprovedFormDropdownWithAddButtonOffline';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 
 const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
     isItRouteFinish,
@@ -25,6 +26,9 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
     router,
     params
 }) => {
+    // Izmantojam globālo offline/online stāvokli
+    const { isOnline, isOfflineMode } = useNetworkStatus();
+    
     if (isItRouteFinish) {
     // Kad isItRouteFinish=true, Basic tabā rāda datumu un galamērķi
     return (
@@ -42,6 +46,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 label="Ierados"
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
+                    console.log('Selected inTruckObject UID:', value);  // Pievienots no RouteBasicTab.tsx
                     setSelectedInTruckObject(value);
                     setForm(prev => ({...prev, inTruckObject: value}));
                 }}
@@ -130,7 +135,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                 label="Finišs..."
                 value={selectedInTruckObject || form.inTruckObject}
                 onSelect={(value: string) => {
-					console.log('Selected inTruckObject UID:', value);
+                    console.log('Selected inTruckObject UID:', value);  // Pievienots no RouteBasicTab.tsx
                     setSelectedInTruckObject(value);
                     setForm(prev => ({...prev, inTruckObject: value}));
                 }}
@@ -142,7 +147,7 @@ const RouteBasicTab: React.FC<RouteBasicTabProps> = ({
                     params: { type: 'inTruckObject' }
                 })}
                 forceRefresh={refreshDropdowns}
-                objectName={inTruckObjectDetails?.name}
+                objectName={inTruckObjectDetails?.name || params?.inTruckObjectName || ''}
             />
 
             {/*<View style={commonStyles.spaceBetween}>*/}

@@ -597,9 +597,12 @@ class OfflineDataManagerExtended {
 		return routePages
 	}
 
-	// ==================== ACTIVE ROUTES ====================
+	async getRoutePoint(): Promise<string> {
+		const lastActiveRoute = await offlineDataManagerExtended.getLastActiveRoute()
+		return lastActiveRoute ? "FINISH" : "START"
+	}
 
-	// Get last active route (offline-first)
+
 	async getLastActiveRoute(): Promise<any | null> {
 		try {
 			if (Platform.OS === 'web') {
@@ -820,3 +823,4 @@ export const getObjects = () => offlineDataManagerExtended.getObjects()
 export const getLastActiveRoute = () => offlineDataManagerExtended.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManagerExtended.getLastFinishedRoute()
 export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManagerExtended.checkRoutePageExists(truckId, date)
+export const getRoutePoint = () => offlineDataManagerExtended.getRoutePoint()

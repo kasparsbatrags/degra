@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { useNetworkState } from '@/utils/networkUtils';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
 import { FormState } from '@/types/truckRouteTypes';
 import {
@@ -53,7 +53,7 @@ export function useTruckRouteForm(params: any) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
-    const { isConnected } = useNetworkState();
+    const { isOnline, isOfflineMode } = useNetworkStatus();
     const { startRoute, endRoute } = useTruckRoute();
 
     // Konstante AsyncStorage atslēgai
@@ -398,7 +398,7 @@ export function useTruckRouteForm(params: any) {
                 await endRoute.mutateAsync(payload);
                 
                 // Parādām paziņojumu, ja nav savienojuma
-                if (!isConnected) {
+                if (!isOnline || isOfflineMode) {
                     Alert.alert(
                         "Offline režīms",
                         "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
@@ -410,7 +410,7 @@ export function useTruckRouteForm(params: any) {
                 await startRoute.mutateAsync(payload);
                 
                 // Parādām paziņojumu, ja nav savienojuma
-                if (!isConnected) {
+                if (!isOnline || isOfflineMode) {
                     Alert.alert(
                         "Offline režīms",
                         "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
