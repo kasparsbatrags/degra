@@ -3,57 +3,72 @@ import { isOfflineMode } from '../services/offlineService';
 import { isConnected } from '../utils/networkUtils';
 
 /**
- * Hook, kas atgriež tīkla statusu (online/offline) un offline režīma statusu,
- * kā arī placeholder laukus, lai nodrošinātu saderību ar esošajām komponentēm.
+ * Apraksta iespējamos tīkla statusa stāvokļus.
  */
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [offlineMode, setOfflineMode] = useState<boolean>(false);
-
-  // Placeholderi, lai novērstu TS kļūdas komponentēs
-  const [connectionQuality] = useState<'excellent' | 'good' | 'poor' | 'offline' | 'unknown'>('unknown');
-  const [pendingOperations] = useState<number>(0);
-  const [cacheSize] = useState<number>(0);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkStatus = async () => {
-      const connected = await isConnected();
-      const offline = await isOfflineMode();
-      if (mounted) {
-        setIsOnline(connected && !offline);
-        setOfflineMode(offline);
-      }
-    };
-
-    checkStatus();
-    const interval = setInterval(checkStatus, 5000);
-
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  return {
-    isOnline,
-    isOfflineMode: offlineMode,
-    connectionQuality,
-    pendingOperations,
-    cacheSize,
-  };
-}
+export type NetworkStatus = 'online' | 'offline' | 'forced-offline';
 
 /**
- * Pagaidu hooks, kas atgriež minimālu objektu, lai novērstu TS kļūdas komponentēs.
+ * Hook, kas atgriež tīkla statusu un citu saistīto informāciju.
  */
-export function useSyncStatus() {
-  return {
-    isSyncing: false,
-    hasPendingData: false,
-    lastSyncFormatted: '',
-    performSync: () => {},
-    canSync: false,
-  };
+export function useNetworkStatus() {
+	const [status, setStatus] = useState<NetworkStatus>('offline');
+
+	const pendingOperations = 0;
+	const cacheSize = 0;
+
+	useEffect(() => {
+		let mounted = true;
+
+		const checkStatus = async () => {
+			const connected = await isConnected();
+			const offline = await isOfflineMode();
+
+			if (!mounted) return;
+
+			if (offline) {
+				setStatus('forced-offline');
+			} else if (connected) {
+				setStatus('online');
+			} else {
+				setStatus('offline');
+			}
+		};
+
+		checkStatus();
+		const interval = setInterval(checkStatus, 5000);
+
+		return () => {
+			mounted = false;
+			clearInterval(interval);
+		};
+	}, []);
+
+	return {
+		status, // 'online' | 'offline' | 'forced-offline'
+		isOnline: status === 'online',
+		isOfflineMode: status === 'forced-offline',
+		pendingOperations,
+		cacheSize,
+	};
+}
+
+type SyncStatus = {
+	isSyncing: boolean;
+	hasPendingData: boolean;
+	lastSyncFormatted: string;
+	performSync: () => void;
+	canSync: boolean;
+};
+
+/**
+ * Hook sinhronizācijas statusam (placeholder, paplašināms).
+ */
+export function useSyncStatus(): SyncStatus {
+	return {
+		isSyncing: false,
+		hasPendingData: false,
+		lastSyncFormatted: '',
+		performSync: () => {},
+		canSync: false,
+	};
 }

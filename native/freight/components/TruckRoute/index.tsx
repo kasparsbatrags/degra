@@ -2,7 +2,6 @@ import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { ActivityIndicator, ScrollView, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles } from '@/constants/styles';
 import { COLORS } from '@/constants/theme';
 import { isSessionActive } from '@/utils/sessionUtils';
@@ -15,6 +14,7 @@ import RouteOdometerTab from './RouteOdometerTab';
 import RouteFuelTab from './RouteFuelTab';
 import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
 import { styles } from './styles';
+import { getRoutePoint } from '@/utils/offlineDataManagerExtended';
 
 export default function TruckRouteScreen() {
     const params = useLocalSearchParams<{
@@ -29,8 +29,7 @@ export default function TruckRouteScreen() {
     
     const [activeTab, setActiveTab] = useState<'basic' | 'odometer' | 'fuel'>('basic');
     const navigation = useNavigation();
-    const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus';
-    
+
     // Izmantojam pielāgoto hook
     const {
         isLoading,
@@ -62,27 +61,26 @@ export default function TruckRouteScreen() {
 
         checkSession();
     }, [router]);
-    
-    // Iestatīt sākotnējo virsrakstu, balstoties uz saglabāto statusu AsyncStorage
-    useLayoutEffect(() => {
-        const getInitialTitle = async () => {
-            try {
-                const localStatus = await AsyncStorage.getItem(LAST_ROUTE_STATUS_KEY);
-                const initialIsRouteActive = localStatus === 'active';
-                
-                navigation.setOptions({
-                    title: initialIsRouteActive ? 'Beigt braucienu' : 'Sākt braucienu'
-                });
-            } catch (error) {
-                console.error('Failed to get route status from AsyncStorage:', error);
-                navigation.setOptions({
-                    title: isItRouteFinish ? 'Beigt braucienu' : 'Sākt braucienu'
-                });
-            }
-        };
-        
-        getInitialTitle();
-    }, [navigation]);
+
+	useLayoutEffect(() => {
+		const getInitialTitle = async () => {
+			try {
+				const routePoint = await getRoutePoint();
+
+				navigation.setOptions({
+					title: routePoint === 'FINISH' ? 'Beigt braucienu' : 'Sākt braucienu',
+				});
+			} catch (error) {
+				console.error('Failed to get route point:', error);
+				navigation.setOptions({
+					title: 'Sākt braucienu',
+				});
+			}
+		};
+
+		getInitialTitle();
+	}, [navigation]);
+
 
     // Atjaunināt virsrakstu, kad mainās isItRouteFinish vērtība
     useEffect(() => {

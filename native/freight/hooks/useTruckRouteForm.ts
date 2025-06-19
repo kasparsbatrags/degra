@@ -5,7 +5,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useObjectStore } from '@/hooks/useObjectStore';
 import { format } from 'date-fns';
 import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
@@ -55,9 +54,6 @@ export function useTruckRouteForm(params: any) {
     const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
     const { isOnline, isOfflineMode } = useNetworkStatus();
     const { startRoute, endRoute } = useTruckRoute();
-
-    // Konstante AsyncStorage atslēgai
-    const LAST_ROUTE_STATUS_KEY = 'lastRouteStatus';
 
     // Function to fetch objects list (offline-first)
     const fetchObjectsList = useCallback(async () => {
@@ -418,9 +414,6 @@ export function useTruckRouteForm(params: any) {
                     );
                 }
             }
-            
-            // Saglabājam brauciena statusu lokāli
-            await AsyncStorage.setItem(LAST_ROUTE_STATUS_KEY, isItRouteFinish ? 'inactive' : 'active');
             
             router.push('/(tabs)');
         } catch (error) {
