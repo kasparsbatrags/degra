@@ -4,8 +4,8 @@ import OfflineControls from '@/components/OfflineControls'
 import OfflinePurgeButton from '@/components/Profile/OfflinePurgeButton'
 import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
+import {useNetworkStatus} from '@/hooks/useNetworkStatus'
 import {getPendingTruckRoutes, PendingTruckRoute, syncTruckRoutes} from '@/services/truckRouteSyncService'
-import {useNetworkState} from '@/utils/networkUtils'
 import {format} from 'date-fns'
 import {router} from 'expo-router'
 import React, {useEffect, useState} from 'react'
@@ -16,7 +16,7 @@ export default function OfflineDataScreen() {
 	const [pendingRoutes, setPendingRoutes] = useState<PendingTruckRoute[]>([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [isSyncing, setIsSyncing] = useState(false)
-	const {isConnected} = useNetworkState()
+	const {isConnected} = useNetworkStatus()
 
 	const loadPendingRoutes = async () => {
 		setIsLoading(true)
@@ -110,6 +110,7 @@ export default function OfflineDataScreen() {
 										style={[styles.syncButton, (!isConnected || isSyncing) && styles.disabledButton]}
 								/>
 							</>)}
+
 
 					{/* Offline kontroles */}
 					<OfflineControls />

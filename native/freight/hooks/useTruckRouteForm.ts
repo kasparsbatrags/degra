@@ -32,7 +32,7 @@ export function useTruckRouteForm(params: any) {
     const [selectedOutTruckObject, setSelectedOutTruckObject] = useState<string>('');
     const [selectedInTruckObject, setSelectedInTruckObject] = useState<string>('');
     const [form, setForm] = useState<FormState>({
-        id: '',
+        uid: '',
         routeDate: new Date(),
         outDateTime: new Date(),
         dateFrom: new Date(),
@@ -111,7 +111,7 @@ export function useTruckRouteForm(params: any) {
 
             if (truckRouteForm.outTruckObjectName) {
                 setOutTruckObjectDetails({
-                    id: parseInt(truckRouteForm.outTruckObject),
+                    uid: truckRouteForm.outTruckObject,
                     name: truckRouteForm.outTruckObjectName
                 });
             }
@@ -170,7 +170,7 @@ export function useTruckRouteForm(params: any) {
                     : (newTruckObject.id || '');
                 setSelectedOutTruckObject(outUid);
                 setForm(prev => ({ ...prev, outTruckObject: outUid }));
-                setOutTruckObjectDetails({ id: outUid, name: newTruckObject.name });
+                setOutTruckObjectDetails({ uid: outUid, name: newTruckObject.name });
 
                 // Also update store
                 updateTruckRouteForm({
@@ -201,7 +201,7 @@ export function useTruckRouteForm(params: any) {
                     ...prev,
                     outTruckObject: objectId
                 }));
-                setOutTruckObjectDetails({ id: parseInt(objectId), name: objectName });
+                setOutTruckObjectDetails({ uid: objectId, name: objectName });
 
                 setObjectsList(prev => {
                     const exists = prev.some(obj => obj.id === objectId);
@@ -265,7 +265,7 @@ export function useTruckRouteForm(params: any) {
 
                         // Set the form state
                         setForm({
-                            id: lastRoute.id?.toString() || '',
+                            uid: lastRoute.uid?.toString() || '',
                             routeDate,
                             outDateTime,
                             dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
@@ -356,30 +356,44 @@ export function useTruckRouteForm(params: any) {
             const inTruckObjectValue = selectedInTruckObject || form.inTruckObject;
 
             const now = new Date().toISOString();
+
+			const defaultTruckRoutePage: TruckRoutePageDto = {
+				uid: form.routePageTruck || '0',
+				dateFrom: format(form.dateFrom ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
+				dateTo: format(form.dateTo  ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
+				truck: { uid: form.routePageTruck || '0' },
+				user: { id: user?.id || '0' },
+				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+			};
+
+
             const payload: TruckRouteDto = {
-                uid: form.id || null,
+                uid: form.uid,
                 routeDate: format(form.routeDate, 'yyyy-MM-dd'),
+
                 truckRoutePage: form.routePageTruck ? {
                     uid: form.routePageTruck,
                     dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
                     dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
                     truck: {uid: form.routePageTruck},
-                    user: {uid: user?.id || '0'},
+                    user: {id: user?.id || '0'},
                     fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-                } : null,
-                outTruckObject: outTruckObjectValue ?
-                        (outTruckObjectDetails ? {uid: outTruckObjectValue, name: outTruckObjectDetails.name} : {uid: outTruckObjectValue}) : null,
-                inTruckObject: inTruckObjectValue ?
-                        (inTruckObjectDetails ? {uid: inTruckObjectValue, name: inTruckObjectDetails.name} : {uid: inTruckObjectValue}) : null,
-                odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : null,
-                odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : null,
-                cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : null,
-                unitType: hasCargo ? form.unitType : null,
-                fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : existingRoutePage ? existingRoutePage.fuelBalanceAtStart : null,
-                fuelBalanceAtFinish: null,
-                fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : null,
+                } : defaultTruckRoutePage,
+
+				outTruckObject: outTruckObjectValue ?
+						(outTruckObjectDetails ? { uid: outTruckObjectValue, name: outTruckObjectDetails.name } : { uid: outTruckObjectValue }) : {uid: "", name: ""},
+				inTruckObject: inTruckObjectValue ?
+						(inTruckObjectDetails ? { uid: inTruckObjectValue, name: inTruckObjectDetails.name } : { uid: inTruckObjectValue }) : {uid: "", name: ""},
+
+                odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : 0,
+                odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0,
+                cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : 0,
+                unitType: hasCargo ? form.unitType : undefined,
+				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : existingRoutePage?.fuelBalanceAtStart !== null ? existingRoutePage?.fuelBalanceAtStart : undefined,
+                fuelBalanceAtFinish: undefined,
+                fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : undefined,
                 outDateTime: now,
-                inDateTime: inTruckObjectValue && isItRouteFinish ? now : null
+                inDateTime: inTruckObjectValue && isItRouteFinish ? now : undefined
             };
 
             // Debug logging
@@ -392,27 +406,9 @@ export function useTruckRouteForm(params: any) {
             if (isItRouteFinish) {
                 // Izmantojam endRoute hook funkciju
                 await endRoute.mutateAsync(payload);
-                
-                // Parādām paziņojumu, ja nav savienojuma
-                if (!isOnline || isOfflineMode) {
-                    Alert.alert(
-                        "Offline režīms",
-                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
-                        [{ text: "OK" }]
-                    );
-                }
             } else {
                 // Izmantojam startRoute hook funkciju
                 await startRoute.mutateAsync(payload);
-                
-                // Parādām paziņojumu, ja nav savienojuma
-                if (!isOnline || isOfflineMode) {
-                    Alert.alert(
-                        "Offline režīms",
-                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
-                        [{ text: "OK" }]
-                    );
-                }
             }
             
             router.push('/(tabs)');

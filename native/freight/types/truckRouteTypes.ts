@@ -9,7 +9,7 @@ export interface Page<T> {
 }
 
 export interface FormState {
-	id: string;
+	uid: string;
 	routeDate: Date;
 	outDateTime: Date;
 	dateFrom: Date;
