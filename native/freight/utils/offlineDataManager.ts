@@ -1,4 +1,5 @@
 import {TruckObjectDto} from '@/dto/TruckObjectDto'
+import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import {isOfflineMode} from '@/services/offlineService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {Platform} from 'react-native'
@@ -11,7 +12,49 @@ import { generateOfflineId } from './idUtils'
 type SQLiteDatabase = any
 
 class OfflineDataManager {
-	// ==================== TRUCKS ====================
+
+
+	private getInsertTruckSQL(): string {
+		return `
+			INSERT OR REPLACE INTO truck
+			(uid, truck_maker, truck_model, registration_number, fuel_consumption_norm, is_default, is_dirty, is_deleted, synced_at)
+			VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)
+		`
+	}
+
+	private getInsertObjectSQL(): string {
+		return `
+			INSERT OR REPLACE INTO truck_object
+			(uid, name, is_dirty, is_deleted, synced_at)
+			VALUES (?, ?, 0, 0, ?)
+		`
+	}
+
+	private getInsertTruckRouteSQL(): string {
+		return `
+			INSERT OR REPLACE INTO truck_routes
+			(uid, truck_route_page_uid, route_date, route_number, cargo_volume,
+			 out_truck_object_uid, odometer_at_start, out_date_time,
+			 odometer_at_finish, in_truck_object_uid, in_date_time,
+			 route_length, fuel_balance_at_start, fuel_consumed,
+			 fuel_received, fuel_balance_at_finish, created_date_time,
+			 last_modified_date_time, unit_type_id, is_dirty, is_deleted, synced_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+		`
+	}
+
+	private getInsertRoutePageSQL(): string {
+		return `
+			INSERT OR REPLACE INTO truck_route_page
+			(uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
+			 total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
+			 odometer_at_route_start, odometer_at_route_finish, computed_total_routes_length,
+			 is_dirty, is_deleted, synced_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+		`
+	}
+
+
 
 	// Sync trucks from server to mobile database
 	async downloadTrucks(db?: SQLiteDatabase): Promise<void> {
@@ -40,12 +83,7 @@ class OfflineDataManager {
 			// Clear existing trucks
 			await executeQuery('DELETE FROM truck WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
-			const insertSQL = `
-                INSERT OR
-                REPLACE INTO truck
-                (uid, truck_maker, truck_model, registration_number, fuel_consumption_norm, is_default, is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)
-			`
+			const insertSQL = this.getInsertTruckSQL()
 
 			if (db) {
 				await executeTransaction(async (database) => {
@@ -189,12 +227,7 @@ class OfflineDataManager {
 			// Clear existing objects
 			await executeQuery('DELETE FROM truck_object WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
-			const insertSQL = `
-                INSERT OR
-                REPLACE INTO truck_object
-                    (uid, name, is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, 0, 0, ?)
-			`
+			const insertSQL = this.getInsertObjectSQL()
 
 			if (db) {
 				await executeTransaction(async (database) => {
@@ -301,17 +334,7 @@ class OfflineDataManager {
 			// Clear existing truck routes
 			await executeQuery('DELETE FROM truck_routes WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
-			const insertSQL = `
-                INSERT OR
-                REPLACE INTO truck_routes
-                (uid, truck_route_page_uid, route_date, route_number, cargo_volume,
-                 out_truck_object_uid, odometer_at_start, out_date_time,
-                 odometer_at_finish, in_truck_object_uid, in_date_time,
-                 route_length, fuel_balance_at_start, fuel_consumed,
-                 fuel_received, fuel_balance_at_finish, created_date_time,
-                 last_modified_date_time, unit_type_id, is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
-			`
+			const insertSQL = this.getInsertTruckRouteSQL()
 
 			if (db) {
 				await executeTransaction(async (database) => {
@@ -321,7 +344,30 @@ class OfflineDataManager {
 							continue
 						}
 
-						await database.runAsync(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, Date.now()])
+						await database.runAsync(insertSQL,
+								[
+									route.uid,
+									route.truckRoutePage?.uid || null,
+									route.routeDate,
+									route.routeNumber || null,
+									route.cargoVolume || 0,
+									route.outTruckObject?.uid || null,
+									route.odometerAtStart || 0,
+									route.outDateTime,
+									route.odometerAtFinish || null,
+									route.inTruckObject?.uid || null,
+									route.inDateTime || null,
+									route.routeLength || null,
+									route.fuelBalanceAtStart || null,
+									route.fuelConsumed || null,
+									route.fuelReceived || null,
+									route.fuelBalanceAtFinish || null,
+									route.createdDateTime || null,
+									route.lastModifiedDateTime || null,
+									route.unitTypeId || null,
+									Date.now()
+								]
+						)
 					}
 				})
 			} else {
@@ -331,7 +377,31 @@ class OfflineDataManager {
 						continue
 					}
 
-					await executeQuery(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, Date.now()])
+					await executeQuery(insertSQL,
+							[
+								route.uid,
+								route.truckRoutePage?.uid || null,
+								route.routeDate,
+								route.routeNumber || null,
+								route.cargoVolume || 0,
+								route.outTruckObject?.uid || null,
+								route.odometerAtStart || 0,
+								route.outDateTime,
+								route.odometerAtFinish || null,
+								route.inTruckObject?.uid || null,
+								route.inDateTime || null,
+								route.routeLength || null,
+								route.fuelBalanceAtStart || null,
+								route.fuelConsumed || null,
+								route.fuelReceived || null,
+								route.fuelBalanceAtFinish || null,
+								route.createdDateTime || null,
+								route.lastModifiedDateTime || null,
+								route.unitTypeId ||
+								null,
+								Date.now()
+							]
+					)
 				}
 			}
 
@@ -440,15 +510,7 @@ class OfflineDataManager {
 			// Clear existing route pages
 			await executeQuery('DELETE FROM truck_route_page WHERE synced_at IS NOT NULL AND is_dirty = 0')
 
-			const insertSQL = `
-                INSERT OR
-                REPLACE INTO truck_route_page
-                (uid, date_from, date_to, truck_uid, user_id, fuel_balance_at_start, fuel_balance_at_end,
-                 total_fuel_received_on_routes, total_fuel_consumed_on_routes, fuel_balance_at_routes_finish,
-                 odometer_at_route_start, odometer_at_route_finish, computed_total_routes_length,
-                 is_dirty, is_deleted, synced_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
-			`
+			const insertSQL = this.getInsertRoutePageSQL()
 
 			if (db) {
 				await executeTransaction(async (database) => {
@@ -591,68 +653,68 @@ class OfflineDataManager {
 		return lastActiveRoute ? "FINISH" : "START"
 	}
 
-	async saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: any): Promise<string> {
+	async saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: TruckRouteDto): Promise<string> {
 		const tempId = data.uid || generateOfflineId();
 		const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`;
 		const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE';
-  
-		// Saglabājam operāciju offline_operations tabulā
-		await executeQuery(
-		  'INSERT INTO offline_operations (id, type, table_name, endpoint, data, timestamp, retries, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-		  [tempId, operationType, 'truck_routes', endpoint, JSON.stringify(data), Date.now(), 0, 'pending']
-		);
-  
-		// Saglabājam datus arī truck_routes tabulā
-		try {
-		  if (type === 'startRoute') {
-			// Jauna brauciena sākums
-			await executeQuery(`
-			  INSERT INTO truck_routes (
-				uid, truck_route_page_uid, route_date, out_truck_object_uid, 
-				odometer_at_start, out_date_time, cargo_volume, unit_type_id,
-				fuel_balance_at_start, fuel_received, is_dirty, is_deleted
-			  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
-			`, [
-			  tempId,
-			  data.truckRoutePage?.uid,
-			  data.routeDate,
-			  data.outTruckObject?.uid,
-			  data.odometerAtStart,
-			  data.outDateTime,
-			  data.cargoVolume || 0,
-			  data.unitType,
-			  data.fuelBalanceAtStart,
-			  data.fuelReceived || null,
-			]);
-		  } else {
-			// Brauciena beigas (atjauninām esošo ierakstu)
-			await executeQuery(`
-			  UPDATE truck_routes 
-			  SET 
-				in_truck_object_uid = ?,
-				odometer_at_finish = ?,
-				in_date_time = ?,
-				route_length = ?,
-				fuel_balance_at_finish = ?,
-				is_dirty = 1
-			  WHERE uid = ?
-			`, [
-			  data.inTruckObject?.uid,
-			  data.odometerAtFinish,
-			  data.inDateTime,
-			  data.odometerAtFinish - data.odometerAtStart,
-			  data.fuelBalanceAtFinish,
-			  data.uid
-			]);
-		  }
-		  console.log(`Brauciena dati saglabāti SQLite datubāzē (${type})`);
-		} catch (error) {
-		  console.error('Kļūda saglabājot brauciena datus SQLite datubāzē:', error);
-		}
-  
-		return tempId;
-	  }
 
+		await executeQuery(
+				'INSERT INTO offline_operations (id, type, table_name, endpoint, data, timestamp, retries, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+				[tempId, operationType, 'truck_routes', endpoint, JSON.stringify(data), Date.now(), 0, 'pending']
+		);
+
+		try {
+			if (type === 'startRoute') {
+				const insertSQL = this.getInsertTruckRouteSQL();
+				await executeQuery(insertSQL, [
+					tempId,
+					data.truckRoutePage?.uid,
+					data.routeDate,
+					null, // route_number
+					data.cargoVolume || 0,
+					data.outTruckObject?.uid,
+					data.odometerAtStart,
+					data.outDateTime,
+					null, // odometer_at_finish
+					null, // in_truck_object_uid
+					null, // in_date_time
+					null, // route_length
+					data.fuelBalanceAtStart,
+					null, // fuel_consumed
+					data.fuelReceived || null,
+					null, // fuel_balance_at_finish
+					null, // created_date_time
+					null, // last_modified_date_time
+					data.unitType,
+					Date.now()
+				]);
+			} else {
+				await executeQuery(`
+                    UPDATE truck_routes
+                    SET
+                        in_truck_object_uid = ?,
+                        odometer_at_finish = ?,
+                        in_date_time = ?,
+                        route_length = ?,
+                        fuel_balance_at_finish = ?,
+                        is_dirty = 1
+                    WHERE uid = ?
+				`, [
+					data.inTruckObject?.uid,
+					data.odometerAtFinish,
+					data.inDateTime,
+					data.odometerAtFinish - data.odometerAtStart,
+					data.fuelBalanceAtFinish,
+					data.uid
+				]);
+			}
+			console.log(`Brauciena dati saglabāti SQLite datubāzē (${type})`);
+		} catch (error) {
+			console.error('Kļūda saglabājot brauciena datus SQLite datubāzē:', error);
+		}
+
+		return tempId;
+	}
 
 	async getLastActiveRoute(): Promise<any | null> {
 		try {
@@ -875,4 +937,4 @@ export const getLastActiveRoute = () => offlineDataManager.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManager.getLastFinishedRoute()
 export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManager.checkRoutePageExists(truckId, date)
 export const getRoutePoint = () => offlineDataManager.getRoutePoint()
-export const saveTruckRouteLocally = (type: 'startRoute' | 'endRoute', data: any) => offlineDataManager.saveTruckRouteLocally(type, data)
+export const saveTruckRouteLocally = (type: 'startRoute' | 'endRoute', data: TruckRouteDto) => offlineDataManager.saveTruckRouteLocally(type, data)

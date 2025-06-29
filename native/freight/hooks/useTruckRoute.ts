@@ -1,8 +1,8 @@
 import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useOnlineStatus } from '@/hooks/useNetwork'
-import { syncTruckRoutes } from '../services/truckRouteSyncService';
-import { saveTruckRouteLocally } from '../utils/offlineDataManager';
+import { syncTruckRoutes } from '@/services/truckRouteSyncService';
+import { saveTruckRouteLocally } from '@/utils/offlineDataManager';
 import freightAxios from '../config/freightAxios';
 
 export function useTruckRoute() {
@@ -16,9 +16,10 @@ export function useTruckRoute() {
 					if (!isOnline) {
 						const tempId = await saveTruckRouteLocally(offlineKey, routeData);
 						return { ...routeData, id: tempId, isPending: true };
+					} else {
+						const response = await freightAxios[method](endpoint, routeData);
+						return response.data;
 					}
-					const response = await freightAxios[method](endpoint, routeData);
-					return response.data;
 				},
 				onSuccess: () => {
 					queryClient.invalidateQueries({ queryKey: ['truckRoutes'] });
