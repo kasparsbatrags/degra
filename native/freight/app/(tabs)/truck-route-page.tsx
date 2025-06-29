@@ -18,7 +18,7 @@ import {addOfflineOperation} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {executeQuery, executeSelect, executeSelectFirst} from '@/utils/database'
-import {offlineDataManagerExtended} from '@/utils/offlineDataManager'
+import {offlineDataManager} from '@/utils/offlineDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
 import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
@@ -323,7 +323,7 @@ export default function TruckRoutePageScreen() {
 			}
 
 			// Get full truck and user objects
-			const trucks = await offlineDataManagerExtended.getTrucks()
+			const trucks = await offlineDataManager.getTrucks()
 			const selectedTruck = trucks.find(t => t.uid === form.truck)
 			const sessionData = await loadSessionEnhanced()
 			const currentUser = sessionData.user

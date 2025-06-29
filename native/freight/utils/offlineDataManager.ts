@@ -591,6 +591,68 @@ class OfflineDataManager {
 		return lastActiveRoute ? "FINISH" : "START"
 	}
 
+	async saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: any): Promise<string> {
+		const tempId = data.uid || generateOfflineId();
+		const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`;
+		const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE';
+  
+		// Saglabājam operāciju offline_operations tabulā
+		await executeQuery(
+		  'INSERT INTO offline_operations (id, type, table_name, endpoint, data, timestamp, retries, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+		  [tempId, operationType, 'truck_routes', endpoint, JSON.stringify(data), Date.now(), 0, 'pending']
+		);
+  
+		// Saglabājam datus arī truck_routes tabulā
+		try {
+		  if (type === 'startRoute') {
+			// Jauna brauciena sākums
+			await executeQuery(`
+			  INSERT INTO truck_routes (
+				uid, truck_route_page_uid, route_date, out_truck_object_uid, 
+				odometer_at_start, out_date_time, cargo_volume, unit_type_id,
+				fuel_balance_at_start, fuel_received, is_dirty, is_deleted
+			  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
+			`, [
+			  tempId,
+			  data.truckRoutePage?.uid,
+			  data.routeDate,
+			  data.outTruckObject?.uid,
+			  data.odometerAtStart,
+			  data.outDateTime,
+			  data.cargoVolume || 0,
+			  data.unitType,
+			  data.fuelBalanceAtStart,
+			  data.fuelReceived || null,
+			]);
+		  } else {
+			// Brauciena beigas (atjauninām esošo ierakstu)
+			await executeQuery(`
+			  UPDATE truck_routes 
+			  SET 
+				in_truck_object_uid = ?,
+				odometer_at_finish = ?,
+				in_date_time = ?,
+				route_length = ?,
+				fuel_balance_at_finish = ?,
+				is_dirty = 1
+			  WHERE uid = ?
+			`, [
+			  data.inTruckObject?.uid,
+			  data.odometerAtFinish,
+			  data.inDateTime,
+			  data.odometerAtFinish - data.odometerAtStart,
+			  data.fuelBalanceAtFinish,
+			  data.uid
+			]);
+		  }
+		  console.log(`Brauciena dati saglabāti SQLite datubāzē (${type})`);
+		} catch (error) {
+		  console.error('Kļūda saglabājot brauciena datus SQLite datubāzē:', error);
+		}
+  
+		return tempId;
+	  }
+
 
 	async getLastActiveRoute(): Promise<any | null> {
 		try {
@@ -813,3 +875,4 @@ export const getLastActiveRoute = () => offlineDataManager.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManager.getLastFinishedRoute()
 export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManager.checkRoutePageExists(truckId, date)
 export const getRoutePoint = () => offlineDataManager.getRoutePoint()
+export const saveTruckRouteLocally = (type: 'startRoute' | 'endRoute', data: any) => offlineDataManager.saveTruckRouteLocally(type, data)
