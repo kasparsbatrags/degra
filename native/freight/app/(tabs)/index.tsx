@@ -2,7 +2,7 @@ import {isRedirectingToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-import { useNetwork } from '@/hooks/useNetwork'
+import { useOnlineStatus } from '@/hooks/useNetwork'
 import {getRoutePages, downloadServerData, offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -24,23 +24,7 @@ export default function HomeScreen() {
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 
 
-	// Izmantot jauno useNetwork hook
-	const { isOnline } = useNetwork()
-	const isOfflineModeActive = !isOnline
-
-	// Calculate if user can start a route
-	const canStartRoute = useMemo(() => {
-		// Web - always can (online only)
-		if (Platform.OS === 'web') return true
-		
-		// Mobile offline - can only if there are route pages
-		if (isOfflineModeActive) {
-			return routes.length > 0
-		}
-		
-		// Mobile online - always can
-		return true
-	}, [isOfflineModeActive, routes.length])
+	const isOnline = useOnlineStatus()
 
 	// Check session status when component is loaded
 	useEffect(() => {
@@ -81,10 +65,8 @@ export default function HomeScreen() {
 		}
 
 		try {
-			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				// If session is not active, redirect to login page using the shared function
 				const {SessionManager} = require('@/utils/SessionManager')
 				await SessionManager.getInstance().handleUnauthorized()
 				setStatusCheckLoading(false)
@@ -104,7 +86,7 @@ export default function HomeScreen() {
 		} finally {
 			setStatusCheckLoading(false)
 		}
-	}, [isOfflineModeActive])
+	}, [!isOnline])
 
 	// Helper function to initialize tabs for routes
 	const initializeTabsForRoutes = (routes: TruckRoutePageDto[]): TruckRoutePageDto[] => {
@@ -136,7 +118,7 @@ export default function HomeScreen() {
 			}
 
 			// 1. FĀZE: Sync dropdown data first (trucks and objects) for mobile
-			if (Platform.OS !== 'web' && !isOfflineModeActive) {
+			if (Platform.OS !== 'web' && isOnline) {
 				try {
 					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
 					await downloadServerData()
@@ -144,7 +126,7 @@ export default function HomeScreen() {
 				} catch (error) {
 					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
 				}
-			} else if (Platform.OS !== 'web' && isOfflineModeActive) {
+			} else if (Platform.OS !== 'web' && !isOnline) {
 				console.log('📱 [DEBUG] Device is in offline mode, skipping server data sync')
 			}
 
@@ -184,8 +166,7 @@ export default function HomeScreen() {
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
-			{/* Offline mode indicator */}
-			{isOfflineModeActive && (<View style={styles.offlineIndicator}>
+			{!isOnline && (<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
 						<Text style={styles.offlineText}>Offline režīms</Text>
 					</View>)}
@@ -193,39 +174,14 @@ export default function HomeScreen() {
 			<Button
 					title={buttonText}
 					onPress={() => {
-						if (canStartRoute) {
 							router.push('/truck-route')
-						}
 					}}
 					style={[
-						styles.startTripButton,
-						!canStartRoute && styles.disabledButton
+						styles.startTripButton
 					]}
-					disabled={statusCheckLoading || !canStartRoute}
+					disabled={statusCheckLoading}
 					loading={statusCheckLoading}
 			/>
-
-			{/* Warning message when user can't start route */}
-			{!canStartRoute && (
-					<View style={styles.warningContainer}>
-						<View style={styles.iconTextRow}>
-							<MaterialIcons name="warning" size={20} color={COLORS.highlight} />
-							<Text style={styles.warningText}>
-								Nepieciešams internets - aplikācija nedarbosies. Pārliecinieties, ka ir pieejams internets un sinhronizējiet datus.
-							</Text>
-						</View>
-
-						<Pressable
-								style={styles.syncButton}
-								onPress={() => {
-									setLoading(true)
-									fetchRoutes()
-								}}
-						>
-							<Text style={styles.syncButtonText}>SINHRONIZĒT DATUS</Text>
-						</Pressable>
-					</View>
-			)}
 
 			{/* Debug button - only show on Android for testing */}
 			{loading ? (<ActivityIndicator size="large" color={COLORS.secondary} style={styles.loader} />) : (<FlatList

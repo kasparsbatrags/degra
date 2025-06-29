@@ -13,8 +13,8 @@ import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
-import { useNetwork } from '@/hooks/useNetwork'
-import { isDeviceOnline as isConnected } from '@/utils/networkUtils'
+import { useOnlineStatus } from '@/hooks/useNetwork'
+import { isOnline as isConnected } from '@/services/networkService'
 import {addOfflineOperation} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
@@ -68,8 +68,7 @@ export default function TruckRoutePageScreen() {
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	
-	// Izmantot jauno useNetwork hook
-	const { isOnline } = useNetwork()
+	const isOnline = useOnlineStatus()
 	const isOfflineModeActive = !isOnline
 	const [pagination, setPagination] = useState({
 		page: 0,

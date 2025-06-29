@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
-import { isConnected } from './networkUtils';
+import { isOnline } from '../services/networkService';
 import { isOfflineMode } from '../services/offlineService';
 import freightAxiosInstance from '../config/freightAxios';
 
@@ -57,11 +57,11 @@ class OfflineQueueManager {
 
       console.log(`Added offline operation: ${type} ${tableName}`, operationId);
       
-      const offlineModeActive = await isOfflineMode();
-      if (!offlineModeActive) {
+      const online = await isOnline();
+      if (online) {
         this.processQueue();
       } else {
-        console.log('Operation added to queue but not processed - global offline mode is active');
+        console.log('Operation added to queue but not processed - device is offline');
       }
       
       return operationId;
@@ -156,9 +156,9 @@ class OfflineQueueManager {
       return;
     }
 
-    const offlineModeActive = await isOfflineMode();
-    if (offlineModeActive) {
-      console.log('Global offline mode is active, skipping queue processing');
+    const online = await isOnline();
+    if (!online) {
+      console.log('Device is offline, skipping queue processing');
       return;
     }
 
@@ -351,12 +351,12 @@ class OfflineQueueManager {
         await executeQuery(sql, [newRetryCount, Date.now(), operation.id]);
       }
 
-      // Try processing again, but check offline mode first
-      const offlineModeActive = await isOfflineMode();
-      if (!offlineModeActive) {
+      // Try processing again, but check online status first
+      const online = await isOnline();
+      if (online) {
         this.processQueue();
       } else {
-        console.log(`Retry for operation ${operation.id} queued but not processed - global offline mode is active`);
+        console.log(`Retry for operation ${operation.id} queued but not processed - device is offline`);
       }
     }, delay);
   }
@@ -376,15 +376,15 @@ class OfflineQueueManager {
     }
 
     this.processingInterval = setInterval(async () => {
-      const offlineModeActive = await isOfflineMode();
-      if (!offlineModeActive) {
+      const online = await isOnline();
+      if (online) {
         this.processQueue();
       } else {
-        console.log('Auto processing skipped - global offline mode is active');
+        console.log('Auto processing skipped - device is offline');
       }
     }, intervalMs);
 
-    console.log(`Started automatic queue processing every ${intervalMs}ms (respecting global offline mode)`);
+    console.log(`Started automatic queue processing every ${intervalMs}ms (respecting offline mode)`);
   }
 
   // Stop automatic queue processing

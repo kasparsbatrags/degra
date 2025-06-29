@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import { useNetwork } from '../hooks/useNetwork';
+import { checkNetworkStatus } from '../services/networkService';
 import { initDatabase, checkDatabaseHealth } from '../utils/database';
 import { offlineQueue, startOfflineQueueProcessing, stopOfflineQueueProcessing, getOfflineQueueStats } from '../utils/offlineQueue';
 
@@ -30,7 +31,7 @@ interface OfflineProviderProps {
 
 // Offline provider component
 export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) => {
-  const { isOnline, checkOnlineStatus } = useNetwork();
+  const { isOnline } = useNetwork();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDatabaseReady, setIsDatabaseReady] = useState(false);
   const [queueStats, setQueueStats] = useState({
@@ -46,7 +47,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
       console.log('Initializing offline system...');
 
       // Check initial connection status
-      const connected = await checkOnlineStatus();
+      const connected = await checkNetworkStatus();
 
       // Initialize database (skip for web)
       if (Platform.OS !== 'web') {
@@ -100,7 +101,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
   // Sync data with server
   const syncData = async (): Promise<void> => {
     // try {
-    //   const connected = await checkOnlineStatus();
+    //   const connected = await checkNetworkStatus();
     //   if (!connected) {
     //     console.log('Device is offline, skipping sync');
     //     return;
@@ -141,7 +142,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
 
   // Get current connection status
   const getConnectionStatus = async (): Promise<boolean> => {
-    const connected = await checkOnlineStatus();
+    const connected = await checkNetworkStatus();
     return connected;
   };
 

@@ -18,10 +18,7 @@ export default function OfflineIndicator() {
   let message = '';
   let backgroundColor = COLORS.warning;
   
-  if (!isOnline) {
-    message = 'Offline režīms - dati tiks sinhronizēti, kad būs pieejams internets';
-    backgroundColor = COLORS.warning;
-  } else if (hasErrors) {
+  if (hasErrors) {
     message = `Sinhronizācijas kļūda - ${queueStats.failed} operācijas neizdevās`;
     backgroundColor = '#FF6B6B'; // Red for errors
   } else if (syncNeeded) {
