@@ -23,7 +23,7 @@ import { handleUserActivity, ACTIVITY_LEVELS } from '@/utils/userActivityTracker
 
 // NEW: Import offline hooks and components
 import { useOfflineData } from '@/hooks/useOfflineData'
-import { useOnlineStatus } from '../utils/networkUtils'
+import { useOnlineStatus } from '../hooks/useNetwork';
 
 interface Option {
   id: string;

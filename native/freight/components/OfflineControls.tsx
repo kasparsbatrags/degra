@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
-import { useOnlineStatus } from '../utils/networkUtils';
+import { useOnlineStatus } from '../hooks/useNetwork';
 import { COLORS } from '../constants/theme';
 import { 
   isOfflineMode, 

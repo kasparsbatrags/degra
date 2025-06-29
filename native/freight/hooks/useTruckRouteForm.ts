@@ -6,7 +6,7 @@ import { useObjectStore } from '@/hooks/useObjectStore';
 import { format } from 'date-fns';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useOnlineStatus } from '@/utils/networkUtils';
+import { useOnlineStatus } from '@/hooks/useNetwork';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
 import { FormState } from '@/types/truckRouteTypes';
 import {
@@ -405,7 +405,6 @@ export function useTruckRouteForm(params: any) {
                 inDateTime: inTruckObjectValue && isItRouteFinish ? now : undefined
             };
 
-            // Debug logging
             console.log('🚛 [DEBUG] Form routePageTruck value:', form.routePageTruck);
             console.log('🚛 [DEBUG] Payload truck UID:', payload.truckRoutePage?.truck?.uid);
 			console.log('🚛 [DEBUG] Payload outTruckObject UID:', payload.outTruckObject?.uid);
@@ -413,29 +412,9 @@ export function useTruckRouteForm(params: any) {
             console.log('🚛 [DEBUG] Full payload:', JSON.stringify(payload, null, 2));
 
             if (isItRouteFinish) {
-                // Izmantojam endRoute hook funkciju
                 await endRoute.mutateAsync(payload);
-                
-                // Parādām paziņojumu, ja nav savienojuma
-                if (!isOnline) {
-                    Alert.alert(
-                        "Offline režīms",
-                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
-                        [{ text: "OK" }]
-                    );
-                }
             } else {
-                // Izmantojam startRoute hook funkciju
                 await startRoute.mutateAsync(payload);
-                
-                // Parādām paziņojumu, ja nav savienojuma
-                if (!isOnline) {
-                    Alert.alert(
-                        "Offline režīms",
-                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
-                        [{ text: "OK" }]
-                    );
-                }
             }
             
             router.push('/(tabs)');

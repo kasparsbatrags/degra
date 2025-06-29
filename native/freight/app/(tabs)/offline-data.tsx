@@ -4,7 +4,7 @@ import OfflineControls from '@/components/OfflineControls'
 import OfflinePurgeButton from '@/components/Profile/OfflinePurgeButton'
 import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
-import {useOnlineStatus} from '@/utils/networkUtils'
+import { useOnlineStatus } from '@/hooks/useNetwork';
 import {getPendingTruckRoutes, PendingTruckRoute, syncTruckRoutes} from '@/services/truckRouteSyncService'
 import {format} from 'date-fns'
 import {router} from 'expo-router'
