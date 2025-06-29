@@ -342,10 +342,10 @@ class OfflineDataManager {
 				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 				console.error('🚗 Access denied:', userFriendlyMessage)
 				throw new Error(userFriendlyMessage)
+			} else if (error.response?.status != 404) {
+				console.error('🚗 Failed to sync truck routes:', error)
+				throw error
 			}
-
-			console.error('🚗 Failed to sync truck routes:', error)
-			throw error
 		}
 	}
 
@@ -471,18 +471,16 @@ class OfflineDataManager {
 					await executeQuery(insertSQL, [routePage.uid, routePage.dateFrom, routePage.dateTo, routePage.truck?.uid || null, routePage.user?.id || null, routePage.fuelBalanceAtStart || 0, routePage.fuelBalanceAtFinish || 0, routePage.totalFuelReceivedOnRoutes || null, routePage.totalFuelConsumedOnRoutes || null, routePage.fuelBalanceAtRoutesFinish || null, routePage.odometerAtRouteStart || null, routePage.odometerAtRouteFinish || null, routePage.computedTotalRoutesLength || null, Date.now()])
 				}
 			}
-
 			console.log(`🔄 Successfully synced ${serverRoutePages.length} route pages to local database`)
 		} catch (error: any) {
-			// Handle 403 Forbidden error with user-friendly message
 			if (error.response?.status === 403) {
 				const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 				console.error('🔄 Access denied:', userFriendlyMessage)
 				throw new Error(userFriendlyMessage)
+			} else if (error.response?.status != 404) {
+				console.error('🔄 Failed to sync route pages:', error)
+				throw error
 			}
-
-			console.error('🔄 Failed to sync route pages:', error)
-			throw error
 		}
 	}
 

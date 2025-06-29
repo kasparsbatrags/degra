@@ -275,10 +275,7 @@ export const loadSession = async () => {
 
     const session: SessionData = JSON.parse(sessionData);
     
-    // Check if token has expired
     if (session.expiresAt && session.expiresAt < Date.now()) {
-      console.warn("Session token has expired");
-      // Clear session if token has expired
       await clearSession();
       return {
         accessToken: null,
@@ -295,7 +292,6 @@ export const loadSession = async () => {
     };
   } catch (error) {
     console.error("Error loading session:", error);
-    // Return null session instead of throwing to prevent app crash
     return {
       accessToken: null,
       user: null,
@@ -303,14 +299,12 @@ export const loadSession = async () => {
   }
 };
 
-// Clear session data
 export const clearSession = async () => {
   try {
     const storage = getStorage();
     await storage.deleteItemAsync("user_session");
   } catch (error) {
     console.error("Error deleting session:", error);
-    // Don't throw error to prevent app crash
   }
 };
 

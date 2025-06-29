@@ -3,7 +3,7 @@ import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import { useOnlineStatus } from '@/hooks/useNetwork'
-import {getRoutePages, downloadServerData, offlineDataManagerExtended} from '@/utils/offlineDataManager'
+import {getRoutePages, downloadServerData, offlineDataManager} from '@/utils/offlineDataManager'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
@@ -73,7 +73,7 @@ export default function HomeScreen() {
 				return
 			}
 
-			const lastActiveRoute = await offlineDataManagerExtended.getLastActiveRoute()
+			const lastActiveRoute = await offlineDataManager.getLastActiveRoute()
 			setButtonText(lastActiveRoute ? 'FINIŠS' : 'STARTS')
 			
 			console.log('Route status:', lastActiveRoute ? 'active' : 'inactive', 
@@ -88,7 +88,6 @@ export default function HomeScreen() {
 		}
 	}, [!isOnline])
 
-	// Helper function to initialize tabs for routes
 	const initializeTabsForRoutes = (routes: TruckRoutePageDto[]): TruckRoutePageDto[] => {
 		return routes.map(route => ({
 			...route,
@@ -98,9 +97,6 @@ export default function HomeScreen() {
 
 	const fetchRoutes = async () => {
 		try {
-			console.log('📱 [DEBUG] fetchRoutes called on platform:', Platform.OS)
-
-			// Check if session is active and if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				console.log('📱 [DEBUG] Redirecting to login, skipping fetch')
 				setLoading(false)

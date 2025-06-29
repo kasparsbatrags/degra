@@ -1,3 +1,4 @@
+import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import NetInfo from '@react-native-community/netinfo';
 import freightAxios from '../config/freightAxios';
 import { generateId } from '../utils/idUtils';
@@ -11,7 +12,7 @@ export interface PendingTruckRoute {
   retryCount: number;
 }
 
-export async function saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: any): Promise<string> {
+export async function saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: TruckRouteDto): Promise<string> {
   const tempId = data.uid || generateId();
   const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`;
   const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE';

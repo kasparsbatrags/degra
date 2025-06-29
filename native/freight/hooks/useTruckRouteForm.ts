@@ -52,10 +52,8 @@ export function useTruckRouteForm(params: any) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
-    const isOnline = useOnlineStatus();
     const { startRoute, endRoute } = useTruckRoute();
 
-    // Function to fetch objects list (offline-first)
     const fetchObjectsList = useCallback(async () => {
         try {
             const objects = await getObjects();
@@ -351,18 +349,15 @@ export function useTruckRouteForm(params: any) {
         try {
             setIsSubmitting(true);
 
-            // Make sure we're using the proper values from both state variables and form
             const outTruckObjectValue = selectedOutTruckObject || form.outTruckObject;
             const inTruckObjectValue = selectedInTruckObject || form.inTruckObject;
 
             const now = new Date().toISOString();
             
-            // Pārveidojam datumu objektus pareizi
             const routeDate = form.routeDate instanceof Date ? form.routeDate : new Date(form.routeDate);
             const dateFrom = form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom);
             const dateTo = form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo);
             
-            // Izveidojam truckRoutePage objektu
             const truckRoutePage: TruckRoutePageDto = {
                 uid: form.routePageTruck || '0',
                 dateFrom: format(dateFrom, 'yyyy-MM-dd'),
@@ -372,7 +367,6 @@ export function useTruckRouteForm(params: any) {
                 fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
             };
 
-            // Izveidojam objektus ar pareiziem tipiem
             const outTruckObject = outTruckObjectValue ? {
                 uid: outTruckObjectValue,
                 name: outTruckObjectDetails?.name || ''
@@ -383,7 +377,6 @@ export function useTruckRouteForm(params: any) {
                 name: inTruckObjectDetails?.name || ''
             } : { uid: '', name: '' };
             
-            // Izveidojam payload objektu ar pareiziem tipiem
             const payload: TruckRouteDto = {
                 uid: form.uid,
                 routeDate: format(routeDate, 'yyyy-MM-dd'),
@@ -421,10 +414,9 @@ export function useTruckRouteForm(params: any) {
         } catch (error) {
             console.error('Failed to submit form:', error);
             
-            // Parādām kļūdas paziņojumu
             Alert.alert(
                 "Kļūda",
-                "Neizdevās saglabāt brauciena datus. Lūdzu, mēģiniet vēlreiz.",
+                "Neizdevās saglabāt brauciena datus!",
                 [{ text: "OK" }]
             );
         } finally {

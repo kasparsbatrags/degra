@@ -2,7 +2,7 @@ import {TruckDto} from '@/dto/TruckDto'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {UserDto} from '@/dto/UserDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
-import {offlineDataManagerExtended} from '@/utils/offlineDataManager'
+import {offlineDataManager} from '@/utils/offlineDataManager'
 
 export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]): Promise<TruckRoutePageDto[]> => {
 	if (!Array.isArray(routePages)) {
@@ -27,7 +27,7 @@ export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]):
 
 			let truckData = null
 			if (routePage.truck_uid) {
-				truckData = await offlineDataManagerExtended.getTruckById(routePage.truck_uid)
+				truckData = await offlineDataManager.getTruckById(routePage.truck_uid)
 			}
 
 			const truck: TruckDto = {
@@ -69,7 +69,6 @@ export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]):
 		}
 	}
 
-	// Filtrējam nederīgos ierakstus
 	return mappedRoutes.filter(route => {
 		const isValid = route.uid && route.dateFrom && route.dateTo && route.truck.registrationNumber
 		if (!isValid) {
