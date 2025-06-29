@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
-import { isOnline } from '../services/networkService';
+import { isOnline } from '@/services/networkService';
 import { isOfflineMode } from '../services/offlineService';
 import freightAxiosInstance from '../config/freightAxios';
 import { generateOfflineId } from './idUtils';

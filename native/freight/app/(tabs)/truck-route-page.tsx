@@ -14,7 +14,6 @@ import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
 import { useOnlineStatus } from '@/hooks/useNetwork'
-import { isOnline as isConnected } from '@/services/networkService'
 import {addOfflineOperation} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
@@ -178,7 +177,7 @@ export default function TruckRoutePageScreen() {
 			}
 
 			// Check network connectivity
-			const connected = await isConnected()
+			const connected = isOnline
 			
 			if (connected) {
 				try {
@@ -240,7 +239,7 @@ export default function TruckRoutePageScreen() {
 			}
 
 			// Check network connectivity
-			const connected = await isConnected()
+			const connected = isOnline
 			
 			if (connected) {
 				try {
@@ -450,7 +449,7 @@ export default function TruckRoutePageScreen() {
 			}
 
 			// Check network connectivity for web or fallback
-			const connected = await isConnected()
+			const connected = isOnline
 			
 			if (connected) {
 				try {

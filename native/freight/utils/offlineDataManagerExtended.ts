@@ -5,7 +5,7 @@ import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
 import {TruckRoutePageDto} from '../dto/TruckRoutePageDto'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
-import { isConnected } from './networkUtils'
+import { isOnline } from '../services/networkService'
 import { generateOfflineId } from './idUtils'
 
 type SQLiteDatabase = any
@@ -501,7 +501,7 @@ class OfflineDataManagerExtended {
 	}
 
 	private async getRoutePagesWeb(): Promise<TruckRoutePageDto[]> {
-		const connected = await isConnected()
+		const connected = await isOnline()
 		const forceOffline = await isOfflineMode()
 
 		if (connected && !forceOffline) {

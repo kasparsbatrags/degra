@@ -1,22 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useOnlineStatus } from '../hooks/useNetwork';
 import { isOnline } from '../services/networkService';
 
-export function useNetworkState() {
-  const isConnected = useOnlineStatus();
-  const [isStrongConnection, setIsStrongConnection] = useState(true);
-
-  useEffect(() => {
-    // Placeholder for a more advanced network strength check
-    setIsStrongConnection(isConnected);
-  }, [isConnected]);
-
-  return { isConnected, isStrongConnection };
-}
-
-export async function isConnected(): Promise<boolean> {
-  return await isOnline();
-}
+export const isConnected = isOnline;
 
 export async function throttleNetworkRequest<T>(
   requestFn: () => Promise<T>,

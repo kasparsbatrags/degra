@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isConnected } from './networkUtils';
+import { isOnline } from '../services/networkService';
 import freightAxiosInstance from '../config/freightAxios';
 import { getTrucks, getObjects } from './offlineDataManagerExtended';
 
@@ -107,7 +107,7 @@ class DropdownDataManager {
   }
 
   private async getDropdownDataWeb(endpoint: string): Promise<any[]> {
-    const connected = await isConnected();
+    const connected = await isOnline();
     
     if (connected) {
       try {
@@ -134,7 +134,7 @@ class DropdownDataManager {
 
   private async getDropdownDataMobile(endpoint: string): Promise<any[]> {
     // For mobile, try online first, then fallback to cache
-    const connected = await isConnected();
+    const connected = await isOnline();
     
     if (connected) {
       try {

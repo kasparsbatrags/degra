@@ -15,7 +15,7 @@ import { hasPendingTruckRoutes } from '../services/truckRouteSyncService';
  * Komponente, kas rāda offline kontroles (bez Expo Updates)
  */
 export default function OfflineControls() {
-  const isConnected = useOnlineStatus();
+  const isOnline = useOnlineStatus();
   const [isOffline, setIsOffline] = useState(false);
   const [hasPendingData, setHasPendingData] = useState(false);
   const [forceOffline, setForceOffline] = useState(false);

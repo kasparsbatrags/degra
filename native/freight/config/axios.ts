@@ -5,7 +5,7 @@ import {API_ENDPOINTS, getApiTimeout, getUserManagerApiUrl} from './environment'
 import {router as expoRouter} from 'expo-router'
 import {Platform} from 'react-native'
 import NetInfo from '@react-native-community/netinfo'
-import {isConnected} from '@/utils/networkUtils'
+import {isOnline} from '@/services/networkService'
 
 // Flag to track if a redirect is already in progress
 let isRedirectingToLogin = false;
@@ -36,7 +36,7 @@ const redirectToLogin = async () => {
   
   try {
     // Pārbaudīt, vai ierīce ir online režīmā
-    const online = await isConnected();
+    const online = await isOnline();
     
     // Ja ierīce ir offline režīmā, tikai parādīt brīdinājumu un neveikt pārvirzīšanu
     if (!online) {

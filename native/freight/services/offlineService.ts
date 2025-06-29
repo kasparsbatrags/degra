@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isOnline, setForcedOfflineMode } from './networkService';
+import { isOnline } from './networkService';
 import { Platform } from 'react-native';
 
 // Konstantes
@@ -55,10 +55,7 @@ export async function isOfflineMode(): Promise<boolean> {
 /**
  * Ieslēdz vai izslēdz piespiedu offline režīmu
  */
-export async function setForceOfflineMode(enabled: boolean): Promise<void> {
-  await setForcedOfflineMode(enabled);
-  await setOfflineConfig({ forceOfflineMode: enabled });
-}
+export { setForcedOfflineMode as setForceOfflineMode } from './networkService';
 
 /**
  * Inicializē offline servisu (vienkāršota versija bez Expo Updates)
