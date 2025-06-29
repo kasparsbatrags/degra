@@ -24,9 +24,7 @@ import {TruckRoutePage} from '@/models/TruckRoutePage'
 import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 
-// Simple ID generation without crypto dependencies
 function generateOfflineId(): string {
-	// Use timestamp + multiple random parts for better uniqueness
 	const timestamp = Date.now().toString()
 	const randomPart1 = Math.random().toString(36).substr(2, 9)
 	const randomPart2 = Math.random().toString(36).substr(2, 5)
@@ -84,18 +82,14 @@ export default function TruckRoutePageScreen() {
 		fuelBalanceAtFinish: '',
 	})
 
-	// Start periodic session check for all platforms
 	useEffect(() => {
-		// Start session check
 		startSessionTimeoutCheck()
 
-		// Stop session check when component is unmounted
 		return () => {
 			stopSessionTimeoutCheck()
 		}
 	}, [])
 
-	// Check session status when component is loaded
 	useEffect(() => {
 		const checkSession = async () => {
 			const sessionActive = await isSessionActive()
@@ -109,7 +103,6 @@ export default function TruckRoutePageScreen() {
 		checkSession()
 	}, [])
 
-
 	useEffect(() => {
 		if (uid) {
 			fetchRouteDetails()
@@ -119,16 +112,13 @@ export default function TruckRoutePageScreen() {
 
 	const fetchRouteDetails = async () => {
 		try {
-			// Clear previous error message
 			setErrorMessage(null)
 
-			// Check if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				setIsLoading(false)
 				return
 			}
 
-			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
 				const {SessionManager} = require('@/utils/SessionManager')
@@ -137,12 +127,9 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// OFFLINE-FIRST APPROACH FOR MOBILE
 			if (Platform.OS !== 'web') {
-				console.log('📱 [Mobile] Fetching route details offline-first for uid:', uid)
 				
 				try {
-					// First try to get from local database
 					const sql = `
 						SELECT trp.*, 
 							   t.truck_maker, t.truck_model, t.registration_number, t.fuel_consumption_norm,
@@ -157,7 +144,6 @@ export default function TruckRoutePageScreen() {
 					const localRouteData = await executeSelectFirst(sql, [uid])
 					
 					if (localRouteData) {
-						console.log('📱 [Mobile] Found route data in local database:', localRouteData)
 						
 						setForm({
 							dateFrom: new Date(localRouteData.date_from),
@@ -168,15 +154,11 @@ export default function TruckRoutePageScreen() {
 						})
 						
 						return
-					} else {
-						console.log('📱 [Mobile] No local data found, checking network...')
 					}
 				} catch (error) {
-					console.error('📱 [Mobile] Error fetching from local database:', error)
 				}
 			}
 
-			// Check network connectivity
 			const connected = isOnline
 			
 			if (connected) {
@@ -192,13 +174,10 @@ export default function TruckRoutePageScreen() {
 						fuelBalanceAtFinish: routeData.fuelBalanceAtFinish?.toString() ?? '',
 					})
 				} catch (error: any) {
-					// Handle 403 Forbidden error
 					if (error.response?.status === 403) {
 						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 						setErrorMessage(userFriendlyMessage)
-						console.error('Access denied:', userFriendlyMessage)
 					} else {
-						console.error('Failed to fetch route details:', error)
 						setErrorMessage('Neizdevās ielādēt maršruta datus')
 					}
 				}
@@ -210,7 +189,6 @@ export default function TruckRoutePageScreen() {
 				}
 			}
 		} catch (error) {
-			console.error('Error in fetchRouteDetails:', error)
 			setErrorMessage('Kļūda ielādējot datus')
 		} finally {
 			setIsLoading(false)
@@ -223,13 +201,11 @@ export default function TruckRoutePageScreen() {
 		try {
 			setPagination(prev => ({ ...prev, loading: true }));
 
-			// Check if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				setPagination(prev => ({ ...prev, loading: false }));
 				return
 			}
 
-			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
 				const {SessionManager} = require('@/utils/SessionManager')
@@ -238,7 +214,6 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// Check network connectivity
 			const connected = isOnline
 			
 			if (connected) {
@@ -248,16 +223,13 @@ export default function TruckRoutePageScreen() {
 						{ params: { page, size: pagination.size } }
 					);
 					
-					// Handle paginated response
 					if (response.data.content) {
-						// If loading more (page > 0 and not the first page), append to existing routes
 						if (page > 0 && Platform.OS !== 'web') {
 							setTruckRoutes(prev => [...prev, ...response.data.content]);
 						} else {
 							setTruckRoutes(response.data.content);
 						}
 						
-						// Update pagination metadata
 						setPagination({
 							page: page,
 							size: pagination.size,
@@ -266,7 +238,6 @@ export default function TruckRoutePageScreen() {
 							loading: false
 						});
 					} else {
-						// Handle non-paginated response (fallback)
 						setTruckRoutes(response.data);
 						setPagination(prev => ({
 							...prev,
@@ -275,29 +246,23 @@ export default function TruckRoutePageScreen() {
 						}));
 					}
 				} catch (error: any) {
-					// Handle 403 Forbidden error
 					if (error.response?.status === 403) {
 						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 						setErrorMessage(userFriendlyMessage)
-						console.error('Access denied:', userFriendlyMessage)
 					} else {
-						console.error('Failed to fetch truck routes:', error);
 						setErrorMessage('Neizdevās ielādēt braucienus')
 					}
 					setPagination(prev => ({ ...prev, loading: false }));
 				}
 			} else {
-				// Offline mode - no truck routes available
 				setTruckRoutes([]);
 				setPagination(prev => ({
 					...prev,
 					totalPages: 1,
 					loading: false
 				}));
-				console.log('Offline mode - truck routes not available');
 			}
 		} catch (error) {
-			console.error('Error in fetchTruckRoutes:', error);
 			setPagination(prev => ({ ...prev, loading: false }));
 		}
 	}
@@ -307,13 +272,11 @@ export default function TruckRoutePageScreen() {
 			setIsSubmitting(true)
 			setErrorMessage(null)
 
-			// Check if redirection to login page is already in progress
 			if (isRedirectingToLogin) {
 				setIsSubmitting(false)
 				return
 			}
 
-			// Check if session is active
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
 				const {SessionManager} = require('@/utils/SessionManager')
@@ -322,7 +285,6 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// Get full truck and user objects
 			const trucks = await offlineDataManager.getTrucks()
 			const selectedTruck = trucks.find(t => t.uid === form.truck)
 			const sessionData = await loadSessionEnhanced()
@@ -334,7 +296,6 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// Create TruckRoutePage model object with all required fields
 			const routePageModel: TruckRoutePage = {
 				uid: uid || generateOfflineId(),
 				date_from: format(form.dateFrom, 'yyyy-MM-dd'),
@@ -344,30 +305,26 @@ export default function TruckRoutePageScreen() {
 				fuel_balance_at_start: parseFloat(form.fuelBalanceAtStart),
 				fuel_balance_at_end: form.fuelBalanceAtFinish ? parseFloat(form.fuelBalanceAtFinish) : undefined,
 				
-				// Include truck information for proper DTO mapping
 				truck_maker: selectedTruck.truckMaker,
 				truck_model: selectedTruck.truckModel,
 				registration_number: selectedTruck.registrationNumber,
 				fuel_consumption_norm: selectedTruck.fuelConsumptionNorm,
 				is_default: selectedTruck.isDefault ? 1 : 0,
 				
-				// Include user information for proper DTO mapping
 				email: currentUser.email,
 				givenName: currentUser.givenName || currentUser.firstName,
 				familyName: currentUser.familyName || currentUser.lastName,
 				
-				// Offline tracking fields
 				is_dirty: 1,
 				is_deleted: 0,
 				created_at: Date.now(),
 				updated_at: Date.now()
 			}
 
-			console.log('📱 [DEBUG] Created route page model:', routePageModel)
-
-			const [routePageDto] = await mapTruckRoutePageModelToDto([routePageModel])
-
-			console.log('📱 [DEBUG] ----------------:', routePageDto)
+			const [routePageDto] = await mapTruckRoutePageModelToDto(
+				[routePageModel],
+				offlineDataManager.getTruckById.bind(offlineDataManager)
+			)
 
 			if (!routePageDto) {
 				setErrorMessage('Kļūda sagatavot datus nosūtīšanai')
@@ -375,83 +332,18 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			console.log('📱 [DEBUG] Transformed to DTO:', routePageDto)
-
-			// OFFLINE-FIRST APPROACH FOR MOBILE
 			if (Platform.OS !== 'web') {
-				console.log('📱 [Mobile] Saving data offline-first')
-				
 				try {
-					if (uid) {
-						// UPDATE existing route page in local database
-						const updateSql = `
-							UPDATE truck_route_page 
-							SET date_from = ?, date_to = ?, truck_uid = ?, 
-								fuel_balance_at_start = ?, fuel_balance_at_end = ?,
-								is_dirty = 1, updated_at = ?
-							WHERE uid = ?
-						`
-						
-						await executeQuery(updateSql, [
-							routePageModel.date_from,
-							routePageModel.date_to,
-							routePageModel.truck_uid,
-							routePageModel.fuel_balance_at_start,
-							routePageModel.fuel_balance_at_end,
-							Date.now(),
-							uid
-						])
-						
-						console.log('📱 [Mobile] Updated route page in local database')
-					} else {
-						// CREATE new route page in local database
-						const insertSql = `
-							INSERT INTO truck_route_page 
-							(uid, date_from, date_to, truck_uid, user_id, 
-							 fuel_balance_at_start, fuel_balance_at_end, 
-							 is_dirty, is_deleted, created_at, updated_at)
-							VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)
-						`
-						
-						await executeQuery(insertSql, [
-							routePageModel.uid,
-							routePageModel.date_from,
-							routePageModel.date_to,
-							routePageModel.truck_uid,
-							routePageModel.user_id,
-							routePageModel.fuel_balance_at_start,
-							routePageModel.fuel_balance_at_end,
-							Date.now(),
-							Date.now()
-						])
-						
-						console.log('📱 [Mobile] Created new route page in local database with uid:', routePageModel.uid)
-					}
+					await offlineDataManager.saveTruckRoutePage(routePageDto)
 					
-					// Add DTO to offline queue for server synchronization
-					await addOfflineOperation(
-						uid ? 'UPDATE' : 'CREATE',
-						'truck_route_page',
-						uid ? `/route-pages/${uid}` : '/route-pages',
-						routePageDto
-					)
-					
-					console.log('📱 [Mobile] Data saved locally and added to sync queue')
-					
-					// Navigate back immediately after local save
 					setTimeout(() => router.push('/(tabs)'), 1500)
 					return
-					
 				} catch (error) {
 					console.error('📱 [Mobile] Error saving to local database:', error)
-					// Fall back to online save if local save fails
 				}
 			}
 
-			// Check network connectivity for web or fallback
-			const connected = isOnline
-			
-			if (connected) {
+			if (isOnline) {
 				try {
 					if (uid) {
 						await freightAxios.put(`/route-pages/${uid}`, routePageDto)
@@ -460,34 +352,28 @@ export default function TruckRoutePageScreen() {
 					}
 					router.push('/(tabs)')
 				} catch (error: any) {
-					// Handle 403 Forbidden error
 					if (error.response?.status === 403) {
 						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 						setErrorMessage(userFriendlyMessage)
 						console.error('Access denied:', userFriendlyMessage)
 					} else {
 						console.error('Failed to submit form online:', error)
-						// Add to offline queue as fallback
 						await addOfflineOperation(
 							uid ? 'UPDATE' : 'CREATE',
 							'truck_route_page',
 							uid ? `/route-pages/${uid}` : '/route-pages',
 							routePageDto
 						)
-						// Still navigate back after offline save
 						setTimeout(() => router.push('/(tabs)'), 2000)
 					}
 				}
 			} else {
-				// Offline mode - add to queue only (for web or mobile fallback)
 				await addOfflineOperation(
 					uid ? 'UPDATE' : 'CREATE',
 					'truck_route_page',
 					uid ? `/route-pages/${uid}` : '/route-pages',
 					routePageDto
 				)
-				console.log('Data saved to offline queue')
-				// Navigate back after offline save
 				setTimeout(() => router.push('/(tabs)'), 2000)
 			}
 		} catch (error) {
@@ -513,7 +399,6 @@ export default function TruckRoutePageScreen() {
 					{uid ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}
 				</Text>
 
-				{/* Offline mode indicator */}
 				{isOfflineModeActive && Platform.OS !== 'web' && (
 					<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
@@ -521,14 +406,12 @@ export default function TruckRoutePageScreen() {
 					</View>
 				)}
 
-				{/* Error message */}
 				{errorMessage && (
 					<View style={styles.errorContainer}>
 						<Text style={styles.errorText}>{errorMessage}</Text>
 					</View>
 				)}
 
-				{/* Tab buttons */}
 				{uid && (
 					<View style={styles.tabContainer}>
 						<Pressable
@@ -546,7 +429,6 @@ export default function TruckRoutePageScreen() {
 					</View>
 				)}
 
-				{/* Tab content */}
 				{activeTab === 'basic' && (
 					<>
 						<View style={styles.inputWrapper}>
@@ -558,7 +440,6 @@ export default function TruckRoutePageScreen() {
 										placeholder="Izvēlieties"
 										endpoint="/trucks"
 										disabled={!isEditMode}
-										// error={!form.routePageTruck ? 'Ievadiet datus!' : undefined}
 								/>
 							</View>
 						</View>

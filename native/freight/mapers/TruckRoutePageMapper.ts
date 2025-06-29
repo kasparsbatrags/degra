@@ -2,11 +2,12 @@ import {TruckDto} from '@/dto/TruckDto'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {UserDto} from '@/dto/UserDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
-import {offlineDataManager} from '@/utils/offlineDataManager'
 
-export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]): Promise<TruckRoutePageDto[]> => {
+export const mapTruckRoutePageModelToDto = async (
+	routePages: TruckRoutePage[],
+	getTruckById: (id: string) => Promise<any>
+): Promise<TruckRoutePageDto[]> => {
 	if (!Array.isArray(routePages)) {
-		console.warn('📱 [WARN] Invalid routePages data:', routePages)
 		return []
 	}
 
@@ -14,20 +15,16 @@ export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]):
 
 	for (let i = 0; i < routePages.length; i++) {
 		const routePage = routePages[i]
-		console.log('📱 [DEBUG] Transforming route at index', i, ':', routePage)
 
 		try {
 
 			if (!routePage.uid || !routePage.date_from || !routePage.date_to) {
-				console.warn('📱 [WARN] Skipping route with missing required fields:', {
-					uid: routePage.uid, dateFrom: routePage.date_from, dateTo: routePage.date_to
-				})
 				continue
 			}
 
 			let truckData = null
 			if (routePage.truck_uid) {
-				truckData = await offlineDataManager.getTruckById(routePage.truck_uid)
+				truckData = await getTruckById(routePage.truck_uid)
 			}
 
 			const truck: TruckDto = {
@@ -61,21 +58,51 @@ export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]):
 				computedTotalRoutesLength: routePage.computed_total_routes_length || 0,
 			}
 
-			console.log('📱 [DEBUG] Transformed route:', transformed)
 			mappedRoutes.push(transformed)
 		} catch (error) {
-			console.error('📱 [ERROR] Failed to transform route:', error)
-			// Ja vēlamies, varam turpināt ar nākamo ierakstu, nevis pārtraukt visu procesu
 		}
 	}
 
 	return mappedRoutes.filter(route => {
 		const isValid = route.uid && route.dateFrom && route.dateTo && route.truck.registrationNumber
 		if (!isValid) {
-			console.warn('📱 [WARN] Filtering out invalid route:', {
-				uid: route.uid, dateFrom: route.dateFrom, dateTo: route.dateTo, truckRegistrationNumber: route.truck.registrationNumber
-			})
 		}
 		return isValid
 	})
 }
+
+export const mapTruckRoutePageDtoToModel = (routePageDto: TruckRoutePageDto): TruckRoutePage => {
+  return {
+    uid: routePageDto.uid,
+    date_from: routePageDto.dateFrom,
+    date_to: routePageDto.dateTo,
+    truck_uid: routePageDto.truck?.uid,
+    
+    truck_maker: routePageDto.truck?.truckMaker,
+    truck_model: routePageDto.truck?.truckModel,
+    registration_number: routePageDto.truck?.registrationNumber,
+    fuel_consumption_norm: routePageDto.truck?.fuelConsumptionNorm,
+    is_default: routePageDto.truck?.isDefault ? 1 : 0,
+    
+    user_id: routePageDto.user?.id,
+    email: routePageDto.user?.email,
+    givenName: routePageDto.user?.givenName,
+    familyName: routePageDto.user?.familyName,
+    
+    fuel_balance_at_start: routePageDto.fuelBalanceAtStart || 0,
+    fuel_balance_at_end: routePageDto.fuelBalanceAtFinish,
+    
+    total_fuel_received_on_routes: routePageDto.totalFuelReceivedOnRoutes,
+    total_fuel_consumed_on_routes: routePageDto.totalFuelConsumedOnRoutes,
+    fuel_balance_at_routes_finish: routePageDto.fuelBalanceAtRoutesFinish,
+    
+    odometer_at_route_start: routePageDto.odometerAtRouteStart,
+    odometer_at_route_finish: routePageDto.odometerAtRouteFinish,
+    computed_total_routes_length: routePageDto.computedTotalRoutesLength,
+    
+    is_dirty: 1,
+    is_deleted: 0,
+    created_at: Date.now(),
+    updated_at: Date.now()
+  };
+};

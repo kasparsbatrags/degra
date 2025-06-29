@@ -105,15 +105,12 @@ export default function HomeScreen() {
 
 			const sessionActive = await isSessionActive()
 			if (!sessionActive) {
-				console.log('📱 [DEBUG] Session not active, redirecting to login')
-				// If session is not active, redirect to login page using the shared function
 				const {SessionManager} = require('@/utils/SessionManager')
 				await SessionManager.getInstance().handleUnauthorized()
 				setLoading(false)
 				return
 			}
 
-			// 1. FĀZE: Sync dropdown data first (trucks and objects) for mobile
 			if (Platform.OS !== 'web' && isOnline) {
 				try {
 					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
