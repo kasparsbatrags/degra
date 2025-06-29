@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import freightAxios from '../config/freightAxios';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '../utils/idUtils';
 
 const PENDING_TRUCK_ROUTES_KEY = 'pendingTruckRoutes';
 
@@ -13,14 +13,8 @@ export interface PendingTruckRoute {
   retryCount: number;
 }
 
-/**
- * Saglabāt brauciena datus lokāli
- * @param type Brauciena tips (sākums vai beigas)
- * @param data Brauciena dati
- * @returns Pagaidu ID
- */
 export async function saveTruckRouteLocally(type: 'startRoute' | 'endRoute', data: any): Promise<string> {
-  const tempId = uuidv4();
+  const tempId = generateId();
   const pendingRoutes = await getPendingTruckRoutes();
   
   pendingRoutes.push({
@@ -35,10 +29,6 @@ export async function saveTruckRouteLocally(type: 'startRoute' | 'endRoute', dat
   return tempId;
 }
 
-/**
- * Iegūt nesinhronizētos braucienus
- * @returns Saraksts ar nesinhronizētiem braucieniem
- */
 export async function getPendingTruckRoutes(): Promise<PendingTruckRoute[]> {
   try {
     const data = await AsyncStorage.getItem(PENDING_TRUCK_ROUTES_KEY);
@@ -49,10 +39,6 @@ export async function getPendingTruckRoutes(): Promise<PendingTruckRoute[]> {
   }
 }
 
-/**
- * Sinhronizēt braucienus ar serveri
- * @returns Vai sinhronizācija bija veiksmīga
- */
 export async function syncTruckRoutes(): Promise<boolean> {
   const netInfo = await NetInfo.fetch();
   if (!netInfo.isConnected) return false;
@@ -71,7 +57,6 @@ export async function syncTruckRoutes(): Promise<boolean> {
         await freightAxios.put('/truck-routes', route.data);
       }
       
-      // Noņemt no saraksta, ja veiksmīgi
       const index = remainingRoutes.findIndex(r => r.id === route.id);
       if (index !== -1) {
         remainingRoutes.splice(index, 1);
@@ -80,27 +65,20 @@ export async function syncTruckRoutes(): Promise<boolean> {
       console.error('Failed to sync truck route:', error);
       success = false;
       
-      // Palielināt mēģinājumu skaitu
       const index = remainingRoutes.findIndex(r => r.id === route.id);
       if (index !== -1) {
         remainingRoutes[index].retryCount++;
         if (remainingRoutes[index].retryCount > 5) {
-          // Ja pārsniegts maksimālais mēģinājumu skaits, noņem no rindas
           remainingRoutes.splice(index, 1);
         }
       }
     }
   }
   
-  // Saglabāt atlikušos nesinhronizētos braucienus
   await AsyncStorage.setItem(PENDING_TRUCK_ROUTES_KEY, JSON.stringify(remainingRoutes));
   return success;
 }
 
-/**
- * Uzstādīt klausītāju, kas sinhronizē datus, kad atjaunojas savienojums
- * @returns Funkcija, kas atceļ klausītāju
- */
 export function setupTruckRouteSyncListener() {
   let syncInProgress = false;
   
@@ -116,10 +94,6 @@ export function setupTruckRouteSyncListener() {
   });
 }
 
-/**
- * Pārbaudīt, vai ir nesinhronizēti braucieni
- * @returns Vai ir nesinhronizēti braucieni
- */
 export async function hasPendingTruckRoutes(): Promise<boolean> {
   const routes = await getPendingTruckRoutes();
   return routes.length > 0;

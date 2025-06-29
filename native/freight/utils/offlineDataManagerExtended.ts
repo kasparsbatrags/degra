@@ -5,19 +5,10 @@ import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
 import {TruckRoutePageDto} from '../dto/TruckRoutePageDto'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
-import {isConnected} from './networkUtils'
+import { isConnected } from './networkUtils'
+import { generateOfflineId } from './idUtils'
 
-// Type for SQLite database (to avoid import issues)
 type SQLiteDatabase = any
-
-// Simple ID generation without crypto dependencies
-function generateOfflineId(): string {
-	// Use timestamp + multiple random parts for better uniqueness
-	const timestamp = Date.now().toString()
-	const randomPart1 = Math.random().toString(36).substr(2, 9)
-	const randomPart2 = Math.random().toString(36).substr(2, 5)
-	return `offline-${timestamp}-${randomPart1}-${randomPart2}`
-}
 
 class OfflineDataManagerExtended {
 	// ==================== TRUCKS ====================

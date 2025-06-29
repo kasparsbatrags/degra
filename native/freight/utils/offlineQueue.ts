@@ -4,28 +4,17 @@ import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } fro
 import { isOnline } from '../services/networkService';
 import { isOfflineMode } from '../services/offlineService';
 import freightAxiosInstance from '../config/freightAxios';
+import { generateOfflineId } from './idUtils';
 
-// Simple ID generation without crypto dependencies
-function generateOfflineId(): string {
-  // Use timestamp + multiple random parts for better uniqueness
-  const timestamp = Date.now().toString();
-  const randomPart1 = Math.random().toString(36).substr(2, 9);
-  const randomPart2 = Math.random().toString(36).substr(2, 5);
-  return `offline-${timestamp}-${randomPart1}-${randomPart2}`;
-}
-
-// Offline queue configuration
 const QUEUE_STORAGE_KEY = 'offline_operations_queue';
 const MAX_RETRIES = 3;
-const RETRY_DELAY_BASE = 1000; // 1 second base delay
+const RETRY_DELAY_BASE = 1000;
 const BATCH_SIZE = 10;
 
-// Queue manager class
 class OfflineQueueManager {
   private isProcessing = false;
   private processingInterval: NodeJS.Timeout | null = null;
 
-  // Add operation to queue
   async addOperation(
     type: 'CREATE' | 'UPDATE' | 'DELETE',
     tableName: string,
@@ -48,10 +37,8 @@ class OfflineQueueManager {
 
     try {
       if (Platform.OS === 'web') {
-        // For web, use AsyncStorage as fallback
         await this.addOperationToAsyncStorage(operation);
       } else {
-        // For mobile, use SQLite
         await this.addOperationToDatabase(operation);
       }
 
@@ -71,7 +58,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Add operation to SQLite database
   private async addOperationToDatabase(operation: OfflineOperation) {
     const sql = `
       INSERT INTO offline_operations 
@@ -93,7 +79,6 @@ class OfflineQueueManager {
     ]);
   }
 
-  // Add operation to AsyncStorage (web fallback)
   private async addOperationToAsyncStorage(operation: OfflineOperation) {
     try {
       const existingQueue = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
@@ -106,7 +91,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Get pending operations
   async getPendingOperations(): Promise<OfflineOperation[]> {
     try {
       if (Platform.OS === 'web') {
@@ -120,7 +104,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Get pending operations from SQLite
   private async getPendingOperationsFromDatabase(): Promise<OfflineOperation[]> {
     const sql = `
       SELECT * FROM offline_operations 
@@ -132,7 +115,6 @@ class OfflineQueueManager {
     return await executeSelect(sql, [BATCH_SIZE]);
   }
 
-  // Get pending operations from AsyncStorage
   private async getPendingOperationsFromAsyncStorage(): Promise<OfflineOperation[]> {
     try {
       const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
@@ -149,7 +131,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Process queue
   async processQueue(): Promise<void> {
     if (this.isProcessing) {
       console.log('Queue processing already in progress');
@@ -191,11 +172,9 @@ class OfflineQueueManager {
     }
   }
 
-  // Process single operation
   private async processOperation(operation: OfflineOperation): Promise<void> {
     console.log(`Processing operation: ${operation.type} ${operation.table_name}`, operation.id);
 
-    // Mark as syncing
     await this.updateOperationStatus(operation.id, 'syncing');
 
     try {
@@ -216,14 +195,12 @@ class OfflineQueueManager {
           throw new Error(`Unknown operation type: ${operation.type}`);
       }
 
-      // Mark as completed
       await this.markOperationCompleted(operation, response.data);
       console.log(`Successfully processed operation ${operation.id}`);
 
     } catch (error: any) {
       console.error(`Failed to process operation ${operation.id}:`, error);
       
-      // Check if we should retry
       if (operation.retries < MAX_RETRIES) {
         await this.scheduleRetry(operation);
       } else {
@@ -232,7 +209,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Update operation status
   private async updateOperationStatus(
     operationId: string, 
     status: 'pending' | 'syncing' | 'failed' | 'completed',
@@ -250,7 +226,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Update operation in AsyncStorage
   private async updateOperationInAsyncStorage(operationId: string, updates: Partial<OfflineOperation>): Promise<void> {
     try {
       const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
@@ -268,13 +243,10 @@ class OfflineQueueManager {
     }
   }
 
-  // Mark operation as completed
   private async markOperationCompleted(operation: OfflineOperation, responseData?: any): Promise<void> {
     if (Platform.OS === 'web') {
-      // Remove from AsyncStorage queue
       await this.removeOperationFromAsyncStorage(operation.id);
     } else {
-      // Mark as completed in database
       const sql = `
         UPDATE offline_operations 
         SET status = 'completed', updated_at = ?
@@ -283,18 +255,15 @@ class OfflineQueueManager {
       await executeQuery(sql, [Date.now(), operation.id]);
     }
 
-    // Handle server response (e.g., update local records with server IDs)
     if (responseData && operation.type === 'CREATE') {
       await this.handleCreateResponse(operation, responseData);
     }
   }
 
-  // Handle CREATE operation response
   private async handleCreateResponse(operation: OfflineOperation, responseData: any): Promise<void> {
     if (!responseData.id) return;
 
     try {
-      // Update local record with server ID
       const data = JSON.parse(operation.data);
       const localId = data.id;
       const serverId = responseData.id;
@@ -314,7 +283,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Remove operation from AsyncStorage
   private async removeOperationFromAsyncStorage(operationId: string): Promise<void> {
     try {
       const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
@@ -328,10 +296,9 @@ class OfflineQueueManager {
     }
   }
 
-  // Schedule retry
   private async scheduleRetry(operation: OfflineOperation): Promise<void> {
     const newRetryCount = operation.retries + 1;
-    const delay = RETRY_DELAY_BASE * Math.pow(2, newRetryCount); // Exponential backoff
+    const delay = RETRY_DELAY_BASE * Math.pow(2, newRetryCount);
 
     console.log(`Scheduling retry ${newRetryCount}/${MAX_RETRIES} for operation ${operation.id} in ${delay}ms`);
 
@@ -351,7 +318,6 @@ class OfflineQueueManager {
         await executeQuery(sql, [newRetryCount, Date.now(), operation.id]);
       }
 
-      // Try processing again, but check online status first
       const online = await isOnline();
       if (online) {
         this.processQueue();
@@ -361,7 +327,6 @@ class OfflineQueueManager {
     }, delay);
   }
 
-  // Mark operation as failed
   private async markOperationFailed(operation: OfflineOperation, error: any): Promise<void> {
     const errorMessage = error?.message || 'Unknown error';
     console.error(`Operation ${operation.id} failed permanently:`, errorMessage);
@@ -369,7 +334,6 @@ class OfflineQueueManager {
     await this.updateOperationStatus(operation.id, 'failed', errorMessage);
   }
 
-  // Start automatic queue processing
   startAutoProcessing(intervalMs: number = 30000): void {
     if (this.processingInterval) {
       clearInterval(this.processingInterval);
@@ -387,7 +351,6 @@ class OfflineQueueManager {
     console.log(`Started automatic queue processing every ${intervalMs}ms (respecting offline mode)`);
   }
 
-  // Stop automatic queue processing
   stopAutoProcessing(): void {
     if (this.processingInterval) {
       clearInterval(this.processingInterval);
@@ -396,7 +359,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Get queue statistics
   async getQueueStats(): Promise<{
     pending: number;
     failed: number;
@@ -438,7 +400,6 @@ class OfflineQueueManager {
     }
   }
 
-  // Clear completed operations
   async clearCompletedOperations(): Promise<void> {
     try {
       if (Platform.OS === 'web') {
@@ -459,10 +420,8 @@ class OfflineQueueManager {
   }
 }
 
-// Export singleton instance
 export const offlineQueue = new OfflineQueueManager();
 
-// Convenience functions
 export const addOfflineOperation = (
   type: 'CREATE' | 'UPDATE' | 'DELETE',
   tableName: string,
