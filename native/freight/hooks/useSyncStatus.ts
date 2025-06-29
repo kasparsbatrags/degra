@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNetworkStatus } from './useNetworkStatus';
+import { useNetwork } from './useNetwork';
 
 export interface SyncStatusResult {
   isSyncing: boolean;
@@ -14,7 +14,7 @@ export interface SyncStatusResult {
  * @returns SyncStatusResult - objekts ar sinhronizācijas statusa informāciju
  */
 export function useSyncStatus(): SyncStatusResult {
-  const { isOnline } = useNetworkStatus();
+  const { isOnline } = useNetwork();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncFormatted, setLastSyncFormatted] = useState('');
   

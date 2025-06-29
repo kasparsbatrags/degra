@@ -23,8 +23,7 @@ import { handleUserActivity, ACTIVITY_LEVELS } from '@/utils/userActivityTracker
 
 // NEW: Import offline hooks and components
 import { useOfflineData } from '@/hooks/useOfflineData'
-import { useNetworkStatus } from '../hooks/useNetworkStatus'
-import { CACHE_KEYS } from '@/config/offlineConfig'
+import { useOnlineStatus } from '../utils/networkUtils'
 
 interface Option {
   id: string;
@@ -134,7 +133,7 @@ const ImprovedFormDropdown: React.FC<FormDropdownProps> = React.memo(({
   const [localValue, setLocalValue] = React.useState(value || '');
   
   // NEW: Use network status hook
-  const { isOnline, isOfflineMode } = useNetworkStatus()
+  const isOnline = useOnlineStatus()
 
   // NEW: Generate cache key based on endpoint
   const cacheKey = useMemo(() => {

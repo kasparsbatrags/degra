@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
-import { useNetworkState } from '../utils/networkUtils';
+import { useOnlineStatus } from '../utils/networkUtils';
 import { COLORS } from '../constants/theme';
 import { 
   isOfflineMode, 
@@ -15,11 +15,11 @@ import { hasPendingTruckRoutes } from '../services/truckRouteSyncService';
  * Komponente, kas rāda offline kontroles (bez Expo Updates)
  */
 export default function OfflineControls() {
-  const { isConnected } = useNetworkState();
+  const isConnected = useOnlineStatus();
   const [isOffline, setIsOffline] = useState(false);
   const [hasPendingData, setHasPendingData] = useState(false);
   const [forceOffline, setForceOffline] = useState(false);
-  const [appInfo, setAppInfo] = useState(getCurrentAppInfo());
+  const [appInfo] = useState(getCurrentAppInfo());
 
   // Pārbauda offline statusu un gaidošos datus
   useEffect(() => {

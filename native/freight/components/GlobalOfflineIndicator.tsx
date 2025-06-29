@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { COLORS, FONT, SHADOWS } from '@/constants/theme';
-import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useOnlineStatus } from '../utils/networkUtils';
 import { useSyncStatus } from '../hooks/useSyncStatus';
 
 interface GlobalOfflineIndicatorProps {
@@ -16,13 +16,13 @@ export default function GlobalOfflineIndicator({
   onPress,
   style 
 }: GlobalOfflineIndicatorProps) {
-  const { 
-    isOnline, 
-    isOfflineMode, 
-    isStrongConnection,
-    pendingOperations,
-    cacheSize 
-  } = useNetworkStatus();
+  // Izmantojam tikai useOnlineStatus() hook
+  const isOnline = useOnlineStatus();
+  // Vienkāršojam savienojuma kvalitāti - ja ir online, tad ir labs savienojums
+  const isStrongConnection = isOnline;
+  // Šīs vērtības varētu nākt no useSyncStatus vai citiem avotiem
+  const pendingOperations = 0;
+  const cacheSize = 0;
   
   const {
     isSyncing,
@@ -33,13 +33,12 @@ export default function GlobalOfflineIndicator({
   } = useSyncStatus();
 
   // Ja ir online un nav pending datu, nerādīt indikatoru
-  if (isOnline && !isOfflineMode && !hasPendingData && !isSyncing) {
+  if (isOnline && !hasPendingData && !isSyncing) {
     return null;
   }
 
   const getIndicatorColor = () => {
-    if (isOfflineMode) return COLORS.warning;
-    if (!isOnline) return COLORS.error;
+    if (!isOnline) return COLORS.error; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
     if (isSyncing) return COLORS.secondary;
     if (hasPendingData) return COLORS.warning;
     return COLORS.success;
@@ -47,16 +46,14 @@ export default function GlobalOfflineIndicator({
 
   const getIndicatorIcon = () => {
     if (isSyncing) return 'sync';
-    if (isOfflineMode) return 'offline-pin';
-    if (!isOnline) return 'wifi-off';
+    if (!isOnline) return 'wifi-off'; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
     if (hasPendingData) return 'cloud-upload';
     return 'wifi';
   };
 
   const getStatusText = () => {
     if (isSyncing) return 'Sinhronizē...';
-    if (isOfflineMode) return 'Offline režīms';
-    if (!isOnline) return 'Nav savienojuma';
+    if (!isOnline) return 'Offline režīms'; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
     if (hasPendingData) return `${pendingOperations} nesinhronizēti`;
     return 'Online';
   };
@@ -168,11 +165,14 @@ export function CompactOfflineIndicator({ onPress, style }: GlobalOfflineIndicat
  * Floating offline indikators
  */
 export function FloatingOfflineIndicator({ onPress }: { onPress?: () => void }) {
-  const { isOnline, isOfflineMode, pendingOperations } = useNetworkStatus();
+  // Izmantojam tikai useOnlineStatus() hook
+  const isOnline = useOnlineStatus();
+  // Šī vērtība varētu nākt no useSyncStatus
+  const pendingOperations = 0;
   const { isSyncing } = useSyncStatus();
 
   // Rādīt tikai, ja ir kāda problēma
-  if (isOnline && !isOfflineMode && pendingOperations === 0 && !isSyncing) {
+  if (isOnline && pendingOperations === 0 && !isSyncing) {
     return null;
   }
 

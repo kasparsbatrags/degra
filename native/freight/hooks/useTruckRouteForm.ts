@@ -6,7 +6,7 @@ import { useObjectStore } from '@/hooks/useObjectStore';
 import { format } from 'date-fns';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useOnlineStatus } from '@/utils/networkUtils';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
 import { FormState } from '@/types/truckRouteTypes';
 import {
@@ -52,7 +52,7 @@ export function useTruckRouteForm(params: any) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { newTruckObject, clearNewTruckObject, truckRouteForm, updateTruckRouteForm } = useObjectStore();
-    const { isOnline, isOfflineMode } = useNetworkStatus();
+    const isOnline = useOnlineStatus();
     const { startRoute, endRoute } = useTruckRoute();
 
     // Function to fetch objects list (offline-first)
@@ -356,40 +356,49 @@ export function useTruckRouteForm(params: any) {
             const inTruckObjectValue = selectedInTruckObject || form.inTruckObject;
 
             const now = new Date().toISOString();
+            
+            // Pārveidojam datumu objektus pareizi
+            const routeDate = form.routeDate instanceof Date ? form.routeDate : new Date(form.routeDate);
+            const dateFrom = form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom);
+            const dateTo = form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo);
+            
+            // Izveidojam truckRoutePage objektu
+            const truckRoutePage: TruckRoutePageDto = {
+                uid: form.routePageTruck || '0',
+                dateFrom: format(dateFrom, 'yyyy-MM-dd'),
+                dateTo: format(dateTo, 'yyyy-MM-dd'),
+                truck: { uid: form.routePageTruck || '0' },
+                user: { id: user?.id || '0' },
+                fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+            };
 
-			const defaultTruckRoutePage: TruckRoutePageDto = {
-				uid: form.routePageTruck || '0',
-				dateFrom: format(form.dateFrom ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
-				dateTo: format(form.dateTo  ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
-				truck: { uid: form.routePageTruck || '0' },
-				user: { id: user?.id || '0' },
-				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-			};
-
-
+            // Izveidojam objektus ar pareiziem tipiem
+            const outTruckObject = outTruckObjectValue ? {
+                uid: outTruckObjectValue,
+                name: outTruckObjectDetails?.name || ''
+            } : { uid: '', name: '' };
+            
+            const inTruckObject = inTruckObjectValue ? {
+                uid: inTruckObjectValue,
+                name: inTruckObjectDetails?.name || ''
+            } : { uid: '', name: '' };
+            
+            // Izveidojam payload objektu ar pareiziem tipiem
             const payload: TruckRouteDto = {
                 uid: form.uid,
-                routeDate: format(form.routeDate, 'yyyy-MM-dd'),
-
-                truckRoutePage: form.routePageTruck ? {
-                    uid: form.routePageTruck,
-                    dateFrom: format(form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom), 'yyyy-MM-dd'),
-                    dateTo: format(form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo), 'yyyy-MM-dd'),
-                    truck: {uid: form.routePageTruck},
-                    user: {id: user?.id || '0'},
-                    fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-                } : defaultTruckRoutePage,
-
-				outTruckObject: outTruckObjectValue ?
-						(outTruckObjectDetails ? { uid: outTruckObjectValue, name: outTruckObjectDetails.name } : { uid: outTruckObjectValue }) : {uid: "", name: ""},
-				inTruckObject: inTruckObjectValue ?
-						(inTruckObjectDetails ? { uid: inTruckObjectValue, name: inTruckObjectDetails.name } : { uid: inTruckObjectValue }) : {uid: "", name: ""},
-
+                routeDate: format(routeDate, 'yyyy-MM-dd'),
+                truckRoutePage: truckRoutePage,
+                outTruckObject: outTruckObject,
+                inTruckObject: inTruckObject,
                 odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : 0,
                 odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0,
                 cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : 0,
                 unitType: hasCargo ? form.unitType : undefined,
-				fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : existingRoutePage?.fuelBalanceAtStart !== null ? existingRoutePage?.fuelBalanceAtStart : undefined,
+                fuelBalanceAtStart: form.fuelBalanceAtStart 
+                    ? parseFloat(form.fuelBalanceAtStart) 
+                    : existingRoutePage?.fuelBalanceAtStart !== null 
+                        ? existingRoutePage?.fuelBalanceAtStart 
+                        : undefined,
                 fuelBalanceAtFinish: undefined,
                 fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : undefined,
                 outDateTime: now,
@@ -406,9 +415,27 @@ export function useTruckRouteForm(params: any) {
             if (isItRouteFinish) {
                 // Izmantojam endRoute hook funkciju
                 await endRoute.mutateAsync(payload);
+                
+                // Parādām paziņojumu, ja nav savienojuma
+                if (!isOnline) {
+                    Alert.alert(
+                        "Offline režīms",
+                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
+                        [{ text: "OK" }]
+                    );
+                }
             } else {
                 // Izmantojam startRoute hook funkciju
                 await startRoute.mutateAsync(payload);
+                
+                // Parādām paziņojumu, ja nav savienojuma
+                if (!isOnline) {
+                    Alert.alert(
+                        "Offline režīms",
+                        "Brauciena dati ir saglabāti lokāli un tiks sinhronizēti, kad būs pieejams internets.",
+                        [{ text: "OK" }]
+                    );
+                }
             }
             
             router.push('/(tabs)');

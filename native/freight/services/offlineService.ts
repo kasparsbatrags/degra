@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isConnected, hasStrongConnection } from '../utils/networkUtils';
+import { isDeviceOnline, getForcedOfflineMode, setForcedOfflineMode } from '../utils/networkUtils';
 import { Platform } from 'react-native';
 
 // Konstantes
@@ -50,16 +50,15 @@ export async function setOfflineConfig(config: Partial<OfflineConfig>): Promise<
  */
 export async function isOfflineMode(): Promise<boolean> {
   try {
-    const config = await getOfflineConfig();
-    
-    // Ja ir piespiedu offline režīms
-    if (config.forceOfflineMode) {
+    // Pārbauda piespiedu offline režīmu
+    const forcedOffline = await getForcedOfflineMode();
+    if (forcedOffline) {
       return true;
     }
     
     // Pārbauda tīkla savienojumu
-    const connected = await isConnected();
-    return !connected;
+    const online = await isDeviceOnline();
+    return !online;
   } catch (error) {
     console.error('Error checking offline mode:', error);
     return false;
@@ -70,6 +69,10 @@ export async function isOfflineMode(): Promise<boolean> {
  * Ieslēdz vai izslēdz piespiedu offline režīmu
  */
 export async function setForceOfflineMode(enabled: boolean): Promise<void> {
+  // Izmantojam jauno funkciju no networkUtils
+  await setForcedOfflineMode(enabled);
+  
+  // Saglabājam arī vecajā konfigurācijā, lai saglabātu atpakaļsaderību
   await setOfflineConfig({ forceOfflineMode: enabled });
 }
 

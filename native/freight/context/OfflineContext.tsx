@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Platform, AppState, AppStateStatus } from 'react-native';
+import { useNetwork } from '../hooks/useNetwork';
 import { initDatabase, checkDatabaseHealth } from '../utils/database';
 import { offlineQueue, startOfflineQueueProcessing, stopOfflineQueueProcessing, getOfflineQueueStats } from '../utils/offlineQueue';
-import { isConnected } from '../utils/networkUtils';
 
-// Offline context types
 interface OfflineContextType {
   isInitialized: boolean;
   isOnline: boolean;
@@ -31,8 +30,8 @@ interface OfflineProviderProps {
 
 // Offline provider component
 export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) => {
+  const { isOnline, checkOnlineStatus } = useNetwork();
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
   const [isDatabaseReady, setIsDatabaseReady] = useState(false);
   const [queueStats, setQueueStats] = useState({
     pending: 0,
@@ -47,8 +46,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
       console.log('Initializing offline system...');
 
       // Check initial connection status
-      const connected = await isConnected();
-      setIsOnline(connected);
+      const connected = await checkOnlineStatus();
 
       // Initialize database (skip for web)
       if (Platform.OS !== 'web') {
@@ -102,7 +100,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
   // Sync data with server
   const syncData = async (): Promise<void> => {
     // try {
-    //   const connected = await isConnected();
+    //   const connected = await checkOnlineStatus();
     //   if (!connected) {
     //     console.log('Device is offline, skipping sync');
     //     return;
@@ -143,8 +141,7 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
 
   // Get current connection status
   const getConnectionStatus = async (): Promise<boolean> => {
-    const connected = await isConnected();
-    setIsOnline(connected);
+    const connected = await checkOnlineStatus();
     return connected;
   };
 
@@ -160,35 +157,17 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
 
   // Monitor network connectivity
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    const wasOnline = isOnline;
 
-    const checkConnectivity = async () => {
-      const connected = await isConnected();
-      const wasOnline = isOnline;
-      setIsOnline(connected);
-
-      // If we just came back online, try to sync
-      if (connected && !wasOnline && isInitialized) {
-        console.log('Device came back online, starting sync...');
-        try {
-          await syncData();
-        } catch (error) {
-          console.error('Auto-sync after reconnection failed:', error);
-        }
+    // If we just came back online, try to sync
+    if (isOnline && !wasOnline && isInitialized) {
+      console.log('Device came back online, starting sync...');
+      try {
+        syncData();
+      } catch (error) {
+        console.error('Auto-sync after reconnection failed:', error);
       }
-    };
-
-    // Check connectivity every 10 seconds
-    intervalId = setInterval(checkConnectivity, 10000);
-
-    // Initial check
-    checkConnectivity();
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
+    }
   }, [isOnline, isInitialized]);
 
   // Monitor app state changes

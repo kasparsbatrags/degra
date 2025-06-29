@@ -4,7 +4,7 @@ import OfflineControls from '@/components/OfflineControls'
 import OfflinePurgeButton from '@/components/Profile/OfflinePurgeButton'
 import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
-import {useNetworkStatus} from '@/hooks/useNetworkStatus'
+import {useOnlineStatus} from '@/utils/networkUtils'
 import {getPendingTruckRoutes, PendingTruckRoute, syncTruckRoutes} from '@/services/truckRouteSyncService'
 import {format} from 'date-fns'
 import {router} from 'expo-router'
@@ -16,7 +16,7 @@ export default function OfflineDataScreen() {
 	const [pendingRoutes, setPendingRoutes] = useState<PendingTruckRoute[]>([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [isSyncing, setIsSyncing] = useState(false)
-	const {isConnected} = useNetworkStatus()
+	const isOnline = useOnlineStatus()
 
 	const loadPendingRoutes = async () => {
 		setIsLoading(true)
@@ -35,7 +35,7 @@ export default function OfflineDataScreen() {
 	}, [])
 
 	const handleSync = async () => {
-		if (!isConnected) {
+		if (!isOnline) {
 			alert('Nav interneta savienojuma. Lūdzu, mēģiniet vēlāk.')
 			return
 		}
@@ -70,9 +70,9 @@ export default function OfflineDataScreen() {
 						<Text style={styles.title}>Nesinhronizētie dati</Text>
 
 						<View style={styles.connectionStatus}>
-							<View style={[styles.statusIndicator, isConnected ? styles.connected : styles.disconnected]} />
+							<View style={[styles.statusIndicator, isOnline ? styles.connected : styles.disconnected]} />
 							<Text style={styles.statusText}>
-								{isConnected ? 'Savienojums ir aktīvs' : 'Nav savienojuma'}
+								{isOnline ? 'Savienojums ir aktīvs' : 'Nav savienojuma'}
 							</Text>
 						</View>
 					</View>
@@ -106,8 +106,8 @@ export default function OfflineDataScreen() {
 								<Button
 										title={isSyncing ? 'Notiek sinhronizācija...' : 'Sinhronizēt datus'}
 										onPress={handleSync}
-										disabled={!isConnected || isSyncing}
-										style={[styles.syncButton, (!isConnected || isSyncing) && styles.disabledButton]}
+										disabled={!isOnline || isSyncing}
+										style={[styles.syncButton, (!isOnline || isSyncing) && styles.disabledButton]}
 								/>
 							</>)}
 

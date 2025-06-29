@@ -2,7 +2,7 @@ import {isRedirectingToLogin} from '@/config/axios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-import { useNetworkStatus } from '@/hooks/useNetworkStatus'
+import { useNetwork } from '@/hooks/useNetwork'
 import {getRoutePages, downloadServerData, offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -24,8 +24,9 @@ export default function HomeScreen() {
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
 
 
-	// Izmantot jauno useNetworkStatus hook
-	const { isOfflineMode: isOfflineModeActive } = useNetworkStatus()
+	// Izmantot jauno useNetwork hook
+	const { isOnline } = useNetwork()
+	const isOfflineModeActive = !isOnline
 
 	// Calculate if user can start a route
 	const canStartRoute = useMemo(() => {
