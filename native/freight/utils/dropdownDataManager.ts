@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isOnline } from '../services/networkService';
 import freightAxiosInstance from '../config/freightAxios';
-import { getTrucks, getObjects } from './offlineDataManagerExtended';
+import { getTrucks, getObjects } from './offlineDataManager';
 
 // Generic dropdown data manager for offline-first dropdown operations
 class DropdownDataManager {

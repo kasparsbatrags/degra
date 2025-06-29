@@ -14,7 +14,7 @@ import RouteOdometerTab from './RouteOdometerTab';
 import RouteFuelTab from './RouteFuelTab';
 import { useTruckRouteForm } from '@/hooks/useTruckRouteForm';
 import { styles } from './styles';
-import { getRoutePoint } from '@/utils/offlineDataManagerExtended';
+import { getRoutePoint } from '@/utils/offlineDataManager';
 
 export default function TruckRouteScreen() {
     const params = useLocalSearchParams<{

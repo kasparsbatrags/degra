@@ -7,7 +7,7 @@ import FormInput from '@/components/FormInput';
 import Button from '@/components/Button';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useObjectStore } from '@/hooks/useObjectStore';
-import { createObject } from '@/utils/offlineDataManagerExtended';
+import { createObject } from '@/utils/offlineDataManager';
 import { useNetworkState } from '@/utils/networkUtils';
 
 interface TruckObject {

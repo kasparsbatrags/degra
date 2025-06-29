@@ -15,7 +15,7 @@ import {
 	getLastActiveRoute,
 	getLastFinishedRoute,
 	checkRoutePageExists
-} from '@/utils/offlineDataManagerExtended'
+} from '@/utils/offlineDataManager'
 import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto';
 
 export function useTruckRouteForm(params: any) {

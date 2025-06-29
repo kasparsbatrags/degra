@@ -2,7 +2,7 @@ import {TruckDto} from '@/dto/TruckDto'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {UserDto} from '@/dto/UserDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
-import {offlineDataManagerExtended} from '@/utils/offlineDataManagerExtended'
+import {offlineDataManagerExtended} from '@/utils/offlineDataManager'
 
 export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[]): Promise<TruckRoutePageDto[]> => {
 	if (!Array.isArray(routePages)) {

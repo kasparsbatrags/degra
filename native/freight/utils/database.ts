@@ -282,7 +282,6 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
   }
 };
 
-// Clear all data (for testing/reset)
 export const clearAllData = async () => {
   const database = await getDatabase();
   await database.execAsync(`

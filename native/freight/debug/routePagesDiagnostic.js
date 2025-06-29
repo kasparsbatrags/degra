@@ -6,7 +6,7 @@
  */
 
 import { Platform } from 'react-native';
-import { getRoutePages, syncRoutePages } from '../utils/offlineDataManagerExtended';
+import { getRoutePages, syncRoutePages } from '../utils/offlineDataManager';
 import { executeSelect, checkDatabaseHealth } from '../utils/database';
 import { isConnected } from '../utils/networkUtils';
 import freightAxiosInstance from '../config/freightAxios';

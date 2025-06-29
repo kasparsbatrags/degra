@@ -20,7 +20,6 @@ const OfflinePurgeButton: React.FC = () => {
           onPress: async () => {
             try {
               await purgeAllOfflineData();
-              Alert.alert('Veiksmīgi', 'Visi offline dati ir nodzēsti.');
             } catch (e) {
               Alert.alert('Kļūda', 'Neizdevās nodzēst offline datus.');
             }

@@ -21,9 +21,6 @@ export default function OfflineIndicator() {
   if (hasErrors) {
     message = `Sinhronizācijas kļūda - ${queueStats.failed} operācijas neizdevās`;
     backgroundColor = '#FF6B6B'; // Red for errors
-  } else if (syncNeeded) {
-    message = `Notiek datu sinhronizācija... (${queueStats.pending} operācijas)`;
-    backgroundColor = '#4ECDC4'; // Teal for syncing
   }
   
   if (!message) return null;

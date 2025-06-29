@@ -10,7 +10,7 @@ import { generateOfflineId } from './idUtils'
 
 type SQLiteDatabase = any
 
-class OfflineDataManagerExtended {
+class OfflineDataManager {
 	// ==================== TRUCKS ====================
 
 	// Sync trucks from server to mobile database
@@ -589,7 +589,7 @@ class OfflineDataManagerExtended {
 	}
 
 	async getRoutePoint(): Promise<string> {
-		const lastActiveRoute = await offlineDataManagerExtended.getLastActiveRoute()
+		const lastActiveRoute = await offlineDataManager.getLastActiveRoute()
 		return lastActiveRoute ? "FINISH" : "START"
 	}
 
@@ -804,14 +804,14 @@ class OfflineDataManagerExtended {
 }
 
 // Export singleton instance
-export const offlineDataManagerExtended = new OfflineDataManagerExtended()
+export const offlineDataManager = new OfflineDataManager()
 
 // Export functions for backward compatibility
-export const getRoutePages = () => offlineDataManagerExtended.getRoutePages()
-export const downloadServerData = () => offlineDataManagerExtended.syncAllData()
-export const getTrucks = () => offlineDataManagerExtended.getTrucks()
-export const getObjects = () => offlineDataManagerExtended.getObjects()
-export const getLastActiveRoute = () => offlineDataManagerExtended.getLastActiveRoute()
-export const getLastFinishedRoute = () => offlineDataManagerExtended.getLastFinishedRoute()
-export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManagerExtended.checkRoutePageExists(truckId, date)
-export const getRoutePoint = () => offlineDataManagerExtended.getRoutePoint()
+export const getRoutePages = () => offlineDataManager.getRoutePages()
+export const downloadServerData = () => offlineDataManager.syncAllData()
+export const getTrucks = () => offlineDataManager.getTrucks()
+export const getObjects = () => offlineDataManager.getObjects()
+export const getLastActiveRoute = () => offlineDataManager.getLastActiveRoute()
+export const getLastFinishedRoute = () => offlineDataManager.getLastFinishedRoute()
+export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManager.checkRoutePageExists(truckId, date)
+export const getRoutePoint = () => offlineDataManager.getRoutePoint()
