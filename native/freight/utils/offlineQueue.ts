@@ -2,9 +2,8 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
 import { isOnline } from '@/services/networkService';
-import { isOfflineMode } from '../services/offlineService';
 import freightAxiosInstance from '../config/freightAxios';
-import { generateOfflineId } from './idUtils';
+import { generateUniqueId } from './idUtils';
 
 const QUEUE_STORAGE_KEY = 'offline_operations_queue';
 const MAX_RETRIES = 3;
@@ -21,7 +20,7 @@ class OfflineQueueManager {
     endpoint: string,
     data: any
   ): Promise<string> {
-    const operationId = generateOfflineId();
+    const operationId = generateUniqueId();
     const operation: OfflineOperation = {
       id: operationId,
       type,
@@ -37,7 +36,7 @@ class OfflineQueueManager {
 
     try {
       if (Platform.OS === 'web') {
-        await this.addOperationToAsyncStorage(operation);
+        return operationId
       } else {
         await this.addOperationToDatabase(operation);
       }
@@ -77,18 +76,6 @@ class OfflineQueueManager {
       operation.created_at,
       operation.updated_at
     ]);
-  }
-
-  private async addOperationToAsyncStorage(operation: OfflineOperation) {
-    try {
-      const existingQueue = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-      const queue: OfflineOperation[] = existingQueue ? JSON.parse(existingQueue) : [];
-      queue.push(operation);
-      await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
-    } catch (error) {
-      console.error('Failed to add operation to AsyncStorage:', error);
-      throw error;
-    }
   }
 
   async getPendingOperations(): Promise<OfflineOperation[]> {

@@ -1,13 +1,13 @@
 import {TruckObjectDto} from '@/dto/TruckObjectDto'
 import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import {isOfflineMode} from '@/services/offlineService'
+import {generateUniqueId} from '@/utils/idUtils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {Platform} from 'react-native'
 import freightAxiosInstance from '../config/freightAxios'
 import {TruckRoutePageDto} from '../dto/TruckRoutePageDto'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from './database'
 import { isOnline } from '../services/networkService'
-import { generateOfflineId } from './idUtils'
 import { mapTruckRoutePageDtoToModel } from '../mapers/TruckRoutePageMapper'
 import { addOfflineOperation } from './offlineQueue'
 
@@ -432,7 +432,7 @@ class OfflineDataManager {
 
 	async saveRoutePageToDatabase(routePageDto: TruckRoutePageDto): Promise<string> {
 		if (!routePageDto.uid) {
-			routePageDto.uid = generateOfflineId()
+			routePageDto.uid = generateUniqueId()
 		}
 		
 		const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)
@@ -456,7 +456,7 @@ class OfflineDataManager {
 				routePageModel.computed_total_routes_length || null,
 				Date.now()
 			])
-			
+			console.info("Save truck_route_page: ", routePageModel)
 			return routePageDto.uid
 		} catch (error) {
 			console.error("Save insert truck_route_page error: ", error)
@@ -560,7 +560,7 @@ class OfflineDataManager {
 
 	async saveTruckRoutePage(routePageDto: TruckRoutePageDto): Promise<string> {
 		const isUpdate = !!routePageDto.uid
-		console.log("isUpdateisUpdateisUpdateisUpdate",isUpdate)
+		console.log("isUpdateisUpdateisUpdateisUpdate",isUpdate, !!routePageDto.uid)
 		const uid = await this.saveOrUpdateRoutePage(routePageDto, isUpdate)
 		console.log('SAVED saveOrUpdateRoutePage', uid)
 		
@@ -633,7 +633,7 @@ class OfflineDataManager {
 		`
 
 		const result = await executeSelect(sql)
-		const result1 = await executeSelect('SELECT a.* from truck_routes a')
+		const result1 = await executeSelect('SELECT a.* from user a')
 		console.log("dddddddddddddddddddddddddddd",result1)
 
 		const routePages: TruckRoutePageDto[] = result.map((row: any) => ({
@@ -674,7 +674,7 @@ class OfflineDataManager {
 	}
 
 	async saveTruckRoute(type: 'startRoute' | 'endRoute', data: TruckRouteDto): Promise<string> {
-		const tempId = data.uid || generateOfflineId();
+		const tempId = data.uid || generateUniqueId();
 		const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`;
 		const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE';
 
@@ -782,7 +782,8 @@ class OfflineDataManager {
             ORDER BY tr.out_date_time DESC
             LIMIT 1
 		`
-		return await executeSelectFirst(sql)
+		const res = await executeSelectFirst(sql)
+		return  res
 	}
 
 	async getLastFinishedRoute(): Promise<any | null> {

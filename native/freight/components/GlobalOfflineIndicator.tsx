@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Platform, Pressable, Switch } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { COLORS, FONT, SHADOWS } from '@/constants/theme';
-import { useOnlineStatus } from '../hooks/useNetwork';
+import { useNetwork } from '../hooks/useNetwork';
 import { useSyncStatus } from '../hooks/useSyncStatus';
+import { getOfflineQueueStats } from '@/utils/offlineQueue';
+import { getOfflineConfig } from '../services/offlineService';
 
 interface GlobalOfflineIndicatorProps {
   showDetails?: boolean;
@@ -16,13 +18,11 @@ export default function GlobalOfflineIndicator({
   onPress,
   style 
 }: GlobalOfflineIndicatorProps) {
-  // Izmantojam tikai useOnlineStatus() hook
-  const isOnline = useOnlineStatus();
-  // Vienkāršojam savienojuma kvalitāti - ja ir online, tad ir labs savienojums
+  const { isOnline, setForcedOfflineMode } = useNetwork();
   const isStrongConnection = isOnline;
-  // Šīs vērtības varētu nākt no useSyncStatus vai citiem avotiem
-  const pendingOperations = 0;
-  const cacheSize = 0;
+  
+  const [queueStats, setQueueStats] = useState({ pending: 0, failed: 0, total: 0 });
+  const [forceOffline, setForceOffline] = useState(false);
   
   const {
     isSyncing,
@@ -32,44 +32,59 @@ export default function GlobalOfflineIndicator({
     canSync
   } = useSyncStatus();
 
-  // Ja ir online un nav pending datu, nerādīt indikatoru
-  if (isOnline && !hasPendingData && !isSyncing) {
+  useEffect(() => {
+    const fetchData = async () => {
+      const stats = await getOfflineQueueStats();
+      setQueueStats(stats);
+      
+      const config = await getOfflineConfig();
+      setForceOffline(config.forceOfflineMode);
+    };
+    
+    fetchData();
+    
+    const interval = setInterval(fetchData, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const toggleOfflineMode = async (value: boolean) => {
+    setForceOffline(value);
+    await setForcedOfflineMode(value);
+  };
+
+  if (isOnline && !hasPendingData && !isSyncing && queueStats.pending === 0 && queueStats.failed === 0 && !forceOffline) {
     return null;
   }
 
   const getIndicatorColor = () => {
-    if (!isOnline) return COLORS.error; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
+    if (!isOnline || forceOffline) return COLORS.error;
     if (isSyncing) return COLORS.secondary;
-    if (hasPendingData) return COLORS.warning;
+    if (hasPendingData || queueStats.pending > 0) return COLORS.warning;
+    if (queueStats.failed > 0) return COLORS.error;
     return COLORS.success;
   };
 
   const getIndicatorIcon = () => {
     if (isSyncing) return 'sync';
-    if (!isOnline) return 'wifi-off'; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
-    if (hasPendingData) return 'cloud-upload';
+    if (!isOnline || forceOffline) return 'wifi-off';
+    if (hasPendingData || queueStats.pending > 0) return 'cloud-upload';
+    if (queueStats.failed > 0) return 'error-outline';
     return 'wifi';
   };
 
   const getStatusText = () => {
     if (isSyncing) return 'Sinhronizē...';
-    if (!isOnline) return 'Offline režīms'; // Apvieno gan tīkla problēmas, gan manuālo offline režīmu
-    if (hasPendingData) return `${pendingOperations} nesinhronizēti`;
+    if (!isOnline) return 'Nav savienojuma';
+    if (forceOffline) return 'Offline režīms (manuāls)';
+    if (queueStats.failed > 0) return `${queueStats.failed} kļūdas`;
+    if (hasPendingData || queueStats.pending > 0) return `${queueStats.pending} nesinhronizēti`;
     return 'Online';
   };
 
   const getConnectionQualityText = () => {
-    if (!isOnline) return 'Nav';
+    if (!isOnline || forceOffline) return 'Nav';
     if (isStrongConnection) return 'Labs';
     return 'Vājš';
-  };
-
-  const formatCacheSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
   const handlePress = () => {
@@ -98,13 +113,12 @@ export default function GlobalOfflineIndicator({
           {getStatusText()}
         </Text>
         
-        {(onPress || canSync) && (
-          <MaterialIcons 
-            name="chevron-right" 
-            size={16} 
-            color={COLORS.gray} 
-          />
-        )}
+        <Switch
+          value={forceOffline}
+          onValueChange={toggleOfflineMode}
+          trackColor={{ false: COLORS.gray, true: COLORS.warning }}
+          thumbColor={forceOffline ? COLORS.secondary : COLORS.white}
+        />
       </View>
 
       {showDetails && (
@@ -116,20 +130,20 @@ export default function GlobalOfflineIndicator({
             </Text>
           </View>
           
-          {hasPendingData && (
+          {(hasPendingData || queueStats.pending > 0) && (
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Nesinhronizēti:</Text>
               <Text style={styles.detailValue}>
-                {pendingOperations} ieraksti
+                {queueStats.pending} ieraksti
               </Text>
             </View>
           )}
           
-          {cacheSize > 0 && (
+          {queueStats.failed > 0 && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Cache:</Text>
+              <Text style={styles.detailLabel}>Kļūdas:</Text>
               <Text style={styles.detailValue}>
-                {formatCacheSize(cacheSize)}
+                {queueStats.failed} ieraksti
               </Text>
             </View>
           )}
@@ -145,45 +159,6 @@ export default function GlobalOfflineIndicator({
         </View>
       )}
     </Component>
-  );
-}
-
-/**
- * Kompakts offline indikators bez detaļām
- */
-export function CompactOfflineIndicator({ onPress, style }: GlobalOfflineIndicatorProps) {
-  return (
-    <GlobalOfflineIndicator 
-      showDetails={false} 
-      onPress={onPress}
-      style={[styles.compactContainer, style]}
-    />
-  );
-}
-
-/**
- * Floating offline indikators
- */
-export function FloatingOfflineIndicator({ onPress }: { onPress?: () => void }) {
-  // Izmantojam tikai useOnlineStatus() hook
-  const isOnline = useOnlineStatus();
-  // Šī vērtība varētu nākt no useSyncStatus
-  const pendingOperations = 0;
-  const { isSyncing } = useSyncStatus();
-
-  // Rādīt tikai, ja ir kāda problēma
-  if (isOnline && pendingOperations === 0 && !isSyncing) {
-    return null;
-  }
-
-  return (
-    <View style={styles.floatingContainer}>
-      <GlobalOfflineIndicator 
-        showDetails={false}
-        onPress={onPress}
-        style={styles.floatingIndicator}
-      />
-    </View>
   );
 }
 
@@ -206,11 +181,6 @@ const styles = StyleSheet.create({
     ...SHADOWS.medium,
   },
   
-  compactContainer: {
-    padding: 8,
-    marginVertical: 2,
-  },
-  
   mainRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -222,6 +192,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
+  
   
   detailsContainer: {
     marginTop: 8,
@@ -247,26 +218,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: FONT.medium,
     color: COLORS.white,
-  },
-  
-  floatingContainer: {
-    position: 'absolute',
-    top: Platform.OS === 'web' ? 20 : 60, // Account for status bar on mobile
-    right: 16,
-    zIndex: 1000,
-  },
-  
-  floatingIndicator: Platform.OS === 'web' ? {
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    ...SHADOWS.medium,
-  } : {
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    ...SHADOWS.medium,
   },
 });

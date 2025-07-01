@@ -18,10 +18,10 @@ export default function OfflineIndicator() {
   let message = '';
   let backgroundColor = COLORS.warning;
   
-  if (hasErrors) {
-    message = `Sinhronizācijas kļūda - ${queueStats.failed} operācijas neizdevās`;
-    backgroundColor = '#FF6B6B'; // Red for errors
-  }
+  // if (hasErrors) {
+  //   message = `Sinhronizācijas kļūda - ${queueStats.failed} operācijas neizdevās`;
+  //   backgroundColor = '#FF6B6B'; // Red for errors
+  // }
   
   if (!message) return null;
   

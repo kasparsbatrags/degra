@@ -1,9 +1,9 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {createFreight} from '../lib/api'
 import {addPendingMutation, syncPendingMutations} from '../services/syncService'
-import { throttleNetworkRequest, useNetworkState } from '../utils/networkUtils'
+import {throttleNetworkRequest, useNetworkState } from '../utils/networkUtils'
 import {getMaxRetries} from '../config/environment'
-import { generateId } from '../utils/idUtils'
+import {generateUniqueId} from '../utils/idUtils'
 
 export function useCreateFreight() {
   const queryClient = useQueryClient();
@@ -12,7 +12,7 @@ export function useCreateFreight() {
   return useMutation({
     mutationFn: async (freightData: any) => {
       if (!isConnected) {
-        const tempId = generateId();
+        const tempId = generateUniqueId();
         
         await addPendingMutation('createFreight', freightData, tempId);
         
