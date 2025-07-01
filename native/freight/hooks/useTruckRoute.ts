@@ -13,6 +13,7 @@ export function useTruckRoute() {
 	const createRouteMutation = (endpoint: string, method: 'post' | 'put', offlineKey: 'startRoute' | 'endRoute') =>
 			useMutation({
 				mutationFn: async (routeData: TruckRouteDto) => {
+					console.info("createRouteMutation ",routeData)
 					if (!isOnline) {
 						const tempId = await saveTruckRouteLocally(offlineKey, routeData);
 						return { ...routeData, id: tempId, isPending: true };

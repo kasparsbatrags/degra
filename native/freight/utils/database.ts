@@ -288,8 +288,6 @@ export const clearAllData = async () => {
     DELETE FROM offline_operations;
     DELETE FROM truck_routes;
     DELETE FROM truck_route_page;
-    DELETE FROM truck;
-    DELETE FROM truck_object;
     UPDATE sync_metadata SET last_sync_timestamp = 0, last_sync_date = NULL, sync_status = 'idle', error_message = NULL;
   `);
   console.log('All data cleared from database');

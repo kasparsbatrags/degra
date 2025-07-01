@@ -240,8 +240,11 @@ export class RoutePageDataManager {
    */
   private async getRoutePagesMobile(): Promise<TruckRoutePageDto[]> {
     const result = await executeSelect(SQLQueryBuilder.getSelectRoutePagesSQL())
-    const result1 = await executeSelect('SELECT a.* from user a')
+    const result1 = await executeSelect('SELECT a.* from truck_routes a')
+	  const result2 = await executeSelect('SELECT a.* from truck_route_page a')
+
     console.log("dddddddddddddddddddddddddddd", result1)
+	  console.log(result2)
 
     const routePages: TruckRoutePageDto[] = result.map((row: any) => ({
       uid: row.uid,

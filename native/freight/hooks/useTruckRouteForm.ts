@@ -359,7 +359,7 @@ export function useTruckRouteForm(params: any) {
             const dateTo = form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo);
             
             const truckRoutePage: TruckRoutePageDto = {
-                uid: form.routePageTruck || '0',
+                uid: '',
                 dateFrom: format(dateFrom, 'yyyy-MM-dd'),
                 dateTo: format(dateTo, 'yyyy-MM-dd'),
                 truck: { uid: form.routePageTruck || '0' },

@@ -282,7 +282,7 @@ export const loadSession = async () => {
         user: null,
       };
     } else {
-		console.warn("Session expired at: " + new Date(session.expiresAt).toLocaleString() + "");
+		// console.warn("Session expired at: " + new Date(session.expiresAt).toLocaleString() + "");
 	}
     
     return {
