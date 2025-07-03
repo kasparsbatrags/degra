@@ -1,6 +1,6 @@
 import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto'
 import { isOfflineMode } from '@/services/offlineService'
-import { generateUniqueId } from '@/utils/idUtils'
+import uuid from 'react-native-uuid';
 import { executeQuery, executeSelect, executeSelectFirst } from '../database'
 import { SQLQueryBuilder } from './SQLQueryBuilder'
 import { PlatformDataAdapter } from './PlatformDataAdapter'
@@ -39,7 +39,7 @@ export class RoutePageDataManager {
    */
   async saveRoutePageToDatabase(routePageDto: TruckRoutePageDto): Promise<string> {
     if (!routePageDto.uid) {
-      routePageDto.uid = generateUniqueId()
+      routePageDto.uid = uuid.v4().toString();
     }
     
     const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)
@@ -69,7 +69,10 @@ export class RoutePageDataManager {
       PlatformDataAdapter.logPlatformInfo('saveRoutePageToDatabase', `Error: ${error}`)
       console.error("Save insert truck_route_page error: ", error)
       throw error
-    }
+    } finally {
+		const result = await executeSelect('SELECT a.* from truck_route_page a')
+		console.log("insert truck_route_page: ", result)
+	}
   }
 
   /**
@@ -128,7 +131,11 @@ export class RoutePageDataManager {
       PlatformDataAdapter.logPlatformInfo('updateRoutePageInDatabase', `Error: ${error}`)
       console.error("Save update truck_route_page error: ", error)
       return false
-    }
+    } finally {
+		const result = await executeSelect('SELECT a.* from truck_route_page a where uid='+routePageDto.uid)
+		console.log("update truck_route_page uid:{}, result:{} ", routePageDto.uid, result)
+
+	}
   }
 
   /**

@@ -365,6 +365,8 @@ export function useTruckRouteForm(params: any) {
                 truck: { uid: form.routePageTruck || '0' },
                 user: { id: user?.id || '0' },
                 fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
+				odometerAtRouteStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : 0,
+				odometerAtRouteFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0,
             };
 
             const outTruckObject = outTruckObjectValue ? {

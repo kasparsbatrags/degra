@@ -1,435 +1,411 @@
-import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { executeQuery, executeSelect, executeSelectFirst, OfflineOperation } from './database';
-import { isOnline } from '@/services/networkService';
-import freightAxiosInstance from '../config/freightAxios';
-import { generateUniqueId } from './idUtils';
+import {isOnline} from '@/services/networkService'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {Platform} from 'react-native'
+import {v4 as uuidv4} from 'uuid'
+import freightAxiosInstance from '../config/freightAxios'
+import {executeQuery, executeSelect, executeSelectFirst, OfflineOperation} from './database'
 
-const QUEUE_STORAGE_KEY = 'offline_operations_queue';
-const MAX_RETRIES = 3;
-const RETRY_DELAY_BASE = 1000;
-const BATCH_SIZE = 10;
+const QUEUE_STORAGE_KEY = 'offline_operations_queue'
+const MAX_RETRIES = 3
+const RETRY_DELAY_BASE = 1000
+const BATCH_SIZE = 10
 
 class OfflineQueueManager {
-  private isProcessing = false;
-  private processingInterval: NodeJS.Timeout | null = null;
+	private isProcessing = false
+	private processingInterval: NodeJS.Timeout | null = null
 
-  async addOperation(
-    type: 'CREATE' | 'UPDATE' | 'DELETE',
-    tableName: string,
-    endpoint: string,
-    data: any
-  ): Promise<string> {
-    const operationId = generateUniqueId();
-    const operation: OfflineOperation = {
-      id: operationId,
-      type,
-      table_name: tableName,
-      endpoint,
-      data: JSON.stringify(data),
-      timestamp: Date.now(),
-      retries: 0,
-      status: 'pending',
-      created_at: Date.now(),
-      updated_at: Date.now()
-    };
+	async addOperation(type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string, data: any): Promise<string> {
+		const operationId = uuidv4().toString()
+		const operation: OfflineOperation = {
+			id: operationId,
+			type,
+			table_name: tableName,
+			endpoint,
+			data: JSON.stringify(data),
+			timestamp: Date.now(),
+			retries: 0,
+			status: 'pending',
+			created_at: Date.now(),
+			updated_at: Date.now()
+		}
 
-    try {
-      if (Platform.OS === 'web') {
-        return operationId
-      } else {
-        await this.addOperationToDatabase(operation);
-      }
+		try {
+			if (Platform.OS === 'web') {
+				return operationId
+			} else {
+				await this.addOperationToDatabase(operation)
+			}
 
-      console.log(`Added offline operation: ${type} ${tableName}`, operationId);
-      
-      const online = await isOnline();
-      if (online) {
-        this.processQueue();
-      } else {
-        console.log('Operation added to queue but not processed - device is offline');
-      }
-      
-      return operationId;
-    } catch (error) {
-      console.error('Failed to add operation to queue:', error);
-      throw error;
-    }
-  }
+			console.log(`Added offline operation: ${type} ${tableName}`, operationId)
 
-  private async addOperationToDatabase(operation: OfflineOperation) {
-    const sql = `
-      INSERT INTO offline_operations 
-      (id, type, table_name, endpoint, data, timestamp, retries, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    await executeQuery(sql, [
-      operation.id,
-      operation.type,
-      operation.table_name,
-      operation.endpoint,
-      operation.data,
-      operation.timestamp,
-      operation.retries,
-      operation.status,
-      operation.created_at,
-      operation.updated_at
-    ]);
-  }
+			const online = await isOnline()
+			if (online) {
+				this.processQueue()
+			} else {
+				console.log('Operation added to queue but not processed - device is offline')
+			}
 
-  async getPendingOperations(): Promise<OfflineOperation[]> {
-    try {
-      if (Platform.OS === 'web') {
-        return await this.getPendingOperationsFromAsyncStorage();
-      } else {
-        return await this.getPendingOperationsFromDatabase();
-      }
-    } catch (error) {
-      console.error('Failed to get pending operations:', error);
-      return [];
-    }
-  }
+			return operationId
+		} catch (error) {
+			console.error('Failed to add operation to queue:', error)
+			throw error
+		}
+	}
 
-  private async getPendingOperationsFromDatabase(): Promise<OfflineOperation[]> {
-    const sql = `
-      SELECT * FROM offline_operations 
-      WHERE status IN ('pending', 'failed') 
-      ORDER BY timestamp ASC 
-      LIMIT ?
-    `;
-    
-    return await executeSelect(sql, [BATCH_SIZE]);
-  }
+	private async addOperationToDatabase(operation: OfflineOperation) {
+		const sql = `
+            INSERT INTO offline_operations
+            (id, type, table_name, endpoint, data, timestamp, retries, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`
 
-  private async getPendingOperationsFromAsyncStorage(): Promise<OfflineOperation[]> {
-    try {
-      const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-      if (!queueData) return [];
-      
-      const queue: OfflineOperation[] = JSON.parse(queueData);
-      return queue
-        .filter(op => op.status === 'pending' || op.status === 'failed')
-        .sort((a, b) => a.timestamp - b.timestamp)
-        .slice(0, BATCH_SIZE);
-    } catch (error) {
-      console.error('Failed to get operations from AsyncStorage:', error);
-      return [];
-    }
-  }
+		await executeQuery(sql, [operation.id, operation.type, operation.table_name, operation.endpoint, operation.data, operation.timestamp, operation.retries, operation.status, operation.created_at, operation.updated_at])
+	}
 
-  async processQueue(): Promise<void> {
-    if (this.isProcessing) {
-      console.log('Queue processing already in progress');
-      return;
-    }
+	async getPendingOperations(): Promise<OfflineOperation[]> {
+		try {
+			if (Platform.OS === 'web') {
+				return await this.getPendingOperationsFromAsyncStorage()
+			} else {
+				return await this.getPendingOperationsFromDatabase()
+			}
+		} catch (error) {
+			console.error('Failed to get pending operations:', error)
+			return []
+		}
+	}
 
-    const online = await isOnline();
-    if (!online) {
-      console.log('Device is offline, skipping queue processing');
-      return;
-    }
+	private async getPendingOperationsFromDatabase(): Promise<OfflineOperation[]> {
+		const sql = `
+            SELECT *
+            FROM offline_operations
+            WHERE status IN ('pending', 'failed')
+            ORDER BY timestamp ASC
+            LIMIT ?
+		`
 
-    this.isProcessing = true;
-    console.log('Starting offline queue processing');
+		return await executeSelect(sql, [BATCH_SIZE])
+	}
 
-    try {
-      const pendingOperations = await this.getPendingOperations();
-      
-      if (pendingOperations.length === 0) {
-        console.log('No pending operations to process');
-        return;
-      }
+	private async getPendingOperationsFromAsyncStorage(): Promise<OfflineOperation[]> {
+		try {
+			const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY)
+			if (!queueData) return []
 
-      console.log(`Processing ${pendingOperations.length} pending operations`);
+			const queue: OfflineOperation[] = JSON.parse(queueData)
+			return queue
+					.filter(op => op.status === 'pending' || op.status === 'failed')
+					.sort((a, b) => a.timestamp - b.timestamp)
+					.slice(0, BATCH_SIZE)
+		} catch (error) {
+			console.error('Failed to get operations from AsyncStorage:', error)
+			return []
+		}
+	}
 
-      for (const operation of pendingOperations) {
-        try {
-          await this.processOperation(operation);
-        } catch (error) {
-          console.error(`Failed to process operation ${operation.id}:`, error);
-          await this.markOperationFailed(operation, error);
-        }
-      }
-    } catch (error) {
-      console.error('Error during queue processing:', error);
-    } finally {
-      this.isProcessing = false;
-      console.log('Finished offline queue processing');
-    }
-  }
+	async processQueue(): Promise<void> {
+		if (this.isProcessing) {
+			console.log('Queue processing already in progress')
+			return
+		}
 
-  private async processOperation(operation: OfflineOperation): Promise<void> {
-    console.log(`Processing operation: ${operation.type} ${operation.table_name}`, operation.id);
+		const online = await isOnline()
+		if (!online) {
+			console.log('Device is offline, skipping queue processing')
+			return
+		}
 
-    await this.updateOperationStatus(operation.id, 'syncing');
+		this.isProcessing = true
+		console.log('Starting offline queue processing')
 
-    try {
-      const data = JSON.parse(operation.data);
-      let response;
+		try {
+			const pendingOperations = await this.getPendingOperations()
 
-      switch (operation.type) {
-        case 'CREATE':
-          response = await freightAxiosInstance.post(operation.endpoint, data);
-          break;
-        case 'UPDATE':
-          response = await freightAxiosInstance.put(operation.endpoint, data);
-          break;
-        case 'DELETE':
-          response = await freightAxiosInstance.delete(operation.endpoint);
-          break;
-        default:
-          throw new Error(`Unknown operation type: ${operation.type}`);
-      }
+			if (pendingOperations.length === 0) {
+				console.log('No pending operations to process')
+				return
+			}
 
-      await this.markOperationCompleted(operation, response.data);
-      console.log(`Successfully processed operation ${operation.id}`);
+			console.log(`Processing ${pendingOperations.length} pending operations`)
 
-    } catch (error: any) {
-      console.error(`Failed to process operation ${operation.id}:`, error);
-      
-      if (operation.retries < MAX_RETRIES) {
-        await this.scheduleRetry(operation);
-      } else {
-        await this.markOperationFailed(operation, error);
-      }
-    }
-  }
+			for (const operation of pendingOperations) {
+				try {
+					await this.processOperation(operation)
+				} catch (error) {
+					console.error(`Failed to process operation ${operation.id}:`, error)
+					await this.markOperationFailed(operation, error)
+				}
+			}
+		} catch (error) {
+			console.error('Error during queue processing:', error)
+		} finally {
+			this.isProcessing = false
+			console.log('Finished offline queue processing')
+		}
+	}
 
-  private async updateOperationStatus(
-    operationId: string, 
-    status: 'pending' | 'syncing' | 'failed' | 'completed',
-    errorMessage?: string
-  ): Promise<void> {
-    if (Platform.OS === 'web') {
-      await this.updateOperationInAsyncStorage(operationId, { status, error_message: errorMessage });
-    } else {
-      const sql = `
-        UPDATE offline_operations 
-        SET status = ?, error_message = ?, updated_at = ?
-        WHERE id = ?
-      `;
-      await executeQuery(sql, [status, errorMessage || null, Date.now(), operationId]);
-    }
-  }
+	private async processOperation(operation: OfflineOperation): Promise<void> {
+		console.log(`Processing operation: ${operation.type} ${operation.table_name}`, operation.id)
 
-  private async updateOperationInAsyncStorage(operationId: string, updates: Partial<OfflineOperation>): Promise<void> {
-    try {
-      const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-      if (!queueData) return;
+		await this.updateOperationStatus(operation.id, 'syncing')
 
-      const queue: OfflineOperation[] = JSON.parse(queueData);
-      const operationIndex = queue.findIndex(op => op.id === operationId);
-      
-      if (operationIndex !== -1) {
-        queue[operationIndex] = { ...queue[operationIndex], ...updates, updated_at: Date.now() };
-        await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
-      }
-    } catch (error) {
-      console.error('Failed to update operation in AsyncStorage:', error);
-    }
-  }
+		try {
+			const data = JSON.parse(operation.data)
+			console.log('Pocessing json: ', data)
+			let response
 
-  private async markOperationCompleted(operation: OfflineOperation, responseData?: any): Promise<void> {
-    if (Platform.OS === 'web') {
-      await this.removeOperationFromAsyncStorage(operation.id);
-    } else {
-      const sql = `
-        UPDATE offline_operations 
-        SET status = 'completed', updated_at = ?
-        WHERE id = ?
-      `;
-      await executeQuery(sql, [Date.now(), operation.id]);
-    }
+			switch (operation.type) {
+				case 'CREATE':
+					response = await freightAxiosInstance.post(operation.endpoint, data)
+					break
+				case 'UPDATE':
+					response = await freightAxiosInstance.put(operation.endpoint, data)
+					break
+				case 'DELETE':
+					response = await freightAxiosInstance.delete(operation.endpoint)
+					break
+				default:
+					throw new Error(`Unknown operation type: ${operation.type}`)
+			}
 
-    if (responseData && operation.type === 'CREATE') {
-      await this.handleCreateResponse(operation, responseData);
-    }
-  }
+			await this.markOperationCompleted(operation, response.data)
+			console.log(`Successfully processed operation ${operation.id}`)
 
-  private async handleCreateResponse(operation: OfflineOperation, responseData: any): Promise<void> {
-    if (!responseData.id) return;
+		} catch (error: any) {
+			console.error(`Failed to process operation ${operation.id}:`, error)
 
-    try {
-      const data = JSON.parse(operation.data);
-      const localId = data.id;
-      const serverId = responseData.id;
+			if (operation.retries < MAX_RETRIES) {
+				await this.scheduleRetry(operation)
+			} else {
+				await this.markOperationFailed(operation, error)
+			}
+		}
+	}
 
-      if (Platform.OS !== 'web') {
-        const sql = `
-          UPDATE ${operation.table_name} 
-          SET server_id = ?, is_dirty = 0, synced_at = ?
-          WHERE id = ?
-        `;
-        await executeQuery(sql, [serverId, Date.now(), localId]);
-      }
+	private async updateOperationStatus(operationId: string, status: 'pending' | 'syncing' | 'failed' | 'completed',
+			errorMessage?: string): Promise<void> {
+		if (Platform.OS === 'web') {
+			await this.updateOperationInAsyncStorage(operationId, {status, error_message: errorMessage})
+		} else {
+			const sql = `
+                UPDATE offline_operations
+                SET status        = ?,
+                    error_message = ?,
+                    updated_at    = ?
+                WHERE id = ?
+			`
+			await executeQuery(sql, [status, errorMessage || null, Date.now(), operationId])
+		}
+	}
 
-      console.log(`Updated local record ${localId} with server ID ${serverId}`);
-    } catch (error) {
-      console.error('Failed to handle create response:', error);
-    }
-  }
+	private async updateOperationInAsyncStorage(operationId: string, updates: Partial<OfflineOperation>): Promise<void> {
+		try {
+			const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY)
+			if (!queueData) return
 
-  private async removeOperationFromAsyncStorage(operationId: string): Promise<void> {
-    try {
-      const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-      if (!queueData) return;
+			const queue: OfflineOperation[] = JSON.parse(queueData)
+			const operationIndex = queue.findIndex(op => op.id === operationId)
 
-      const queue: OfflineOperation[] = JSON.parse(queueData);
-      const filteredQueue = queue.filter(op => op.id !== operationId);
-      await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(filteredQueue));
-    } catch (error) {
-      console.error('Failed to remove operation from AsyncStorage:', error);
-    }
-  }
+			if (operationIndex !== -1) {
+				queue[operationIndex] = {...queue[operationIndex], ...updates, updated_at: Date.now()}
+				await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue))
+			}
+		} catch (error) {
+			console.error('Failed to update operation in AsyncStorage:', error)
+		}
+	}
 
-  private async scheduleRetry(operation: OfflineOperation): Promise<void> {
-    const newRetryCount = operation.retries + 1;
-    const delay = RETRY_DELAY_BASE * Math.pow(2, newRetryCount);
+	private async markOperationCompleted(operation: OfflineOperation, responseData?: any): Promise<void> {
+		if (Platform.OS === 'web') {
+			await this.removeOperationFromAsyncStorage(operation.id)
+		} else {
+			const sql = `
+                UPDATE offline_operations
+                SET status     = 'completed',
+                    updated_at = ?
+                WHERE id = ?
+			`
+			await executeQuery(sql, [Date.now(), operation.id])
+		}
 
-    console.log(`Scheduling retry ${newRetryCount}/${MAX_RETRIES} for operation ${operation.id} in ${delay}ms`);
+		if (responseData && operation.type === 'CREATE') {
+			await this.handleCreateResponse(operation, responseData)
+		}
+	}
 
-    setTimeout(async () => {
-      if (Platform.OS === 'web') {
-        await this.updateOperationInAsyncStorage(operation.id, {
-          status: 'pending',
-          retries: newRetryCount,
-          error_message: undefined
-        });
-      } else {
-        const sql = `
-          UPDATE offline_operations 
-          SET status = 'pending', retries = ?, error_message = NULL, updated_at = ?
-          WHERE id = ?
-        `;
-        await executeQuery(sql, [newRetryCount, Date.now(), operation.id]);
-      }
+	private async handleCreateResponse(operation: OfflineOperation, responseData: any): Promise<void> {
+		if (!responseData.id) return
 
-      const online = await isOnline();
-      if (online) {
-        this.processQueue();
-      } else {
-        console.log(`Retry for operation ${operation.id} queued but not processed - device is offline`);
-      }
-    }, delay);
-  }
+		try {
+			const data = JSON.parse(operation.data)
+			const localId = data.id
+			const serverId = responseData.id
 
-  private async markOperationFailed(operation: OfflineOperation, error: any): Promise<void> {
-    const errorMessage = error?.message || 'Unknown error';
-    console.error(`Operation ${operation.id} failed permanently:`, errorMessage);
+			if (Platform.OS !== 'web') {
+				const sql = `
+                    UPDATE ${operation.table_name}
+                    SET server_id = ?,
+                        is_dirty  = 0,
+                        synced_at = ?
+                    WHERE id = ?
+				`
+				await executeQuery(sql, [serverId, Date.now(), localId])
+			}
 
-    await this.updateOperationStatus(operation.id, 'failed', errorMessage);
-  }
+			console.log(`Updated local record ${localId} with server ID ${serverId}`)
+		} catch (error) {
+			console.error('Failed to handle create response:', error)
+		}
+	}
 
-  startAutoProcessing(intervalMs: number = 30000): void {
-    if (this.processingInterval) {
-      clearInterval(this.processingInterval);
-    }
+	private async removeOperationFromAsyncStorage(operationId: string): Promise<void> {
+		try {
+			const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY)
+			if (!queueData) return
 
-    this.processingInterval = setInterval(async () => {
-      const online = await isOnline();
-      if (online) {
-        this.processQueue();
-      } else {
-        console.log('Auto processing skipped - device is offline');
-      }
-    }, intervalMs);
+			const queue: OfflineOperation[] = JSON.parse(queueData)
+			const filteredQueue = queue.filter(op => op.id !== operationId)
+			await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(filteredQueue))
+		} catch (error) {
+			console.error('Failed to remove operation from AsyncStorage:', error)
+		}
+	}
 
-    console.log(`Started automatic queue processing every ${intervalMs}ms (respecting offline mode)`);
-  }
+	private async scheduleRetry(operation: OfflineOperation): Promise<void> {
+		const newRetryCount = operation.retries + 1
+		const delay = RETRY_DELAY_BASE * Math.pow(2, newRetryCount)
 
-  stopAutoProcessing(): void {
-    if (this.processingInterval) {
-      clearInterval(this.processingInterval);
-      this.processingInterval = null;
-      console.log('Stopped automatic queue processing');
-    }
-  }
+		console.log(`Scheduling retry ${newRetryCount}/${MAX_RETRIES} for operation ${operation.id} in ${delay}ms`)
 
-  async getQueueStats(): Promise<{
-    pending: number;
-    failed: number;
-    completed: number;
-    total: number;
-  }> {
-    try {
-      if (Platform.OS === 'web') {
-        const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-        if (!queueData) return { pending: 0, failed: 0, completed: 0, total: 0 };
+		setTimeout(async () => {
+			if (Platform.OS === 'web') {
+				await this.updateOperationInAsyncStorage(operation.id, {
+					status: 'pending', retries: newRetryCount, error_message: undefined
+				})
+			} else {
+				const sql = `
+                    UPDATE offline_operations
+                    SET status        = 'pending',
+                        retries       = ?,
+                        error_message = NULL,
+                        updated_at    = ?
+                    WHERE id = ?
+				`
+				await executeQuery(sql, [newRetryCount, Date.now(), operation.id])
+			}
 
-        const queue: OfflineOperation[] = JSON.parse(queueData);
-        return {
-          pending: queue.filter(op => op.status === 'pending').length,
-          failed: queue.filter(op => op.status === 'failed').length,
-          completed: queue.filter(op => op.status === 'completed').length,
-          total: queue.length
-        };
-      } else {
-        const stats = await executeSelectFirst(`
-          SELECT 
-            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
-            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
-            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
-            COUNT(*) as total
-          FROM offline_operations
-        `);
+			const online = await isOnline()
+			if (online) {
+				this.processQueue()
+			} else {
+				console.log(`Retry for operation ${operation.id} queued but not processed - device is offline`)
+			}
+		}, delay)
+	}
 
-        return {
-          pending: stats?.pending || 0,
-          failed: stats?.failed || 0,
-          completed: stats?.completed || 0,
-          total: stats?.total || 0
-        };
-      }
-    } catch (error) {
-      console.error('Failed to get queue stats:', error);
-      return { pending: 0, failed: 0, completed: 0, total: 0 };
-    }
-  }
+	private async markOperationFailed(operation: OfflineOperation, error: any): Promise<void> {
+		const errorMessage = error?.message || 'Unknown error'
+		console.error(`Operation ${operation.id} failed permanently:`, errorMessage)
 
-  async clearCompletedOperations(): Promise<void> {
-    try {
-      if (Platform.OS === 'web') {
-        const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY);
-        if (!queueData) return;
+		await this.updateOperationStatus(operation.id, 'failed', errorMessage)
+	}
 
-        const queue: OfflineOperation[] = JSON.parse(queueData);
-        const activeQueue = queue.filter(op => op.status !== 'completed');
-        await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(activeQueue));
-      } else {
-        await executeQuery('DELETE FROM offline_operations WHERE status = ?', ['completed']);
-      }
+	startAutoProcessing(intervalMs: number = 30000): void {
+		if (this.processingInterval) {
+			clearInterval(this.processingInterval)
+		}
 
-      console.log('Cleared completed operations from queue');
-    } catch (error) {
-      console.error('Failed to clear completed operations:', error);
-    }
-  }
+		this.processingInterval = setInterval(async () => {
+			const online = await isOnline()
+			if (online) {
+				this.processQueue()
+			}
+		}, intervalMs)
+
+		console.log(`Started automatic queue processing every ${intervalMs}ms (respecting offline mode)`)
+	}
+
+	stopAutoProcessing(): void {
+		if (this.processingInterval) {
+			clearInterval(this.processingInterval)
+			this.processingInterval = null
+			console.log('Stopped automatic queue processing')
+		}
+	}
+
+	async getQueueStats(): Promise<{
+		pending: number; failed: number; completed: number; total: number;
+	}> {
+		try {
+			if (Platform.OS === 'web') {
+				const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY)
+				if (!queueData) return {pending: 0, failed: 0, completed: 0, total: 0}
+
+				const queue: OfflineOperation[] = JSON.parse(queueData)
+				return {
+					pending: queue.filter(op => op.status === 'pending').length,
+					failed: queue.filter(op => op.status === 'failed').length,
+					completed: queue.filter(op => op.status === 'completed').length,
+					total: queue.length
+				}
+			} else {
+				const stats = await executeSelectFirst(`
+                    SELECT SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END)   as pending,
+                           SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END)    as failed,
+                           SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                           COUNT(*)                                              as total
+                    FROM offline_operations
+				`)
+
+				return {
+					pending: stats?.pending || 0, failed: stats?.failed || 0, completed: stats?.completed || 0, total: stats?.total || 0
+				}
+			}
+		} catch (error) {
+			console.error('Failed to get queue stats:', error)
+			return {pending: 0, failed: 0, completed: 0, total: 0}
+		}
+	}
+
+	async clearCompletedOperations(): Promise<void> {
+		try {
+			if (Platform.OS === 'web') {
+				const queueData = await AsyncStorage.getItem(QUEUE_STORAGE_KEY)
+				if (!queueData) return
+
+				const queue: OfflineOperation[] = JSON.parse(queueData)
+				const activeQueue = queue.filter(op => op.status !== 'completed')
+				await AsyncStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(activeQueue))
+			} else {
+				await executeQuery('DELETE FROM offline_operations WHERE status = ?', ['completed'])
+			}
+
+			console.log('Cleared completed operations from queue')
+		} catch (error) {
+			console.error('Failed to clear completed operations:', error)
+		}
+	}
 }
 
-export const offlineQueue = new OfflineQueueManager();
+export const offlineQueue = new OfflineQueueManager()
 
-export const addOfflineOperation = (
-  type: 'CREATE' | 'UPDATE' | 'DELETE',
-  tableName: string,
-  endpoint: string,
-  data: any
-): Promise<string> => {
-  return offlineQueue.addOperation(type, tableName, endpoint, data);
-};
+export const addOfflineOperation = (type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string,
+		data: any): Promise<string> => {
+	return offlineQueue.addOperation(type, tableName, endpoint, data)
+}
 
 export const processOfflineQueue = (): Promise<void> => {
-  return offlineQueue.processQueue();
-};
+	return offlineQueue.processQueue()
+}
 
 export const getOfflineQueueStats = () => {
-  return offlineQueue.getQueueStats();
-};
+	return offlineQueue.getQueueStats()
+}
 
 export const startOfflineQueueProcessing = (intervalMs?: number) => {
-  offlineQueue.startAutoProcessing(intervalMs);
-};
+	offlineQueue.startAutoProcessing(intervalMs)
+}
 
 export const stopOfflineQueueProcessing = () => {
-  offlineQueue.stopAutoProcessing();
-};
+	offlineQueue.stopAutoProcessing()
+}

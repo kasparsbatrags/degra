@@ -1,6 +1,6 @@
 import { TruckRouteDto } from '@/dto/TruckRouteDto'
 import { isOfflineMode } from '@/services/offlineService'
-import { generateUniqueId } from '@/utils/idUtils'
+import uuid from 'react-native-uuid';
 import { executeQuery, executeSelect, executeSelectFirst, executeTransaction } from '../database'
 import { SQLQueryBuilder } from './SQLQueryBuilder'
 import { PlatformDataAdapter } from './PlatformDataAdapter'
@@ -171,7 +171,7 @@ export class TruckRouteDataManager {
     data: TruckRouteDto,
     saveTruckRoutePage: (routePage: any) => Promise<string>
   ): Promise<string> {
-    const tempId = data.uid || generateUniqueId()
+    const tempId = data.uid || uuid.v4().toString();
     const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`
     const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE'
 
@@ -221,7 +221,10 @@ export class TruckRouteDataManager {
     } catch (error) {
       PlatformDataAdapter.logPlatformInfo('saveTruckRoute', `Error: ${error}`)
       console.error(error)
-    }
+    } finally {
+		const result = await executeSelect('SELECT a.* from truck_routes a ')
+		console.log("update truck_route result:{} ", result)
+	}
 
     return tempId
   }

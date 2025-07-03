@@ -4,7 +4,8 @@ import OfflineControls from '@/components/OfflineControls'
 import OfflinePurgeButton from '@/components/Profile/OfflinePurgeButton'
 import {commonStyles} from '@/constants/styles'
 import {COLORS, CONTAINER_WIDTH, SHADOWS} from '@/constants/theme'
-import { useOnlineStatus } from '@/hooks/useNetwork';
+import {useAuth} from '@/context/AuthContext'
+import {useOnlineStatus} from '@/hooks/useNetwork'
 import {getPendingTruckRoutes, PendingTruckRoute, syncTruckRoutes} from '@/services/truckRouteSyncService'
 import {format} from 'date-fns'
 import {router} from 'expo-router'
@@ -17,6 +18,7 @@ export default function OfflineDataScreen() {
 	const [isLoading, setIsLoading] = useState(false)
 	const [isSyncing, setIsSyncing] = useState(false)
 	const isOnline = useOnlineStatus()
+	const {isAuthenticated} = useAuth()
 
 	const loadPendingRoutes = async () => {
 		setIsLoading(true)
@@ -37,6 +39,11 @@ export default function OfflineDataScreen() {
 	const handleSync = async () => {
 		if (!isOnline) {
 			alert('Nav interneta savienojuma. Lūdzu, mēģiniet vēlāk.')
+			return
+		}
+
+		if (!isAuthenticated) {
+			console.error('Failed to handleSync - not autorized!')
 			return
 		}
 
@@ -65,64 +72,63 @@ export default function OfflineDataScreen() {
 	}
 
 	return (<SafeAreaView style={commonStyles.safeArea}>
-				<View style={[commonStyles.content, styles.webContainer]}>
-					<View style={styles.header}>
-						<Text style={styles.title}>Nesinhronizētie dati</Text>
+		<View style={[commonStyles.content, styles.webContainer]}>
+			<View style={styles.header}>
+				<Text style={styles.title}>Nesinhronizētie dati</Text>
 
-						<View style={styles.connectionStatus}>
-							<View style={[styles.statusIndicator, isOnline ? styles.connected : styles.disconnected]} />
-							<Text style={styles.statusText}>
-								{isOnline ? 'Savienojums ir aktīvs' : 'Nav savienojuma'}
-							</Text>
-						</View>
-					</View>
-
-					{isLoading ? (<View style={commonStyles.loadingContainer}>
-								<ActivityIndicator size="large" color={COLORS.secondary} />
-							</View>) : pendingRoutes.length === 0 ? (<View style={styles.emptyContainer}>
-								<Text style={styles.emptyText}>Nav nesinhronizētu datu</Text>
-							</View>) : (<>
-								<Text style={styles.subtitle}>
-									{pendingRoutes.length} {pendingRoutes.length === 1 ? 'ieraksts gaida' : 'ieraksti gaida'} sinhronizāciju
-								</Text>
-
-								<FlatList
-										data={pendingRoutes}
-										keyExtractor={(item) => item.id}
-										renderItem={({item}) => (<View style={styles.item}>
-													<Text style={styles.itemType}>
-														{getRouteTypeText(item.type)}
-													</Text>
-													<Text style={styles.itemDate}>
-														{formatDate(item.timestamp)}
-													</Text>
-													<Text style={styles.itemRetries}>
-														Mēģinājumi: {item.retryCount}
-													</Text>
-												</View>)}
-										style={styles.list}
-								/>
-
-								<Button
-										title={isSyncing ? 'Notiek sinhronizācija...' : 'Sinhronizēt datus'}
-										onPress={handleSync}
-										disabled={!isOnline || isSyncing}
-										style={[styles.syncButton, (!isOnline || isSyncing) && styles.disabledButton]}
-								/>
-							</>)}
-
-
-					{/* Offline kontroles */}
-					<OfflineControls />
-					<OfflinePurgeButton />
-					<View style={styles.buttonContainer}>
-						<BackButton
-								onPress={() => router.push('/(tabs)')}
-								style={styles.backButton}
-						/>
-					</View>
+				<View style={styles.connectionStatus}>
+					<View style={[styles.statusIndicator, isOnline ? styles.connected : styles.disconnected]} />
+					<Text style={styles.statusText}>
+						{isOnline ? 'Savienojums ir aktīvs' : 'Nav savienojuma'}
+					</Text>
 				</View>
-			</SafeAreaView>)
+			</View>
+
+			{isLoading ? (<View style={commonStyles.loadingContainer}>
+				<ActivityIndicator size="large" color={COLORS.secondary} />
+			</View>) : pendingRoutes.length === 0 ? (<View style={styles.emptyContainer}>
+				<Text style={styles.emptyText}>Nav nesinhronizētu datu</Text>
+			</View>) : (<>
+				<Text style={styles.subtitle}>
+					{pendingRoutes.length} {pendingRoutes.length === 1 ? 'ieraksts gaida' : 'ieraksti gaida'} sinhronizāciju
+				</Text>
+
+				<FlatList
+						data={pendingRoutes}
+						keyExtractor={(item) => item.id}
+						renderItem={({item}) => (<View style={styles.item}>
+							<Text style={styles.itemType}>
+								{getRouteTypeText(item.type)}
+							</Text>
+							<Text style={styles.itemDate}>
+								{formatDate(item.timestamp)}
+							</Text>
+							<Text style={styles.itemRetries}>
+								Mēģinājumi: {item.retryCount}
+							</Text>
+						</View>)}
+						style={styles.list}
+				/>
+
+				<Button
+						title={isSyncing ? 'Notiek sinhronizācija...' : 'Sinhronizēt datus'}
+						onPress={handleSync}
+						disabled={!isOnline || isSyncing}
+						style={[styles.syncButton, (!isOnline || isSyncing) && styles.disabledButton]}
+				/>
+			</>)}
+
+			{/* Offline kontroles */}
+			<OfflineControls />
+			<OfflinePurgeButton />
+			<View style={styles.buttonContainer}>
+				<BackButton
+						onPress={() => router.push('/(tabs)')}
+						style={styles.backButton}
+				/>
+			</View>
+		</View>
+	</SafeAreaView>)
 }
 
 const styles = StyleSheet.create({

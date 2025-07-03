@@ -9,13 +9,13 @@ export function useTruckRoute() {
   const queryClient = useQueryClient();
   const isOnline = useOnlineStatus();
 
-
 	const createRouteMutation = (endpoint: string, method: 'post' | 'put', offlineKey: 'startRoute' | 'endRoute') =>
 			useMutation({
 				mutationFn: async (routeData: TruckRouteDto) => {
-					console.info("createRouteMutation ",routeData)
+					console.info("zzzzzzzzzzzzzzzzzz ",routeData)
 					if (!isOnline) {
 						const tempId = await saveTruckRouteLocally(offlineKey, routeData);
+						console.info("tempId: ",tempId);
 						return { ...routeData, id: tempId, isPending: true };
 					} else {
 						const response = await freightAxios[method](endpoint, routeData);
