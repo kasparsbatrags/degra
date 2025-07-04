@@ -15,7 +15,7 @@ class OfflineQueueManager {
 	private isProcessing = false
 	private processingInterval: NodeJS.Timeout | null = null
 
-	async addOperation(type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string, data: any): Promise<string> {
+	async addOperation(type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string, data: any, skipAutoProcess: boolean = false): Promise<string> {
 		const operationId = uuid.v4().toString()
 		const operation: OfflineOperation = {
 			id: operationId,
@@ -40,10 +40,10 @@ class OfflineQueueManager {
 			console.log(`Added offline operation: ${type} ${tableName}`, operationId)
 
 			const online = await isOnline()
-			if (online) {
+			if (online && !skipAutoProcess) {
 				this.processQueue()
 			} else {
-				console.log('Operation added to queue but not processed - device is offline')
+				console.log('Operation added to queue but not auto-processed')
 			}
 
 			return operationId
@@ -235,27 +235,24 @@ class OfflineQueueManager {
 	}
 
 	private async handleCreateResponse(operation: OfflineOperation, responseData: any): Promise<void> {
-		if (!responseData.id) return
-
 		try {
 			const data = JSON.parse(operation.data)
-			const localId = data.id
-			const serverId = responseData.id
+			const uid = data.uid
 
 			if (Platform.OS !== 'web') {
+				// Tikai atzīmēt kā sinhronizētu - nav nepieciešams server_id mapping
 				const sql = `
-                    UPDATE ${operation.table_name}
-                    SET server_id = ?,
-                        is_dirty  = 0,
-                        synced_at = ?
-                    WHERE id = ?
+	                   UPDATE ${operation.table_name}
+	                   SET is_dirty = 0,
+	                       synced_at = ?
+	                   WHERE uid = ?
 				`
-				await executeQuery(sql, [serverId, Date.now(), localId])
+				await executeQuery(sql, [Date.now(), uid])
 			}
 
-			console.log(`Updated local record ${localId} with server ID ${serverId}`)
+			console.log(`✅ Local record ${uid} marked as synced`)
 		} catch (error) {
-			console.error('Failed to handle create response:', error)
+			console.error('❌ Failed to handle create response:', error)
 		}
 	}
 
@@ -391,8 +388,8 @@ class OfflineQueueManager {
 export const offlineQueue = new OfflineQueueManager()
 
 export const addOfflineOperation = (type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string,
-		data: any): Promise<string> => {
-	return offlineQueue.addOperation(type, tableName, endpoint, data)
+		data: any, skipAutoProcess: boolean = false): Promise<string> => {
+	return offlineQueue.addOperation(type, tableName, endpoint, data, skipAutoProcess)
 }
 
 export const processOfflineQueue = (): Promise<void> => {

@@ -125,34 +125,33 @@ export class TruckRouteDataManager {
 	async saveTruckRoute(type: 'startRoute' | 'endRoute', data: TruckRouteDto,
 			saveTruckRoutePage: (routePage: any) => Promise<string>): Promise<string> {
 
-		const tempId = data.uid || uuid.v4().toString()
-		const endpoint = type === 'startRoute' ? '/truck-routes' : `/truck-routes/${data.uid}`
-		const operationType = type === 'startRoute' ? 'CREATE' : 'UPDATE'
+		// Ensure UID exists
+		if (!data.uid) {
+			data.uid = uuid.v4().toString();
+		}
+		
+		const uid = data.uid;
 
 		// Save truck route page first
 		const truckRoutePageUid = await saveTruckRoutePage(data.truckRoutePage)
 
-		// Add to offline queue
-		await addOfflineOperation(operationType, 'truck_routes', endpoint, data)
+		// NAV nepieciešams addOfflineOperation šeit - tas notiek useTruckRoute.ts
 
 		try {
 			if (type === 'startRoute') {
 				const insertSQL = SQLQueryBuilder.getInsertTruckRouteSQL()
-				await executeQuery(insertSQL, [tempId, truckRoutePageUid, data.routeDate, null, data.cargoVolume || 0, data.outTruckObject?.uid, data.odometerAtStart, data.outDateTime, null, null, null, null, data.fuelBalanceAtStart, null, data.fuelReceived || null, null, null, null, data.unitType, Date.now()])
+				await executeQuery(insertSQL, [uid, truckRoutePageUid, data.routeDate, null, data.cargoVolume || 0, data.outTruckObject?.uid, data.odometerAtStart, data.outDateTime, null, null, null, null, data.fuelBalanceAtStart, null, data.fuelReceived || null, null, null, null, data.unitType, Date.now()])
 			} else {
-				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [data.inTruckObject?.uid, data.odometerAtFinish, data.inDateTime, (data.odometerAtFinish || 0) - (data.odometerAtStart || 0), data.fuelBalanceAtFinish, data.uid])
+				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [data.inTruckObject?.uid, data.odometerAtFinish, data.inDateTime, (data.odometerAtFinish || 0) - (data.odometerAtStart || 0), data.fuelBalanceAtFinish, uid])
 			}
 
-			PlatformDataAdapter.logPlatformInfo('saveTruckRoute', `Saved ${type} with ID: ${tempId}`)
+			console.log(`💾 Saved ${type} locally with UID: ${uid}`)
 		} catch (error) {
-			PlatformDataAdapter.logPlatformInfo('saveTruckRoute', `Error: ${error}`)
-			console.error(error)
-		} finally {
-			const result = await executeSelect('SELECT a.* from truck_routes a ')
-			console.log('update truck_route result:{} ', result)
+			console.error(`❌ Failed to save ${type} locally:`, error)
+			throw error
 		}
 
-		return tempId
+		return uid
 	}
 
 	/**
