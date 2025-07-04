@@ -9,30 +9,27 @@ export function useTruckRoute() {
   const queryClient = useQueryClient();
   const isOnline = useOnlineStatus();
 
-	const createRouteMutation = useMutation({
-		mutationFn: async (routeData: TruckRouteDto) => {
-			// 1. VIENMĒR saglabāt lokāli
-			const tempId = await saveTruckRouteLocally(offlineKey, routeData);
-
-			// 2. Ja online, arī nosūtīt uz serveri
-			if (isOnline) {
-				try {
-					const response = await freightAxios[method](endpoint, routeData);
-					// 3. Atjaunināt lokālos datus ar servera UID
-					await updateLocalDataWithServerResponse(tempId, response.data);
-					return response.data;
-				} catch (error) {
-					// 4. Ja servera pieprasījums neizdodas, pievienot offline queue
-					await addOfflineOperation(operationType, 'truck_routes', endpoint, routeData);
-					throw error;
-				}
-			}
-
-			// 5. Offline režīmā pievienot offline queue
-			await addOfflineOperation(operationType, 'truck_routes', endpoint, routeData);
-			return { ...routeData, id: tempId, isPending: true };
-		}
-	});
+	const createRouteMutation = (endpoint: string, method: 'post' | 'put', offlineKey: 'startRoute' | 'endRoute') =>
+			useMutation({
+				mutationFn: async (routeData: TruckRouteDto) => {
+					console.info("zzzzzzzzzzzzzzzzzz ",routeData)
+					if (!isOnline) {
+						const tempId = await saveTruckRouteLocally(offlineKey, routeData);
+						console.info("tempId: ",tempId);
+						return { ...routeData, id: tempId, isPending: true };
+					} else {
+						const response = await freightAxios[method](endpoint, routeData);
+						return response.data;
+					}
+				},
+				onSuccess: () => {
+					queryClient.invalidateQueries({ queryKey: ['truckRoutes'] });
+					if (isOnline) syncTruckRoutes().catch(console.error);
+				},
+				onError: (error) => {
+					console.error(`Failed to ${offlineKey}:`, error);
+				},
+			});
 
 	const startRoute = createRouteMutation('/truck-routes', 'post', 'startRoute');
 	const endRoute = createRouteMutation('/truck-routes', 'put', 'endRoute');
