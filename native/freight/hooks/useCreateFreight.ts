@@ -1,9 +1,10 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
+import uuid from 'react-native-uuid'
 import {createFreight} from '../lib/api'
 import {addPendingMutation, syncPendingMutations} from '../services/syncService'
 import {throttleNetworkRequest, useNetworkState } from '../utils/networkUtils'
 import {getMaxRetries} from '../config/environment'
-import { v4 as uuidv4 } from 'uuid';
+
 
 export function useCreateFreight() {
   const queryClient = useQueryClient();
@@ -12,7 +13,7 @@ export function useCreateFreight() {
   return useMutation({
     mutationFn: async (freightData: any) => {
       if (!isConnected) {
-        const tempId = uuidv4().toString();
+        const tempId = uuid.v4().toString();
         
         await addPendingMutation('createFreight', freightData, tempId);
         

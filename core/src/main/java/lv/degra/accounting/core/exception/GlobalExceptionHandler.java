@@ -120,7 +120,7 @@ public class GlobalExceptionHandler {
 		MDC.put("traceId", traceId);
 
 		String message = ex.getBindingResult().getFieldErrors().stream()
-				.map(FieldError::getDefaultMessage)
+				.map(error -> error.getField() + ": " + error.getDefaultMessage())
 				.collect(Collectors.joining(", "));
 
 		log.warn("Validation error: {}. Trace ID: {}", message, traceId);

@@ -42,7 +42,6 @@ public class TruckRouteDto implements Serializable {
 
 	private TruckObjectDto inTruckObject;
 	private Instant inDateTime;
-	@Positive
 	private Long odometerAtFinish;
 	private Integer routeLength;
 

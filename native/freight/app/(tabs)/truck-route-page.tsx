@@ -8,6 +8,7 @@ import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
 import {ActivityIndicator, FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
+import uuid from 'react-native-uuid'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
@@ -297,7 +298,7 @@ export default function TruckRoutePageScreen() {
 			}
 
 			const routePageModel: TruckRoutePage = {
-				uid: uid || generateOfflineId(),
+				uid: uid || uuid.v4().toString(),
 				date_from: format(form.dateFrom, 'yyyy-MM-dd'),
 				date_to: format(form.dateTo, 'yyyy-MM-dd'),
 				truck_uid: form.truck,

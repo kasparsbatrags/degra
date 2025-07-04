@@ -1,7 +1,8 @@
 import {isOnline} from '@/services/networkService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {Platform} from 'react-native'
-import {v4 as uuidv4} from 'uuid'
+import uuid from 'react-native-uuid'
+
 import freightAxiosInstance from '../config/freightAxios'
 import {executeQuery, executeSelect, executeSelectFirst, OfflineOperation} from './database'
 
@@ -15,7 +16,7 @@ class OfflineQueueManager {
 	private processingInterval: NodeJS.Timeout | null = null
 
 	async addOperation(type: 'CREATE' | 'UPDATE' | 'DELETE', tableName: string, endpoint: string, data: any): Promise<string> {
-		const operationId = uuidv4().toString()
+		const operationId = uuid.v4().toString()
 		const operation: OfflineOperation = {
 			id: operationId,
 			type,
@@ -132,7 +133,7 @@ class OfflineQueueManager {
 				try {
 					await this.processOperation(operation)
 				} catch (error) {
-					console.error(`Failed to process operation ${operation.id}:`, error)
+					console.error(`Failed to process operation1 ${operation.id}:`, error)
 					await this.markOperationFailed(operation, error)
 				}
 			}
