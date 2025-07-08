@@ -402,12 +402,6 @@ export function useTruckRouteForm(params: any) {
                 inDateTime: inTruckObjectValue && isItRouteFinish ? now : undefined
             };
 
-            console.log('🚛 [DEBUG] Form routePageTruck value:', form.routePageTruck);
-            console.log('🚛 [DEBUG] Payload truck UID:', payload.truckRoutePage?.truck?.uid);
-			console.log('🚛 [DEBUG] Payload outTruckObject UID:', payload.outTruckObject?.uid);
-			console.log('🚛 [DEBUG] Payload inTruckObject UID:', payload.inTruckObject?.uid);
-            console.log('🚛 [DEBUG] Full payload:', JSON.stringify(payload, null, 2));
-
             if (isItRouteFinish) {
                 await endRoute.mutateAsync(payload);
             } else {

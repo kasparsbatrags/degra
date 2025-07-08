@@ -149,7 +149,7 @@ const createTables = async (database: any) => {
     );
 
     -- Truck routes (backend-compatible structure)
-    CREATE TABLE IF NOT EXISTS truck_routes (
+    CREATE TABLE IF NOT EXISTS truck_route (
       uid TEXT PRIMARY KEY,
       truck_route_page_uid TEXT NOT NULL,
       route_date TEXT NOT NULL,
@@ -199,20 +199,20 @@ const createTables = async (database: any) => {
     CREATE INDEX IF NOT EXISTS idx_truck_object_uid ON truck_object(uid);
     CREATE INDEX IF NOT EXISTS idx_truck_object_dirty ON truck_object(is_dirty);
     CREATE INDEX IF NOT EXISTS idx_truck_object_deleted ON truck_object(is_deleted);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_dirty ON truck_routes(is_dirty);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_deleted ON truck_routes(is_deleted);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_page_uid ON truck_routes(truck_route_page_uid);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_out_object ON truck_routes(out_truck_object_uid);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_in_object ON truck_routes(in_truck_object_uid);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_date ON truck_routes(route_date);
-    CREATE INDEX IF NOT EXISTS idx_truck_routes_active ON truck_routes(in_date_time);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_dirty ON truck_route(is_dirty);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_deleted ON truck_route(is_deleted);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_page_uid ON truck_route(truck_route_page_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_out_object ON truck_route(out_truck_object_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_in_object ON truck_route(in_truck_object_uid);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_date ON truck_route(route_date);
+    CREATE INDEX IF NOT EXISTS idx_truck_routes_active ON truck_route(in_date_time);
 
     -- Insert initial sync metadata
     INSERT OR IGNORE INTO sync_metadata (table_name, last_sync_timestamp) VALUES 
       ('truck_route_page', 0),
       ('truck', 0),
       ('truck_object', 0),
-      ('truck_routes', 0);
+      ('truck_route', 0);
   `;
 
   await database.execAsync(createTablesSQL);
@@ -286,7 +286,7 @@ export const clearAllData = async () => {
   const database = await getDatabase();
   await database.execAsync(`
     DELETE FROM offline_operations;
-    DELETE FROM truck_routes;
+    DELETE FROM truck_route;
     DELETE FROM truck_route_page;
     UPDATE sync_metadata SET last_sync_timestamp = 0, last_sync_date = NULL, sync_status = 'idle', error_message = NULL;
   `);

@@ -51,7 +51,7 @@ export class SQLQueryBuilder {
   // Truck Route related queries
   static getInsertTruckRouteSQL(): string {
     return `
-      INSERT OR REPLACE INTO truck_routes
+      INSERT OR REPLACE INTO truck_route
       (uid, truck_route_page_uid, route_date, route_number, cargo_volume,
        out_truck_object_uid, odometer_at_start, out_date_time,
        odometer_at_finish, in_truck_object_uid, in_date_time,
@@ -73,7 +73,7 @@ export class SQLQueryBuilder {
              t.truck_model,
              out_obj.name as out_object_name,
              in_obj.name  as in_object_name
-      FROM truck_routes tr
+      FROM truck_route tr
                LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
                LEFT JOIN truck t ON trp.truck_uid = t.uid
                LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
@@ -93,9 +93,9 @@ export class SQLQueryBuilder {
              t.truck_model,
              out_obj.name as out_object_name,
              in_obj.name  as in_object_name
-      FROM truck_routes tr
+      FROM truck_route tr
                LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
-               LEFT JOIN truck t ON trp.truck_uid = t.uid
+               LEFT JOIN truck t ON t.uid = trp.truck_uid
                LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
                LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
       WHERE tr.in_date_time IS NULL
@@ -116,7 +116,7 @@ export class SQLQueryBuilder {
              t.truck_model,
              out_obj.name as out_object_name,
              in_obj.name  as in_object_name
-      FROM truck_routes tr
+      FROM truck_route tr
                LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
                LEFT JOIN truck t ON trp.truck_uid = t.uid
                LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
@@ -130,7 +130,7 @@ export class SQLQueryBuilder {
 
   static getUpdateTruckRouteEndSQL(): string {
     return `
-      UPDATE truck_routes
+      UPDATE truck_route
       SET
           in_truck_object_uid = ?,
           odometer_at_finish = ?,
@@ -218,7 +218,7 @@ export class SQLQueryBuilder {
   }
 
   static getDeleteSyncedTruckRoutesSQL(): string {
-    return 'DELETE FROM truck_routes WHERE synced_at IS NOT NULL AND is_dirty = 0'
+    return 'DELETE FROM truck_route WHERE synced_at IS NOT NULL AND is_dirty = 0'
   }
 
   static getDeleteSyncedRoutePagesSQL(): string {

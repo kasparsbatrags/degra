@@ -190,6 +190,7 @@ export class TruckRouteDataManager {
 	 */
 	private async getLastActiveRouteMobile(): Promise<any | null> {
 		const result = await executeSelectFirst(SQLQueryBuilder.getSelectLastActiveRouteSQL())
+		console.log("getLastActiveRouteMobile",result)
 		return result
 	}
 
