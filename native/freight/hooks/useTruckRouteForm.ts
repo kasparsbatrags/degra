@@ -244,7 +244,9 @@ export function useTruckRouteForm(params: any) {
                 // Get last active route using offline-first approach
                 try {
                     const lastRoute = await getLastActiveRoute();
+
                     if (lastRoute) {
+						console.info("lastRoute")
                         setIsRouteFinish(true);
 
                         // Set hasCargo based on whether cargoVolume exists

@@ -1,10 +1,12 @@
 import {TruckRouteDto} from '@/dto/TruckRouteDto'
+import {TruckRouteResponseDto} from '@/dto/TruckRouteResponseDto'
 import {isOfflineMode} from '@/services/offlineService'
 import uuid from 'react-native-uuid'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from '../database'
 import {addOfflineOperation} from '../offlineQueue'
 import {PlatformDataAdapter} from './PlatformDataAdapter'
 import {SQLQueryBuilder} from './SQLQueryBuilder'
+import {TruckRouteMapper, TruckRouteSqlResult} from '@/mappers/TruckRouteMapper'
 
 type SQLiteDatabase = any
 
@@ -157,7 +159,7 @@ export class TruckRouteDataManager {
 	/**
 	 * Get last active route
 	 */
-	async getLastActiveRoute(): Promise<any | null> {
+	async getLastActiveRoute(): Promise<TruckRouteResponseDto | null> {
 		try {
 			if (PlatformDataAdapter.isWeb()) {
 				return await this.getLastActiveRouteWeb()
@@ -173,9 +175,9 @@ export class TruckRouteDataManager {
 	/**
 	 * Get last active route for web platform
 	 */
-	private async getLastActiveRouteWeb(): Promise<any | null> {
+	private async getLastActiveRouteWeb(): Promise<TruckRouteResponseDto | null> {
 		try {
-			return await PlatformDataAdapter.fetchSingleFromServer<any>('/truck-routes/last-active')
+			return await PlatformDataAdapter.fetchSingleFromServer<TruckRouteResponseDto>('/truck-routes/last-active')
 		} catch (error: any) {
 			if (error.response?.status === 404) {
 				return null
@@ -188,16 +190,24 @@ export class TruckRouteDataManager {
 	/**
 	 * Get last active route for mobile platform from local database
 	 */
-	private async getLastActiveRouteMobile(): Promise<any | null> {
-		const result = await executeSelectFirst(SQLQueryBuilder.getSelectLastActiveRouteSQL())
-		console.log("getLastActiveRouteMobile",result)
-		return result
+	private async getLastActiveRouteMobile(): Promise<TruckRouteResponseDto | null> {
+		const rawResult = await executeSelectFirst(SQLQueryBuilder.getSelectLastActiveRouteSQL()) as TruckRouteSqlResult
+		
+		if (!rawResult) {
+			return null
+		}
+
+		// Use mapper to transform SQL result to DTO
+		const transformedResult = TruckRouteMapper.sqlToTruckRouteDto(rawResult)
+		
+		console.log("getLastActiveRouteMobile transformed result:", transformedResult)
+		return transformedResult
 	}
 
 	/**
 	 * Get last finished route
 	 */
-	async getLastFinishedRoute(): Promise<any | null> {
+	async getLastFinishedRoute(): Promise<TruckRouteResponseDto | null> {
 		try {
 			if (PlatformDataAdapter.isWeb()) {
 				return await this.getLastFinishedRouteWeb()
@@ -213,9 +223,9 @@ export class TruckRouteDataManager {
 	/**
 	 * Get last finished route for web platform
 	 */
-	private async getLastFinishedRouteWeb(): Promise<any | null> {
+	private async getLastFinishedRouteWeb(): Promise<TruckRouteResponseDto | null> {
 		try {
-			return await PlatformDataAdapter.fetchSingleFromServer<any>('/truck-routes/last-finished')
+			return await PlatformDataAdapter.fetchSingleFromServer<TruckRouteResponseDto>('/truck-routes/last-finished')
 		} catch (error: any) {
 			if (error.response?.status === 404) {
 				return null
@@ -228,8 +238,17 @@ export class TruckRouteDataManager {
 	/**
 	 * Get last finished route for mobile platform from local database
 	 */
-	private async getLastFinishedRouteMobile(): Promise<any | null> {
-		return await executeSelectFirst(SQLQueryBuilder.getSelectLastFinishedRouteSQL())
+	private async getLastFinishedRouteMobile(): Promise<TruckRouteResponseDto | null> {
+		const rawResult = await executeSelectFirst(SQLQueryBuilder.getSelectLastFinishedRouteSQL()) as TruckRouteSqlResult
+		
+		if (!rawResult) {
+			return null
+		}
+
+		// Use mapper to transform SQL result to DTO
+		const transformedResult = TruckRouteMapper.sqlToTruckRouteDto(rawResult)
+		
+		return transformedResult
 	}
 
 	/**

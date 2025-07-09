@@ -84,18 +84,60 @@ export class SQLQueryBuilder {
 
   static getSelectLastActiveRouteSQL(): string {
     return `
-      SELECT tr.*,
-             trp.date_from,
-             trp.date_to,
-             trp.truck_uid,
-             t.registration_number,
-             t.truck_maker,
-             t.truck_model,
-             out_obj.name as out_object_name,
-             in_obj.name  as in_object_name
+      SELECT tr.uid as uid,
+             tr.route_date as routeDate,
+             tr.route_number as routeNumber,
+             tr.cargo_volume as cargoVolume,
+             tr.unit_type_id as unitType,
+             tr.out_date_time as outDateTime,
+             tr.odometer_at_start as odometerAtStart,
+             tr.in_date_time as inDateTime,
+             tr.odometer_at_finish as odometerAtFinish,
+             tr.route_length as routeLength,
+             tr.fuel_balance_at_start as fuelBalanceAtStart,
+             tr.fuel_consumed as fuelConsumed,
+             tr.fuel_received as fuelReceived,
+             tr.fuel_balance_at_finish as fuelBalanceAtFinish,
+             
+             -- TruckRoutePage data
+             trp.uid as truckRoutePageUid,
+             trp.date_from as truckRoutePageDateFrom,
+             trp.date_to as truckRoutePageDateTo,
+             trp.fuel_balance_at_start as truckRoutePageFuelBalanceAtStart,
+             trp.fuel_balance_at_end as truckRoutePageFuelBalanceAtFinish,
+             trp.total_fuel_received_on_routes as truckRoutePageTotalFuelReceivedOnRoutes,
+             trp.total_fuel_consumed_on_routes as truckRoutePageTotalFuelConsumedOnRoutes,
+             trp.fuel_balance_at_routes_finish as truckRoutePageFuelBalanceAtRoutesFinish,
+             trp.odometer_at_route_start as truckRoutePageOdometerAtRouteStart,
+             trp.odometer_at_route_finish as truckRoutePageOdometerAtRouteFinish,
+             trp.computed_total_routes_length as truckRoutePageComputedTotalRoutesLength,
+             
+             -- Truck data
+             t.uid as truckUid,
+             t.truck_maker as truckMaker,
+             t.truck_model as truckModel,
+             t.registration_number as truckRegistrationNumber,
+             t.fuel_consumption_norm as truckFuelConsumptionNorm,
+             t.is_default as truckIsDefault,
+             
+             -- User data
+             trp.user_id as userId,
+             u.email as userEmail,
+             u.given_name as userGivenName,
+             u.family_name as userFamilyName,
+             
+             -- Out truck object
+             out_obj.uid as outTruckObjectUid,
+             out_obj.name as outTruckObjectName,
+             
+             -- In truck object
+             in_obj.uid as inTruckObjectUid,
+             in_obj.name as inTruckObjectName
+
       FROM truck_route tr
                LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
                LEFT JOIN truck t ON t.uid = trp.truck_uid
+               LEFT JOIN user u ON trp.user_id = u.id
                LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
                LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
       WHERE tr.in_date_time IS NULL
@@ -107,18 +149,56 @@ export class SQLQueryBuilder {
 
   static getSelectLastFinishedRouteSQL(): string {
     return `
-      SELECT tr.*,
-             trp.date_from,
-             trp.date_to,
-             trp.truck_uid,
-             t.registration_number,
-             t.truck_maker,
-             t.truck_model,
-             out_obj.name as out_object_name,
-             in_obj.name  as in_object_name
+      SELECT tr.uid as uid,
+             tr.route_date as routeDate,
+             tr.route_number as routeNumber,
+             tr.cargo_volume as cargoVolume,
+             tr.unit_type_id as unitType,
+             tr.out_date_time as outDateTime,
+             tr.odometer_at_start as odometerAtStart,
+             tr.in_date_time as inDateTime,
+             tr.odometer_at_finish as odometerAtFinish,
+             tr.route_length as routeLength,
+             tr.fuel_balance_at_start as fuelBalanceAtStart,
+             tr.fuel_consumed as fuelConsumed,
+             tr.fuel_received as fuelReceived,
+             tr.fuel_balance_at_finish as fuelBalanceAtFinish,
+             
+             -- TruckRoutePage data
+             trp.uid as truckRoutePageUid,
+             trp.date_from as truckRoutePageDateFrom,
+             trp.date_to as truckRoutePageDateTo,
+             trp.fuel_balance_at_start as truckRoutePageFuelBalanceAtStart,
+             trp.fuel_balance_at_end as truckRoutePageFuelBalanceAtFinish,
+             trp.total_fuel_received_on_routes as truckRoutePageTotalFuelReceivedOnRoutes,
+             trp.total_fuel_consumed_on_routes as truckRoutePageTotalFuelConsumedOnRoutes,
+             trp.fuel_balance_at_routes_finish as truckRoutePageFuelBalanceAtRoutesFinish,
+             trp.odometer_at_route_start as truckRoutePageOdometerAtRouteStart,
+             trp.odometer_at_route_finish as truckRoutePageOdometerAtRouteFinish,
+             trp.computed_total_routes_length as truckRoutePageComputedTotalRoutesLength,
+             
+             -- Truck data
+             t.uid as truckUid,
+             t.truck_maker as truckMaker,
+             t.truck_model as truckModel,
+             t.registration_number as truckRegistrationNumber,
+             t.fuel_consumption_norm as truckFuelConsumptionNorm,
+             t.is_default as truckIsDefault,
+             
+             -- User data
+             trp.user_id as userId,
+             
+             -- Out truck object
+             out_obj.uid as outTruckObjectUid,
+             out_obj.name as outTruckObjectName,
+             
+             -- In truck object
+             in_obj.uid as inTruckObjectUid,
+             in_obj.name as inTruckObjectName
+
       FROM truck_route tr
                LEFT JOIN truck_route_page trp ON tr.truck_route_page_uid = trp.uid
-               LEFT JOIN truck t ON trp.truck_uid = t.uid
+               LEFT JOIN truck t ON t.uid = trp.truck_uid
                LEFT JOIN truck_object out_obj ON tr.out_truck_object_uid = out_obj.uid
                LEFT JOIN truck_object in_obj ON tr.in_truck_object_uid = in_obj.uid
       WHERE tr.in_date_time IS NOT NULL
