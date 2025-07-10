@@ -2,6 +2,8 @@ import { isOfflineMode } from '@/services/offlineService'
 import { executeQuery, executeSelect, executeSelectFirst, executeTransaction } from '../database'
 import { SQLQueryBuilder } from './SQLQueryBuilder'
 import { PlatformDataAdapter } from './PlatformDataAdapter'
+import { TruckDto } from '@/dto/TruckDto'
+import { mapTruckResultsToDto, mapTruckResultToDto, mapServerResponseToTruckDtos, mapServerResponseToTruckDto } from '@/mapers/TruckMapper'
 
 type SQLiteDatabase = any
 
@@ -86,7 +88,7 @@ export class TruckDataManager {
   /**
    * Get all trucks with platform-specific handling
    */
-  async getTrucks(): Promise<any[]> {
+  async getTrucks(): Promise<TruckDto[]> {
     try {
       if (PlatformDataAdapter.isWeb()) {
         return await this.getTrucksWeb()
@@ -102,9 +104,10 @@ export class TruckDataManager {
   /**
    * Get trucks for web platform
    */
-  private async getTrucksWeb(): Promise<any[]> {
+  private async getTrucksWeb(): Promise<TruckDto[]> {
     try {
-      return await PlatformDataAdapter.fetchFromServer<any>('/trucks')
+      const serverData = await PlatformDataAdapter.fetchFromServer<any[]>('/trucks')
+      return mapServerResponseToTruckDtos(serverData)
     } catch (error) {
       PlatformDataAdapter.logPlatformInfo('getTrucksWeb', `Error: ${error}`)
       return []
@@ -114,15 +117,15 @@ export class TruckDataManager {
   /**
    * Get trucks for mobile platform from local database
    */
-  private async getTrucksMobile(): Promise<any[]> {
+  private async getTrucksMobile(): Promise<TruckDto[]> {
     const result = await executeSelect(SQLQueryBuilder.getSelectTrucksSQL())
-    return Array.isArray(result) ? result : []
+    return Array.isArray(result) ? mapTruckResultsToDto(result) : []
   }
 
   /**
    * Get truck by ID with platform-specific handling
    */
-  async getTruckById(truckId: string): Promise<any | null> {
+  async getTruckById(truckId: string): Promise<TruckDto | null> {
     try {
       if (PlatformDataAdapter.isWeb()) {
         return await this.getTruckByIdWeb(truckId)
@@ -138,9 +141,10 @@ export class TruckDataManager {
   /**
    * Get truck by ID for web platform
    */
-  private async getTruckByIdWeb(truckId: string): Promise<any | null> {
+  private async getTruckByIdWeb(truckId: string): Promise<TruckDto | null> {
     try {
-      return await PlatformDataAdapter.fetchSingleFromServer<any>(`/trucks/${truckId}`)
+      const serverData = await PlatformDataAdapter.fetchSingleFromServer<any>(`/trucks/${truckId}`)
+      return serverData ? mapServerResponseToTruckDto(serverData) : null
     } catch (error) {
       PlatformDataAdapter.logPlatformInfo('getTruckByIdWeb', `Error: ${error}`)
       return null
@@ -150,8 +154,8 @@ export class TruckDataManager {
   /**
    * Get truck by ID for mobile platform from local database
    */
-  private async getTruckByIdMobile(truckId: string): Promise<any | null> {
+  private async getTruckByIdMobile(truckId: string): Promise<TruckDto | null> {
     const result = await executeSelectFirst(SQLQueryBuilder.getSelectTruckByIdSQL(), [truckId])
-    return result || null
+    return result ? mapTruckResultToDto(result) : null
   }
 }

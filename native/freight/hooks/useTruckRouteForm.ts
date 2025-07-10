@@ -302,7 +302,7 @@ export function useTruckRouteForm(params: any) {
                         // Get trucks using offline-first approach
                         const trucks = await getTrucks();
                         if (trucks && trucks.length > 0) {
-                            const defaultTruck = trucks[0].uid?.toString() || trucks[0].server_id?.toString() || trucks[0].id?.toString() || '';
+                            const defaultTruck = trucks[0].uid?.toString() || '';
                             const currentDate = new Date();
                             const outTruckObjectId = lastFinishedRoute?.outTruckObject?.uid?.toString() || '';
 

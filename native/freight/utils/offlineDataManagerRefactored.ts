@@ -1,5 +1,6 @@
 import { TruckRouteDto } from '@/dto/TruckRouteDto'
 import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto'
+import { TruckDto } from '@/dto/TruckDto'
 import { TruckDataManager } from './data-managers/TruckDataManager'
 import { TruckObjectDataManager } from './data-managers/TruckObjectDataManager'
 import { TruckRouteDataManager } from './data-managers/TruckRouteDataManager'
@@ -31,11 +32,11 @@ class OfflineDataManagerRefactored {
     return this.truckManager.downloadTrucks(db)
   }
 
-  async getTrucks(): Promise<any[]> {
+  async getTrucks(): Promise<TruckDto[]> {
     return this.truckManager.getTrucks()
   }
 
-  async getTruckById(truckId: string): Promise<any | null> {
+  async getTruckById(truckId: string): Promise<TruckDto | null> {
     return this.truckManager.getTruckById(truckId)
   }
 
@@ -140,7 +141,7 @@ export const offlineDataManagerRefactored = new OfflineDataManagerRefactored()
 // Export convenience functions (maintaining backward compatibility)
 export const getRoutePages = () => offlineDataManagerRefactored.getRoutePages()
 export const downloadServerData = () => offlineDataManagerRefactored.syncAllData()
-export const getTrucks = () => offlineDataManagerRefactored.getTrucks()
+export const getTrucks = (): Promise<TruckDto[]> => offlineDataManagerRefactored.getTrucks()
 export const getObjects = () => offlineDataManagerRefactored.getObjects()
 export const getLastActiveRoute = () => offlineDataManagerRefactored.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManagerRefactored.getLastFinishedRoute()

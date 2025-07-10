@@ -1,12 +1,8 @@
-import {TruckDto} from '@/dto/TruckDto'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-import {UserDto} from '@/dto/UserDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
 
-export const mapTruckRoutePageModelToDto = async (
-	routePages: TruckRoutePage[],
-	getTruckById: (id: string) => Promise<any>
-): Promise<TruckRoutePageDto[]> => {
+export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[],
+		getTruckById: (id: string) => Promise<any>): Promise<TruckRoutePageDto[]> => {
 	if (!Array.isArray(routePages)) {
 		return []
 	}
@@ -17,7 +13,6 @@ export const mapTruckRoutePageModelToDto = async (
 		const routePage = routePages[i]
 
 		try {
-
 			if (!routePage.uid || !routePage.date_from || !routePage.date_to) {
 				continue
 			}
@@ -27,82 +22,100 @@ export const mapTruckRoutePageModelToDto = async (
 				truckData = await getTruckById(routePage.truck_uid)
 			}
 
-			const truck: TruckDto = {
-				uid: routePage.truck_uid || '',
-				truckMaker: truckData?.truck_maker || routePage.truck_maker || '',
-				truckModel: truckData?.truck_model || routePage.truck_model || '',
-				registrationNumber: truckData?.registration_number || routePage.registration_number || '',
-				fuelConsumptionNorm: truckData?.fuel_consumption_norm || routePage.fuel_consumption_norm || 0,
-				isDefault: truckData?.is_default || routePage.is_default || false,
+			// Merge truck data with route page data to create enriched result object
+			const enrichedResult = {
+				...routePage, // Override with fetched truck data if available
+				truck_maker: truckData?.truck_maker || routePage.truck_maker,
+				truck_model: truckData?.truck_model || routePage.truck_model,
+				registration_number: truckData?.registration_number || routePage.registration_number,
+				fuel_consumption_norm: truckData?.fuel_consumption_norm || routePage.fuel_consumption_norm,
+				is_default: truckData?.is_default || routePage.is_default,
 			}
 
-			const user: UserDto = {
-				id: routePage.user_id || '', givenName: routePage.givenName || '', familyName: routePage.familyName || '',
-			}
-
-			const transformed: TruckRoutePageDto = {
-				uid: routePage.uid,
-				dateFrom: routePage.date_from,
-				dateTo: routePage.date_to,
-				truck: truck,
-				user: user,
-
-				fuelBalanceAtStart: routePage.fuel_balance_at_start || null,
-				fuelBalanceAtFinish: routePage.fuel_balance_at_end || 0,
-				totalFuelReceivedOnRoutes: routePage.total_fuel_received_on_routes || 0,
-				totalFuelConsumedOnRoutes: routePage.total_fuel_consumed_on_routes || 0,
-				fuelBalanceAtRoutesFinish: routePage.fuel_balance_at_routes_finish || 0,
-
-				odometerAtRouteStart: routePage.odometer_at_route_start || 0,
-				odometerAtRouteFinish: routePage.odometer_at_route_finish || 0,
-				computedTotalRoutesLength: routePage.computed_total_routes_length || 0,
-			}
-
+			// Use the consistent mapping function
+			const transformed = mapSingleTruckRoutePageResultToDto(enrichedResult)
 			mappedRoutes.push(transformed)
 		} catch (error) {
+			// Silent error handling - skip invalid entries
 		}
 	}
 
 	return mappedRoutes.filter(route => {
 		const isValid = route.uid && route.dateFrom && route.dateTo && route.truck.registrationNumber
 		if (!isValid) {
+			// Could log validation issues here if needed
 		}
 		return isValid
 	})
 }
 
 export const mapTruckRoutePageDtoToModel = (routePageDto: TruckRoutePageDto): TruckRoutePage => {
-  return {
-    uid: routePageDto.uid,
-    date_from: routePageDto.dateFrom,
-    date_to: routePageDto.dateTo,
-    truck_uid: routePageDto.truck?.uid,
-    
-    truck_maker: routePageDto.truck?.truckMaker,
-    truck_model: routePageDto.truck?.truckModel,
-    registration_number: routePageDto.truck?.registrationNumber,
-    fuel_consumption_norm: routePageDto.truck?.fuelConsumptionNorm,
-    is_default: routePageDto.truck?.isDefault ? 1 : 0,
-    
-    user_id: routePageDto.user?.id,
-    email: routePageDto.user?.email,
-    givenName: routePageDto.user?.givenName,
-    familyName: routePageDto.user?.familyName,
-    
-    fuel_balance_at_start: routePageDto.fuelBalanceAtStart || 0,
-    fuel_balance_at_end: routePageDto.fuelBalanceAtFinish,
-    
-    total_fuel_received_on_routes: routePageDto.totalFuelReceivedOnRoutes,
-    total_fuel_consumed_on_routes: routePageDto.totalFuelConsumedOnRoutes,
-    fuel_balance_at_routes_finish: routePageDto.fuelBalanceAtRoutesFinish,
-    
-    odometer_at_route_start: routePageDto.odometerAtRouteStart,
-    odometer_at_route_finish: routePageDto.odometerAtRouteFinish,
-    computed_total_routes_length: routePageDto.computedTotalRoutesLength,
-    
-    is_dirty: 1,
-    is_deleted: 0,
-    created_at: Date.now(),
-    updated_at: Date.now()
-  };
-};
+	return {
+		uid: routePageDto.uid,
+		date_from: routePageDto.dateFrom,
+		date_to: routePageDto.dateTo,
+		truck_uid: routePageDto.truck?.uid,
+
+		truck_maker: routePageDto.truck?.truckMaker,
+		truck_model: routePageDto.truck?.truckModel,
+		registration_number: routePageDto.truck?.registrationNumber,
+		fuel_consumption_norm: routePageDto.truck?.fuelConsumptionNorm,
+		is_default: routePageDto.truck?.isDefault ? 1 : 0,
+
+		user_id: routePageDto.user?.id,
+		email: routePageDto.user?.email,
+		givenName: routePageDto.user?.givenName,
+		familyName: routePageDto.user?.familyName,
+
+		fuel_balance_at_start: routePageDto.fuelBalanceAtStart || 0,
+		fuel_balance_at_end: routePageDto.fuelBalanceAtFinish,
+
+		total_fuel_received_on_routes: routePageDto.totalFuelReceivedOnRoutes,
+		total_fuel_consumed_on_routes: routePageDto.totalFuelConsumedOnRoutes,
+		fuel_balance_at_routes_finish: routePageDto.fuelBalanceAtRoutesFinish,
+
+		odometer_at_route_start: routePageDto.odometerAtRouteStart,
+		odometer_at_route_finish: routePageDto.odometerAtRouteFinish,
+		computed_total_routes_length: routePageDto.computedTotalRoutesLength,
+
+		is_dirty: 1,
+		is_deleted: 0,
+		created_at: Date.now(),
+		updated_at: Date.now()
+	}
+}
+
+/**
+ * Map single database result to TruckRoutePageDto
+ * Synchronous version for single items
+ */
+export const mapSingleTruckRoutePageResultToDto = (result: any): TruckRoutePageDto => {
+	return {
+		uid: result.uid,
+		dateFrom: result.date_from,
+		dateTo: result.date_to,
+		truck: result.truck_uid ? {
+			uid: result.truck_uid,
+			truckMaker: result.truck_maker || '',
+			truckModel: result.truck_model || '',
+			registrationNumber: result.registration_number || '',
+			fuelConsumptionNorm: result.fuel_consumption_norm || 0,
+			isDefault: result.is_default || 0
+		} : {
+			uid: '', truckMaker: '', truckModel: '', registrationNumber: 'Nav pieejams', fuelConsumptionNorm: 0, isDefault: 0
+		},
+		user: result.user_id ? {
+			id: result.user_id, email: result.email || '', givenName: result.given_name || '', familyName: result.family_name || ''
+		} : {
+			id: '', email: '', givenName: '', familyName: ''
+		},
+		fuelBalanceAtStart: result.fuel_balance_at_start || 0,
+		fuelBalanceAtFinish: result.fuel_balance_at_end || 0,
+		totalFuelReceivedOnRoutes: result.total_fuel_received_on_routes,
+		totalFuelConsumedOnRoutes: result.total_fuel_consumed_on_routes,
+		fuelBalanceAtRoutesFinish: result.fuel_balance_at_routes_finish,
+		odometerAtRouteStart: result.odometer_at_route_start,
+		odometerAtRouteFinish: result.odometer_at_route_finish,
+		computedTotalRoutesLength: result.computed_total_routes_length
+	}
+}

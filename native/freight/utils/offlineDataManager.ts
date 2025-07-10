@@ -9,6 +9,7 @@ import { TruckRouteDataManager } from './data-managers/TruckRouteDataManager';
 import { RoutePageDataManager } from './data-managers/RoutePageDataManager';
 import { TruckRouteDto } from '@/dto/TruckRouteDto';
 import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto';
+import { TruckDto } from '@/dto/TruckDto';
 import { offlineDataManagerRefactored } from './offlineDataManagerRefactored';
 
 const truckRouteDataManager = new TruckRouteDataManager();
@@ -73,7 +74,7 @@ export async function updateTruckRouteLocally(
 // Export functions for backward compatibility with index.tsx imports
 export const downloadServerData = () => offlineDataManagerRefactored.syncAllData();
 export const getRoutePages = () => offlineDataManagerRefactored.getRoutePages();
-export const getTrucks = () => offlineDataManagerRefactored.getTrucks();
+export const getTrucks = (): Promise<TruckDto[]> => offlineDataManagerRefactored.getTrucks();
 export const getObjects = () => offlineDataManagerRefactored.getObjects();
 export const getLastActiveRoute = () => offlineDataManagerRefactored.getLastActiveRoute();
 export const getLastFinishedRoute = () => offlineDataManagerRefactored.getLastFinishedRoute();
