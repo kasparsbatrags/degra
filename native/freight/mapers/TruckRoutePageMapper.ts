@@ -1,8 +1,10 @@
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
+import {TruckDto} from '@/dto/TruckDto'
+import {mapTruckResultToDto} from './TruckMapper'
 
 export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[],
-		getTruckById: (id: string) => Promise<any>): Promise<TruckRoutePageDto[]> => {
+		getTruckById: (id: string) => Promise<TruckDto | null>): Promise<TruckRoutePageDto[]> => {
 	if (!Array.isArray(routePages)) {
 		return []
 	}
@@ -24,12 +26,13 @@ export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[],
 
 			// Merge truck data with route page data to create enriched result object
 			const enrichedResult = {
-				...routePage, // Override with fetched truck data if available
-				truck_maker: truckData?.truck_maker || routePage.truck_maker,
-				truck_model: truckData?.truck_model || routePage.truck_model,
-				registration_number: truckData?.registration_number || routePage.registration_number,
-				fuel_consumption_norm: truckData?.fuel_consumption_norm || routePage.fuel_consumption_norm,
-				is_default: truckData?.is_default || routePage.is_default,
+				...routePage,
+				// Override with fetched truck data if available (TruckDto uses camelCase)
+				truck_maker: truckData?.truckMaker || routePage.truck_maker,
+				truck_model: truckData?.truckModel || routePage.truck_model,
+				registration_number: truckData?.registrationNumber || routePage.registration_number,
+				fuel_consumption_norm: truckData?.fuelConsumptionNorm || routePage.fuel_consumption_norm,
+				is_default: truckData?.isDefault || routePage.is_default,
 			}
 
 			// Use the consistent mapping function
@@ -94,14 +97,7 @@ export const mapSingleTruckRoutePageResultToDto = (result: any): TruckRoutePageD
 		uid: result.uid,
 		dateFrom: result.date_from,
 		dateTo: result.date_to,
-		truck: result.truck_uid ? {
-			uid: result.truck_uid,
-			truckMaker: result.truck_maker || '',
-			truckModel: result.truck_model || '',
-			registrationNumber: result.registration_number || '',
-			fuelConsumptionNorm: result.fuel_consumption_norm || 0,
-			isDefault: result.is_default || 0
-		} : {
+		truck: result.truck_uid ? mapTruckResultToDto(result) : {
 			uid: '', truckMaker: '', truckModel: '', registrationNumber: 'Nav pieejams', fuelConsumptionNorm: 0, isDefault: 0
 		},
 		user: result.user_id ? {
