@@ -281,8 +281,7 @@ export class SQLQueryBuilder {
                LEFT JOIN truck t ON trp.truck_uid = t.uid
                LEFT JOIN user u ON trp.user_id = u.id
       WHERE trp.truck_uid = ?
-        AND date(trp.date_from) >= date(?)
-        AND date(trp.date_to) <= date(?)
+        AND date(?) BETWEEN date(trp.date_from) AND date(trp.date_to)
         AND trp.is_deleted = 0
       LIMIT 1
     `
