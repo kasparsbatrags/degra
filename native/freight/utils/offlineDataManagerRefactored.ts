@@ -110,7 +110,7 @@ class OfflineDataManagerRefactored {
     return this.routePageManager.getRoutePages()
   }
 
-  async checkRoutePageExists(truckId: string, date: string): Promise<any | null> {
+  async checkRoutePageExists(truckId: string, date: string): Promise<TruckRoutePageDto | null> {
     return this.routePageManager.checkRoutePageExists(truckId, date)
   }
 
@@ -144,6 +144,6 @@ export const getTrucks = () => offlineDataManagerRefactored.getTrucks()
 export const getObjects = () => offlineDataManagerRefactored.getObjects()
 export const getLastActiveRoute = () => offlineDataManagerRefactored.getLastActiveRoute()
 export const getLastFinishedRoute = () => offlineDataManagerRefactored.getLastFinishedRoute()
-export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManagerRefactored.checkRoutePageExists(truckId, date)
+export const checkRoutePageExists = (truckId: string, date: string): Promise<TruckRoutePageDto | null> => offlineDataManagerRefactored.checkRoutePageExists(truckId, date)
 export const getRoutePoint = () => offlineDataManagerRefactored.getRoutePoint()
 export const saveTruckRouteLocally = (type: 'startRoute' | 'endRoute', data: TruckRouteDto) => offlineDataManagerRefactored.saveTruckRoute(type, data)

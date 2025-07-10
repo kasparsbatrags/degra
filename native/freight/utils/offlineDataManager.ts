@@ -8,6 +8,7 @@ import uuid from 'react-native-uuid';
 import { TruckRouteDataManager } from './data-managers/TruckRouteDataManager';
 import { RoutePageDataManager } from './data-managers/RoutePageDataManager';
 import { TruckRouteDto } from '@/dto/TruckRouteDto';
+import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto';
 import { offlineDataManagerRefactored } from './offlineDataManagerRefactored';
 
 const truckRouteDataManager = new TruckRouteDataManager();
@@ -76,7 +77,7 @@ export const getTrucks = () => offlineDataManagerRefactored.getTrucks();
 export const getObjects = () => offlineDataManagerRefactored.getObjects();
 export const getLastActiveRoute = () => offlineDataManagerRefactored.getLastActiveRoute();
 export const getLastFinishedRoute = () => offlineDataManagerRefactored.getLastFinishedRoute();
-export const checkRoutePageExists = (truckId: string, date: string) => offlineDataManagerRefactored.checkRoutePageExists(truckId, date);
+export const checkRoutePageExists = (truckId: string, date: string): Promise<TruckRoutePageDto | null> => offlineDataManagerRefactored.checkRoutePageExists(truckId, date);
 export const getRoutePoint = () => offlineDataManagerRefactored.getRoutePoint();
 
 // Export the main offline data manager instance
