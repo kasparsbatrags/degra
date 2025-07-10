@@ -256,8 +256,8 @@ export function useTruckRouteForm(params: any) {
                         const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date();
                         const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date();
 
-                        const outTruckObjectId = lastRoute.outTruckObject?.id?.toString() || '';
-                        const inTruckObjectId = lastRoute.inTruckObject?.id?.toString() || '';
+                        const outTruckObjectId = lastRoute.outTruckObject?.uid?.toString() || '';
+                        const inTruckObjectId = lastRoute.inTruckObject?.uid?.toString() || '';
 
                         // Set the selected object state variables
                         setSelectedOutTruckObject(outTruckObjectId);
@@ -270,7 +270,7 @@ export function useTruckRouteForm(params: any) {
                             outDateTime,
                             dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
                             dateTo: lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date(),
-                            routePageTruck: lastRoute.truckRoutePage?.truck?.id?.toString() || '',
+                            routePageTruck: lastRoute.truckRoutePage?.truck?.uid?.toString() || '',
                             odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
                             odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
                             outTruckObject: outTruckObjectId,
@@ -304,7 +304,7 @@ export function useTruckRouteForm(params: any) {
                         if (trucks && trucks.length > 0) {
                             const defaultTruck = trucks[0].uid?.toString() || trucks[0].server_id?.toString() || trucks[0].id?.toString() || '';
                             const currentDate = new Date();
-                            const outTruckObjectId = lastFinishedRoute?.outTruckObject?.id?.toString() || '';
+                            const outTruckObjectId = lastFinishedRoute?.outTruckObject?.uid?.toString() || '';
 
                             // Set the selected object state variables
                             setSelectedOutTruckObject(outTruckObjectId);

@@ -92,13 +92,16 @@ export default function TruckRouteScreen() {
 	const validateForm = () => {
 
 		const hasOutTruckObject = selectedOutTruckObject || form.outTruckObject
-		console.log(selectedOutTruckObject)
-		console.log(hasOutTruckObject)
-		console.log(form.outTruckObject)
+		console.log('=== VALIDATE FORM DEBUG ===')
+		console.log('isItRouteFinish:', isItRouteFinish)
+		console.log('form.routePageTruck:', form.routePageTruck)
+		console.log('selectedOutTruckObject:', selectedOutTruckObject)
+		console.log('form.outTruckObject:', form.outTruckObject)
+		console.log('hasOutTruckObject:', hasOutTruckObject)
 
 		if (!form.routePageTruck || !hasOutTruckObject) {
 			setActiveTab('basic')
-			console.error('Error')
+			console.error('VALIDATION FAILED: Basic tab - routePageTruck:', !form.routePageTruck, 'hasOutTruckObject:', !hasOutTruckObject)
 			return false
 		}
 
