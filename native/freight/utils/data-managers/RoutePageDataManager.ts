@@ -1,7 +1,7 @@
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {isOfflineMode} from '@/services/offlineService'
 import uuid from 'react-native-uuid'
-import {mapTruckRoutePageDtoToModel} from '../../mapers/TruckRoutePageMapper'
+import {mapTruckRoutePageDtoToModel, mapSingleTruckRoutePageResultToDto} from '../../mapers/TruckRoutePageMapper'
 import {isOnline} from '../../services/networkService'
 import {executeQuery, executeSelect, executeSelectFirst} from '../database'
 import {addOfflineOperation} from '../offlineQueue'
@@ -254,7 +254,7 @@ export class RoutePageDataManager {
 	/**
 	 * Check if route page exists for truck and date
 	 */
-	async checkRoutePageExists(truckId: string, date: string): Promise<any | null> {
+	async checkRoutePageExists(truckId: string, date: string): Promise<TruckRoutePageDto | null> {
 		try {
 			if (PlatformDataAdapter.isWeb()) {
 				return await this.checkRoutePageExistsWeb(truckId, date)
@@ -270,7 +270,7 @@ export class RoutePageDataManager {
 	/**
 	 * Check route page exists for web platform
 	 */
-	private async checkRoutePageExistsWeb(truckId: string, date: string): Promise<any | null> {
+	private async checkRoutePageExistsWeb(truckId: string, date: string): Promise<TruckRoutePageDto | null> {
 		try {
 			return await PlatformDataAdapter.fetchSingleFromServer<any>(`/route-pages/check?truckId=${truckId}&date=${date}`)
 		} catch (error: any) {
@@ -285,34 +285,11 @@ export class RoutePageDataManager {
 	/**
 	 * Check route page exists for mobile platform
 	 */
-	private async checkRoutePageExistsMobile(truckId: string, date: string): Promise<any | null> {
+	private async checkRoutePageExistsMobile(truckId: string, date: string): Promise<TruckRoutePageDto | null> {
 		const result = await executeSelectFirst(SQLQueryBuilder.getCheckRoutePageExistsSQL(), [truckId, date, date])
 
 		if (!result) return null
 
-		return {
-			uid: result.uid,
-			dateFrom: result.date_from,
-			dateTo: result.date_to,
-			truck: result.truck_uid ? {
-				uid: result.truck_uid,
-				truckMaker: result.truck_maker || '',
-				truckModel: result.truck_model || '',
-				registrationNumber: result.registration_number || '',
-				fuelConsumptionNorm: result.fuel_consumption_norm || 0,
-				isDefault: result.is_default || 0
-			} : null,
-			user: result.user_id ? {
-				id: result.user_id, email: result.email || '', givenName: result.given_name || '', familyName: result.family_name || ''
-			} : null,
-			fuelBalanceAtStart: result.fuel_balance_at_start || 0,
-			fuelBalanceAtFinish: result.fuel_balance_at_end || 0,
-			totalFuelReceivedOnRoutes: result.total_fuel_received_on_routes,
-			totalFuelConsumedOnRoutes: result.total_fuel_consumed_on_routes,
-			fuelBalanceAtRoutesFinish: result.fuel_balance_at_routes_finish,
-			odometerAtRouteStart: result.odometer_at_route_start,
-			odometerAtRouteFinish: result.odometer_at_route_finish,
-			computedTotalRoutesLength: result.computed_total_routes_length
-		}
+		return mapSingleTruckRoutePageResultToDto(result)
 	}
 }
