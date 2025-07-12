@@ -1,7 +1,7 @@
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
 import {TruckDto} from '@/dto/TruckDto'
-import {mapTruckResultToDto} from './TruckMapper'
+import {mapTruckResultFromRoutePageToDto, mapTruckResultToDto} from './TruckMapper'
 
 export const mapTruckRoutePageModelToDto = async (routePages: TruckRoutePage[],
 		getTruckById: (id: string) => Promise<TruckDto | null>): Promise<TruckRoutePageDto[]> => {
@@ -97,7 +97,7 @@ export const mapSingleTruckRoutePageResultToDto = (result: any): TruckRoutePageD
 		uid: result.uid,
 		dateFrom: result.date_from,
 		dateTo: result.date_to,
-		truck: result.truck_uid ? mapTruckResultToDto(result) : {
+		truck: result.truck_uid ? mapTruckResultFromRoutePageToDto(result) : {
 			uid: '', truckMaker: '', truckModel: '', registrationNumber: 'Nav pieejams', fuelConsumptionNorm: 0, isDefault: 0
 		},
 		user: result.user_id ? {

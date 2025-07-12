@@ -216,7 +216,7 @@ export class RoutePageDataManager {
 
 		console.log('dddddddddddddddddddddddddddd truck_object', await executeSelect('SELECT a.* from truck_object a'))
 		console.log('dddddddddddddddddddddddddddd truck', await executeSelect('SELECT a.* from truck a'))
-		console.log('dddddddddddddddddddddddddddd routes', await executeSelect('SELECT a.* from truck_routes a'))
+		console.log('dddddddddddddddddddddddddddd routes', await executeSelect('SELECT a.* from truck_route a'))
 		console.log('dddddddddddddddddddddddddddd route-page', await executeSelect('SELECT a.* from truck_route_page a'))
 
 		const routePages: TruckRoutePageDto[] = result.map((row: any) => ({

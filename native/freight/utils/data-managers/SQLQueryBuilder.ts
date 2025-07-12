@@ -269,6 +269,7 @@ export class SQLQueryBuilder {
   static getCheckRoutePageExistsSQL(): string {
     return `
       SELECT trp.*,
+             t.uid as truck_uid,
              t.truck_maker,
              t.truck_model,
              t.registration_number,

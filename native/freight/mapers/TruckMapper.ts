@@ -16,6 +16,18 @@ export const mapTruckResultToDto = (result: any): TruckDto => {
   }
 }
 
+export const mapTruckResultFromRoutePageToDto = (result: any): TruckDto => {
+	return {
+		uid: result.truck_uid || '',  // ← Skaidri truck_uid
+		truckMaker: result.truck_maker || '',
+		truckModel: result.truck_model || '',
+		registrationNumber: result.registration_number || '',
+		fuelConsumptionNorm: result.fuel_consumption_norm || 0,
+		isDefault: result.is_default || 0
+	}
+}
+
+
 /**
  * Map array of database results to TruckDto array
  * Synchronous version for multiple trucks

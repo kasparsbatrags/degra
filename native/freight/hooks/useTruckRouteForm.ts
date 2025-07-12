@@ -73,10 +73,9 @@ export function useTruckRouteForm(params: any) {
         return async (truckId: string, date: Date) => {
             if (!truckId || !date) return;
 
-            // Clear previous timeout
+
             if (timeoutId) clearTimeout(timeoutId);
 
-            // Set new timeout
             timeoutId = setTimeout(async () => {
                 try {
                     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -115,7 +114,7 @@ export function useTruckRouteForm(params: any) {
             }
         }
 
-        if (truckRouteForm.inTruckObject && !selectedInTruckObject) {
+        if (truckRouteForm.inTruckObject && !selectedInTruckObject && isItRouteFinish) {
             setSelectedInTruckObject(truckRouteForm.inTruckObject);
             setForm(prev => ({
                 ...prev,
@@ -208,7 +207,7 @@ export function useTruckRouteForm(params: any) {
                 });
             }
 
-            if (truckRouteForm.inTruckObject) {
+            if (truckRouteForm.inTruckObject && isItRouteFinish) {
                 const objectId = truckRouteForm.inTruckObject;
                 const objectName = truckRouteForm.inTruckObjectName || '';
 
@@ -243,21 +242,22 @@ export function useTruckRouteForm(params: any) {
             try {
                 // Get last active route using offline-first approach
                 try {
-                    const lastRoute = await getLastActiveRoute();
+					const trucks = await getTrucks();
+                    const lastActiveRoute = await getLastActiveRoute();
 
-                    if (lastRoute) {
+                    if (lastActiveRoute) {
 						console.info("lastRoute")
                         setIsRouteFinish(true);
 
                         // Set hasCargo based on whether cargoVolume exists
-                        setHasCargo(!!lastRoute.cargoVolume);
+                        setHasCargo(!!lastActiveRoute.cargoVolume);
 
                         // Convert dates from string to Date objects
-                        const routeDate = lastRoute.routeDate ? new Date(lastRoute.routeDate) : new Date();
-                        const outDateTime = lastRoute.outDateTime ? new Date(lastRoute.outDateTime) : new Date();
+                        const routeDate = lastActiveRoute.routeDate ? new Date(lastActiveRoute.routeDate) : new Date();
+                        const outDateTime = lastActiveRoute.outDateTime ? new Date(lastActiveRoute.outDateTime) : new Date();
 
-                        const outTruckObjectId = lastRoute.outTruckObject?.uid?.toString() || '';
-                        const inTruckObjectId = lastRoute.inTruckObject?.uid?.toString() || '';
+                        const outTruckObjectId = lastActiveRoute.outTruckObject?.uid?.toString() || '';
+                        const inTruckObjectId = lastActiveRoute.inTruckObject?.uid?.toString() || '';
 
                         // Set the selected object state variables
                         setSelectedOutTruckObject(outTruckObjectId);
@@ -265,30 +265,30 @@ export function useTruckRouteForm(params: any) {
 
                         // Set the form state
                         setForm({
-                            uid: lastRoute.uid?.toString() || '',
+                            uid: lastActiveRoute.uid?.toString() || '',
                             routeDate,
                             outDateTime,
-                            dateFrom: lastRoute.truckRoutePage?.dateFrom ? new Date(lastRoute.truckRoutePage.dateFrom) : new Date(),
-                            dateTo: lastRoute.truckRoutePage?.dateTo ? new Date(lastRoute.truckRoutePage.dateTo) : new Date(),
-                            routePageTruck: lastRoute.truckRoutePage?.truck?.uid?.toString() || '',
-                            odometerAtStart: lastRoute.odometerAtStart?.toString() || '',
-                            odometerAtFinish: lastRoute.odometerAtFinish?.toString() || '',
+                            dateFrom: lastActiveRoute.truckRoutePage?.dateFrom ? new Date(lastActiveRoute.truckRoutePage.dateFrom) : new Date(),
+                            dateTo: lastActiveRoute.truckRoutePage?.dateTo ? new Date(lastActiveRoute.truckRoutePage.dateTo) : new Date(),
+                            routePageTruck: lastActiveRoute.truckRoutePage?.truck?.uid?.toString() || '',
+                            odometerAtStart: lastActiveRoute.odometerAtStart?.toString() || '',
+                            odometerAtFinish: lastActiveRoute.odometerAtFinish?.toString() || '',
                             outTruckObject: outTruckObjectId,
                             inTruckObject: inTruckObjectId,
                             cargoType: '',  // Not provided in the response
-                            cargoVolume: lastRoute.cargoVolume?.toString() || '',
-                            unitType: lastRoute.unitType || '',
-                            fuelBalanceAtStart: lastRoute.fuelBalanceAtStart?.toString() || '',
-                            fuelReceived: lastRoute.fuelReceived?.toString() || '',
+                            cargoVolume: lastActiveRoute.cargoVolume?.toString() || '',
+                            unitType: lastActiveRoute.unitType || '',
+                            fuelBalanceAtStart: lastActiveRoute.fuelBalanceAtStart?.toString() || '',
+                            fuelReceived: lastActiveRoute.fuelReceived?.toString() || '',
                             notes: '',  // Not provided in the response
                         });
 
                         // Set the object details
-                        if (lastRoute.outTruckObject) {
-                            setOutTruckObjectDetails(lastRoute.outTruckObject);
+                        if (lastActiveRoute.outTruckObject) {
+                            setOutTruckObjectDetails(lastActiveRoute.outTruckObject);
                         }
-                        if (lastRoute.inTruckObject) {
-                            setInTruckObjectDetails(lastRoute.inTruckObject);
+                        if (lastActiveRoute.inTruckObject) {
+                            setInTruckObjectDetails(lastActiveRoute.inTruckObject);
                         }
 
                         console.log('Loaded last active route using offline-first approach');
@@ -299,8 +299,6 @@ export function useTruckRouteForm(params: any) {
                         // Get last finished route for odometer value using offline-first approach
                         const lastFinishedRoute = await getLastFinishedRoute();
 
-                        // Get trucks using offline-first approach
-                        const trucks = await getTrucks();
                         if (trucks && trucks.length > 0) {
                             const defaultTruck = trucks[0].uid?.toString() || '';
                             const currentDate = new Date();
