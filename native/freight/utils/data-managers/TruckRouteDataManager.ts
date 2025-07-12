@@ -51,7 +51,32 @@ export class TruckRouteDataManager {
 							continue
 						}
 
-						await database.runAsync(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, Date.now()])
+						await database.runAsync(insertSQL,
+								[
+									route.uid,
+									route.truckRoutePage?.uid || null,
+									route.routeDate,
+									route.routeNumber || null,
+									route.cargoVolume || 0,
+									route.outTruckObject?.uid || null,
+									route.odometerAtStart || 0,
+									route.outDateTime,
+									route.odometerAtFinish || null,
+									route.inTruckObject?.uid || null,
+									route.inDateTime || null,
+									route.routeLength || null,
+									route.fuelBalanceAtStart || null,
+									route.fuelConsumed || null,
+									route.fuelReceived || null,
+									route.fuelBalanceAtFinish || null,
+									route.createdDateTime || null,
+									route.lastModifiedDateTime || null,
+									route.unitTypeId || null,
+									0,
+									0,
+									null
+								]
+						)
 					}
 				})
 			} else {
@@ -142,9 +167,34 @@ export class TruckRouteDataManager {
 		try {
 			if (type === 'startRoute') {
 				const insertSQL = SQLQueryBuilder.getInsertTruckRouteSQL()
-				await executeQuery(insertSQL, [uid, truckRoutePageUid, data.routeDate, null, data.cargoVolume || 0, data.outTruckObject?.uid, data.odometerAtStart, data.outDateTime, null, null, null, null, data.fuelBalanceAtStart, null, data.fuelReceived || null, null, null, null, data.unitType, Date.now()])
+				await executeQuery(insertSQL,
+						[
+							uid,
+							truckRoutePageUid,
+							data.routeDate,
+							null,
+							data.cargoVolume || 0,
+							data.outTruckObject?.uid || null,
+							data.odometerAtStart || 0,
+							data.outDateTime || null,
+							data.odometerAtFinish || null,
+							data.inTruckObject?.uid || null,
+							data.inDateTime || null,
+							null,
+							data.fuelBalanceAtStart || 0,
+							data.fuelConsumed || 0,
+							data.fuelReceived || 0,
+							data.fuelBalanceAtFinish || null,
+							Date.now(),
+							Date.now(),
+							data.unitType || null,
+							0,
+							0,
+							null
+						]
+				)
 			} else {
-				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [data.inTruckObject?.uid, data.odometerAtFinish, data.inDateTime, (data.odometerAtFinish || 0) - (data.odometerAtStart || 0), data.fuelBalanceAtFinish, uid])
+				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [data.inTruckObject?.uid, data.odometerAtFinish, data.inDateTime, (data.odometerAtFinish || 0) - (data.odometerAtStart || 0), data.fuelBalanceAtFinish,data.fuelConsumed,  Date.now(), uid])
 			}
 
 			console.log(`💾 Saved ${type} locally with UID: ${uid}`)

@@ -349,69 +349,73 @@ export function useTruckRouteForm(params: any) {
         try {
             setIsSubmitting(true);
 
-            const outTruckObjectValue = selectedOutTruckObject || form.outTruckObject;
-            const inTruckObjectValue = selectedInTruckObject || form.inTruckObject;
+            // Helper functions for reusability
+            const parseNumber = (value: string, defaultValue: number = 0): number => {
+                const parsed = parseFloat(value);
+                return isNaN(parsed) ? defaultValue : parsed;
+            };
 
-            const now = new Date().toISOString();
-            
-            const routeDate = form.routeDate instanceof Date ? form.routeDate : new Date(form.routeDate);
-            const dateFrom = form.dateFrom instanceof Date ? form.dateFrom : new Date(form.dateFrom);
-            const dateTo = form.dateTo instanceof Date ? form.dateTo : new Date(form.dateTo);
+            const formatDateString = (date: Date | string): string => {
+                const dateObj = date instanceof Date ? date : new Date(date);
+                return format(dateObj, 'yyyy-MM-dd');
+            };
+
+            // Extract and validate form data once
+            const formData = {
+                outTruckObject: selectedOutTruckObject || form.outTruckObject,
+                inTruckObject: selectedInTruckObject || form.inTruckObject,
+                odometerStart: parseNumber(form.odometerAtStart),
+                odometerFinish: parseNumber(form.odometerAtFinish),
+                fuelBalanceAtStart: parseNumber(form.fuelBalanceAtStart),
+                fuelReceived: parseNumber(form.fuelReceived),
+                cargoVolume: parseNumber(form.cargoVolume),
+            };
+
+            // Calculate derived values
+            const distanceKm = formData.odometerFinish - formData.odometerStart;
+            const fuelConsumptionNorm = existingRoutePage?.truck?.fuelConsumptionNorm ?? 0;
+            const fuelConsumed = (distanceKm * fuelConsumptionNorm) / 100;
+            const fuelBalanceAtFinish = formData.fuelBalanceAtStart + formData.fuelReceived - fuelConsumed;
+
+            // Simplified object creation
+            const createTruckObject = (uid: string, details: any) => ({
+                uid: uid || '',
+                name: details?.name || ''
+            });
 
             const truckRoutePage: TruckRoutePageDto = existingRoutePage || {
                 uid: '',
-                dateFrom: format(dateFrom, 'yyyy-MM-dd'),
-                dateTo: format(dateTo, 'yyyy-MM-dd'),
+                dateFrom: formatDateString(form.dateFrom),
+                dateTo: formatDateString(form.dateTo),
                 truck: { uid: form.routePageTruck || '0' },
                 user: { id: user?.id || '0' },
-                fuelBalanceAtStart: form.fuelBalanceAtStart ? parseFloat(form.fuelBalanceAtStart) : null,
-    			odometerAtRouteStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : 0,
-    			odometerAtRouteFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0,
+                fuelBalanceAtStart: formData.fuelBalanceAtStart || null,
+                odometerAtRouteStart: formData.odometerStart,
+                odometerAtRouteFinish: formData.odometerFinish,
             };
 
-            const outTruckObject = outTruckObjectValue ? {
-                uid: outTruckObjectValue,
-                name: outTruckObjectDetails?.name || ''
-            } : { uid: '', name: '' };
-            
-            const inTruckObject = inTruckObjectValue ? {
-                uid: inTruckObjectValue,
-                name: inTruckObjectDetails?.name || ''
-            } : { uid: '', name: '' };
-
-			const odometerStart = form.odometerAtStart ? parseInt(form.odometerAtStart) : 0;
-			const odometerFinish = form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0;
-			const distanceKm = odometerFinish - odometerStart;
-			const fuelConsumptionNorm = truckRoutePage.truck?.fuelConsumptionNorm ?? 0;
-			const fuelConsumed = (distanceKm * fuelConsumptionNorm) / 100;
-            
+            const now = new Date().toISOString();
             const payload: TruckRouteDto = {
                 uid: form.uid,
-                routeDate: format(routeDate, 'yyyy-MM-dd'),
+                routeDate: formatDateString(form.routeDate),
                 truckRoutePage: truckRoutePage,
-                outTruckObject: outTruckObject,
-                inTruckObject: inTruckObject,
-                odometerAtStart: form.odometerAtStart ? parseInt(form.odometerAtStart) : 0,
-                odometerAtFinish: form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0,
-                cargoVolume: hasCargo && form.cargoVolume ? parseFloat(form.cargoVolume) : 0,
+                outTruckObject: createTruckObject(formData.outTruckObject, outTruckObjectDetails),
+                inTruckObject: createTruckObject(formData.inTruckObject, inTruckObjectDetails),
+                odometerAtStart: formData.odometerStart,
+                odometerAtFinish: formData.odometerFinish,
+                cargoVolume: hasCargo ? formData.cargoVolume : 0,
                 unitType: hasCargo ? form.unitType : undefined,
-                fuelBalanceAtStart: form.fuelBalanceAtStart 
-                    ? parseFloat(form.fuelBalanceAtStart) 
-                    : existingRoutePage?.fuelBalanceAtStart !== null 
-                        ? existingRoutePage?.fuelBalanceAtStart 
-                        : undefined,
-                fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : undefined,
-				fuelConsumed: fuelConsumed,
-				fuelBalanceAtFinish: fuelBalanceAtStart + fuelReceived - fuelConsumed,
+                fuelBalanceAtStart: formData.fuelBalanceAtStart || existingRoutePage?.fuelBalanceAtStart || undefined,
+                fuelReceived: formData.fuelReceived || undefined,
+                fuelConsumed: fuelConsumed,
+                fuelBalanceAtFinish: fuelBalanceAtFinish,
                 outDateTime: now,
-                inDateTime: inTruckObjectValue && isItRouteFinish ? now : undefined
+                inDateTime: formData.inTruckObject && isItRouteFinish ? now : undefined
             };
 
-            if (isItRouteFinish) {
-                await endRoute.mutateAsync(payload);
-            } else {
-                await startRoute.mutateAsync(payload);
-            }
+            // Simplified submission logic
+            const mutation = isItRouteFinish ? endRoute : startRoute;
+            await mutation.mutateAsync(payload);
             
             router.push('/(tabs)');
         } catch (error) {

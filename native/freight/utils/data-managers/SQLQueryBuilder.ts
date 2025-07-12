@@ -52,13 +52,31 @@ export class SQLQueryBuilder {
   static getInsertTruckRouteSQL(): string {
     return `
       INSERT OR REPLACE INTO truck_route
-      (uid, truck_route_page_uid, route_date, route_number, cargo_volume,
-       out_truck_object_uid, odometer_at_start, out_date_time,
-       odometer_at_finish, in_truck_object_uid, in_date_time,
-       route_length, fuel_balance_at_start, fuel_consumed,
-       fuel_received, fuel_balance_at_finish, created_date_time,
-       last_modified_date_time, unit_type_id, is_dirty, is_deleted, synced_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)
+      (
+       uid,
+       truck_route_page_uid,
+       route_date,
+       route_number,
+       cargo_volume,
+       out_truck_object_uid,
+       odometer_at_start,
+       out_date_time,
+       odometer_at_finish,
+       in_truck_object_uid,
+       in_date_time,
+       route_length,
+       fuel_balance_at_start,
+       fuel_consumed,
+       fuel_received,
+       fuel_balance_at_finish,
+       created_date_time,
+       last_modified_date_time,
+       unit_type_id,
+       is_dirty,
+       is_deleted,
+       synced_at
+	  )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
   }
 
@@ -217,6 +235,8 @@ export class SQLQueryBuilder {
           in_date_time = ?,
           route_length = ?,
           fuel_balance_at_finish = ?,
+          fuel_consumed = ?,
+          last_modified_date_time = ?,
           is_dirty = 1
       WHERE uid = ?
     `
