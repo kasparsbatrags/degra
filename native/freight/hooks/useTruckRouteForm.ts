@@ -378,6 +378,12 @@ export function useTruckRouteForm(params: any) {
                 uid: inTruckObjectValue,
                 name: inTruckObjectDetails?.name || ''
             } : { uid: '', name: '' };
+
+			const odometerStart = form.odometerAtStart ? parseInt(form.odometerAtStart) : 0;
+			const odometerFinish = form.odometerAtFinish ? parseInt(form.odometerAtFinish) : 0;
+			const distanceKm = odometerFinish - odometerStart;
+			const fuelConsumptionNorm = truckRoutePage.truck?.fuelConsumptionNorm ?? 0;
+			const fuelConsumed = (distanceKm * fuelConsumptionNorm) / 100;
             
             const payload: TruckRouteDto = {
                 uid: form.uid,
@@ -394,8 +400,9 @@ export function useTruckRouteForm(params: any) {
                     : existingRoutePage?.fuelBalanceAtStart !== null 
                         ? existingRoutePage?.fuelBalanceAtStart 
                         : undefined,
-                fuelBalanceAtFinish: undefined,
                 fuelReceived: form.fuelReceived ? parseFloat(form.fuelReceived) : undefined,
+				fuelConsumed: fuelConsumed,
+				fuelBalanceAtFinish: fuelBalanceAtStart + fuelReceived - fuelConsumed,
                 outDateTime: now,
                 inDateTime: inTruckObjectValue && isItRouteFinish ? now : undefined
             };
