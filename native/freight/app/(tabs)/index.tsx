@@ -123,16 +123,10 @@ export default function HomeScreen() {
 				console.log('📱 [DEBUG] Device is in offline mode, skipping server data sync')
 			}
 
-			// 2. FĀZE: Get route pages with offline-first approach
-			console.log('📱 [DEBUG] Fetching routes using offline-first approach')
 			const rawRoutes = await getRoutePages()
-			console.log('📱 [DEBUG] Raw route pages received:', rawRoutes.length, 'items')
-			console.log('📱 [DEBUG] First few raw route pages:', rawRoutes.slice(0, 3))
 
-			// Initialize tabs for all routes
 			const routesWithTabs = initializeTabsForRoutes(rawRoutes)
-			console.log('📱 [DEBUG] Routes with initialized tabs:', routesWithTabs.length, 'items')
-			
+
 			setRoutes(routesWithTabs)
 		} catch (error: any) {
 			console.error('📱 [ERROR] Error in fetchRoutes:', error)
