@@ -102,7 +102,7 @@ export class TruckRouteDataManager {
 	/**
 	 * Get truck routes with platform-specific handling
 	 */
-	async getTruckRoutes(truckRoutePageUid?: string): Promise<any[]> {
+	async getTruckRoutes(truckRoutePageUid?: string): Promise<TruckRouteDto[]> {
 		try {
 			if (PlatformDataAdapter.isWeb()) {
 				return await this.getTruckRoutesWeb(truckRoutePageUid)
@@ -121,7 +121,7 @@ export class TruckRouteDataManager {
 	private async getTruckRoutesWeb(truckRoutePageUid?: string): Promise<any[]> {
 		try {
 			const endpoint = truckRoutePageUid ? `/truck-routes?truckRoutePageUid=${truckRoutePageUid}` : '/truck-routes'
-			return await PlatformDataAdapter.fetchFromServer<any>(endpoint)
+			return await PlatformDataAdapter.fetchFromServer<TruckRouteDto>(endpoint)
 		} catch (error) {
 			PlatformDataAdapter.logPlatformInfo('getTruckRoutesWeb', `Error: ${error}`)
 			return []
@@ -131,7 +131,7 @@ export class TruckRouteDataManager {
 	/**
 	 * Get truck routes for mobile platform from local database
 	 */
-	private async getTruckRoutesMobile(truckRoutePageUid?: string): Promise<any[]> {
+	private async getTruckRoutesMobile(truckRoutePageUid?: string): Promise<TruckRouteDto[]> {
 		let sql = SQLQueryBuilder.getSelectTruckRoutesSQL()
 		const params: any[] = []
 
