@@ -7,12 +7,43 @@ import {executeQuery, executeSelect, executeSelectFirst} from '../database'
 import {addOfflineOperation} from '../offlineQueue'
 import {PlatformDataAdapter} from './PlatformDataAdapter'
 import {SQLQueryBuilder} from './SQLQueryBuilder'
+import {TruckRouteDataManager} from './TruckRouteDataManager'
 
 /**
  * Manages route page data operations
  * Handles downloading, storing, and retrieving route page information
  */
 export class RoutePageDataManager {
+	private truckRouteDataManager: TruckRouteDataManager
+
+	constructor() {
+		this.truckRouteDataManager = new TruckRouteDataManager()
+	}
+
+	/**
+	 * Calculate computed total routes length for a route page
+	 * Equivalent to Java: routes.stream().mapToLong(route -> Optional.ofNullable(route.getRouteLength()).orElse(0L)).sum()
+	 */
+	async calculateComputedTotalRoutesLength(truckRoutePageUid: string): Promise<number> {
+		try {
+			// Get all routes for this route page
+			const routes = await this.truckRouteDataManager.getTruckRoutes(truckRoutePageUid)
+			
+			// Sum up all route lengths (equivalent to Java stream operation)
+			const totalLength = routes.reduce((sum, route) => {
+				const routeLength = route.route_length ?? 0
+				return sum + routeLength
+			}, 0)
+			
+			PlatformDataAdapter.logPlatformInfo('calculateComputedTotalRoutesLength',
+				`Calculated total length: ${totalLength} for route page: ${truckRoutePageUid}`)
+			
+			return totalLength
+		} catch (error) {
+			PlatformDataAdapter.logPlatformInfo('calculateComputedTotalRoutesLength', `Error: ${error}`)
+			return 0
+		}
+	}
 
 	/**
 	 * Fetch route pages from server
@@ -40,6 +71,11 @@ export class RoutePageDataManager {
 	async saveRoutePageToDatabase(routePageDto: TruckRoutePageDto): Promise<string> {
 		if (!routePageDto.uid) {
 			routePageDto.uid = uuid.v4().toString()
+		}
+
+		// Calculate computed total routes length if not provided
+		if (!routePageDto.computedTotalRoutesLength && !PlatformDataAdapter.isWeb()) {
+			routePageDto.computedTotalRoutesLength = await this.calculateComputedTotalRoutesLength(routePageDto.uid)
 		}
 
 		const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)
@@ -88,6 +124,11 @@ export class RoutePageDataManager {
 	async updateRoutePageInDatabase(routePageDto: TruckRoutePageDto): Promise<boolean> {
 		if (!routePageDto.uid) {
 			return false
+		}
+
+		// Recalculate computed total routes length for mobile platform
+		if (!PlatformDataAdapter.isWeb()) {
+			routePageDto.computedTotalRoutesLength = await this.calculateComputedTotalRoutesLength(routePageDto.uid)
 		}
 
 		const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)

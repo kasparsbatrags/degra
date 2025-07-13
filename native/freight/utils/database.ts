@@ -94,7 +94,6 @@ const createTables = async (database: any) => {
       fuel_balance_at_routes_finish REAL,
       odometer_at_route_start INTEGER,
       odometer_at_route_finish INTEGER,
-      computed_total_routes_length INTEGER,
       
       -- Offline-only fields
       is_dirty INTEGER DEFAULT 0,
