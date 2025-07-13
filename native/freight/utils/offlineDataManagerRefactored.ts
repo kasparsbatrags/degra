@@ -1,7 +1,6 @@
 import { TruckRouteDto } from '@/dto/TruckRouteDto'
 import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto'
 import { TruckDto } from '@/dto/TruckDto'
-import {TruckRouteResponseDto} from '@/dto/TruckRouteResponseDto'
 import { TruckDataManager } from './data-managers/TruckDataManager'
 import { TruckObjectDataManager } from './data-managers/TruckObjectDataManager'
 import { TruckRouteDataManager } from './data-managers/TruckRouteDataManager'
@@ -67,7 +66,7 @@ class OfflineDataManagerRefactored {
     )
   }
 
-  async getLastActiveRoute(): Promise<TruckRouteResponseDto | null> {
+  async getLastActiveRoute(): Promise<TruckRouteDto | null> {
     return this.truckRouteManager.getLastActiveRoute()
   }
 

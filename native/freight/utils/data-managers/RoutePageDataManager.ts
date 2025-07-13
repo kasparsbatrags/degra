@@ -28,10 +28,11 @@ export class RoutePageDataManager {
 		try {
 			// Get all routes for this route page
 			const routes = await this.truckRouteDataManager.getTruckRoutes(truckRoutePageUid)
-			
+			console.log("----------------------routes:", routes)
+
 			// Sum up all route lengths (equivalent to Java stream operation)
 			const totalLength = routes.reduce((sum, route) => {
-				const routeLength = route.route_length ?? 0
+				const routeLength = route.routeLength ?? 0
 				return sum + routeLength
 			}, 0)
 			

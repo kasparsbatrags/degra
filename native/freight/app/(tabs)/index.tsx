@@ -6,6 +6,7 @@ import { useOnlineStatus } from '@/hooks/useNetwork'
 import {getRoutePages, downloadServerData, offlineDataManager} from '@/utils/offlineDataManager'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
+import {RoutePageDataManager} from '@/utils/data-managers/RoutePageDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState, useMemo} from 'react'
@@ -124,10 +125,27 @@ export default function HomeScreen() {
 			}
 
 			const rawRoutes = await getRoutePages()
-
 			const routesWithTabs = initializeTabsForRoutes(rawRoutes)
 
-			setRoutes(routesWithTabs)
+			// Calculate computed total routes length for routes that don't have it
+			const routePageManager = new RoutePageDataManager()
+			const routesWithCalculatedLengths = await Promise.all(
+				routesWithTabs.map(async (route) => {
+					if (!route.computedTotalRoutesLength) {
+						try {
+							const calculatedLength = await routePageManager.calculateComputedTotalRoutesLength(route.uid)
+							console.log("-------------------", calculatedLength)
+							return { ...route, computedTotalRoutesLength: calculatedLength }
+						} catch (error) {
+							console.error('Error calculating route length:', error)
+							return route
+						}
+					}
+					return route
+				})
+			)
+
+			setRoutes(routesWithCalculatedLengths)
 		} catch (error: any) {
 			console.error('📱 [ERROR] Error in fetchRoutes:', error)
 			console.error('📱 [ERROR] Error stack:', error?.stack)
