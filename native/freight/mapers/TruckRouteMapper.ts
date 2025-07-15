@@ -7,7 +7,6 @@ import { TruckRoutePageDto } from '@/dto/TruckRoutePageDto';
 import { mapTruckResultToDto } from './TruckMapper';
 import { mapUserResultToDto } from './UserMapper';
 import { mapTruckObjectResultToDto } from './TruckObjectMapper';
-import { mapSingleTruckRoutePageResultToDto } from './TruckRoutePageMapper';
 
 /**
  * Raw SQL result interface for truck route queries
@@ -15,23 +14,23 @@ import { mapSingleTruckRoutePageResultToDto } from './TruckRoutePageMapper';
 export interface TruckRouteSqlResult {
   // Route fields
   uid: string
-  routeDate: string
+  route_date: string
   routeNumber?: number
   cargoVolume?: number
   unitType?: string
-  outDateTime: string
-  odometerAtStart: number
+  out_date_time: string
+  odometer_at_start: number
   inDateTime?: string
-  odometerAtFinish?: number
-  routeLength?: number
-  fuelBalanceAtStart?: number
-  fuelConsumed?: number
-  fuelReceived?: number
-  fuelBalanceAtFinish?: number
+  odometer_at_finish?: number
+  route_length?: number
+  fuel_balance_at_start?: number
+  fuel_consumed?: number
+  fuel_received?: number
+  fuel_balance_at_finish?: number
 
   // TruckRoutePage fields
-  truckRoutePageUid: string
-  truckRoutePageDateFrom: string
+  truck_route_page_uid: string
+  truck_route_page_date_from: string
   truckRoutePageDateTo: string
   truckRoutePageFuelBalanceAtStart?: number
   truckRoutePageFuelBalanceAtFinish?: number
@@ -91,29 +90,21 @@ export class TruckRouteMapper {
       userFamilyName: sqlResult.userFamilyName
     })
 
-    const truckRoutePage = mapSingleTruckRoutePageResultToDto({
-      uid: sqlResult.truckRoutePageUid,
-      date_from: sqlResult.truckRoutePageDateFrom,
-      date_to: sqlResult.truckRoutePageDateTo,
-      truck_uid: sqlResult.truckUid,
-      truck_maker: sqlResult.truckMaker,
-      truck_model: sqlResult.truckModel,
-      registration_number: sqlResult.truckRegistrationNumber,
-      fuel_consumption_norm: sqlResult.truckFuelConsumptionNorm,
-      is_default: sqlResult.truckIsDefault,
-      user_id: sqlResult.userId,
-      email: sqlResult.userEmail,
-      given_name: sqlResult.userGivenName,
-      family_name: sqlResult.userFamilyName,
-      fuel_balance_at_start: sqlResult.truckRoutePageFuelBalanceAtStart,
-      fuel_balance_at_end: sqlResult.truckRoutePageFuelBalanceAtFinish,
-      total_fuel_received_on_routes: sqlResult.truckRoutePageTotalFuelReceivedOnRoutes,
-      total_fuel_consumed_on_routes: sqlResult.truckRoutePageTotalFuelConsumedOnRoutes,
-      fuel_balance_at_routes_finish: sqlResult.truckRoutePageFuelBalanceAtRoutesFinish,
-      odometer_at_route_start: sqlResult.truckRoutePageOdometerAtRouteStart,
-      odometer_at_route_finish: sqlResult.truckRoutePageOdometerAtRouteFinish,
-      computed_total_routes_length: sqlResult.truckRoutePageComputedTotalRoutesLength
-    })
+    const truckRoutePage: TruckRoutePageDto = {
+      uid: sqlResult.truck_route_page_uid,
+      dateFrom: sqlResult.truck_route_page_date_from,
+      dateTo: sqlResult.truckRoutePageDateTo,
+      truck: truck,
+      user: user,
+      fuelBalanceAtStart: sqlResult.truckRoutePageFuelBalanceAtStart ?? null,
+      fuelBalanceAtFinish: sqlResult.truckRoutePageFuelBalanceAtFinish,
+      totalFuelReceivedOnRoutes: sqlResult.truckRoutePageTotalFuelReceivedOnRoutes,
+      totalFuelConsumedOnRoutes: sqlResult.truckRoutePageTotalFuelConsumedOnRoutes,
+      fuelBalanceAtRoutesFinish: sqlResult.truckRoutePageFuelBalanceAtRoutesFinish,
+      odometerAtRouteStart: sqlResult.truckRoutePageOdometerAtRouteStart,
+      odometerAtRouteFinish: sqlResult.truckRoutePageOdometerAtRouteFinish,
+      computedTotalRoutesLength: sqlResult.truckRoutePageComputedTotalRoutesLength
+    }
 
     const outTruckObject = mapTruckObjectResultToDto({
       uid: sqlResult.outTruckObjectUid,
@@ -128,21 +119,21 @@ export class TruckRouteMapper {
     const truckRouteDto: TruckRouteDto = {
       uid: sqlResult.uid,
       truckRoutePage: truckRoutePage,
-      routeDate: sqlResult.routeDate,
+      routeDate: sqlResult.route_date,
       routeNumber: sqlResult.routeNumber,
       cargoVolume: sqlResult.cargoVolume,
       unitType: sqlResult.unitType,
       outTruckObject: outTruckObject,
-      outDateTime: sqlResult.outDateTime,
-      odometerAtStart: sqlResult.odometerAtStart,
+      outDateTime: sqlResult.out_date_time,
+      odometerAtStart: sqlResult.odometer_at_start,
       inTruckObject: inTruckObject,
       inDateTime: sqlResult.inDateTime,
-      odometerAtFinish: sqlResult.odometerAtFinish,
-      routeLength: sqlResult.routeLength,
-      fuelBalanceAtStart: sqlResult.fuelBalanceAtStart,
-      fuelConsumed: sqlResult.fuelConsumed,
-      fuelReceived: sqlResult.fuelReceived,
-      fuelBalanceAtFinish: sqlResult.fuelBalanceAtFinish
+      odometerAtFinish: sqlResult.odometer_at_finish,
+      routeLength: sqlResult.route_length,
+      fuelBalanceAtStart: sqlResult.fuel_balance_at_start,
+      fuelConsumed: sqlResult.fuel_consumed,
+      fuelReceived: sqlResult.fuel_received,
+      fuelBalanceAtFinish: sqlResult.fuel_balance_at_finish
     }
 
     return truckRouteDto
