@@ -167,15 +167,11 @@ const ImprovedFormDropdownOffline: React.FC<FormDropdownProps> = React.memo(({
         };
       });
       
-      console.log('Formatted dropdown data:', formatted);
-      
-      dispatch({ 
+      dispatch({
         type: 'SET_OPTIONS', 
         payload: formatted,
         filterValue
       });
-      
-      console.log(`Loaded ${formatted.length} options from offline-first API for ${endpoint}`);
     } catch (err) {
       console.error('Failed to fetch options:', err);
     } finally {

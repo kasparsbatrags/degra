@@ -30,7 +30,6 @@ export default function TruckRouteScreen() {
 	const [activeTab, setActiveTab] = useState<'basic' | 'odometer' | 'fuel'>('basic')
 	const navigation = useNavigation()
 
-	// Izmantojam pielāgoto hook
 	const {
 		isLoading,
 		hasCargo,
@@ -98,6 +97,8 @@ export default function TruckRouteScreen() {
 		console.log('selectedOutTruckObject:', selectedOutTruckObject)
 		console.log('form.outTruckObject:', form.outTruckObject)
 		console.log('hasOutTruckObject:', hasOutTruckObject)
+		console.log('odometerAtStart:', form.odometerAtStart)
+		console.log('odometerAtFinish:', form.odometerAtFinish)
 
 		if (!form.routePageTruck || !hasOutTruckObject) {
 			setActiveTab('basic')

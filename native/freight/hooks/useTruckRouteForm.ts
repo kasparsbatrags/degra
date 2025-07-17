@@ -240,7 +240,6 @@ export function useTruckRouteForm(params: any) {
 
         const initializeForm = async () => {
             try {
-                // Get last active route using offline-first approach
                 try {
 					const trucks = await getTrucks();
                     const lastActiveRoute = await getLastActiveRoute();

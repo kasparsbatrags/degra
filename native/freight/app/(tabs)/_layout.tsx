@@ -24,21 +24,21 @@ export default function TabLayout() {
   const router = useRouter();
   const [menuVisible, setMenuVisible] = useState(false);
 
-  console.log('📱 TabLayout render - isAuthenticated:', isAuthenticated, 'loading:', loading);
+  // console.log('📱 TabLayout render - isAuthenticated:', isAuthenticated, 'loading:', loading);
 
   // Ja lietotājs nav autentificēts, novirzām uz login ekrānu
   if (!isAuthenticated && !loading) {
-    console.log('❌ User not authenticated, redirecting to login...');
+    // console.log('❌ User not authenticated, redirecting to login...');
     return <Redirect href="/(auth)/login" />;
   }
 
   // Kamēr pārbaudam autentifikācijas statusu, neko nerādām
   if (loading) {
-    console.log('⏳ Tabs loading, showing nothing...');
+    // console.log('⏳ Tabs loading, showing nothing...');
     return null;
   }
 
-  console.log('✅ Showing tabs interface...');
+  // console.log('✅ Showing tabs interface...');
 
   return (
     <>

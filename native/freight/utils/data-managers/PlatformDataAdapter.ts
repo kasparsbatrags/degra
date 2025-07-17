@@ -144,6 +144,6 @@ export class PlatformDataAdapter {
    */
   static logPlatformInfo(operation: string, details?: any): void {
     const platform = this.isWeb() ? 'WEB' : 'MOBILE'
-    console.log(`[${platform}] ${operation}`, details || '')
+    // console.log(`[${platform}] ${operation}`, details || '')
   }
 }
