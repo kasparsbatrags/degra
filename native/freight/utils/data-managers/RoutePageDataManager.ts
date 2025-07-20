@@ -290,34 +290,7 @@ export class RoutePageDataManager {
 		console.log('dddddddddddddddddddddddddddd routes', await executeSelect('SELECT a.* from truck_route a'))
 		console.log('dddddddddddddddddddddddddddd route-page', await executeSelect('SELECT a.* from truck_route_page a'))
 
-		const routePages: TruckRoutePageDto[] = result.map((row: any) => ({
-			uid: row.uid,
-			dateFrom: row.date_from,
-			dateTo: row.date_to,
-			truck: row.truck_uid ? {
-				uid: row.truck_uid,
-				truckMaker: row.truck_maker || '',
-				truckModel: row.truck_model || '',
-				registrationNumber: row.registration_number || '',
-				fuelConsumptionNorm: row.fuel_consumption_norm || 0,
-				isDefault: row.is_default || 0
-			} : {
-				uid: '', truckMaker: '', truckModel: '', registrationNumber: 'Nav pieejams', fuelConsumptionNorm: 0, isDefault: 0
-			},
-			user: row.user_id ? {
-				id: row.user_id, email: row.email || '', givenName: row.given_name || '', familyName: row.family_name || ''
-			} : {
-				id: '', email: '', givenName: '', familyName: ''
-			},
-			fuelBalanceAtStart: row.fuel_balance_at_start || 0,
-			fuelBalanceAtFinish: row.fuel_balance_at_end || 0,
-			totalFuelReceivedOnRoutes: row.total_fuel_received_on_routes,
-			totalFuelConsumedOnRoutes: row.total_fuel_consumed_on_routes,
-			fuelBalanceAtRoutesFinish: row.fuel_balance_at_routes_finish,
-			odometerAtRouteStart: row.odometer_at_route_start,
-			odometerAtRouteFinish: row.odometer_at_route_finish,
-			computedTotalRoutesLength: row.computed_total_routes_length
-		}))
+		const routePages: TruckRoutePageDto[] = result.map((row: any) => mapSingleTruckRoutePageResultToDto(row))
 
 		return routePages
 	}
@@ -405,50 +378,8 @@ export class RoutePageDataManager {
 			return null
 		}
 
-		// Transform SQL result to TruckRoutePageDto with nested objects
-		const routePageDto: TruckRoutePageDto = {
-			uid: result.uid,
-			dateFrom: result.date_from,
-			dateTo: result.date_to,
-			fuelBalanceAtStart: result.fuel_balance_at_start || 0,
-			fuelBalanceAtFinish: result.fuel_balance_at_end || 0,
-			totalFuelReceivedOnRoutes: result.total_fuel_received_on_routes,
-			totalFuelConsumedOnRoutes: result.total_fuel_consumed_on_routes,
-			fuelBalanceAtRoutesFinish: result.fuel_balance_at_routes_finish,
-			odometerAtRouteStart: result.odometer_at_route_start,
-			odometerAtRouteFinish: result.odometer_at_route_finish,
-			computedTotalRoutesLength: result.computed_total_routes_length,
-			
-			// Nested TruckDto object
-			truck: result.truck_uid ? {
-				uid: result.truck_uid,
-				truckMaker: result.truck_maker || '',
-				truckModel: result.truck_model || '',
-				registrationNumber: result.registration_number || '',
-				fuelConsumptionNorm: result.fuel_consumption_norm || 0,
-				isDefault: result.is_default || 0
-			} : {
-				uid: '',
-				truckMaker: '',
-				truckModel: '',
-				registrationNumber: 'Nav pieejams',
-				fuelConsumptionNorm: 0,
-				isDefault: 0
-			},
-			
-			// Nested UserDto object
-			user: result.user_id ? {
-				id: result.user_id,
-				email: result.email || '',
-				givenName: result.given_name || '',
-				familyName: result.family_name || ''
-			} : {
-				id: '',
-				email: '',
-				givenName: '',
-				familyName: ''
-			}
-		}
+		// Transform SQL result to TruckRoutePageDto using centralized mapper
+		const routePageDto = mapSingleTruckRoutePageResultToDto(result)
 
 		PlatformDataAdapter.logPlatformInfo('getRoutePageByUidMobile', `Found route page: ${uid}`)
 		return routePageDto

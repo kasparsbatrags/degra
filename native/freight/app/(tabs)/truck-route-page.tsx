@@ -23,14 +23,6 @@ import {offlineDataManager} from '@/utils/offlineDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
 import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
-import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
-
-function generateOfflineId(): string {
-	const timestamp = Date.now().toString()
-	const randomPart1 = Math.random().toString(36).substr(2, 9)
-	const randomPart2 = Math.random().toString(36).substr(2, 5)
-	return `offline-${timestamp}-${randomPart1}-${randomPart2}`
-}
 
 interface TruckRoutePageForm {
 	dateFrom: Date;
@@ -77,7 +69,6 @@ export default function TruckRoutePageScreen() {
 	})
 	
 	const isOnline = useOnlineStatus()
-	const isOfflineModeActive = !isOnline
 	const [pagination, setPagination] = useState({
 		page: 0,
 		size: 5,
@@ -228,7 +219,7 @@ export default function TruckRoutePageScreen() {
 				setPagination(prev => ({ ...prev, loading: false }));
 				return
 			}
-
+			console.info("9999999999999999:",isOnline)
 			if (isOnline) {
 				try {
 					const response = await freightAxios.get(
@@ -460,7 +451,7 @@ export default function TruckRoutePageScreen() {
 					{uid ? (isEditMode ? 'Rediģēt maršruta lapu' : 'Maršruta lapa') : 'Pievienot maršruta lapu'}
 				</Text>
 
-				{isOfflineModeActive && Platform.OS !== 'web' && (
+				{!isOnline && Platform.OS !== 'web' && (
 					<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
 						<Text style={styles.offlineText}>Offline režīms</Text>
