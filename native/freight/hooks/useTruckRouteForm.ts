@@ -6,7 +6,6 @@ import { useObjectStore } from '@/hooks/useObjectStore';
 import { format } from 'date-fns';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useOnlineStatus } from '@/hooks/useNetwork';
 import { useTruckRoute } from '@/hooks/useTruckRoute';
 import { FormState } from '@/types/truckRouteTypes';
 import {

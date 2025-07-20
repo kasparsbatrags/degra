@@ -25,4 +25,4 @@ export {
   checkRoutePageExists,
   getRoutePoint,
   saveTruckRouteLocally
-} from '../offlineDataManagerRefactored'
+} from '../offlineDataManager'

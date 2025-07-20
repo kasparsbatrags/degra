@@ -1,11 +1,10 @@
 import {TruckRouteDto} from '@/dto/TruckRouteDto'
+import {TruckRouteMapper, TruckRouteSqlResult} from '@/mapers/TruckRouteMapper'
 import {isOfflineMode} from '@/services/offlineService'
 import uuid from 'react-native-uuid'
 import {executeQuery, executeSelect, executeSelectFirst, executeTransaction} from '../database'
-import {addOfflineOperation} from '../offlineQueue'
 import {PlatformDataAdapter} from './PlatformDataAdapter'
 import {SQLQueryBuilder} from './SQLQueryBuilder'
-import {TruckRouteMapper, TruckRouteSqlResult} from '@/mapers/TruckRouteMapper'
 
 type SQLiteDatabase = any
 
@@ -50,32 +49,7 @@ export class TruckRouteDataManager {
 							continue
 						}
 
-						await database.runAsync(insertSQL,
-								[
-									route.uid,
-									route.truckRoutePage?.uid || null,
-									route.routeDate,
-									route.routeNumber || null,
-									route.cargoVolume || 0,
-									route.outTruckObject?.uid || null,
-									route.odometerAtStart || 0,
-									route.outDateTime,
-									route.odometerAtFinish || null,
-									route.inTruckObject?.uid || null,
-									route.inDateTime || null,
-									route.routeLength || null,
-									route.fuelBalanceAtStart || null,
-									route.fuelConsumed || null,
-									route.fuelReceived || null,
-									route.fuelBalanceAtFinish || null,
-									route.createdDateTime || null,
-									route.lastModifiedDateTime || null,
-									route.unitTypeId || null,
-									0,
-									0,
-									null
-								]
-						)
+						await database.runAsync(insertSQL, [route.uid, route.truckRoutePage?.uid || null, route.routeDate, route.routeNumber || null, route.cargoVolume || 0, route.outTruckObject?.uid || null, route.odometerAtStart || 0, route.outDateTime, route.odometerAtFinish || null, route.inTruckObject?.uid || null, route.inDateTime || null, route.routeLength || null, route.fuelBalanceAtStart || null, route.fuelConsumed || null, route.fuelReceived || null, route.fuelBalanceAtFinish || null, route.createdDateTime || null, route.lastModifiedDateTime || null, route.unitTypeId || null, 0, 0, null])
 					}
 				})
 			} else {
@@ -143,8 +117,8 @@ export class TruckRouteDataManager {
 
 		const result = await executeSelect(sql, params)
 
-		console.log("---------------------getTruckRoutesMobile:", result)
-		
+		console.log('---------------------getTruckRoutesMobile:', result)
+
 		if (!Array.isArray(result)) {
 			return []
 		}
@@ -159,49 +133,52 @@ export class TruckRouteDataManager {
 	async saveTruckRoute(type: 'startRoute' | 'endRoute', data: TruckRouteDto,
 			saveTruckRoutePage: (routePage: any) => Promise<string>): Promise<string> {
 
-		// Ensure UID exists
 		if (!data.uid) {
-			data.uid = uuid.v4().toString();
+			data.uid = uuid.v4().toString()
 		}
-		
-		const uid = data.uid;
 
-		// Save truck route page first
+		const uid = data.uid
+
 		const truckRoutePageUid = await saveTruckRoutePage(data.truckRoutePage)
-
-		// NAV nepieciešams addOfflineOperation šeit - tas notiek useTruckRoute.ts
 
 		try {
 			if (type === 'startRoute') {
 				const insertSQL = SQLQueryBuilder.getInsertTruckRouteSQL()
-				await executeQuery(insertSQL,
-						[
-							uid,
-							truckRoutePageUid,
-							data.routeDate,
-							null,
-							data.cargoVolume || 0,
-							data.outTruckObject?.uid || null,
-							data.odometerAtStart || 0,
-							data.outDateTime || null,
-							data.odometerAtFinish || null,
-							data.inTruckObject?.uid || null,
-							data.inDateTime || null,
-							null,
-							data.fuelBalanceAtStart || 0,
-							data.fuelConsumed || 0,
-							data.fuelReceived || 0,
-							data.fuelBalanceAtFinish || null,
-							Date.now(),
-							Date.now(),
-							data.unitType || null,
-							0,
-							0,
-							null
-						]
-				)
+				await executeQuery(insertSQL, [
+					uid,
+					truckRoutePageUid,
+					data.routeDate,
+					null,
+					data.cargoVolume || 0,
+					data.outTruckObject?.uid || null,
+					data.odometerAtStart || 0,
+					data.outDateTime || null,
+					data.odometerAtFinish || null,
+					data.inTruckObject?.uid || null,
+					data.inDateTime || null,
+					null,
+					data.fuelBalanceAtStart || 0,
+					data.fuelConsumed || 0,
+					data.fuelReceived || 0,
+					data.fuelBalanceAtFinish || null,
+					Date.now(),
+					Date.now(),
+					data.unitType || null,
+					0,
+					0,
+					null
+				])
 			} else {
-				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [data.inTruckObject?.uid, data.odometerAtFinish, data.inDateTime, (data.odometerAtFinish || 0) - (data.odometerAtStart || 0), data.fuelBalanceAtFinish,data.fuelConsumed,  Date.now(), uid])
+				await executeQuery(SQLQueryBuilder.getUpdateTruckRouteEndSQL(), [
+					data.inTruckObject?.uid,
+					data.odometerAtFinish,
+					data.inDateTime,
+					(data.odometerAtFinish || 0) - (data.odometerAtStart || 0),
+					data.fuelBalanceAtFinish,
+					data.fuelConsumed,
+					Date.now(),
+					uid
+				])
 			}
 
 			console.log(`💾 Saved ${type} locally with UID: ${uid}`)
@@ -249,15 +226,15 @@ export class TruckRouteDataManager {
 	 */
 	private async getLastActiveRouteMobile(): Promise<TruckRouteDto | null> {
 		const rawResult = await executeSelectFirst(SQLQueryBuilder.getSelectLastActiveRouteSQL()) as TruckRouteSqlResult
-		
+
 		if (!rawResult) {
 			return null
 		}
 
 		// Use mapper to transform SQL result to DTO
 		const transformedResult = TruckRouteMapper.sqlToTruckRouteDto(rawResult)
-		
-		console.log("getLastActiveRouteMobile transformed result:", transformedResult)
+
+		console.log('getLastActiveRouteMobile transformed result:', transformedResult)
 		return transformedResult
 	}
 
@@ -297,14 +274,14 @@ export class TruckRouteDataManager {
 	 */
 	private async getLastFinishedRouteMobile(): Promise<TruckRouteDto | null> {
 		const rawResult = await executeSelectFirst(SQLQueryBuilder.getSelectLastFinishedRouteSQL()) as TruckRouteSqlResult
-		
+
 		if (!rawResult) {
 			return null
 		}
 
 		// Use mapper to transform SQL result to DTO
 		const transformedResult = TruckRouteMapper.sqlToTruckRouteDto(rawResult)
-		
+
 		return transformedResult
 	}
 

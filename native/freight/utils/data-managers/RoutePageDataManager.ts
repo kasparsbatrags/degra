@@ -83,7 +83,22 @@ export class RoutePageDataManager {
 		const insertSQL = SQLQueryBuilder.getInsertRoutePageSQL()
 
 		try {
-			await executeQuery(insertSQL, [routePageModel.uid, routePageModel.date_from, routePageModel.date_to, routePageModel.truck_uid || null, routePageModel.user_id || null, routePageModel.fuel_balance_at_start || 0, routePageModel.fuel_balance_at_end || 0, routePageModel.total_fuel_received_on_routes || null, routePageModel.total_fuel_consumed_on_routes || null, routePageModel.fuel_balance_at_routes_finish || null, routePageModel.odometer_at_route_start || null, routePageModel.odometer_at_route_finish || null, routePageModel.computed_total_routes_length || null, Date.now()])
+			await executeQuery(insertSQL, [
+				routePageModel.uid,
+				routePageModel.date_from,
+				routePageModel.date_to,
+				routePageModel.truck_uid || null,
+				routePageModel.user_id || null,
+				routePageModel.fuel_balance_at_start || 0,
+				routePageModel.fuel_balance_at_end || 0,
+				routePageModel.total_fuel_received_on_routes || null,
+				routePageModel.total_fuel_consumed_on_routes || null,
+				routePageModel.fuel_balance_at_routes_finish || null,
+				routePageModel.odometer_at_route_start || null,
+				routePageModel.odometer_at_route_finish || null,
+				routePageModel.computed_total_routes_length || null,
+				Date.now()
+			])
 
 			PlatformDataAdapter.logPlatformInfo('saveRoutePageToDatabase', `Saved route page: ${routePageModel.uid}`)
 			return routePageDto.uid
@@ -136,7 +151,21 @@ export class RoutePageDataManager {
 		const updateSQL = SQLQueryBuilder.getUpdateRoutePageSQL()
 
 		try {
-			await executeQuery(updateSQL, [routePageModel.date_from, routePageModel.date_to, routePageModel.truck_uid || null, routePageModel.fuel_balance_at_start || 0, routePageModel.fuel_balance_at_end || 0, routePageModel.total_fuel_received_on_routes || null, routePageModel.total_fuel_consumed_on_routes || null, routePageModel.fuel_balance_at_routes_finish || null, routePageModel.odometer_at_route_start || null, routePageModel.odometer_at_route_finish || null, routePageModel.computed_total_routes_length || null, Date.now(), routePageModel.uid])
+			await executeQuery(updateSQL, [
+				routePageModel.date_from,
+				routePageModel.date_to,
+				routePageModel.truck_uid || null,
+				routePageModel.fuel_balance_at_start || 0,
+				routePageModel.fuel_balance_at_end || 0,
+				routePageModel.total_fuel_received_on_routes || null,
+				routePageModel.total_fuel_consumed_on_routes || null,
+				routePageModel.fuel_balance_at_routes_finish || null,
+				routePageModel.odometer_at_route_start || null,
+				routePageModel.odometer_at_route_finish || null,
+				routePageModel.computed_total_routes_length || null,
+				Date.now(),
+				routePageModel.uid
+			])
 
 			PlatformDataAdapter.logPlatformInfo('updateRoutePageInDatabase', `Updated route page: ${routePageModel.uid}`)
 			return true
