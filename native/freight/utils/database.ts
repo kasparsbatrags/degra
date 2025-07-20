@@ -88,13 +88,6 @@ const createTables = async (database: any) => {
       fuel_balance_at_start REAL NOT NULL,
       fuel_balance_at_end REAL NOT NULL,
       
-      -- Computed fields (from backend @Transient)
-      total_fuel_received_on_routes REAL,
-      total_fuel_consumed_on_routes REAL,
-      fuel_balance_at_routes_finish REAL,
-      odometer_at_route_start INTEGER,
-      odometer_at_route_finish INTEGER,
-      
       -- Offline-only fields
       is_dirty INTEGER DEFAULT 0,
       is_deleted INTEGER DEFAULT 0,

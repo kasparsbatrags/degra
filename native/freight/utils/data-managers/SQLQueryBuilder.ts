@@ -33,12 +33,6 @@ export class SQLQueryBuilder {
       trp.date_to as truckRoutePageDateTo,
       trp.fuel_balance_at_start as truckRoutePageFuelBalanceAtStart,
       trp.fuel_balance_at_end as truckRoutePageFuelBalanceAtFinish,
-      trp.total_fuel_received_on_routes as truckRoutePageTotalFuelReceivedOnRoutes,
-      trp.total_fuel_consumed_on_routes as truckRoutePageTotalFuelConsumedOnRoutes,
-      trp.fuel_balance_at_routes_finish as truckRoutePageFuelBalanceAtRoutesFinish,
-      trp.odometer_at_route_start as truckRoutePageOdometerAtRouteStart,
-      trp.odometer_at_route_finish as truckRoutePageOdometerAtRouteFinish,
-      trp.computed_total_routes_length as truckRoutePageComputedTotalRoutesLength,
       
       -- Truck data
       t.uid as truckUid,
