@@ -15,7 +15,7 @@ import FormInput from '../../components/FormInput'
 import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
 import { useOnlineStatus } from '@/hooks/useNetwork'
-import {addOfflineOperation} from '@/utils/offlineQueue'
+import {addOfflineOperation, startOfflineQueueProcessing, stopOfflineQueueProcessing, processOfflineQueue} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {executeQuery, executeSelect, executeSelectFirst} from '@/utils/database'
@@ -65,6 +65,16 @@ export default function TruckRoutePageScreen() {
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
 	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const [syncStatus, setSyncStatus] = useState<{
+		isLocal: boolean,
+		isSynced: boolean,
+		isInQueue: boolean,
+		message?: string
+	}>({
+		isLocal: false,
+		isSynced: false,
+		isInQueue: false
+	})
 	
 	const isOnline = useOnlineStatus()
 	const isOfflineModeActive = !isOnline
@@ -85,9 +95,18 @@ export default function TruckRoutePageScreen() {
 
 	useEffect(() => {
 		startSessionTimeoutCheck()
+		
+		// Start background sync processing
+		if (Platform.OS !== 'web') {
+			startOfflineQueueProcessing(15000) // Check every 15 seconds
+		}
 
 		return () => {
 			stopSessionTimeoutCheck()
+			// Stop background sync processing
+			if (Platform.OS !== 'web') {
+				stopOfflineQueueProcessing()
+			}
 		}
 	}, [])
 
@@ -103,6 +122,16 @@ export default function TruckRoutePageScreen() {
 
 		checkSession()
 	}, [])
+
+	// Monitor network status and trigger sync when coming back online
+	useEffect(() => {
+		if (isOnline && Platform.OS !== 'web') {
+			// Trigger immediate sync when coming back online
+			processOfflineQueue()
+				.then(() => console.log('✅ Background sync completed'))
+				.catch(error => console.warn('⚠️ Background sync failed:', error))
+		}
+	}, [isOnline])
 
 	useEffect(() => {
 		if (uid) {
@@ -160,9 +189,7 @@ export default function TruckRoutePageScreen() {
 				}
 			}
 
-			const connected = isOnline
-			
-			if (connected) {
+			if (isOnline) {
 				try {
 					const response = await freightAxios.get(`/route-pages/${uid}`)
 					const routeData = response.data
@@ -215,9 +242,7 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			const connected = isOnline
-			
-			if (connected) {
+			if (isOnline) {
 				try {
 					const response = await freightAxios.get(
 						`/truck-routes/by-page/${uid}`,
@@ -333,17 +358,29 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			if (Platform.OS !== 'web') {
-				try {
+			// UNIFIED OFFLINE-FIRST STRATEGY
+			// Step 1: Always save locally first (all platforms)
+			let localSaveSuccess = false
+			try {
+				if (Platform.OS !== 'web') {
 					await offlineDataManager.saveTruckRoutePage(routePageDto)
-					
-					setTimeout(() => router.push('/(tabs)'), 1500)
-					return
-				} catch (error) {
-					console.error('📱 [Mobile] Error saving to local database:', error)
+					localSaveSuccess = true
+					console.log('✅ Data saved locally')
+					setSyncStatus(prev => ({
+						...prev,
+						isLocal: true,
+						message: 'Dati saglabāti lokāli'
+					}))
 				}
+			} catch (error) {
+				console.error('❌ Failed to save locally:', error)
+				setErrorMessage('Kļūda saglabājot datus lokāli')
+				setIsSubmitting(false)
+				return
 			}
 
+			// Step 2: Try server sync if online
+			let serverSyncSuccess = false
 			if (isOnline) {
 				try {
 					if (uid) {
@@ -351,32 +388,68 @@ export default function TruckRoutePageScreen() {
 					} else {
 						await freightAxios.post('/route-pages', routePageDto)
 					}
-					router.push('/(tabs)')
+					serverSyncSuccess = true
+					console.log('✅ Data synced with server')
+					setSyncStatus(prev => ({
+						...prev,
+						isSynced: true,
+						isInQueue: false,
+						message: 'Dati sinhronizēti ar serveri'
+					}))
+					
+					// Mark as synced in local database if mobile
+					if (Platform.OS !== 'web' && routePageDto.uid) {
+						try {
+							await executeQuery(
+								'UPDATE truck_route_page SET is_dirty = 0, updated_at = ? WHERE uid = ?',
+								[Date.now(), routePageDto.uid]
+							)
+						} catch (error) {
+							console.warn('⚠️ Failed to mark as synced:', error)
+						}
+					}
 				} catch (error: any) {
+					console.error('❌ Server sync failed:', error)
+					
 					if (error.response?.status === 403) {
 						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
 						setErrorMessage(userFriendlyMessage)
-						console.error('Access denied:', userFriendlyMessage)
-					} else {
-						console.error('Failed to submit form online:', error)
-						await addOfflineOperation(
-							uid ? 'UPDATE' : 'CREATE',
-							'truck_route_page',
-							uid ? `/route-pages/${uid}` : '/route-pages',
-							routePageDto
-						)
-						setTimeout(() => router.push('/(tabs)'), 2000)
+						setIsSubmitting(false)
+						return
 					}
+					// Continue to offline queue handling
 				}
-			} else {
-				await addOfflineOperation(
-					uid ? 'UPDATE' : 'CREATE',
-					'truck_route_page',
-					uid ? `/route-pages/${uid}` : '/route-pages',
-					routePageDto
-				)
-				setTimeout(() => router.push('/(tabs)'), 2000)
 			}
+
+			// Step 3: Add to offline queue if sync failed or offline
+			if (!serverSyncSuccess) {
+				try {
+					await addOfflineOperation(
+						uid ? 'UPDATE' : 'CREATE',
+						'truck_route_page',
+						uid ? `/route-pages/${uid}` : '/route-pages',
+						routePageDto
+					)
+					console.log('📋 Added to offline queue')
+					setSyncStatus(prev => ({
+						...prev,
+						isInQueue: true,
+						message: isOnline ? 'Pievienots sinhronizācijas rindai' : 'Saglabāts offline režīmā'
+					}))
+				} catch (error) {
+					console.error('❌ Failed to add to offline queue:', error)
+				}
+			}
+
+			// Step 4: Navigate with appropriate feedback
+			if (Platform.OS === 'web' && !serverSyncSuccess) {
+				setErrorMessage('Nav interneta savienojuma - dati saglabāti offline režīmā')
+				setTimeout(() => router.push('/(tabs)'), 2000)
+			} else {
+				// Success - navigate immediately
+				setTimeout(() => router.push('/(tabs)'), localSaveSuccess || serverSyncSuccess ? 500 : 1500)
+			}
+
 		} catch (error) {
 			console.error('Error in handleSubmit:', error)
 			setErrorMessage('Kļūda saglabājot datus')
@@ -404,6 +477,28 @@ export default function TruckRoutePageScreen() {
 					<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
 						<Text style={styles.offlineText}>Offline režīms</Text>
+					</View>
+				)}
+
+				{/* Sync Status Indicator */}
+				{Platform.OS !== 'web' && syncStatus.message && (
+					<View style={[
+						styles.syncStatusIndicator,
+						syncStatus.isSynced && styles.syncStatusSynced,
+						syncStatus.isInQueue && styles.syncStatusQueued,
+						syncStatus.isLocal && !syncStatus.isSynced && !syncStatus.isInQueue && styles.syncStatusLocal
+					]}>
+						{syncStatus.isSynced && <MaterialIcons name="cloud-done" size={16} color="#4CAF50" />}
+						{syncStatus.isInQueue && <MaterialIcons name="cloud-queue" size={16} color="#FF9800" />}
+						{syncStatus.isLocal && !syncStatus.isSynced && !syncStatus.isInQueue && <MaterialIcons name="save" size={16} color="#2196F3" />}
+						<Text style={[
+							styles.syncStatusText,
+							syncStatus.isSynced && styles.syncStatusTextSynced,
+							syncStatus.isInQueue && styles.syncStatusTextQueued,
+							syncStatus.isLocal && !syncStatus.isSynced && !syncStatus.isInQueue && styles.syncStatusTextLocal
+						]}>
+							{syncStatus.message}
+						</Text>
 					</View>
 				)}
 
@@ -825,5 +920,43 @@ const styles = StyleSheet.create({
 		fontFamily: FONT.medium,
 		color: '#FF6B6B',
 		textAlign: 'center',
+	},
+	syncStatusIndicator: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: 'rgba(33, 150, 243, 0.1)',
+		borderRadius: 6,
+		paddingVertical: 6,
+		paddingHorizontal: 12,
+		marginBottom: 12,
+		borderWidth: 1,
+		borderColor: 'rgba(33, 150, 243, 0.3)',
+	},
+	syncStatusSynced: {
+		backgroundColor: 'rgba(76, 175, 80, 0.1)',
+		borderColor: 'rgba(76, 175, 80, 0.3)',
+	},
+	syncStatusQueued: {
+		backgroundColor: 'rgba(255, 152, 0, 0.1)',
+		borderColor: 'rgba(255, 152, 0, 0.3)',
+	},
+	syncStatusLocal: {
+		backgroundColor: 'rgba(33, 150, 243, 0.1)',
+		borderColor: 'rgba(33, 150, 243, 0.3)',
+	},
+	syncStatusText: {
+		fontSize: 12,
+		fontFamily: FONT.medium,
+		color: '#2196F3',
+		marginLeft: 6,
+	},
+	syncStatusTextSynced: {
+		color: '#4CAF50',
+	},
+	syncStatusTextQueued: {
+		color: '#FF9800',
+	},
+	syncStatusTextLocal: {
+		color: '#2196F3',
 	},
 })
