@@ -363,4 +363,94 @@ export class RoutePageDataManager {
 
 		return mapSingleTruckRoutePageResultToDto(result)
 	}
+
+	/**
+		* Get route page by UID with relations (truck and user data)
+		*/
+	async getRoutePageByUid(uid: string): Promise<TruckRoutePageDto | null> {
+		try {
+			if (PlatformDataAdapter.isWeb()) {
+				return await this.getRoutePageByUidWeb(uid)
+			} else {
+				return await this.getRoutePageByUidMobile(uid)
+			}
+		} catch (error) {
+			PlatformDataAdapter.logPlatformInfo('getRoutePageByUid', `Error: ${error}`)
+			return null
+		}
+	}
+
+	/**
+		* Get route page by UID for web platform
+		*/
+	private async getRoutePageByUidWeb(uid: string): Promise<TruckRoutePageDto | null> {
+		try {
+			return await PlatformDataAdapter.fetchSingleFromServer<TruckRoutePageDto>(`/route-pages/${uid}`)
+		} catch (error: any) {
+			if (error.response?.status === 404) {
+				return null
+			}
+			PlatformDataAdapter.logPlatformInfo('getRoutePageByUidWeb', `Error: ${error}`)
+			return null
+		}
+	}
+
+	/**
+		* Get route page by UID for mobile platform from local database
+		*/
+	private async getRoutePageByUidMobile(uid: string): Promise<TruckRoutePageDto | null> {
+		const result = await executeSelectFirst(SQLQueryBuilder.getSelectRoutePageByUidSQL(), [uid])
+
+		if (!result) {
+			return null
+		}
+
+		// Transform SQL result to TruckRoutePageDto with nested objects
+		const routePageDto: TruckRoutePageDto = {
+			uid: result.uid,
+			dateFrom: result.date_from,
+			dateTo: result.date_to,
+			fuelBalanceAtStart: result.fuel_balance_at_start || 0,
+			fuelBalanceAtFinish: result.fuel_balance_at_end || 0,
+			totalFuelReceivedOnRoutes: result.total_fuel_received_on_routes,
+			totalFuelConsumedOnRoutes: result.total_fuel_consumed_on_routes,
+			fuelBalanceAtRoutesFinish: result.fuel_balance_at_routes_finish,
+			odometerAtRouteStart: result.odometer_at_route_start,
+			odometerAtRouteFinish: result.odometer_at_route_finish,
+			computedTotalRoutesLength: result.computed_total_routes_length,
+			
+			// Nested TruckDto object
+			truck: result.truck_uid ? {
+				uid: result.truck_uid,
+				truckMaker: result.truck_maker || '',
+				truckModel: result.truck_model || '',
+				registrationNumber: result.registration_number || '',
+				fuelConsumptionNorm: result.fuel_consumption_norm || 0,
+				isDefault: result.is_default || 0
+			} : {
+				uid: '',
+				truckMaker: '',
+				truckModel: '',
+				registrationNumber: 'Nav pieejams',
+				fuelConsumptionNorm: 0,
+				isDefault: 0
+			},
+			
+			// Nested UserDto object
+			user: result.user_id ? {
+				id: result.user_id,
+				email: result.email || '',
+				givenName: result.given_name || '',
+				familyName: result.family_name || ''
+			} : {
+				id: '',
+				email: '',
+				givenName: '',
+				familyName: ''
+			}
+		}
+
+		PlatformDataAdapter.logPlatformInfo('getRoutePageByUidMobile', `Found route page: ${uid}`)
+		return routePageDto
+	}
 }

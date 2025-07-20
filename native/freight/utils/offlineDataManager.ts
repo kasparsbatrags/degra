@@ -188,6 +188,10 @@ class OfflineDataManager {
     return this.routePageManager.checkRoutePageExists(truckId, date)
   }
 
+  async getRoutePageByUid(uid: string): Promise<TruckRoutePageDto | null> {
+    return this.routePageManager.getRoutePageByUid(uid)
+  }
+
   // Sync all data
   async syncAllData(): Promise<void> {
     try {

@@ -272,6 +272,27 @@ export class SQLQueryBuilder {
     `
   }
 
+  static getSelectRoutePageByUidSQL(): string {
+    return `
+      SELECT trp.*,
+             t.uid as truck_uid,
+             t.truck_maker,
+             t.truck_model,
+             t.registration_number,
+             t.fuel_consumption_norm,
+             t.is_default,
+             u.id as user_id,
+             u.email,
+             u.given_name,
+             u.family_name
+      FROM truck_route_page trp
+               LEFT JOIN truck t ON trp.truck_uid = t.uid
+               LEFT JOIN user u ON trp.user_id = u.id
+      WHERE trp.uid = ? AND trp.is_deleted = 0
+      LIMIT 1
+    `
+  }
+
   // Cleanup queries
   static getDeleteSyncedTrucksSQL(): string {
     return 'DELETE FROM truck WHERE synced_at IS NOT NULL AND is_dirty = 0'

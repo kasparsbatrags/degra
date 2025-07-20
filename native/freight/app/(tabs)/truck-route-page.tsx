@@ -157,38 +157,25 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			if (Platform.OS !== 'web') {
+			// Use unified data manager approach
+			try {
+				const routePageDto = await offlineDataManager.getRoutePageByUid(uid)
 				
-				try {
-					const sql = `
-						SELECT trp.*, 
-							   t.truck_maker, t.truck_model, t.registration_number, t.fuel_consumption_norm,
-							   u.email, u.given_name, u.family_name
-						FROM truck_route_page trp
-						LEFT JOIN truck t ON trp.truck_uid = t.uid
-						LEFT JOIN user u ON trp.user_id = u.id
-						WHERE trp.uid = ? AND trp.is_deleted = 0
-						LIMIT 1
-					`
-					
-					const localRouteData = await executeSelectFirst(sql, [uid])
-					
-					if (localRouteData) {
-						
-						setForm({
-							dateFrom: new Date(localRouteData.date_from),
-							dateTo: new Date(localRouteData.date_to),
-							truck: localRouteData.truck_uid || '',
-							fuelBalanceAtStart: localRouteData.fuel_balance_at_start?.toString() || '',
-							fuelBalanceAtFinish: localRouteData.fuel_balance_at_end?.toString() || '',
-						})
-						
-						return
-					}
-				} catch (error) {
+				if (routePageDto) {
+					setForm({
+						dateFrom: new Date(routePageDto.dateFrom),
+						dateTo: new Date(routePageDto.dateTo),
+						truck: routePageDto.truck?.uid || '',
+						fuelBalanceAtStart: routePageDto.fuelBalanceAtStart?.toString() || '',
+						fuelBalanceAtFinish: routePageDto.fuelBalanceAtFinish?.toString() || '',
+					})
+					return
 				}
+			} catch (error) {
+				console.warn('Failed to load from data manager:', error)
 			}
 
+			// Fallback to manual server call if data manager fails and we're online
 			if (isOnline) {
 				try {
 					const response = await freightAxios.get(`/route-pages/${uid}`)
