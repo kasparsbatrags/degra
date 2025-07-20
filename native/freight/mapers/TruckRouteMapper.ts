@@ -22,7 +22,7 @@ export interface TruckRouteSqlResult {
   	odometerAtStart: number
   	inDateTime?: string
   	odometerAtFinish?: number
-  	route_length?: number
+  	routeLength?: number
   	fuelBalanceAtStart?: number
 	fuelConsumed?: number
 	fuelReceived?: number
@@ -130,7 +130,7 @@ export class TruckRouteMapper {
       inTruckObject: inTruckObject,
       inDateTime: sqlResult.inDateTime,
       odometerAtFinish: sqlResult.odometerAtFinish,
-      routeLength: sqlResult.route_length,
+      routeLength: sqlResult.routeLength,
       fuelBalanceAtStart: sqlResult.fuelBalanceAtStart,
       fuelConsumed: sqlResult.fuelConsumed,
       fuelReceived: sqlResult.fuelReceived,

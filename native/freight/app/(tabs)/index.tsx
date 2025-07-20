@@ -114,9 +114,7 @@ export default function HomeScreen() {
 
 			if (Platform.OS !== 'web' && isOnline) {
 				try {
-					console.log('📱 [DEBUG] Syncing dropdown data for mobile...')
 					await downloadServerData()
-					console.log('📱 [DEBUG] Dropdown data sync completed')
 				} catch (error) {
 					console.warn('📱 [WARN] Dropdown data sync failed, continuing with cached data:', error)
 				}
@@ -134,7 +132,7 @@ export default function HomeScreen() {
 					if (!route.computedTotalRoutesLength) {
 						try {
 							const calculatedLength = await routePageManager.calculateComputedTotalRoutesLength(route.uid)
-							console.log("-------------------", calculatedLength)
+							console.log("-------------------1: ", calculatedLength)
 							return { ...route, computedTotalRoutesLength: calculatedLength }
 						} catch (error) {
 							console.error('Error calculating route length:', error)
