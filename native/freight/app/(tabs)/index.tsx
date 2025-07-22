@@ -129,13 +129,19 @@ export default function HomeScreen() {
 			const routePageManager = new RoutePageDataManager()
 			const routesWithCalculatedLengths = await Promise.all(
 				routesWithTabs.map(async (route) => {
-					if (!route.computedTotalRoutesLength) {
+					if (!route.computedTotalRoutesLength || !route.totalFuelConsumedOnRoutes) {
 						try {
-							const calculatedLength = await routePageManager.calculateComputedTotalRoutesLength(route.uid)
-							console.log("-------------------1: ", calculatedLength)
-							return { ...route, computedTotalRoutesLength: calculatedLength }
+							const calculatedTotals = await routePageManager.calculateComputedTotals(route.uid)
+							console.log("-------------------Calculated totals: ", calculatedTotals)
+							return {
+								...route,
+								computedTotalRoutesLength: calculatedTotals.totalLength,
+								totalFuelConsumedOnRoutes: calculatedTotals.totalFuelConsumed,
+								totalFuelReceivedOnRoutes: calculatedTotals.totalFuelReceived,
+								fuelBalanceAtRoutesFinish: route.fuelBalanceAtStart + calculatedTotals.totalFuelReceived - calculatedTotals.totalFuelConsumed
+							}
 						} catch (error) {
-							console.error('Error calculating route length:', error)
+							console.error('Error calculating route totals:', error)
 							return route
 						}
 					}

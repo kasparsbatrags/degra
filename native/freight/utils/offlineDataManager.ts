@@ -82,6 +82,7 @@ class OfflineDataManager {
       if (routeData.truckRoutePage) {
           if (type === 'endRoute') {
               routeData.truckRoutePage.odometerAtRouteFinish = routeData.odometerAtFinish
+			  routeData.truckRoutePage.fuelBalanceAtFinish = routeData.fuelBalanceAtFinish
           }
       }
       

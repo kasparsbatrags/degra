@@ -10,6 +10,15 @@ import {SQLQueryBuilder} from './SQLQueryBuilder'
 import {TruckRouteDataManager} from './TruckRouteDataManager'
 
 /**
+ * Interface for computed route totals
+ */
+export interface RouteComputedTotals {
+	totalLength: number
+	totalFuelConsumed: number
+	totalFuelReceived: number
+}
+
+/**
  * Manages route page data operations
  * Handles downloading, storing, and retrieving route page information
  */
@@ -21,28 +30,29 @@ export class RoutePageDataManager {
 	}
 
 	/**
-	 * Calculate computed total routes length for a route page
-	 * Equivalent to Java: routes.stream().mapToLong(route -> Optional.ofNullable(route.getRouteLength()).orElse(0L)).sum()
+	 * Calculate computed total routes length and fuel consumed for a route page
+	 * Returns both total length and total fuel consumed
 	 */
-	async calculateComputedTotalRoutesLength(truckRoutePageUid: string): Promise<number> {
+	async calculateComputedTotals(truckRoutePageUid: string): Promise<RouteComputedTotals> {
 		try {
 			// Get all routes for this route page
 			const routes = await this.truckRouteDataManager.getTruckRoutes(truckRoutePageUid)
 			console.log("----------------------routes:", routes)
 
-			// Sum up all route lengths (equivalent to Java stream operation)
-			const totalLength = routes.reduce((sum, route) => {
-				const routeLength = route.routeLength ?? 0
-				return sum + routeLength
-			}, 0)
+			// Sum up route lengths and fuel consumed
+			const totals = routes.reduce((acc, route) => ({
+				totalLength: acc.totalLength + (route.routeLength ?? 0),
+				totalFuelConsumed: acc.totalFuelConsumed + (route.fuelConsumed ?? 0),
+				totalFuelReceived: acc.totalFuelReceived + (route.fuelReceived ?? 0)
+			}), { totalLength: 0, totalFuelConsumed: 0 , totalFuelReceived: 0})
 			
 			PlatformDataAdapter.logPlatformInfo('calculateComputedTotalRoutesLength',
-				`Calculated total length: ${totalLength} for route page: ${truckRoutePageUid}`)
+				`Calculated totals - Length: ${totals.totalLength}, Fuel: ${totals.totalFuelConsumed} for route page: ${truckRoutePageUid}`)
 			
-			return totalLength
+			return totals
 		} catch (error) {
 			PlatformDataAdapter.logPlatformInfo('calculateComputedTotalRoutesLength', `Error: ${error}`)
-			return 0
+			return { totalLength: 0, totalFuelConsumed: 0, totalFuelReceived: 0 }
 		}
 	}
 
@@ -74,9 +84,11 @@ export class RoutePageDataManager {
 			routePageDto.uid = uuid.v4().toString()
 		}
 
-		// Calculate computed total routes length if not provided
+		// Calculate computed total routes length and fuel consumed if not provided
 		if (!routePageDto.computedTotalRoutesLength && !PlatformDataAdapter.isWeb()) {
-			routePageDto.computedTotalRoutesLength = await this.calculateComputedTotalRoutesLength(routePageDto.uid)
+			const computedTotals = await this.calculateComputedTotals(routePageDto.uid)
+			routePageDto.computedTotalRoutesLength = computedTotals.totalLength
+			routePageDto.totalFuelConsumedOnRoutes = computedTotals.totalFuelConsumed
 		}
 
 		const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)
@@ -142,9 +154,11 @@ export class RoutePageDataManager {
 			return false
 		}
 
-		// Recalculate computed total routes length for mobile platform
+		// Recalculate computed total routes length and fuel consumed for mobile platform
 		if (!PlatformDataAdapter.isWeb()) {
-			routePageDto.computedTotalRoutesLength = await this.calculateComputedTotalRoutesLength(routePageDto.uid)
+			const computedTotals = await this.calculateComputedTotals(routePageDto.uid)
+			routePageDto.computedTotalRoutesLength = computedTotals.totalLength
+			routePageDto.totalFuelConsumedOnRoutes = computedTotals.totalFuelConsumed
 		}
 
 		const routePageModel = mapTruckRoutePageDtoToModel(routePageDto)
