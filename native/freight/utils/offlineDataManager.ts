@@ -61,7 +61,7 @@ class OfflineDataManager {
     return this.truckRouteManager.downloadTruckRoutes(db)
   }
 
-  async getTruckRoutes(truckRoutePageUid?: string): Promise<any[]> {
+  async getTruckRoutes(truckRoutePageUid?: string): Promise<TruckRouteDto[]> {
     return this.truckRouteManager.getTruckRoutes(truckRoutePageUid)
   }
 

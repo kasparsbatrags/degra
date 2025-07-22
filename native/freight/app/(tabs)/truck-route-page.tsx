@@ -3,6 +3,7 @@ import ImprovedFormDropdown from '@/components/ImprovedFormDropdown'
 import Pagination from '@/components/Pagination'
 import {isRedirectingToLogin} from '@/config/axios'
 import {commonStyles, formStyles} from '@/constants/styles'
+import {TruckRouteDto} from '@/dto/TruckRouteDto'
 import {useOnlineStatus} from '@/hooks/useNetwork'
 import {mapTruckRoutePageModelToDto} from '@/mapers/TruckRoutePageMapper'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
@@ -52,7 +53,7 @@ export default function TruckRoutePageScreen() {
 	const [isLoading, setIsLoading] = useState(!!uid)
 	const [isEditMode, setIsEditMode] = useState(true)
 	const [activeTab, setActiveTab] = useState<'basic' | 'routes'>('basic')
-	const [truckRoutes, setTruckRoutes] = useState<TruckRoute[]>([])
+	const [truckRoutes, setTruckRoutes] = useState<TruckRouteDto[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [syncStatus, setSyncStatus] = useState<{
 		isLocal: boolean, isSynced: boolean, isInQueue: boolean, message?: string
@@ -454,7 +455,7 @@ export default function TruckRoutePageScreen() {
 					{truckRoutes.length > 0 ? (<>
 						<FlatList
 								data={truckRoutes}
-								keyExtractor={(item) => item.uid}
+								keyExtractor={(item) => item.uid || Math.random().toString()}
 								renderItem={({item: route}) => (<View style={styles.routeCard}>
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Datums:</Text>
@@ -475,13 +476,13 @@ export default function TruckRoutePageScreen() {
 									<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Odometrs:</Text>
 										<Text style={styles.routeText}>
-											{route.odometerAtStart} - {route.odometerAtFinish} km
+											{route.odometerAtStart || '0'} - {route.odometerAtFinish || '0'} km
 										</Text>
 									</View>
-									{route.cargoVolume && (<View style={styles.routeRow}>
+									{(route.cargoVolume !== null && route.cargoVolume !== undefined) && (<View style={styles.routeRow}>
 										<Text style={styles.routeLabelInline}>Krava:</Text>
 										<Text style={styles.routeText}>
-											{route.cargoVolume} {route.unitType}
+											{route.cargoVolume || '0'} {route.unitType || ''}
 										</Text>
 									</View>)}
 								</View>)}
