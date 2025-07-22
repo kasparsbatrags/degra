@@ -12,13 +12,11 @@ import uuid from 'react-native-uuid'
 import BackButton from '../../components/BackButton'
 import Button from '../../components/Button'
 import FormInput from '../../components/FormInput'
-import freightAxios from '../../config/freightAxios'
 import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '../../constants/theme'
 import { useOnlineStatus } from '@/hooks/useNetwork'
-import {addOfflineOperation, startOfflineQueueProcessing, stopOfflineQueueProcessing, processOfflineQueue} from '@/utils/offlineQueue'
+import {startOfflineQueueProcessing, stopOfflineQueueProcessing, processOfflineQueue} from '@/utils/offlineQueue'
 import {isSessionActive, loadSessionEnhanced} from '@/utils/sessionUtils'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
-import {executeQuery, executeSelect, executeSelectFirst} from '@/utils/database'
 import {offlineDataManager} from '@/utils/offlineDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {TruckRoutePage} from '@/models/TruckRoutePage'
@@ -148,7 +146,7 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// Use unified data manager approach
+			// Use unified data manager approach - handles offline/online automatically
 			try {
 				const routePageDto = await offlineDataManager.getRoutePageByUid(uid)
 				
@@ -160,38 +158,18 @@ export default function TruckRoutePageScreen() {
 						fuelBalanceAtStart: routePageDto.fuelBalanceAtStart?.toString() || '',
 						fuelBalanceAtFinish: routePageDto.fuelBalanceAtFinish?.toString() || '',
 					})
-					return
+				} else {
+					setErrorMessage('Maršruta lapa nav atrasta')
 				}
-			} catch (error) {
+			} catch (error: any) {
 				console.warn('Failed to load from data manager:', error)
-			}
-
-			// Fallback to manual server call if data manager fails and we're online
-			if (isOnline) {
-				try {
-					const response = await freightAxios.get(`/route-pages/${uid}`)
-					const routeData = response.data
-
-					setForm({
-						dateFrom: new Date(routeData.dateFrom),
-						dateTo: new Date(routeData.dateTo),
-						truck: routeData.truck?.uid || '',
-						fuelBalanceAtStart: routeData.fuelBalanceAtStart.toString(),
-						fuelBalanceAtFinish: routeData.fuelBalanceAtFinish?.toString() ?? '',
-					})
-				} catch (error: any) {
-					if (error.response?.status === 403) {
-						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
-						setErrorMessage(userFriendlyMessage)
-					} else {
-						setErrorMessage('Neizdevās ielādēt maršruta datus')
-					}
-				}
-			} else {
-				if (Platform.OS === 'web') {
+				if (error.response?.status === 403) {
+					const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
+					setErrorMessage(userFriendlyMessage)
+				} else if (Platform.OS === 'web' && !isOnline) {
 					setErrorMessage('Nav interneta savienojuma - dati nav pieejami offline režīmā')
 				} else {
-					setErrorMessage('Nav interneta savienojuma - rādīti lokālie dati')
+					setErrorMessage('Kļūda ielādējot maršruta datus')
 				}
 			}
 		} catch (error) {
@@ -219,52 +197,38 @@ export default function TruckRoutePageScreen() {
 				setPagination(prev => ({ ...prev, loading: false }));
 				return
 			}
-			console.info("9999999999999999:",isOnline)
-			if (isOnline) {
-				try {
-					const response = await freightAxios.get(
-						`/truck-routes/by-page/${uid}`,
-						{ params: { page, size: pagination.size } }
-					);
-					
-					if (response.data.content) {
-						if (page > 0 && Platform.OS !== 'web') {
-							setTruckRoutes(prev => [...prev, ...response.data.content]);
-						} else {
-							setTruckRoutes(response.data.content);
-						}
-						
-						setPagination({
-							page: page,
-							size: pagination.size,
-							totalElements: response.data.totalElements || 0,
-							totalPages: response.data.totalPages || 1,
-							loading: false
-						});
-					} else {
-						setTruckRoutes(response.data);
-						setPagination(prev => ({
-							...prev,
-							totalPages: 1,
-							loading: false
-						}));
-					}
-				} catch (error: any) {
-					if (error.response?.status === 403) {
-						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
-						setErrorMessage(userFriendlyMessage)
-					} else {
-						setErrorMessage('Neizdevās ielādēt braucienus')
-					}
-					setPagination(prev => ({ ...prev, loading: false }));
+
+			// Use unified data manager approach - handles offline/online automatically
+			try {
+				const routes = await offlineDataManager.getTruckRoutes(uid);
+				
+				// Simple pagination handling (client-side for now)
+				const startIndex = page * pagination.size;
+				const endIndex = startIndex + pagination.size;
+				const paginatedRoutes = routes.slice(startIndex, endIndex);
+				
+				if (page > 0 && Platform.OS !== 'web') {
+					setTruckRoutes(prev => [...prev, ...paginatedRoutes]);
+				} else {
+					setTruckRoutes(paginatedRoutes);
 				}
-			} else {
-				setTruckRoutes([]);
-				setPagination(prev => ({
-					...prev,
-					totalPages: 1,
+				
+				setPagination({
+					page: page,
+					size: pagination.size,
+					totalElements: routes.length,
+					totalPages: Math.ceil(routes.length / pagination.size),
 					loading: false
-				}));
+				});
+				
+			} catch (error: any) {
+				if (error.response?.status === 403) {
+					const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
+					setErrorMessage(userFriendlyMessage)
+				} else {
+					setErrorMessage('Neizdevās ielādēt braucienus')
+				}
+				setPagination(prev => ({ ...prev, loading: false }));
 			}
 		} catch (error) {
 			setPagination(prev => ({ ...prev, loading: false }));
@@ -336,96 +300,34 @@ export default function TruckRoutePageScreen() {
 				return
 			}
 
-			// UNIFIED OFFLINE-FIRST STRATEGY
-			// Step 1: Always save locally first (all platforms)
-			let localSaveSuccess = false
+			// Use unified data manager - handles offline/online logic automatically
 			try {
-				if (Platform.OS !== 'web') {
-					await offlineDataManager.saveTruckRoutePage(routePageDto)
-					localSaveSuccess = true
-					console.log('✅ Data saved locally')
-					setSyncStatus(prev => ({
-						...prev,
-						isLocal: true,
-						message: 'Dati saglabāti lokāli'
-					}))
+				const savedUid = await offlineDataManager.saveTruckRoutePage(routePageDto)
+				console.log('✅ Route page saved successfully:', savedUid)
+				
+				// Show success feedback
+				setSyncStatus(prev => ({
+					...prev,
+					isLocal: true,
+					isSynced: isOnline,
+					isInQueue: !isOnline,
+					message: isOnline ? 'Dati sinhronizēti ar serveri' : 'Dati saglabāti lokāli'
+				}))
+				
+				// Navigate with success feedback
+				setTimeout(() => router.push('/(tabs)'), 500)
+				
+			} catch (error: any) {
+				console.error('❌ Failed to save route page:', error)
+				
+				if (error.response?.status === 403) {
+					const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
+					setErrorMessage(userFriendlyMessage)
+				} else if (Platform.OS === 'web' && !isOnline) {
+					setErrorMessage('Nav interneta savienojuma - dati nav pieejami offline režīmā')
+				} else {
+					setErrorMessage('Kļūda saglabājot datus')
 				}
-			} catch (error) {
-				console.error('❌ Failed to save locally:', error)
-				setErrorMessage('Kļūda saglabājot datus lokāli')
-				setIsSubmitting(false)
-				return
-			}
-
-			// Step 2: Try server sync if online
-			let serverSyncSuccess = false
-			if (isOnline) {
-				try {
-					if (uid) {
-						await freightAxios.put(`/route-pages/${uid}`, routePageDto)
-					} else {
-						await freightAxios.post('/route-pages', routePageDto)
-					}
-					serverSyncSuccess = true
-					console.log('✅ Data synced with server')
-					setSyncStatus(prev => ({
-						...prev,
-						isSynced: true,
-						isInQueue: false,
-						message: 'Dati sinhronizēti ar serveri'
-					}))
-					
-					// Mark as synced in local database if mobile
-					if (Platform.OS !== 'web' && routePageDto.uid) {
-						try {
-							await executeQuery(
-								'UPDATE truck_route_page SET is_dirty = 0, updated_at = ? WHERE uid = ?',
-								[Date.now(), routePageDto.uid]
-							)
-						} catch (error) {
-							console.warn('⚠️ Failed to mark as synced:', error)
-						}
-					}
-				} catch (error: any) {
-					console.error('❌ Server sync failed:', error)
-					
-					if (error.response?.status === 403) {
-						const userFriendlyMessage = 'Jums nav piešķirtas tiesības - sazinieties ar Administratoru!'
-						setErrorMessage(userFriendlyMessage)
-						setIsSubmitting(false)
-						return
-					}
-					// Continue to offline queue handling
-				}
-			}
-
-			// Step 3: Add to offline queue if sync failed or offline
-			if (!serverSyncSuccess) {
-				try {
-					await addOfflineOperation(
-						uid ? 'UPDATE' : 'CREATE',
-						'truck_route_page',
-						uid ? `/route-pages/${uid}` : '/route-pages',
-						routePageDto
-					)
-					console.log('📋 Added to offline queue')
-					setSyncStatus(prev => ({
-						...prev,
-						isInQueue: true,
-						message: isOnline ? 'Pievienots sinhronizācijas rindai' : 'Saglabāts offline režīmā'
-					}))
-				} catch (error) {
-					console.error('❌ Failed to add to offline queue:', error)
-				}
-			}
-
-			// Step 4: Navigate with appropriate feedback
-			if (Platform.OS === 'web' && !serverSyncSuccess) {
-				setErrorMessage('Nav interneta savienojuma - dati saglabāti offline režīmā')
-				setTimeout(() => router.push('/(tabs)'), 2000)
-			} else {
-				// Success - navigate immediately
-				setTimeout(() => router.push('/(tabs)'), localSaveSuccess || serverSyncSuccess ? 500 : 1500)
 			}
 
 		} catch (error) {
