@@ -15,7 +15,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {format} from 'date-fns'
 import {router, useLocalSearchParams} from 'expo-router'
 import React, {useEffect, useState} from 'react'
-import {ActivityIndicator, FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
+import {ActivityIndicator, FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, TextStyle, View} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import uuid from 'react-native-uuid'
 import BackButton from '../../components/BackButton'
@@ -111,12 +111,12 @@ export default function TruckRoutePageScreen() {
 
 	useEffect(() => {
 		if (uid) {
-			fetchRouteDetails()
+			fetchRoutePageDetails()
 			fetchTruckRoutes()
 		}
 	}, [uid])
 
-	const fetchRouteDetails = async () => {
+	const fetchRoutePageDetails = async () => {
 		try {
 			setErrorMessage(null)
 
@@ -378,12 +378,20 @@ export default function TruckRoutePageScreen() {
 					>
 						{Platform.OS === 'web' ? (
 								<Text style={[styles.tabText, activeTab === 'routes' && styles.tabTextActive]}>Braucieni</Text>) : (
-								<MaterialIcons
-										name="speed"
-										size={24}
-										color={activeTab === 'routes' ? COLORS.white : COLORS.gray}
-								/>)}
+								<View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+									<MaterialIcons
+											name="speed"
+											size={24}
+											color={activeTab === 'routes' ? COLORS.white : COLORS.gray}
+									/>
+									<MaterialIcons
+											name="local-gas-station"
+											size={24}
+											color={activeTab === 'routes' ? COLORS.white : COLORS.gray}
+									/>
+								</View>)}
 					</Pressable>
+
 				</View>)}
 
 				{activeTab === 'basic' && (<>
@@ -479,12 +487,23 @@ export default function TruckRoutePageScreen() {
 											{route.odometerAtStart || '0'} - {route.odometerAtFinish || '0'} km
 										</Text>
 									</View>
-									{(route.cargoVolume !== null && route.cargoVolume !== undefined) && (<View style={styles.routeRow}>
-										<Text style={styles.routeLabelInline}>Krava:</Text>
-										<Text style={styles.routeText}>
-											{route.cargoVolume || '0'} {route.unitType || ''}
-										</Text>
-									</View>)}
+									<View style={styles.routeRow}>
+										<Text style={styles.routeLabelTopAligned}>Degviela:</Text>
+										<View style={styles.routeText}>
+											<Text style={styles.routeText}>Sākumā:    {route.fuelBalanceAtStart || 0} l</Text>
+											{route.fuelReceived > 0 &&
+												<Text style={styles.routeText}>Saņemta:    +{route.fuelReceived} L</Text>}
+											{route.fuelConsumed > 0 &&
+												<Text style={styles.routeText}>Patērēta:    {route.fuelConsumed} L</Text>}
+											<Text style={styles.routeText}>Beigās:    {route.fuelBalanceAtFinish || 0} L</Text>
+										</View>
+									</View>
+									{/*{(route.cargoVolume !== null && route.cargoVolume !== undefined) && (<View style={styles.routeRow}>*/}
+									{/*	<Text style={styles.routeLabelInline}>Krava:</Text>*/}
+									{/*	<Text style={styles.routeText}>*/}
+									{/*		{route.cargoVolume || '0'} {route.unitType || ''}*/}
+									{/*	</Text>*/}
+									{/*</View>)}*/}
 								</View>)}
 								scrollEnabled={false}
 								ListFooterComponent={<Pagination
@@ -514,6 +533,7 @@ export default function TruckRoutePageScreen() {
 }
 
 const styles = StyleSheet.create({
+
 	truckField: {
 		flex: 1, marginTop: -4,
 	}, container: {
@@ -682,8 +702,12 @@ const styles = StyleSheet.create({
 		flexDirection: 'row', alignItems: 'center', marginBottom: 8,
 	}, routeLabelInline: {
 		fontSize: 14, fontFamily: FONT.medium, color: COLORS.gray, marginRight: 8, flex: 0.33,
+	}, routeLabelTopAligned: {
+		fontSize: 14, fontFamily: FONT.medium, color: COLORS.gray, marginRight: 8, flex: 0.33,alignSelf: 'flex-start', textAlignVertical: 'top',
 	}, routeText: {
 		fontSize: 16, fontFamily: FONT.semiBold, color: COLORS.white, flex: 0.67, textAlign: 'right',
+	}, routeTextHighlight: {
+		...this.routeText, color: COLORS.highlight,
 	}, emptyText: {
 		fontSize: 16, fontFamily: FONT.regular, color: COLORS.gray, textAlign: 'center', marginTop: 24,
 	}, offlineIndicator: {

@@ -150,8 +150,10 @@ export class SQLQueryBuilder {
              t.registration_number,
              t.truck_maker,
              t.truck_model,
-             out_obj.name as out_object_name,
-             in_obj.name as in_object_name
+             out_obj.name as outTruckObjectName,
+             out_obj.uid as outTruckObjectUid,
+             in_obj.name as inTruckObjectName,
+          	 in_obj.uid as inTruckObjectUid
       FROM truck_route tr
       ${this.getTruckRouteJoins()}
       WHERE tr.is_deleted = 0

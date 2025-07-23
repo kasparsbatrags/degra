@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('🔑 Offline credentials saved');
 
         // Purge all offline data after successful login (to avoid syncing stale records)
-        await purgeAllOfflineData();
+        // await purgeAllOfflineData();
         console.log('🧹 Purged all offline data after login');
         
         if (mountedRef.current) {
@@ -218,9 +218,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleRegister = async (data: UserRegistrationData) => {
     try {
       await createUser(data);
-      // Purge all offline data after registration (to avoid syncing stale records)
-      await purgeAllOfflineData();
-      console.log('🧹 Purged all offline data after registration');
+      
+      // Check if forced offline mode is enabled before purging data
+      const isForcedOffline = await getForcedOfflineMode();
+      if (!isForcedOffline) {
+        // Only purge data if forced offline mode is not enabled
+        await purgeAllOfflineData();
+        console.log('🧹 Purged all offline data after registration');
+      } else {
+        console.log('🔒 Skipped data purging after registration - forced offline mode is enabled');
+      }
+      
       // Automatically login after registration
       if (mountedRef.current) {
         await handleSignIn(data.email, data.password);

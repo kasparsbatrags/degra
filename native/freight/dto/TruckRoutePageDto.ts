@@ -8,7 +8,7 @@ export interface TruckRoutePageDto {
 	dateTo: string;
 	truck: TruckDto;
 	user: UserDto;
-	fuelBalanceAtStart: number ;
+	fuelBalanceAtStart?: number;
 	fuelBalanceAtFinish?: number;
 	totalFuelReceivedOnRoutes?: number;
 	totalFuelConsumedOnRoutes?: number;
