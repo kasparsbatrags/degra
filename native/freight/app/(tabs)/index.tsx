@@ -138,7 +138,7 @@ export default function HomeScreen() {
 								computedTotalRoutesLength: calculatedTotals.totalLength,
 								totalFuelConsumedOnRoutes: calculatedTotals.totalFuelConsumed,
 								totalFuelReceivedOnRoutes: calculatedTotals.totalFuelReceived,
-								fuelBalanceAtRoutesFinish: route.fuelBalanceAtStart + calculatedTotals.totalFuelReceived - calculatedTotals.totalFuelConsumed
+								fuelBalanceAtRoutesFinish: (route.fuelBalanceAtStart ?? 0) + calculatedTotals.totalFuelReceived - calculatedTotals.totalFuelConsumed
 							}
 						} catch (error) {
 							console.error('Error calculating route totals:', error)
@@ -175,7 +175,7 @@ export default function HomeScreen() {
 
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
-			{!isOnline && (<View style={styles.offlineIndicator}>
+			{!isOnline && Platform.OS !== 'web' && (<View style={styles.offlineIndicator}>
 						<MaterialIcons name="cloud-off" size={16} color={COLORS.highlight} />
 						<Text style={styles.offlineText}>Offline režīms</Text>
 					</View>)}
