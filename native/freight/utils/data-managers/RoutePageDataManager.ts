@@ -188,7 +188,7 @@ export class RoutePageDataManager {
 			console.error('Save update truck_route_page error: ', error)
 			return false
 		} finally {
-			const result = await executeSelect('SELECT a.* from truck_route_page a where uid=' + routePageDto.uid)
+			const result = await executeSelect(`SELECT a.* from truck_route_page a where uid = ?`, routePageDto.uid)
 			console.log('update truck_route_page uid:{}, result:{} ', routePageDto.uid, result)
 
 		}
@@ -198,6 +198,8 @@ export class RoutePageDataManager {
 	 * Save or update route page
 	 */
 	async saveOrUpdateRoutePage(routePageDto: TruckRoutePageDto, isUpdate: boolean = false): Promise<string> {
+		console.log("--------------------isUpdate",isUpdate)
+		console.log("--------------------routePageDto",routePageDto)
 		if (isUpdate) {
 			await this.updateRoutePageInDatabase(routePageDto)
 			return routePageDto.uid
@@ -246,6 +248,7 @@ export class RoutePageDataManager {
 	 * Save truck route page with offline support
 	 */
 	async saveTruckRoutePage(routePageDto: TruckRoutePageDto): Promise<string> {
+		console.log("--------------------aaaaaaaaaaaaaaaaaaaaa:",routePageDto.uid)
 		const isUpdate = !!routePageDto.uid
 		PlatformDataAdapter.logPlatformInfo('saveTruckRoutePage', `${isUpdate ? 'Update' : 'Create'} route page`)
 
