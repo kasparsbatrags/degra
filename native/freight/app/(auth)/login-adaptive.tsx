@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useRouter } from 'expo-router';
-import { View, Text, Alert, Dimensions, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, Dimensions, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { usePlatform } from '../../hooks/usePlatform';
 
-// Import modern components
-import ModernFormInput from '../../components/ModernFormInput';
-import ModernButton from '../../components/ModernButton';
+// Import new components
+import { AuthLayout, AdaptiveFormInput, AdaptiveButton } from '../../components/web';
 
 // Import old components for mobile fallback
 import Button from '../../components/Button';
@@ -94,88 +93,26 @@ export default function LoginScreen() {
     }
   };
 
-  // WEB VERSION - Ultra Modern Design with CSS Classes
+  // WEB VERSION - Modern Design
   if (isWeb) {
     return (
-      <View
-        className="degra-gradient-bg animated fadeIn"
-        style={{
-          minHeight: Dimensions.get("window").height,
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 24,
-        }}>
-        
-        <View
-          className="degra-card animated slideInDown"
-          style={{
-            width: '100%',
-            maxWidth: 420,
-            padding: 40,
-          }}>
-          {/* Modern Header */}
-          <View style={{ marginBottom: 40, alignItems: 'center' }}>
-            {/* Modern Logo */}
-            <View style={{
-              width: 80,
-              height: 80,
-              borderRadius: 20,
-              marginBottom: 24,
-              shadowColor: '#3b82f6',
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.3,
-              shadowRadius: 20,
-              elevation: 10,
-              overflow: 'hidden',
-            }}>
-              {/* Gradient background for logo */}
-              <View style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#3b82f6',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-				  <Image
-						  source={images.logo}
-						  resizeMode="contain"
-						  style={{
-							  width: 60,
-							  height: 60,
-							  alignSelf: 'center',
-						  }}
-				  />
-              </View>
-            </View>
-            
-            <Text
-              className="animated pulse"
-              style={{
-                fontSize: 28,
-                fontFamily: 'system-ui',
-                fontWeight: '700',
-                color: '#1f2937',
-                textAlign: 'center',
-                marginBottom: 8,
-              }}>
-              Krava
-            </Text>
-            
-            <Text style={{
-              fontSize: 15,
-              color: '#6b7280',
-              textAlign: 'center',
-              marginBottom: 32,
-              lineHeight: 22,
-              fontFamily: 'system-ui',
-            }}>
-              Auto izmantošanas uzskaites sistēma
-            </Text>
-          </View>
+      <AuthLayout
+        title="Degra Freight"
+        subtitle="Auto izmantošanas uzskaites sistēma"
+      >
+        {/* Login Form Header */}
+        <View className="mb-8">
+          <Text className="text-2xl lg:text-3xl font-pbold text-neutral-900 mb-2">
+            Pieslēgties
+          </Text>
+          <Text className="text-neutral-600 font-pregular">
+            Ievadiet savus datus, lai piekļūtu sistēmai
+          </Text>
+        </View>
 
-          {/* Modern Form */}
-          <ModernFormInput
+        {/* Login Form */}
+        <View className="space-y-6">
+          <AdaptiveFormInput
             label="E-pasta adrese"
             value={form.email}
             onChangeText={(text) => {
@@ -183,7 +120,7 @@ export default function LoginScreen() {
               setFormErrors({ ...formErrors, email: '' });
             }}
             error={formErrors.email}
-            placeholder="example@degra.lv"
+            placeholder="ievadiet.savu@e-pastu.lv"
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -191,7 +128,7 @@ export default function LoginScreen() {
             required
           />
 
-          <ModernFormInput
+          <AdaptiveFormInput
             label="Parole"
             value={form.password}
             onChangeText={(text) => {
@@ -199,96 +136,65 @@ export default function LoginScreen() {
               setFormErrors({ ...formErrors, password: '' });
             }}
             error={formErrors.password}
-            placeholder="••••••••••"
+            placeholder="Ievadiet savu paroli"
             secureTextEntry
             autoComplete="current-password"
             textContentType="password"
             required
-            rightIcon="👁"
-            showPassword
           />
 
-          {/* Forgot password link */}
-          <View style={{ alignItems: 'flex-end', marginBottom: 24 }}>
-            <TouchableOpacity className="animated fadeIn">
-              <Text
-                className="degra-text-primary"
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'system-ui',
-                  fontWeight: '500',
-                }}>
-                Aizmirsāt paroli?
-              </Text>
-            </TouchableOpacity>
+          {/* Forgot Password Link - Web Only */}
+          <View className="flex items-end">
+            <Text className="text-sm text-primary-600 hover:text-primary-700 cursor-pointer font-pmedium">
+              Aizmirsi paroli?
+            </Text>
           </View>
 
-          <ModernButton
-            title="Pieslēgties sistēmā"
+          {/* Login Button */}
+          <AdaptiveButton
+            title="Pieslēgties"
             onPress={handleLogin}
             loading={loading}
             variant="primary"
             size="lg"
-            fullWidth
+            icon="🔐"
           />
 
           {/* Divider */}
-          <View
-            className="animated fadeIn"
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginVertical: 32,
-            }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: '#e5e7eb' }} />
-            <Text style={{
-              marginHorizontal: 16,
-              fontSize: 14,
-              color: '#9ca3af',
-              fontFamily: 'system-ui',
-            }}>
-              vai
-            </Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: '#e5e7eb' }} />
+          <View className="flex flex-row items-center my-6">
+            <View className="flex-1 h-px bg-neutral-300" />
+            <Text className="mx-4 text-neutral-500 font-pregular">vai</Text>
+            <View className="flex-1 h-px bg-neutral-300" />
           </View>
 
-          {/* Register section */}
-          <View
-            className="nifty-text-center animated slideInUp"
-            style={{ alignItems: 'center' }}>
+          {/* Register Link */}
+          <View className="text-center">
+            <Text className="text-neutral-600 font-pregular">
+              Nav konta?{' '}
+              <Link href="/register" asChild>
+                <Text className="text-primary-600 hover:text-primary-700 font-pmedium cursor-pointer">
+                  Reģistrēties šeit
+                </Text>
+              </Link>
+            </Text>
+          </View>
 
-            
-            <TouchableOpacity
-              className="button animated bounce"
-              onPress={() => router.push('/register')}
-            >
-              <Text
-                className="degra-text-primary"
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'system-ui',
-                  fontWeight: '500',
-                }}>
-				  Izveidot jaunu kontu
+          {/* Terms & Privacy */}
+          <View className="mt-8 pt-6 border-t border-neutral-200">
+            <Text className="text-xs text-neutral-500 text-center leading-relaxed">
+              Pieslēdzoties, jūs piekrītat mūsu{' '}
+              <Text className="text-primary-600 hover:text-primary-700 cursor-pointer">
+                lietošanas noteikumiem
+              </Text>{' '}
+              un{' '}
+              <Text className="text-primary-600 hover:text-primary-700 cursor-pointer">
+                privātuma politikai
               </Text>
-            </TouchableOpacity>
+              .
+            </Text>
           </View>
         </View>
-        
-        {/* Footer */}
-        <Text
-          className="animated fadeIn slow"
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            fontSize: 13,
-            color: 'rgba(255, 255, 255, 0.7)',
-            fontFamily: 'system-ui',
-            textAlign: 'center',
-          }}>
-          © 2024 Degra Freight. Visas tiesības aizsargātas.
-        </Text>
-      </View>
+      </AuthLayout>
     );
   }
 

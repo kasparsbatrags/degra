@@ -1,5 +1,6 @@
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const FORCED_OFFLINE_KEY = 'app_forced_offline_mode';
 
@@ -34,6 +35,11 @@ async function getForcedOfflineMode(): Promise<boolean> {
 }
 
 export async function isOnline(): Promise<boolean> {
+  // Web aplikācijā vienmēr atgriež true (nav nepieciešama offline pārbaude)
+  if (Platform.OS === 'web') {
+    return true;
+  }
+  
   const forcedOffline = await getForcedOfflineMode();
   if (forcedOffline) {
     return false;
@@ -75,6 +81,11 @@ export function addOnlineStatusListener(listener: (isOnline: boolean) => void): 
 }
 
 export async function checkNetworkStatus(): Promise<boolean> {
+  // Web aplikācijā vienmēr atgriež true (nav nepieciešama offline pārbaude)
+  if (Platform.OS === 'web') {
+    return true;
+  }
+  
   const forcedOffline = await getForcedOfflineMode();
   if (forcedOffline) {
     return false;
