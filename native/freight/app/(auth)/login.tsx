@@ -224,7 +224,7 @@ export default function LoginScreen() {
           </View>
 
           <ModernButton
-            title="Pieslēgties sistēmā"
+            title="Pieslēgties"
             onPress={handleLogin}
             loading={loading}
             variant="primary"

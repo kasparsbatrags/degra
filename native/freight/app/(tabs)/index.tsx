@@ -3,6 +3,7 @@ import {COLORS, CONTAINER_WIDTH, FONT, SHADOWS} from '@/constants/theme'
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import { useOnlineStatus } from '@/hooks/useNetwork'
+import { usePlatform } from '@/hooks/usePlatform'
 import {getRoutePages, downloadServerData, offlineDataManager} from '@/utils/offlineDataManager'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
@@ -10,20 +11,23 @@ import {RoutePageDataManager} from '@/utils/data-managers/RoutePageDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState, useMemo} from 'react'
-import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle, Dimensions, ScrollView} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
+import ModernButton from '../../components/ModernButton'
+import { ModernRouteCard, TabType } from '../../components/web/ModernRouteCard'
+import RouteTable from '../../components/web/RouteTable'
 
 
 export default function HomeScreen() {
 	const {user} = useAuth()
+	const { isWeb } = usePlatform()
 	const router = useRouter()
 	const [routes, setRoutes] = useState<TruckRoutePageDto[]>([])
 	const [loading, setLoading] = useState(true)
 	const [buttonText, setButtonText] = useState('Starts')
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
-
 
 	const isOnline = useOnlineStatus()
 
@@ -94,6 +98,17 @@ export default function HomeScreen() {
 			...route,
 			activeTab: route.activeTab || 'basic' as const
 		}));
+	};
+
+	// Handle tab change for routes
+	const handleRouteTabChange = (routeUid: string, tabType: TabType) => {
+		setRoutes(prevRoutes =>
+			prevRoutes.map(route =>
+				route.uid === routeUid
+					? { ...route, activeTab: tabType }
+					: route
+			)
+		);
 	};
 
 	const fetchRoutes = async () => {
@@ -173,6 +188,37 @@ export default function HomeScreen() {
 		fetchRoutes()
 	}, [])
 
+	// WEB VERSION - Modern Design
+	if (isWeb) {
+		return (
+			<View
+				className="degra-gradient-bg animated fadeIn"
+				style={{
+					minHeight: Dimensions.get("window").height,
+					flex: 1,
+				}}
+			>
+				<ScrollView style={{ flex: 1 }}>
+					<View className="degra-main-container">
+						{/* Header Section */}
+
+						{/* Routes Table */}
+						<RouteTable
+							routes={routes}
+							loading={loading}
+							onRefresh={() => {
+								setLoading(true);
+								fetchRoutes();
+								checkLastRouteStatus();
+							}}
+						/>
+					</View>
+				</ScrollView>
+			</View>
+		);
+	}
+
+	// MOBILE VERSION - Keep Original Design (UNCHANGED)
 	return (<SafeAreaView style={styles.container}>
 		<View style={styles.content}>
 			{!isOnline && Platform.OS !== 'web' && (<View style={styles.offlineIndicator}>

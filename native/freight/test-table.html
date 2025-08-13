@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Table Test</title>
+    <style>
+        /* Import web.css styles */
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .degra-content-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .degra-table-container {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .degra-table-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 0.8fr;
+            min-width: 800px;
+        }
+
+        .degra-table-header-cell {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 16px 12px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .degra-table-header-cell:hover {
+            background: #f1f5f9;
+        }
+
+        .degra-table-header-text {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .degra-table-cell {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .degra-table-cell:hover {
+            background: #f8fafc;
+        }
+
+        .degra-table-cell.even {
+            background: #ffffff;
+        }
+
+        .degra-table-cell.odd {
+            background: #fafbfc;
+        }
+
+        .degra-table-cell.even:hover {
+            background: #f8fafc;
+        }
+
+        .degra-table-cell.odd:hover {
+            background: #f1f5f9;
+        }
+
+        .degra-table-cell-text {
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .degra-text-primary {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+
+        .degra-table-action-button {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #3b82f6;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .degra-table-action-button:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 16px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .animated {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Route Table Implementation Test</h1>
+    
+    <div class="degra-content-section animated">
+        <div class="table-title">Maršrutu lapas (5)</div>
+        
+        <div class="degra-table-container">
+            <div class="degra-table-grid">
+                <!-- Header Row -->
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Periods ↕</div>
+                </div>
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Auto ↕</div>
+                </div>
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Vadītājs</div>
+                </div>
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Distance ↕</div>
+                </div>
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Degviela ↕</div>
+                </div>
+                <div class="degra-table-header-cell">
+                    <div class="degra-table-header-text">Darbības</div>
+                </div>
+
+                <!-- Row 1 -->
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">15.01.2024 - 16.01.2024</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">AA-1234</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">Jānis Bērziņš</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text degra-text-primary">250 km</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">180 L</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <button class="degra-table-action-button">Skatīt</button>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">16.01.2024 - 17.01.2024</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">BB-5678</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">Anna Kārkliņa</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text degra-text-primary">420 km</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">220 L</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <button class="degra-table-action-button">Skatīt</button>
+                </div>
+
+                <!-- Row 3 -->
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">17.01.2024 - 18.01.2024</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">CC-9012</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">Pēteris Ozoliņš</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text degra-text-primary">310 km</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">150 L</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <button class="degra-table-action-button">Skatīt</button>
+                </div>
+
+                <!-- Row 4 -->
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">18.01.2024 - 19.01.2024</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">DD-3456</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">Līga Liepiņa</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text degra-text-primary">180 km</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <div class="degra-table-cell-text">190 L</div>
+                </div>
+                <div class="degra-table-cell odd">
+                    <button class="degra-table-action-button">Skatīt</button>
+                </div>
+
+                <!-- Row 5 -->
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">19.01.2024 - 20.01.2024</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">EE-7890</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">Māris Kalniņš</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text degra-text-primary">375 km</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <div class="degra-table-cell-text">205 L</div>
+                </div>
+                <div class="degra-table-cell even">
+                    <button class="degra-table-action-button">Skatīt</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button disabled>‹ Iepriekšējā</button>
+            <button class="active">1</button>
+            <button>Nākamā ›</button>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive functionality
+        document.querySelectorAll('.degra-table-header-cell').forEach((header, index) => {
+            if (index < 2 || index === 3 || index === 4) { // Only sortable columns
+                header.addEventListener('click', function() {
+                    const currentIcon = this.querySelector('.degra-table-header-text').innerHTML;
+                    let newIcon;
+                    
+                    if (currentIcon.includes('↕')) {
+                        newIcon = currentIcon.replace('↕', '↑');
+                    } else if (currentIcon.includes('↑')) {
+                        newIcon = currentIcon.replace('↑', '↓');
+                    } else {
+                        newIcon = currentIcon.replace('↓', '↑');
+                    }
+                    
+                    this.querySelector('.degra-table-header-text').innerHTML = newIcon;
+                });
+            }
+        });
+
+        // Add click functionality to table cells
+        document.querySelectorAll('.degra-table-cell:not(.degra-table-cell:has(.degra-table-action-button))').forEach(cell => {
+            cell.addEventListener('click', function() {
+                alert('Navigating to route details...');
+            });
+        });
+
+        // Add action button functionality
+        document.querySelectorAll('.degra-table-action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                alert('Opening route details...');
+            });
+        });
+    </script>
+</body>
+</html>

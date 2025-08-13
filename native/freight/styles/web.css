@@ -481,6 +481,156 @@ a:hover {
     min-height: 100vh;
 }
 
+/* Modern Route Card */
+.degra-route-card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    border: 1px solid rgb(229 231 235);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.degra-route-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    border-color: rgb(203 213 225);
+}
+
+.degra-route-card:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+/* Modern Tab Container */
+.degra-tab-container {
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid rgb(229 231 235);
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.degra-tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+}
+
+.degra-tab-button:hover {
+    background-color: rgb(249 250 251);
+    color: #374151;
+}
+
+.degra-tab-button.active {
+    background-color: #3b82f6;
+    color: white;
+    border-bottom-color: #3b82f6;
+}
+
+.degra-tab-button.active:hover {
+    background-color: #2563eb;
+}
+
+.degra-tab-content {
+    background-color: white;
+    padding: 20px;
+    border-top: 1px solid rgb(229 231 235);
+}
+
+.degra-tab-content.basic {
+    border-left: 4px solid #3b82f6;
+}
+
+.degra-tab-content.odometer {
+    border-left: 4px solid #10b981;
+}
+
+.degra-tab-content.fuel {
+    border-left: 4px solid #f59e0b;
+}
+
+/* Stats Grid */
+.degra-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.degra-stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgb(243 244 246);
+}
+
+.degra-stat-item:last-child {
+    border-bottom: none;
+}
+
+.degra-stat-label {
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.degra-stat-value {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 16px;
+    text-align: right;
+}
+
+.degra-stat-value.highlight {
+    color: #3b82f6;
+}
+
+.degra-stat-value.success {
+    color: #10b981;
+}
+
+.degra-stat-value.warning {
+    color: #f59e0b;
+}
+
+/* Modern Container */
+.degra-main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.degra-content-section {
+    background-color: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+/* Action Button Area */
+.degra-action-area {
+    background-color: white;
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    text-align: center;
+}
+
 /* Animation utilities */
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
@@ -488,6 +638,10 @@ a:hover {
 
 .slide-in {
     animation: slideInDown 0.3s ease-out;
+}
+
+.slide-up {
+    animation: slideInUp 0.3s ease-out;
 }
 
 /* Loading states */
@@ -513,6 +667,134 @@ a:hover {
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+/* Modern Table Styles */
+.degra-table-container {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    border: 1px solid rgb(229 231 235);
+    width: 100%;
+}
+
+.degra-table-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 0.8fr;
+    width: 100%;
+}
+
+.degra-table-header-cell {
+    background-color: #f8fafc;
+    padding: 16px 12px;
+    border-right: 1px solid rgb(229 231 235);
+    border-bottom: 1px solid rgb(229 231 235);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.degra-table-header-cell:last-child {
+    border-right: none;
+}
+
+.degra-table-header-cell:hover {
+    background-color: #f1f5f9;
+}
+
+.degra-table-header-text {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+    text-align: left;
+    font-family: 'system-ui';
+}
+
+.degra-table-cell {
+    padding: 12px;
+    border-right: 1px solid rgb(243 244 246);
+    border-bottom: 1px solid rgb(243 244 246);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.degra-table-cell:nth-child(6n) {
+    border-right: none;
+}
+
+.degra-table-cell:hover {
+    background-color: #f8fafc;
+}
+
+.degra-table-cell.even {
+    background-color: #ffffff;
+}
+
+.degra-table-cell.odd {
+    background-color: #fafbfc;
+}
+
+.degra-table-cell.even:hover,
+.degra-table-cell.odd:hover {
+    background-color: #f1f5f9;
+}
+
+.degra-table-cell-text {
+    font-size: 14px;
+    color: #374151;
+    font-family: 'system-ui';
+    line-height: 1.4;
+    width: 100%;
+}
+
+.degra-table-action-button {
+    background-color: transparent;
+    border: 1px solid #3b82f6;
+    border-radius: 6px;
+    padding: 4px 12px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.degra-table-action-button:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.degra-table-action-button:hover * {
+    color: white !important;
+}
+
+/* Responsive table */
+@media (max-width: 1024px) {
+    .degra-table-header-cell,
+    .degra-table-cell {
+        min-width: 120px;
+        padding: 8px;
+    }
+    
+    .degra-table-header-text,
+    .degra-table-cell-text {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .degra-table-header-cell,
+    .degra-table-cell {
+        min-width: 100px;
+        padding: 6px;
+    }
+    
+    .degra-table-header-text,
+    .degra-table-cell-text {
+        font-size: 12px;
     }
 }
 
