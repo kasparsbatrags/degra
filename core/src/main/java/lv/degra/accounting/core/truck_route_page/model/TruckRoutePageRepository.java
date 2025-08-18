@@ -24,4 +24,5 @@ public interface TruckRoutePageRepository extends JpaRepository<TruckRoutePage, 
 	Optional<TruckRoutePage> findByUserAndTruckAndRouteDate(@Param("user") User user, @Param("truck") Truck truck,
 			@Param("routeDate") LocalDate routeDate);
 
+	long countByUser(User user);
 }

@@ -15,7 +15,8 @@ public interface TruckRoutePageService {
 
 	List<TruckRoutePageDto> getUserRoutePagesDto(String userId, int page, int size);
 
-	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user, @NotNull TruckDto truckDto);
+	TruckRoutePageDto getOrCreateUserRoutePageByRouteDate(@NotNull TruckRouteDto truckRouteDto, @NotNull User user,
+			@NotNull TruckDto truckDto);
 
 	TruckRoutePageDto userRoutePageByRouteDateExists(LocalDate routeDate, String userId, String truckUid);
 
@@ -24,4 +25,8 @@ public interface TruckRoutePageService {
 	TruckRoutePageDto save(@NotNull TruckRoutePageDto truckRoutePageDto);
 
 	TruckRoutePageDto updateTruckRoutePage(String uid, TruckRoutePageDto truckRoutePageDto);
+
+	void deleteTruckRoutePage(String uid, String userId);
+
+	long countUserRoutePages(String userId);
 }

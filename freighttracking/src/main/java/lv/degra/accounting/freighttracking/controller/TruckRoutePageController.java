@@ -1,9 +1,15 @@
 package lv.degra.accounting.freighttracking.controller;
 
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_EXIST;
+import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE_PAGES;
+import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
+
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,10 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_EXIST;
-import static lv.degra.accounting.core.config.ApiConstants.ENDPOINT_TRUCK_ROUTE_PAGES;
-import static lv.degra.accounting.core.config.ApiConstants.FREIGHT_TRACKING_PATH;
-import lv.degra.accounting.core.exception.ResourceNotFoundException;
+import lv.degra.accounting.core.PagedResponse;
 import lv.degra.accounting.core.truck.service.TruckService;
 import lv.degra.accounting.core.truck_route_page.dto.TruckRoutePageDto;
 import lv.degra.accounting.core.truck_route_page.service.TruckRoutePageService;
@@ -35,29 +38,23 @@ public class TruckRoutePageController {
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES)
-	public ResponseEntity<List<TruckRoutePageDto>> getRoutePages(@RequestParam(defaultValue = "0") int page,
+	public ResponseEntity<PagedResponse<TruckRoutePageDto>> getRoutePages(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
 		RequestValidator.validatePageRequest(page, size);
 
-		try {
+		String userId = UserContextUtils.getCurrentUserId();
 
-			String userId = UserContextUtils.getCurrentUserId();
+		List<TruckRoutePageDto> truckRoutePages = truckRoutePageService.getUserRoutePagesDto(userId, page, size);
+		long totalCount = truckRoutePageService.countUserRoutePages(userId);
 
-			List<TruckRoutePageDto> truckRoutePages = truckRoutePageService.getUserRoutePagesDto(userId, page, size);
-
-			if (truckRoutePages == null || truckRoutePages.isEmpty()) {
-				throw new ResourceNotFoundException("No truck route pages found");
-			}
-
-			return ResponseEntity.ok(truckRoutePages);
-
-		} catch (Exception e) {
-			if (e instanceof ResourceNotFoundException) {
-				throw e;
-			}
-			throw new RuntimeException("Failed to retrieve truck route pages: " + e.getMessage());
+		if (truckRoutePages == null) {
+			truckRoutePages = Collections.emptyList();
 		}
+
+		PagedResponse<TruckRoutePageDto> response = new PagedResponse<>(truckRoutePages, page, size, totalCount);
+
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
@@ -78,5 +75,12 @@ public class TruckRoutePageController {
 
 		TruckRoutePageDto updatedPage = truckRoutePageService.updateTruckRoutePage(id, truckRoutePageDto);
 		return ResponseEntity.ok(updatedPage);
+	}
+
+	@DeleteMapping(ENDPOINT_TRUCK_ROUTE_PAGES + "/{id}")
+	public ResponseEntity<TruckRoutePageDto> deleteTruckRoutePage(@PathVariable String id) {
+		String userId = UserContextUtils.getCurrentUserId();
+		truckRoutePageService.deleteTruckRoutePage(id, userId);
+		return ResponseEntity.noContent().build();
 	}
 }

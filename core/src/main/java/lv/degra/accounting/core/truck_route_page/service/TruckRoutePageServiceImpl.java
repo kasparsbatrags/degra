@@ -93,12 +93,9 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		LocalDate routeDate = truckRouteDto.getRouteDate();
 
 		TruckRoutePage truckRoutePageDto = Optional.ofNullable(truckRouteDto.getTruckRoutePage())
-				.map(page -> TruckRoutePage.builder()
-						.dateFrom(Optional.ofNullable(page.getDateFrom()).orElse(routeDate.withDayOfMonth(1)))
+				.map(page -> TruckRoutePage.builder().dateFrom(Optional.ofNullable(page.getDateFrom()).orElse(routeDate.withDayOfMonth(1)))
 						.dateTo(Optional.ofNullable(page.getDateTo()).orElse(routeDate.with(TemporalAdjusters.lastDayOfMonth())))
-						.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart())
-						.user(user)
-						.build())
+						.fuelBalanceAtStart(truckRouteDto.getFuelBalanceAtStart()).user(user).build())
 				.orElseThrow(() -> new IllegalArgumentException("TruckRoutePage is required in TruckRouteDto"));
 
 		Truck truck = truckService.getDefaultTruckForUser(user)
@@ -108,7 +105,6 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 
 		return freightMapper.toDto(truckRoutePageRepository.save(truckRoutePageDto));
 	}
-
 
 	public TruckRoutePageDto findById(String uid) {
 		return truckRoutePageRepository.findById(uid).map(freightMapper::toDto)
@@ -136,4 +132,22 @@ public class TruckRoutePageServiceImpl implements TruckRoutePageService {
 		return freightMapper.toDto(updatedPage);
 	}
 
+	@Transactional
+	public void deleteTruckRoutePage(String uid, String userId) {
+
+		User user = userService.getUserByUserId(userId);
+
+		TruckRoutePage page = truckRoutePageRepository.findById(uid)
+				.orElseThrow(() -> new ResourceNotFoundException("Truck route page not found with ID: " + uid));
+
+		validateUserAccessToTruck(page.getTruck().getUid(), user);
+
+		truckRoutePageRepository.delete(page);
+	}
+
+	@Override
+	public long countUserRoutePages(String userId) {
+		User user = userService.getUserByUserId(userId);
+		return truckRoutePageRepository.countByUser(user);
+	}
 }

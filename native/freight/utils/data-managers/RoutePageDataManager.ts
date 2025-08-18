@@ -188,7 +188,7 @@ export class RoutePageDataManager {
 			console.error('Save update truck_route_page error: ', error)
 			return false
 		} finally {
-			const result = await executeSelect(`SELECT a.* from truck_route_page a where uid = ?`, routePageDto.uid)
+			const result = await executeSelect(`SELECT a.* from truck_route_page a where uid = ?`, [routePageDto.uid])
 			console.log('update truck_route_page uid:{}, result:{} ', routePageDto.uid, result)
 
 		}
@@ -400,5 +400,22 @@ export class RoutePageDataManager {
 
 		PlatformDataAdapter.logPlatformInfo('getRoutePageByUidMobile', `Found route page: ${uid}`)
 		return routePageDto
+	}
+
+	/**
+		* Delete route page (web platform only)
+		*/
+	async deleteRoutePage(uid: string): Promise<void> {
+		if (!PlatformDataAdapter.isWeb()) {
+			throw new Error('Route page deletion is only available on web platform')
+		}
+
+		try {
+			await PlatformDataAdapter.deleteFromServer(`/route-pages/${uid}`)
+			PlatformDataAdapter.logPlatformInfo('deleteRoutePage', `Deleted route page: ${uid}`)
+		} catch (error) {
+			PlatformDataAdapter.logPlatformInfo('deleteRoutePage', `Error deleting route page ${uid}: ${error}`)
+			throw error
+		}
 	}
 }

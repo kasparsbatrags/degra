@@ -59,6 +59,23 @@ export class PlatformDataAdapter {
   }
 
   /**
+   * Delete data from server
+   */
+  static async deleteFromServer(endpoint: string): Promise<void> {
+    try {
+      await freightAxiosInstance.delete(endpoint)
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        const userFriendlyMessage = 'Jums nav piešķirtas tiesības dzēst šo ierakstu - sazinieties ar Administratoru!'
+        throw new Error(userFriendlyMessage)
+      } else if (error.response?.status === 404) {
+        throw new Error('Ieraksts nav atrasts vai jau ir izdzēsts')
+      }
+      throw error
+    }
+  }
+
+  /**
    * Cache data for web platform
    */
   static async cacheDataForWeb<T>(key: string, data: T[]): Promise<void> {

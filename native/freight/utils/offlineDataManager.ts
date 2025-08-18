@@ -185,6 +185,10 @@ class OfflineDataManager {
     return this.routePageManager.getRoutePages()
   }
 
+  async deleteRoutePage(uid: string): Promise<void> {
+    return this.routePageManager.deleteRoutePage(uid)
+  }
+
   async checkRoutePageExists(truckId: string, date: string): Promise<TruckRoutePageDto | null> {
     return this.routePageManager.checkRoutePageExists(truckId, date)
   }
@@ -233,6 +237,9 @@ export const getRoutePoint = () => offlineDataManagerInstance.getRoutePoint()
 // Enhanced save functions with UUID generation
 export const saveTruckRouteLocally = (type: 'startRoute' | 'endRoute', data: TruckRouteDto) => offlineDataManagerInstance.saveTruckRouteLocally(type, data)
 export const updateTruckRouteLocally = (routeData: TruckRouteDto) => offlineDataManagerInstance.updateTruckRouteLocally(routeData)
+
+// Route page deletion function
+export const deleteRoutePage = (uid: string) => offlineDataManagerInstance.deleteRoutePage(uid)
 
 // Backward compatibility exports
 export const saveTruckRoute = (type: 'startRoute' | 'endRoute', data: TruckRouteDto) => offlineDataManagerInstance.saveTruckRoute(type, data)

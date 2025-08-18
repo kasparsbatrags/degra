@@ -1,5 +1,6 @@
 import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
+import usePlatform from '@/hooks/usePlatform'
 import {useRouter} from 'expo-router'
 import React, {useMemo, useState} from 'react'
 import {ActivityIndicator, ScrollView, Text, TouchableOpacity, View} from 'react-native'
@@ -20,10 +21,12 @@ interface RouteTableProps {
 	routes: TruckRoutePageDto[];
 	loading: boolean;
 	onRefresh?: () => void;
+	onDelete?: (uid: string) => Promise<void>;
+	deletingRoute?: string | null;
 }
 
 export const RouteTable: React.FC<RouteTableProps> = ({
-	routes, loading, onRefresh,
+	routes, loading, onRefresh, onDelete, deletingRoute = null
 }) => {
 	const {user} = useAuth()
 	const router = useRouter()
@@ -31,6 +34,20 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [currentPage, setCurrentPage] = useState(0)
 	const [itemsPerPage] = useState(10)
+	const { isWeb } = usePlatform()
+
+	// Delete handler with simple confirmation
+	const handleDeleteClick = (uid: string, e: any) => {
+		e.stopPropagation()
+
+		const confirmed = window.confirm(
+			'Vai esat pārliecināts, ka vēlaties dzēst šo maršruta lapu? Šo darbību nevar atsaukt.'
+		)
+
+		if (confirmed && onDelete) {
+			onDelete(uid)
+		}
+	}
 
 	// Sorting function
 	const sortedRoutes = useMemo(() => {
@@ -130,7 +147,7 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 				</View>)
 	}
 
-	if (routes.length === 0) {
+	if (routes.length === 0 && !isWeb) {
 		return (<View className="degra-content-section animated fadeIn" style={{alignItems: 'center', padding: 40}}>
 					<Text style={{
 						fontSize: 18, color: '#6b7280', textAlign: 'center', fontFamily: 'system-ui',
@@ -157,6 +174,7 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 				shadowRadius: 8,
 				elevation: 8,
 				marginBottom: 20,
+				alignItems: 'center',
 			}}>
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -253,7 +271,7 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 									Degvielas atlikums beigās{getSortIcon('fuelBalanceAtFinish')}
 								</Text>
 							</TouchableOpacity>
-							<View style={{width: 80, paddingHorizontal: 12}}>
+							<View style={{width: 120, paddingHorizontal: 12}}>
 								<Text style={{
 									fontWeight: '600', color: '#374151', fontSize: 14,
 								}}>
@@ -336,7 +354,7 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 											{formatNumber(route.fuelBalanceAtFinish)} L
 										</Text>
 									</View>
-									<View style={{width: 80, paddingHorizontal: 12, justifyContent: 'center'}}>
+									<View style={{width: 120, paddingHorizontal: 12, justifyContent: 'center', flexDirection: 'row', gap: 8}}>
 										<TouchableOpacity
 												style={{
 													backgroundColor: 'transparent',
@@ -354,6 +372,27 @@ export const RouteTable: React.FC<RouteTableProps> = ({
 										>
 											<Text style={{color: '#3b82f6', fontSize: 12}}>Skatīt</Text>
 										</TouchableOpacity>
+										
+										{onDelete && (
+											<TouchableOpacity
+													style={{
+														backgroundColor: 'transparent',
+														borderWidth: 1,
+														borderColor: '#dc2626',
+														borderRadius: 6,
+														paddingVertical: 4,
+														paddingHorizontal: 8,
+														alignItems: 'center',
+														opacity: deletingRoute === route.uid ? 0.5 : 1,
+													}}
+													onPress={(e) => handleDeleteClick(route.uid, e)}
+													disabled={deletingRoute === route.uid}
+											>
+												<Text style={{color: '#dc2626', fontSize: 12}}>
+													{deletingRoute === route.uid ? 'Dzēš...' : 'Dzēst'}
+												</Text>
+											</TouchableOpacity>
+										)}
 									</View>
 								</TouchableOpacity>))}
 					</View>

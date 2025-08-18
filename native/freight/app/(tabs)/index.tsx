@@ -4,7 +4,7 @@ import {useAuth} from '@/context/AuthContext'
 import {TruckRoutePageDto} from '@/dto/TruckRoutePageDto'
 import { useOnlineStatus } from '@/hooks/useNetwork'
 import { usePlatform } from '@/hooks/usePlatform'
-import {getRoutePages, downloadServerData, offlineDataManager} from '@/utils/offlineDataManager'
+import {getRoutePages, downloadServerData, offlineDataManager, deleteRoutePage} from '@/utils/offlineDataManager'
 import {startSessionTimeoutCheck, stopSessionTimeoutCheck} from '@/utils/sessionTimeoutHandler'
 import {isSessionActive} from '@/utils/sessionUtils'
 import {RoutePageDataManager} from '@/utils/data-managers/RoutePageDataManager'
@@ -28,6 +28,7 @@ export default function HomeScreen() {
 	const [buttonText, setButtonText] = useState('Starts')
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [statusCheckLoading, setStatusCheckLoading] = useState(false)
+	const [deletingRoute, setDeletingRoute] = useState<string | null>(null)
 
 	const isOnline = useOnlineStatus()
 
@@ -173,6 +174,31 @@ export default function HomeScreen() {
 		}
 	}
 
+	// Simple delete handler with refresh
+	const handleDeleteRoute = async (uid: string): Promise<void> => {
+		try {
+			setDeletingRoute(uid)
+			
+			// Delete on server using exported function
+			await deleteRoutePage(uid)
+			
+			// Success - refresh the entire list
+			alert('Maršruta lapa veiksmīgi izdzēsta')
+			setLoading(true)
+			fetchRoutes()
+			
+		} catch (error: any) {
+			console.error('Error deleting route page:', error)
+			
+			// Simple error alert
+			const errorMessage = error.message || 'Notika kļūda dzēšot maršruta lapu'
+			alert(`Kļūda: ${errorMessage}`)
+			
+		} finally {
+			setDeletingRoute(null)
+		}
+	}
+
 	// Fetch data when screen comes into focus
 	useFocusEffect(React.useCallback(() => {
 		// Check if redirection to login page is already in progress
@@ -211,6 +237,8 @@ export default function HomeScreen() {
 								fetchRoutes();
 								checkLastRouteStatus();
 							}}
+							onDelete={handleDeleteRoute}
+							deletingRoute={deletingRoute}
 						/>
 					</View>
 				</ScrollView>
