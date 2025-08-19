@@ -11,7 +11,7 @@ import {RoutePageDataManager} from '@/utils/data-managers/RoutePageDataManager'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import {useFocusEffect, useRouter} from 'expo-router'
 import React, {useCallback, useEffect, useState, useMemo} from 'react'
-import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, View, ViewStyle, Dimensions, ScrollView} from 'react-native'
+import {ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, ScrollView} from 'react-native'
 import {SafeAreaView} from 'react-native-safe-area-context'
 import Button from '../../components/Button'
 import ModernButton from '../../components/ModernButton'
@@ -226,7 +226,54 @@ export default function HomeScreen() {
 			>
 				<ScrollView style={{ flex: 1 }}>
 					<View className="degra-main-container">
-						{/* Header Section */}
+						{/* Action Area - New Route Button */}
+						<View style={{
+							backgroundColor: 'white',
+							borderRadius: 16,
+							padding: 24,
+							marginBottom: 24,
+							boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05)',
+							alignItems: 'center',
+						}}>
+							<TouchableOpacity
+								style={{
+									backgroundColor: '#3b82f6',
+									paddingVertical: 16,
+									paddingHorizontal: 32,
+									borderRadius: 12,
+									alignItems: 'center',
+									minWidth: 200,
+									shadowColor: '#3b82f6',
+									shadowOffset: { width: 0, height: 4 },
+									shadowOpacity: 0.3,
+									shadowRadius: 12,
+									elevation: 8,
+									opacity: statusCheckLoading ? 0.7 : 1,
+									transform: [{ scale: statusCheckLoading ? 0.98 : 1 }]
+								}}
+								onPress={() => {
+									router.push('/truck-route');
+								}}
+								disabled={statusCheckLoading}
+							>
+								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+									<MaterialIcons
+										name="add-circle"
+										size={24}
+										color="white"
+										style={{ marginRight: 8 }}
+									/>
+									<Text style={{
+										color: 'white',
+										fontSize: 18,
+										fontWeight: '700',
+										fontFamily: 'system-ui'
+									}}>
+										{statusCheckLoading ? 'Ielādē...' : 'Pievienot maršrutu lapu'}
+									</Text>
+								</View>
+							</TouchableOpacity>
+						</View>
 
 						{/* Routes Table */}
 						<RouteTable
