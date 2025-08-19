@@ -269,7 +269,7 @@ export default function HomeScreen() {
 										fontWeight: '700',
 										fontFamily: 'system-ui'
 									}}>
-										{statusCheckLoading ? 'Ielādē...' : 'Pievienot maršrutu lapu'}
+										{statusCheckLoading ? 'Ielādē...' : 'Pievienot maršrutu'}
 									</Text>
 								</View>
 							</TouchableOpacity>
